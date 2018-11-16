@@ -1,4 +1,4 @@
-# kubecost-quickstart
+# cost-analyzer helm chart
 Quickly install kube-state-metrics, prometheus, and grafana on your cluster with helm. Requires a helm installation.
 
 > kubectl apply -f helm.yaml 
