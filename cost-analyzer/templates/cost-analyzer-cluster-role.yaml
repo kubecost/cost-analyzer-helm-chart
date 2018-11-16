@@ -1,0 +1,44 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# kubernetes versions before 1.8.0 should use rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: cost-analyzer
+rules:
+- apiGroups: [""]
+  resources:
+  - configmaps
+  - secrets
+  - nodes
+  - pods
+  - services
+  - resourcequotas
+  - replicationcontrollers
+  - limitranges
+  - persistentvolumeclaims
+  - persistentvolumes
+  - namespaces
+  - endpoints
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["extensions"]
+  resources:
+  - daemonsets
+  - deployments
+  - replicasets
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  verbs: ["list", "watch"]
+- apiGroups: ["batch"]
+  resources:
+  - cronjobs
+  - jobs
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["autoscaling"]
+  resources:
+  - horizontalpodautoscalers
+  verbs: ["get","list", "watch"]
+- apiGroups: ["policy"]
+  resources:
+  - poddisruptionbudgets
+  verbs: ["get", "list", "watch"]

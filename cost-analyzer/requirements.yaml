@@ -1,0 +1,4 @@
+dependencies:
+  - name: prometheus
+    repository: https://kubernetes-charts.storage.googleapis.com/
+    version: "7.X.X"
