@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}
+  labels:
+    app: cost-analyzer
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: cost-analyzer
+    spec:
+      restartPolicy: Always
+      serviceAccountName: cost-analyzer
+      containers:
+        - image: 'ajaytripathy/kubecost:latest'
+          name: cost-analyzer-server
+          resources:
+            requests:
+              cpu: 20m
+              memory: 55M
+          imagePullPolicy: Always
+      imagePullSecrets:
+        - name: regcred

@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    app: cost-analyzer
+  type: ClusterIP
+  ports:
+    - name: cost-analyzer-server
+      port: 9001
+      targetPort: 9001
