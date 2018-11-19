@@ -17,10 +17,16 @@ spec:
         app: cost-analyzer
     spec:
       restartPolicy: Always
-      serviceAccountName: cost-analyzer
+      serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       containers:
         - image: 'ajaytripathy/kubecost:latest'
           name: cost-analyzer-server
+          env:
+            - name: PROMETHEUS_SERVER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: prometheus-server-endpoint
           resources:
             requests:
               cpu: 20m

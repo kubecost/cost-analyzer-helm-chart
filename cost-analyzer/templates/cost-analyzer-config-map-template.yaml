@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}
+  labels:
+    app: cost-analyzer
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+data:
+  {{- if .Values.prometheus.enabled }}
+    prometheus-server-endpoint: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
+  {{- else -}}
+    prometheus-server-endpoint: {{ .Values.prometheus.fqdn }}
+  {{- end -}}

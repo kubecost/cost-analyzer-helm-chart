@@ -1,0 +1,5 @@
+prometheus:
+  enabled: true
+  fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local
+grafana:
+  enabled: true
