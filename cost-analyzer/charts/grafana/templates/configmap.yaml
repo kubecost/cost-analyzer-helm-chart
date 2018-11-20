@@ -25,12 +25,18 @@ data:
 {{ toYaml $value | trim | indent 4 }}
   {{- end -}}
 {{- end -}}
-{{- if .Values.installPrometheus }}
+{{- if .Values.global.prometheus.enabled }}
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
+{{ else }}
+    - access: proxy
+      isDefault: true
+      name: Prometheus
+      type: prometheus
+      url: {{ .Values.global.prometheus.fqdn }}
 {{- end -}}
 
 {{- if .Values.dashboardProviders }}

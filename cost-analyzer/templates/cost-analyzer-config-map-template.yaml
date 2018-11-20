@@ -6,8 +6,8 @@ metadata:
     app: cost-analyzer
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 data:
-  {{- if .Values.prometheus.enabled }}
+  {{- if .Values.global.prometheus.enabled }}
     prometheus-server-endpoint: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
-  {{- else -}}
-    prometheus-server-endpoint: {{ .Values.prometheus.fqdn }}
+  {{ else }}
+    prometheus-server-endpoint: {{ .Values.global.prometheus.fqdn }}
   {{- end -}}

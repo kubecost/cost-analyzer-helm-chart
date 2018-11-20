@@ -151,8 +151,6 @@ datasources:
       access: proxy
       isDefault: false
 
-installPrometheus: true
-
 ## Configure grafana dashboard providers
 ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
 ##
