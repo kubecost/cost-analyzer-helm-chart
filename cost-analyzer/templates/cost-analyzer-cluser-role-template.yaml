@@ -9,6 +9,7 @@ rules:
       - ''
     resources:
       - configmaps
+      - deployments
       - secrets
       - nodes
       - pods
@@ -38,6 +39,7 @@ rules:
       - apps
     resources:
       - statefulsets
+      - deployments
     verbs:
       - list
       - watch

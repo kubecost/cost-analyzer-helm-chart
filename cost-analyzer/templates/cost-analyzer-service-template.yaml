@@ -12,3 +12,6 @@ spec:
     - name: cost-analyzer-server
       port: 9001
       targetPort: 9001
+    - name: cost-analyzer-frontend
+      port: 9090
+      targetPort: 9090

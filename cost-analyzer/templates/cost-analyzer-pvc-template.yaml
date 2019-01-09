@@ -1,0 +1,10 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 0.2Gi

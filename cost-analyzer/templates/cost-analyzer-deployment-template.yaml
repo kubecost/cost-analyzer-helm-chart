@@ -18,15 +18,44 @@ spec:
     spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
+      volumes:
+        - name: service-key
+          secret:
+            secretName: kubecost-gcp-service-account-key
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+            items:
+              - key: nginx.conf
+                path: default.conf
+        - name: persistent-configs
+          persistentVolumeClaim: 
+            claimName: {{ template "cost-analyzer.fullname" . }}
       containers:
+        - image: ajaytripathy/kubecost-frontend:latest
+          name: cost-analyzer-frontend
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/
+          resources:
+            requests:
+              cpu: "20m"
+              memory: "55M"
         - image: 'ajaytripathy/kubecost:latest'
           name: cost-analyzer-server
+          volumeMounts:
+            - name: service-key
+              mountPath: /var/secrets/google
+            - name: persistent-configs
+              mountPath: /var/configs
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/configs/key.json
           resources:
             requests:
               cpu: 20m
