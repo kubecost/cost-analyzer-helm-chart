@@ -41,6 +41,7 @@ rules:
       - statefulsets
       - deployments
       - daemonsets
+      - replicasets
     verbs:
       - list
       - watch
@@ -65,6 +66,14 @@ rules:
       - policy
     resources:
       - poddisruptionbudgets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups: 
+      - storage.k8s.io
+    resources: 
+      - storageclasses
     verbs:
       - get
       - list
