@@ -41,8 +41,6 @@ spec:
         - image: 'ajaytripathy/kubecost:latest'
           name: cost-analyzer-server
           volumeMounts:
-            - name: service-key
-              mountPath: /var/secrets/google
             - name: persistent-configs
               mountPath: /var/configs
           env:
