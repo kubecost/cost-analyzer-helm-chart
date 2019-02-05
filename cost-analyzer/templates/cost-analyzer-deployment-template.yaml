@@ -19,9 +19,6 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       volumes:
-        - name: service-key
-          secret:
-            secretName: kubecost-gcp-service-account-key
         - name: nginx-conf
           configMap:
             name: nginx-conf
