@@ -1,1 +1,9 @@
-The Cost Analyzer has been installed. Check it out! kubectl port-forward --namespace monitoring deployment/cost-analyzer 9090. Then, navigate to app.kubemonitor.com
+
+
+--------------------------------------------------
+
+The Cost Analyzer has been successfully installed. Load it with the following steps:
+    
+    kubectl port-forward --namespace monitoring deployment/cost-analyzer 9090
+    
+Next, navigate to http://app.kubemonitor.com in a web browser
