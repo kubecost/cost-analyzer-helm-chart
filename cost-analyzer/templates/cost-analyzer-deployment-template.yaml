@@ -36,7 +36,7 @@ spec:
               mountPath: /etc/nginx/conf.d/
           resources:
             requests:
-              cpu: "20m"
+              cpu: "10m"
               memory: "55M"
         - image: 'ajaytripathy/kubecost:latest'
           name: cost-analyzer-server
@@ -53,7 +53,7 @@ spec:
               value: /var/configs/key.json
           resources:
             requests:
-              cpu: 20m
+              cpu: 10m
               memory: 55M
           imagePullPolicy: Always
       imagePullSecrets:
