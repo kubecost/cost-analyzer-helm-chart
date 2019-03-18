@@ -1,0 +1,25 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cost-analyzer-checks
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: cost-analyzer-checks
+            image: ajaytripathy/kubecost-checks:latest
+            args:
+            - node
+            - ./node/cron.js
+            env:
+            - name: COST_ANALYZER_SERVER_ENDPOINT
+              value: {{ .Release.Name }}.{{ .Release.Namespace  }}.svc.cluster.local:9001
+            - name: PROMETHEUS_ALERTMANAGER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: prometheus-alertmanager-endpoint
+          restartPolicy: OnFailure

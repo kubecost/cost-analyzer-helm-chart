@@ -16,3 +16,8 @@ data:
   {{ else }}
     prometheus-server-endpoint: {{ .Values.global.prometheus.fqdn }}
   {{- end -}}
+  {{- if .Values.kubecostToken }}
+    kubecost-token: {{ .Values.kubecostToken }}
+  {{ else }}
+    kubecost-token: not-applied
+  {{- end -}}

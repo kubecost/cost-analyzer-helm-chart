@@ -835,7 +835,14 @@ serverFiles:
   #           description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.'
   #           summary: 'Instance {{ $labels.instance }} down'
 
-  rules: {}
+  rules:
+    groups:
+      - name: CPU
+        rules:
+          - expr: sum(rate(container_cpu_usage_seconds_total{container_name!=""}[5m]))
+            record: cluster:cpu_usage:rate5m
+          - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
+            record: cluster:cpu_usage_nosum:rate5m
 
   prometheus.yml:
     rule_files:
