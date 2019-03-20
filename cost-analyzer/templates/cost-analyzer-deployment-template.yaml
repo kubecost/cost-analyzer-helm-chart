@@ -15,6 +15,11 @@ spec:
     metadata:
       labels:
         app: cost-analyzer
+{{- if .Values.podAnnotations}}
+       annotations:
+{{- with .Values.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
