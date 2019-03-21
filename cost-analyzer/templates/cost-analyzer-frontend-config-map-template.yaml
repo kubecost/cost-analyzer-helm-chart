@@ -12,7 +12,7 @@ data:
 
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
-        server {{ template "grafana.fullname" . }}-grafana.{{ .Release.Namespace }};
+        server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
 {{ else }}
         server {{.Values.global.grafana.domainName}};
 {{ end }}
