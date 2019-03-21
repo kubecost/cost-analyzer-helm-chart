@@ -12,3 +12,5 @@ global:
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # Allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if prometheus.enabled: true
+  podAnnotations: {}
+    # iam.amazonaws.com/role: role-arn
