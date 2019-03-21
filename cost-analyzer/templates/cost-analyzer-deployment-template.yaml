@@ -16,7 +16,7 @@ spec:
       labels:
         app: cost-analyzer
 {{- if .Values.podAnnotations}}
-       annotations:
+      annotations:
 {{- with .Values.podAnnotations }}
 {{ toYaml . | indent 8 }}
 {{- end }}
