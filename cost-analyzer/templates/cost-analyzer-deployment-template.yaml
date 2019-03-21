@@ -15,10 +15,11 @@ spec:
     metadata:
       labels:
         app: cost-analyzer
-{{- if .Values.podAnnotations}}
+{{- if .Values.global.podAnnotations}}
       annotations:
-{{- with .Values.podAnnotations }}
+{{- with .Values.global.podAnnotations }}
 {{ toYaml . | indent 8 }}
+{{- end }}
 {{- end }}
     spec:
       restartPolicy: Always
