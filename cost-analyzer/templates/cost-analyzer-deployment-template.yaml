@@ -35,7 +35,7 @@ spec:
           persistentVolumeClaim: 
             claimName: {{ template "cost-analyzer.fullname" . }}
       containers:
-        - image: ajaytripathy/kubecost-frontend:latest
+        - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.Version }}
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
@@ -44,7 +44,7 @@ spec:
             requests:
               cpu: "10m"
               memory: "55M"
-        - image: 'ajaytripathy/kubecost:latest'
+        - image: 'ajaytripathy/kubecost:prod-{{ $.Chart.Version }}'
           name: cost-analyzer-server
           volumeMounts:
             - name: persistent-configs
@@ -55,6 +55,26 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/configs/key.json
+            - name: KUBECOST_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: kubecost-token
+        - image: 'ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}'
+          name: cost-model
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+          env:
+            - name: PROMETHEUS_SERVER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: prometheus-server-endpoint
+            - name: CLOUD_PROVIDER_API_KEY
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             - name: KUBECOST_TOKEN

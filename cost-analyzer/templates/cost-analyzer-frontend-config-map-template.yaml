@@ -10,6 +10,10 @@ data:
         server {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace }}:9001;
     }
 
+    upstream model {
+        server {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace }}:9003;
+    }
+
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
@@ -25,6 +29,14 @@ data:
         index index.html;
         location /api/ {
             proxy_pass http://api/;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /model/ {
+            proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
