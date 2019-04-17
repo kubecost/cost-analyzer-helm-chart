@@ -62,7 +62,7 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-        - image: 'ajaytripathy/kubecost-cost-model:testm5'
+        - image: 'ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}'
           name: cost-model
           volumeMounts:
             - name: persistent-configs
