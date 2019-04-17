@@ -4,6 +4,6 @@
 
 The Cost Analyzer has been successfully installed. Load it with the following steps:
     
-    kubectl port-forward --namespace {{ .Release.Namespace }} deployment/cost-analyzer 9090
+    kubectl port-forward --namespace {{ .Release.Namespace }} deployment/{{ template "cost-analyzer.fullname" . }} 9090
     
 Next, navigate to http://localhost:9090 in a web browser
