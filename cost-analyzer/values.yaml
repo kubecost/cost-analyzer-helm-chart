@@ -1,7 +1,7 @@
 global:
   prometheus:
     enabled: true
-    fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.loca #example fqdn. Ignored if enabled: true
+    fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
   grafana:
     enabled: true
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
