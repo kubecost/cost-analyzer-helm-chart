@@ -1,0 +1,18 @@
+# Restrict Kubecost egress traffic to pods in the cluster
+
+{{- if .Values.networkPolicy.enabled -}}
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: deny-egress
+  namespace: kubecost
+spec:
+  podSelector: {}
+  policyTypes:
+  - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
+
+{{- end -}}
