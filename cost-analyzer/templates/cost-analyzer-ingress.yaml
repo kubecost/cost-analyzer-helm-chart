@@ -1,0 +1,29 @@
+{{- if .Values.ingress.enabled -}}
+
+apiVersion: v1
+data:
+  auth: YWRtaW46JGFwcjEkZ2tJenJxU2ckMWx3RUpFN1lFcTlzR0FNN1VtR1djMAo= # default is admin : admin
+kind: Secret
+metadata:
+  creationTimestamp: "2019-04-26T23:36:47Z"
+  name: kubecost-auth
+  namespace: kubecost
+type: Opaque
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubecost-ingress
+  namespace: kubecost
+  labels:
+    app: kubecost
+  annotations:
+     nginx.ingress.kubernetes.io/auth-type: basic
+     nginx.ingress.kubernetes.io/auth-secret: kubecost-auth
+     nginx.ingress.kubernetes.io/auth-realm: "Authentication Required - ok"
+spec:
+  backend:
+    serviceName: kubecost-cost-analyzer
+    servicePort: 9090
+
+{{- end }}
