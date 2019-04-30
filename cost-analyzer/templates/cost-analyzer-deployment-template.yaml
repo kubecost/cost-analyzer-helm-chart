@@ -45,6 +45,10 @@ spec:
               cpu: "10m"
               memory: "55M"
         - image: 'ajaytripathy/kubecost:prod-{{ $.Chart.Version }}'
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "55M"
           name: cost-analyzer-server
           volumeMounts:
             - name: persistent-configs
@@ -64,6 +68,13 @@ spec:
                   key: kubecost-token
         - image: 'ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}'
           name: cost-model
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            failureThreshold: 10
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
@@ -84,8 +95,8 @@ spec:
                   key: kubecost-token
           resources:
             requests:
-              cpu: 10m
-              memory: 55M
+              cpu: "10m"
+              memory: "55M"
           imagePullPolicy: Always
       imagePullSecrets:
         - name: regcred
