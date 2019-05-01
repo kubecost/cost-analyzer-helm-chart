@@ -14,6 +14,13 @@ spec:
             args:
             - node
             - ./node/cron.js
+            resources:
+              requests:
+                cpu: "20m"
+                memory: "100Mi"
+              limits:
+                cpu: "100m"
+                memory: "200Mi"
             env:
             - name: COST_ANALYZER_SERVER_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9001
