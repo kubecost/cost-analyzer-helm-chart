@@ -100,6 +100,8 @@ spec:
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
+            - name: CONFIG_PATH
+              value: /var/configs/
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
