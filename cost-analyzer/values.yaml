@@ -1,10 +1,13 @@
 global:
+
   prometheus:
     enabled: true
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
+
   grafana:
     enabled: true
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
+
   notifications:
     slack: # Write to a webhook.
       enabled: false # Allow kubecost to write to your slackbot.
@@ -12,5 +15,10 @@ global:
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # Allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if prometheus.enabled: true
+
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+
+# If true, enable creation of NetworkPolicy resources.
+networkPolicy:
+  enabled: false
