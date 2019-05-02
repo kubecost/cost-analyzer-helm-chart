@@ -19,6 +19,6 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
-  # If true, enable creation of NetworkPolicy resources.
-  networkPolicy:
-    enabled: false
+# If true, enable creation of NetworkPolicy resources.
+networkPolicy:
+  enabled: false
