@@ -4,7 +4,9 @@ kind: NetworkPolicy
 metadata:
   name: deny-egress
 spec:
-  podSelector: {}
+  podSelector:
+    matchLabels:
+      app: cost-analyzer
   policyTypes:
   - Egress
   egress:
