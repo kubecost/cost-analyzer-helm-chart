@@ -111,5 +111,3 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
           imagePullPolicy: Always
-      imagePullSecrets:
-        - name: regcred
