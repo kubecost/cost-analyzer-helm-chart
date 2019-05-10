@@ -38,7 +38,7 @@ spec:
           persistentVolumeClaim: 
             claimName: {{ template "cost-analyzer.fullname" . }}
       containers:
-        - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.Version }}
+        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.Version }}
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
@@ -50,7 +50,7 @@ spec:
             limits:
               cpu: "100m"
               memory: "256Mi"
-        - image: 'ajaytripathy/kubecost:prod-{{ $.Chart.Version }}'
+        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.Version }}
           resources:
             requests:
               cpu: "10m"
@@ -75,7 +75,7 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-        - image: 'ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}'
+        - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.Version }}
           name: cost-model
           requests:
             cpu: "10m"

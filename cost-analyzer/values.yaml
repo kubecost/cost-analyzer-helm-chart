@@ -19,6 +19,18 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
+kubecostChecks:
+  image: "ajaytripathy/kubecost-checks"
+
+kubecostFrontend:
+  image: "ajaytripathy/kubecost-frontend"
+
+kubecost:
+  image: "ajaytripathy/kubecost"
+
+kubecostModel:
+  image: "ajaytripathy/kubecost-cost-model"
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
