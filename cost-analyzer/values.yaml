@@ -1,7 +1,6 @@
 global:
 
   prometheus:
-    
     enabled: true
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
