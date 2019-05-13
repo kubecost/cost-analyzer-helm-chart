@@ -1,4 +1,4 @@
-appVersion: 2.5.0
+appVersion: 2.9.2
 description: Prometheus is a monitoring system and time series database.
 engine: gotpl
 home: https://prometheus.io/
@@ -16,4 +16,4 @@ sources:
 - https://github.com/prometheus/node_exporter
 - https://github.com/kubernetes/kube-state-metrics
 tillerVersion: '>=2.8.0'
-version: 7.4.1
+version: 8.11.0

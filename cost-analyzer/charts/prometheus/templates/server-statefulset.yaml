@@ -1,23 +1,21 @@
-{{- if not .Values.server.statefulSet.enabled -}}
-apiVersion: extensions/v1beta1
-kind: Deployment
+{{- if .Values.server.statefulSet.enabled -}}
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-{{- if .Values.server.deploymentAnnotations }}
+{{- if .Values.server.statefulSet.annotations }}
   annotations:
-{{ toYaml .Values.server.deploymentAnnotations | indent 4 }}
+{{ toYaml .Values.server.statefulSet.annotations | indent 4 }}
 {{- end }}
   labels:
     {{- include "prometheus.server.labels" . | nindent 4 }}
   name: {{ template "prometheus.server.fullname" . }}
 spec:
+  serviceName: {{ template "prometheus.server.fullname" . }}-headless
   selector:
     matchLabels:
       {{- include "prometheus.server.matchLabels" . | nindent 6 }}
   replicas: {{ .Values.server.replicaCount }}
-  {{- if .Values.server.strategy }}
-  strategy:
-{{ toYaml .Values.server.strategy | indent 4 }}
-  {{- end }}
+  podManagementPolicy: {{ .Values.server.statefulSet.podManagementPolicy }}
   template:
     metadata:
     {{- if .Values.server.podAnnotations }}
@@ -27,6 +25,10 @@ spec:
       labels:
         {{- include "prometheus.server.labels" . | nindent 8 }}
     spec:
+{{- if .Values.server.affinity }}
+      affinity:
+{{ toYaml .Values.server.affinity | indent 8 }}
+{{- end }}
 {{- if .Values.server.priorityClassName }}
       priorityClassName: "{{ .Values.server.priorityClassName }}"
 {{- end }}
@@ -73,14 +75,9 @@ spec:
               subPath: {{ .subPath }}
               readOnly: {{ .readOnly }}
           {{- end }}
-
         - name: {{ template "prometheus.name" . }}-{{ .Values.server.name }}
           image: "{{ .Values.server.image.repository }}:{{ .Values.server.image.tag }}"
           imagePullPolicy: "{{ .Values.server.image.pullPolicy }}"
-          {{- if .Values.server.env }}
-          env:
-{{ toYaml .Values.server.env | indent 12}}
-          {{- end }}
           args:
           {{- if .Values.server.retention }}
             - --storage.tsdb.retention.time={{ .Values.server.retention }}
@@ -143,12 +140,11 @@ spec:
               readOnly: {{ .readOnly }}
           {{- end }}
           {{- if .Values.server.extraVolumeMounts }}
-            {{ toYaml .Values.server.extraVolumeMounts | nindent 12 }}
+          {{ toYaml .Values.server.extraVolumeMounts | nindent 12 }}
           {{- end }}
-      {{- if .Values.server.sidecarContainers }}
-      {{- toYaml .Values.server.sidecarContainers | nindent 8 }}
-      {{- end }}
-
+       {{- if .Values.server.sidecarContainers }}
+       {{- toYaml .Values.server.sidecarContainers | nindent 8 }}
+       {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
        {{ toYaml .Values.imagePullSecrets | indent 2 }}
@@ -174,16 +170,6 @@ spec:
         - name: config-volume
           configMap:
             name: {{ if .Values.server.configMapOverrideName }}{{ .Release.Name }}-{{ .Values.server.configMapOverrideName }}{{- else }}{{ template "prometheus.server.fullname" . }}{{- end }}
-        - name: storage-volume
-        {{- if .Values.server.persistentVolume.enabled }}
-          persistentVolumeClaim:
-            claimName: {{ if .Values.server.persistentVolume.existingClaim }}{{ .Values.server.persistentVolume.existingClaim }}{{- else }}{{ template "prometheus.server.fullname" . }}{{- end }}
-        {{- else }}
-          emptyDir: {}
-        {{- end -}}
-{{- if .Values.server.extraVolumes }}
-{{ toYaml .Values.server.extraVolumes | indent 8}}
-{{- end }}
       {{- range .Values.server.extraHostPathMounts }}
         - name: {{ .name }}
           hostPath:
@@ -209,4 +195,32 @@ spec:
           configMap:
             name: {{ .configMap }}
       {{- end }}
-{{- end -}}
+{{- if .Values.server.extraVolumes }}
+{{ toYaml .Values.server.extraVolumes | indent 8}}
+{{- end }}
+{{- if .Values.server.persistentVolume.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: storage-volume
+        {{- if .Values.server.persistentVolume.annotations }}
+        annotations:
+{{ toYaml .Values.server.persistentVolume.annotations | indent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+{{ toYaml .Values.server.persistentVolume.accessModes | indent 10 }}
+        resources:
+          requests:
+            storage: "{{ .Values.server.persistentVolume.size }}"
+      {{- if .Values.server.persistentVolume.storageClass }}
+      {{- if (eq "-" .Values.server.persistentVolume.storageClass) }}
+        storageClassName: ""
+      {{- else }}
+        storageClassName: "{{ .Values.server.persistentVolume.storageClass }}"
+      {{- end }}
+      {{- end }}
+{{- else }}
+        - name: storage-volume
+          emptyDir: {}
+{{- end }}
+{{- end }}

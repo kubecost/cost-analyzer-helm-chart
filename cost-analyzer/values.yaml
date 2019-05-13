@@ -34,3 +34,28 @@ kubecostModel:
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
+
+prometheus:
+  extraScrapeConfigs: |
+    - job_name: kubecost
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 10s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - kubecost-cost-analyzer
+        type: 'A'
+        port: 9003
+
+  serverFiles:
+    rules:
+      groups:
+        - name: CPU
+          rules:
+            - expr: sum(rate(container_cpu_usage_seconds_total{container_name!=""}[5m]))
+              record: cluster:cpu_usage:rate5m
+            - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
+              record: cluster:cpu_usage_nosum:rate5m
+
