@@ -1,11 +1,11 @@
 global:
 
   prometheus:
-    enabled: true
+    enabled: true # If false, Prometheus will not be installed
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
   grafana:
-    enabled: true
+    enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
 
   notifications:
@@ -13,7 +13,7 @@ global:
       enabled: false # Allow kubecost to write to your slackbot.
       webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # Example Webhook
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
-      enabled: false # Allow kubecost to write to your alertmanager
+      enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if prometheus.enabled: true
 
   podAnnotations: {}
