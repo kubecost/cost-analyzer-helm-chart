@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-utilization-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+    cluster-utilization.json: |-
+{{ .Files.Get "cluster-utilization.json" | indent 8 }}
