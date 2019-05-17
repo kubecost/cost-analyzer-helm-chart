@@ -89,12 +89,13 @@ spec:
         - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}
         {{ end }}
           name: cost-model
-          requests:
-            cpu: "10m"
-            memory: "55Mi"
-          limits:
-            cpu: "800m"
-            memory: "256Mi"
+          resources:
+            requests:
+              cpu: "10m"
+              memory: "55Mi"
+            limits:
+              cpu: "800m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /healthz
