@@ -54,6 +54,13 @@ spec:
             limits:
               cpu: "100m"
               memory: "256Mi"
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
         {{- if .Values.kubecost }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.Version }}
         {{- else }}
