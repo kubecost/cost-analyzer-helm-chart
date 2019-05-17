@@ -54,13 +54,6 @@ spec:
             limits:
               cpu: "100m"
               memory: "256Mi"
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
         {{- if .Values.kubecost }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.Version }}
         {{- else }}
@@ -96,20 +89,19 @@ spec:
         - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}
         {{ end }}
           name: cost-model
-          resources:
-            requests:
-              cpu: "10m"
-              memory: "55Mi"
-            limits:
-              cpu: "800m"
-              memory: "256Mi"
+          requests:
+            cpu: "10m"
+            memory: "55Mi"
+          limits:
+            cpu: "800m"
+            memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 30
+            initialDelaySeconds: 3
             periodSeconds: 10
-            failureThreshold: 200
+            failureThreshold: 20
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
