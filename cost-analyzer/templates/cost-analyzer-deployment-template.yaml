@@ -65,8 +65,8 @@ spec:
               cpu: "10m"
               memory: "55Mi"
             limits:
-              cpu: "1000m"
-              memory: "2560Mi"
+              cpu: "100m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /healthz
@@ -84,8 +84,8 @@ spec:
               cpu: "10m"
               memory: "55Mi"
             limits:
-              cpu: "1000m"
-              memory: "2560Mi"
+              cpu: "100m"
+              memory: "256Mi"
           name: cost-analyzer-server
           readinessProbe:
             httpGet:
@@ -121,8 +121,8 @@ spec:
               cpu: "10m"
               memory: "55Mi"
             limits:
-              cpu: "1000m"
-              memory: "2560Mi"
+              cpu: "100m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /healthz
