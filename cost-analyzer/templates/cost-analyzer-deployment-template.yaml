@@ -37,6 +37,19 @@ spec:
         - name: persistent-configs
           persistentVolumeClaim: 
             claimName: {{ template "cost-analyzer.fullname" . }}
+      initContainers:
+        {{- if .Values.kubecostInit }}
+        - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.Version }}
+        {{- else }}
+        - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.Version }}
+        {{ end }}
+          name: cost-analyzer-init
+          env:
+            - name: PROMETHEUS_SERVER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: prometheus-server-endpoint
       containers:
         {{- if .Values.kubecostFrontend }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.Version }}
@@ -114,9 +127,9 @@ spec:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 3
+            initialDelaySeconds: 30
             periodSeconds: 10
-            failureThreshold: 20
+            failureThreshold: 200
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs

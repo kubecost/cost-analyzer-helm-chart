@@ -31,6 +31,9 @@ kubecost:
 kubecostModel:
   image: "ajaytripathy/kubecost-cost-model"
 
+kubecostInit:
+  image: "ajaytripathy/kubecost-init"
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
