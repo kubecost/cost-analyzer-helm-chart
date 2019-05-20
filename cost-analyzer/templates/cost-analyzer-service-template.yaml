@@ -9,12 +9,12 @@ spec:
     app: cost-analyzer
   type: ClusterIP
   ports:
-    - name: cost-analyzer-server
+    - name: server
       port: 9001
       targetPort: 9001
-    - name: cost-analyzer-model
+    - name: model
       port: 9003
       targetPort: 9003
-    - name: cost-analyzer-frontend
+    - name: frontend
       port: 9090
       targetPort: 9090
