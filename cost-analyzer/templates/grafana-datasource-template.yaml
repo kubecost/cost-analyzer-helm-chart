@@ -1,3 +1,7 @@
+{{- if .Values.grafana -}}
+{{- if .Values.grafana.sidecar -}}
+{{- if .Values.grafana.datasources -}}
+{{- if .Values.grafana.datasources.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,4 +21,8 @@ data:
       url: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
 {{ else }}
       url: {{ .Values.global.prometheus.fqdn }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}

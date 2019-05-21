@@ -1,3 +1,7 @@
+{{- if .Values.grafana -}}
+{{- if .Values.grafana.sidecar -}}
+{{- if .Values.grafana.dashboards -}}
+{{- if .Values.grafana.dashboards.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,3 +11,7 @@ metadata:
 data:
     pod-utilization.json: |-
 {{ .Files.Get "pod-utilization.json" | indent 8 }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
