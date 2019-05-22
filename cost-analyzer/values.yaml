@@ -5,8 +5,10 @@ global:
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
   grafana:
-    enabled: true # If false, Grafana will not be installed
+    enabled: false # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
+    proxy: false # If true, the kubecost frontend will route to your grafana through its service endpoint
+    
 
   notifications:
     slack: # Write to a webhook.

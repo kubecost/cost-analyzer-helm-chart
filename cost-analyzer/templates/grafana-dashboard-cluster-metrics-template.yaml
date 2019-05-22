@@ -1,7 +1,7 @@
 {{- if .Values.grafana -}}
 {{- if .Values.grafana.sidecar -}}
-{{- if .Values.grafana.dashboards -}}
-{{- if .Values.grafana.dashboards.enabled -}}
+{{- if .Values.grafana.sidecar.dashboards -}}
+{{- if .Values.grafana.sidecar.dashboards.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -15,3 +15,5 @@ data:
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+
