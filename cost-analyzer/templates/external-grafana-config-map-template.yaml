@@ -1,0 +1,8 @@
+{{- if eq .Values.global.grafana.proxy false -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: external-grafana-config-map
+data:
+    grafanaURL: {{ .Values.global.grafana.domainName }}
+{{- end -}}
