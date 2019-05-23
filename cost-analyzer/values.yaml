@@ -9,7 +9,6 @@ global:
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
     
-
   notifications:
     slack: # Write to a webhook.
       enabled: false # Allow kubecost to write to your slackbot.
