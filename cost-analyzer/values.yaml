@@ -7,8 +7,8 @@ global:
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
-    scheme: "http" # http or https
-    proxy: false # If true, the kubecost frontend will route to your grafana through its service endpoint
+    scheme: "http" # http or https, for the domain name above.
+    proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
     
   notifications:
     slack: # Write to a webhook.
@@ -69,4 +69,9 @@ grafana:
       enabled: true 
     datasources:
       enabled: true
+
+prometheus:
+  server:
+    persistentVolume:
+      size: 32Gi
 
