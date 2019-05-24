@@ -7,7 +7,9 @@ global:
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
-
+    scheme: "http" # http or https, for the domain name above.
+    proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
+    
   notifications:
     slack: # Write to a webhook.
       enabled: false # Allow kubecost to write to your slackbot.
@@ -64,6 +66,9 @@ prometheus:
         - kubecost-cost-analyzer
         type: 'A'
         port: 9003
+  server:
+    persistentVolume:
+      size: 32Gi
 
   serverFiles:
     rules:
@@ -80,4 +85,3 @@ grafana:
       enabled: true 
     datasources:
       enabled: true
-

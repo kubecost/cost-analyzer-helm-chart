@@ -14,6 +14,7 @@ data:
         server {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace }}:9003;
     }
 
+{{- if .Values.global.grafana.proxy }}
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
@@ -21,6 +22,7 @@ data:
         server {{.Values.global.grafana.domainName}};
 {{ end }}
     }
+{{ end }}
 
     server {
         listen 9090;
@@ -45,6 +47,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+{{- if .Values.global.grafana.proxy }}
         location /grafana/ {
             proxy_pass http://grafana/;
             proxy_redirect off;
@@ -53,4 +56,5 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+{{ end }}
     }
