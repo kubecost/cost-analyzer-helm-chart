@@ -53,6 +53,9 @@ prometheus:
         - kubecost-cost-analyzer
         type: 'A'
         port: 9003
+  server:
+    persistentVolume:
+      size: 32Gi
 
   serverFiles:
     rules:
@@ -69,9 +72,3 @@ grafana:
       enabled: true 
     datasources:
       enabled: true
-
-prometheus:
-  server:
-    persistentVolume:
-      size: 32Gi
-
