@@ -1,3 +1,4 @@
+{{- if .Values.ingress -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
@@ -37,4 +38,5 @@ spec:
               servicePort: frontend
 	{{- end }}
   {{- end }}
+{{- end }}
 {{- end }}
