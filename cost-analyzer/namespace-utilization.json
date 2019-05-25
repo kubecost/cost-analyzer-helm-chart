@@ -635,7 +635,7 @@
 			"steppedLine":true,
 			"targets":[
 				{
-					"expr":"sum (container_memory_working_set_bytes{namespace=\"$namespace\"})\n/\nsum(node_memory_MemTotal_bytes) by (namespace) * 100",
+					"expr":"sum (container_memory_working_set_bytes{namespace=\"$namespace\"})\n/\nsum(node_memory_MemTotal_bytes) * 100",
 					"format":"time_series",
 					"instant":false,
 					"intervalFactor":1,
