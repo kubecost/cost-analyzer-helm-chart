@@ -729,7 +729,7 @@
 	"style":"dark",
 	"tags":[  
 		"cost",
-		"utilisation",
+		"utilization",
 		"metrics"
 	],
 	"templating":{  

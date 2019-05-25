@@ -1277,7 +1277,7 @@
                     "unit":"currencyUSD"
                 },
                 {  
-                    "alias":"CPU Utilisation",
+                    "alias":"CPU Utilization",
                     "colorMode":"value",
                     "colors":[  
                         "#bf1b00",
@@ -1296,7 +1296,7 @@
                     "unit":"percent"
                 },
                 {  
-                    "alias":"RAM Utilisation",
+                    "alias":"RAM Utilization",
                     "colorMode":"value",
                     "colors":[  
                         "rgba(245, 54, 54, 0.9)",
@@ -3284,9 +3284,8 @@
     "style":"dark",
     "tags":[  
         "cost",
-        "utilisation",
-        "metrics",
-        "utilization"
+        "utilization",
+        "metrics"
     ],
     "templating":{  
         "list":[  

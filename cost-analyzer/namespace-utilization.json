@@ -163,7 +163,7 @@
 					"unit":"currencyUSD"
 				},
 				{
-					"alias":"CPU Utilisation",
+					"alias":"CPU Utilization",
 					"colorMode":"value",
 					"colors":[
 						"#bf1b00",
@@ -182,7 +182,7 @@
 					"unit":"percent"
 				},
 				{
-					"alias":"RAM Utilisation",
+					"alias":"RAM Utilization",
 					"colorMode":"value",
 					"colors":[
 						"rgba(245, 54, 54, 0.9)",
@@ -471,7 +471,7 @@
 			"dashes":false,
 			"datasource":"Prometheus",
 			"decimals":3,
-			"description":"This panel shows historical utilisation as an average across all pods in this namespace. It only accounts for currently deployed pods",
+			"description":"This panel shows historical utilization as an average across all pods in this namespace. It only accounts for currently deployed pods",
 			"editable":true,
 			"error":false,
 			"fill":0,
@@ -588,7 +588,7 @@
 			"dashes":false,
 			"datasource":"Prometheus",
 			"decimals":2,
-			"description":"This panel shows historical utilisation as an average across all pods in this namespace. It only accounts for currently deployed pods",
+			"description":"This panel shows historical utilization as an average across all pods in this namespace. It only accounts for currently deployed pods",
 			"editable":true,
 			"error":false,
 			"fill":0,
@@ -947,7 +947,7 @@
 	"style":"dark",
 	"tags":[
 		"cost",
-		"utilisation",
+		"utilization",
 		"metrics"
 	],
 	"templating":{

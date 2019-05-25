@@ -1298,7 +1298,9 @@
 	"schemaVersion":16,
 	"style":"dark",
 	"tags":[  
-
+		"cost",
+		"utilization",
+		"metrics"
 	],
 	"templating":{  
 		"list":[  
