@@ -10,6 +10,7 @@ Parameter | Description | Default
 `prometheus.server.resources.limits.memory` | Set a memory limit on Prometheus server container. | `not set`
 `prometheus.server.resources.limits.cpu` | Set a CPU limit on Prometheus server container. | `not set`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not crate NodeExporter daemonset.  | `true`
+`persistentVolume.size` | Define PVC size for cost-analyzer  | `0.2Gi`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`
 `ingress.paths` | Ingress paths | `[]`

@@ -7,4 +7,4 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 0.2Gi
+      storage: {{ .Values.persistentVolume.size }}
