@@ -52,6 +52,10 @@ ingress:
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
+#
+# Define persistence volume for cost-analyzer
+persistentVolume:
+  size: 0.2Gi
 
 prometheus:
   extraScrapeConfigs: |
