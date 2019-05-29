@@ -12,6 +12,7 @@ rules:
       - deployments
       - nodes
       - pods
+      - events
       - services
       - resourcequotas
       - replicationcontrollers
@@ -73,6 +74,14 @@ rules:
       - storage.k8s.io
     resources: 
       - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - events.k8s.io
+    resources:
+      - events
     verbs:
       - get
       - list
