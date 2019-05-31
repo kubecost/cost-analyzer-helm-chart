@@ -70,17 +70,6 @@ prometheus:
         - kubecost-cost-analyzer
         type: 'A'
         port: 9003
-    - job_name: eventlog
-      honor_labels: true
-      scrape_interval: 1m
-      scrape_timeout: 10s
-      metrics_path: /metrics
-      scheme: http
-      dns_sd_configs:
-      - names:
-        - kubecost-cost-analyzer
-        type: 'A'
-        port: 9001
   server:
     persistentVolume:
       size: 32Gi
