@@ -7,9 +7,9 @@ metadata:
 spec:
   selector:
     app: cost-analyzer
-{{- if .Values.ingress -}}
-{{- if .Values.ingress.enabled }}
-  type: NodePort
+{{- if .Values.service -}}
+{{- if .Values.service.type }}
+  type: "{{ .Values.service.type }}"
 {{- else }}
   type: ClusterIP
 {{- end }}

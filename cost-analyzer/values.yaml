@@ -57,6 +57,9 @@ networkPolicy:
 persistentVolume:
   size: 0.2Gi
 
+service:
+  type: ClusterIP
+
 prometheus:
   extraScrapeConfigs: |
     - job_name: kubecost
@@ -73,6 +76,13 @@ prometheus:
   server:
     persistentVolume:
       size: 32Gi
+      enabled: true
+  alertmanager:
+    persistentVolume:
+      enabled: true
+  pushgateway:
+    persistentVolume:
+      enabled: true
 
   serverFiles:
     rules:
