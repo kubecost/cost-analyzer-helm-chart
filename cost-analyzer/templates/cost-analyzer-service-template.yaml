@@ -7,7 +7,15 @@ metadata:
 spec:
   selector:
     app: cost-analyzer
+{{- if .Values.ingress -}}
+{{- if .Values.ingress.enabled }}
+  type: NodePort
+{{- else }}
   type: ClusterIP
+{{- end }}
+{{- else }}
+  type: ClusterIP
+{{- end }}
   ports:
     - name: server
       port: 9001
