@@ -1,3 +1,5 @@
+{{- if .Values.persistentVolume -}}
+{{- if .Values.persistentVolume.enabled -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -12,3 +14,20 @@ spec:
     {{- else }}
       storage: 0.2Gi
     {{ end }}
+{{- end -}}
+{{- else -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+    {{- if .Values.persistentVolume }}
+      storage: {{ .Values.persistentVolume.size }}
+    {{- else }}
+      storage: 0.2Gi
+    {{ end }}
+{{- end -}}

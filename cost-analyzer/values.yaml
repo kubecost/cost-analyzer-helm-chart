@@ -56,6 +56,7 @@ networkPolicy:
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
+  enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
 
 service:
   type: ClusterIP
