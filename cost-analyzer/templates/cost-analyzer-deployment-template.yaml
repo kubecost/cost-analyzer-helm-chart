@@ -3,11 +3,7 @@ kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   labels:
-    app: cost-analyzer
-    app.kubernetes.io/name: kubecost
-    app.kubernetes.io/version: {{ .Chart.Version }}
-    app.kubernetes.io/managed-by: helm
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   strategy:
     rollingUpdate:

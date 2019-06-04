@@ -41,3 +41,13 @@ Create the name of the service account
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Create the common labels.
+*/}}
+{{- define "cost-analyzer.commonLabels" -}}
+app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}

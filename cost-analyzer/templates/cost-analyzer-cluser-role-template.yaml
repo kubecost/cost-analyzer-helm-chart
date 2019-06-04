@@ -3,7 +3,7 @@ kind: ClusterRole
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ''

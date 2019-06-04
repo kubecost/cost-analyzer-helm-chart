@@ -4,6 +4,8 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
@@ -20,6 +22,8 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce
