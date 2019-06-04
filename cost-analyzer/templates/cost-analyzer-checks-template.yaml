@@ -2,6 +2,8 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: cost-analyzer-checks
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   schedule: "*/10 * * * *"
   jobTemplate:
