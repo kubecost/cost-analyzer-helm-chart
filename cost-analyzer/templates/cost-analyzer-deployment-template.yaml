@@ -44,9 +44,9 @@ spec:
 {{- end }}
       initContainers:
         {{- if .Values.kubecostInit }}
-        - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.Version }}
+        - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.Version }}
+        - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-analyzer-init
           env:
@@ -57,9 +57,9 @@ spec:
                   key: prometheus-server-endpoint
       containers:
         {{- if .Values.kubecostFrontend }}
-        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.Version }}
+        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.Version }}
+        - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-analyzer-frontend
           volumeMounts:
@@ -80,9 +80,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         {{- if .Values.kubecost }}
-        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.Version }}
+        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost:prod-{{ $.Chart.Version }}
+        - image: ajaytripathy/kubecost:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           resources:
             requests:
@@ -123,9 +123,9 @@ spec:
                   key: grafanaURL
             {{- end }}
         {{- if .Values.kubecostModel }}
-        - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.Version }}
+        - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}
+        - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
           resources:
