@@ -15,7 +15,7 @@ Parameter | Description | Default
 `persistentVolume.size` | Define PVC size for cost-analyzer  | `0.2Gi`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`
-`ingress.paths` | Ingress paths | `[]`
-`ingress.hosts` | Ingress hostnames | `[]`
+`ingress.paths` | Ingress paths | `["/"]`
+`ingress.hosts` | Ingress hostnames | `[cost-analyzer.local]`
 `ingress.tls` | Ingress TLS configuration (YAML) | `[]`
 `networkPolicy.enabled` | If true, create a NetworkPolicy to deny egress  | `false`
