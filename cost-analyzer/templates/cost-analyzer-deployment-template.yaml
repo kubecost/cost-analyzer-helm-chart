@@ -21,6 +21,9 @@ spec:
 {{- end }}
 {{- end }}
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       volumes:
