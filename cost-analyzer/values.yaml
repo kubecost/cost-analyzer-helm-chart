@@ -94,9 +94,19 @@ prometheus:
               record: cluster:cpu_usage:rate5m
             - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
               record: cluster:cpu_usage_nosum:rate5m
+
+serviceMonitor:
+  enabled: false
+  additionalLabels: {}
+
+prometheusRule:
+  enabled: false
+  additionalLabels: {}
+
 grafana:
   sidecar:
     dashboards:
       enabled: true 
     datasources:
       enabled: true
+      defaultDatasourceEnabled: true

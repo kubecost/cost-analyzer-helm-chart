@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app: cost-analyzer
+        {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
 {{- if .Values.global.podAnnotations}}
       annotations:
 {{- with .Values.global.podAnnotations }}

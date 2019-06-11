@@ -19,3 +19,8 @@ Parameter | Description | Default
 `ingress.hosts` | Ingress hostnames | `[cost-analyzer.local]`
 `ingress.tls` | Ingress TLS configuration (YAML) | `[]`
 `networkPolicy.enabled` | If true, create a NetworkPolicy to deny egress  | `false`
+`serviceMonitor.enabled` | Set this to `true` to create ServiceMonitor for Prometheus operator | `false`
+`serviceMonitor.additionalLabels` | Additional labels that can be used so ServiceMonitor will be discovered by Prometheus | `{}`
+`prometheusRule.enabled` | Set this to `true` to create PrometheusRule for Prometheus operator | `false`
+`prometheusRule.additionalLabels` | Additional labels that can be used so PrometheusRule will be discovered by Prometheus | `{}`
+`grafana.sidecar.datasources.defaultDatasourceEnabled` | Set this to `false` to disable creation of Prometheus datasource in Grafana | `true`
