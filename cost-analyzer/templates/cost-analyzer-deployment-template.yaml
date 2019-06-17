@@ -64,6 +64,9 @@ spec:
         {{- else }}
         - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
+          env:
+            - name: GET_HOSTS_FROM
+              value: dns
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf

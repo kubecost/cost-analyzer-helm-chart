@@ -50,7 +50,6 @@ app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app: cost-analyzer
 {{- end -}}
 
 {{/*
@@ -59,4 +58,5 @@ Create the selector labels.
 {{- define "cost-analyzer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+app: cost-analyzer
 {{- end -}}
