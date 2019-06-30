@@ -103,6 +103,8 @@ prometheusRule:
   enabled: false
   additionalLabels: {}
 
+supportNFS: true
+
 grafana:
   sidecar:
     dashboards:
