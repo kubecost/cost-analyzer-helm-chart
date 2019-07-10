@@ -84,7 +84,9 @@ prometheus:
   pushgateway:
     persistentVolume:
       enabled: true
-
+  nodeExporter:
+    extraArgs:
+      collector.tcpstat:
   serverFiles:
     rules:
       groups:

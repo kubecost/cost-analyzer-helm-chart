@@ -30,6 +30,8 @@ spec:
             env:
             - name: COST_ANALYZER_SERVER_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9001
+            - name: COST_ANALYZER_MODEL_ENDPOINT
+              value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9003
             - name: PROMETHEUS_ALERTMANAGER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
