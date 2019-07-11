@@ -54,7 +54,7 @@ metadata:
 type: Opaque
 data:
   admin-user: "YWRtaW4="
-  admin-password: "YlVGUTFMUU1DNFpXWW93RVFNZEFlOHo0S1Q4YUZkWFpwWjQxYjBmMg=="
+  admin-password: "VFFQNlBjaENCaGVSUFhIc3l4T3I4cWFacHRxQUxXMnNhTm0wUXNEaA=="
   ldap-toml: ""
 
 ---
@@ -115,7 +115,7 @@ data:
       isDefault: true
       name: Prometheus
       type: prometheus
-      url: http://kubecost-prometheus-server.default.svc.cluster.local
+      url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
 
 
 ---
@@ -349,7 +349,7 @@ data:
         bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
         relabel_configs:
         - source_labels: [__meta_kubernetes_namespace]
-          regex: default
+          regex: kubecost
           action: keep
         - source_labels: [__meta_kubernetes_pod_label_app]
           regex: prometheus
@@ -383,9 +383,9 @@ metadata:
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
 data:
-    prometheus-alertmanager-endpoint: http://kubecost-prometheus-alertmanager.default.svc.cluster.local
+    prometheus-alertmanager-endpoint: http://kubecost-prometheus-alertmanager.kubecost.svc.cluster.local
   
-    prometheus-server-endpoint: http://kubecost-prometheus-server.default.svc.cluster.local
+    prometheus-server-endpoint: http://kubecost-prometheus-server.kubecost.svc.cluster.local
   
     kubecost-token: not-applied
 ---
@@ -406,14 +406,14 @@ data:
     gzip_static  on;
 
     upstream api {
-        server kubecost-cost-analyzer.default:9001;
+        server kubecost-cost-analyzer.kubecost:9001;
     }
 
     upstream model {
-        server kubecost-cost-analyzer.default:9003;
+        server kubecost-cost-analyzer.kubecost:9003;
     }
     upstream grafana {
-        server kubecost-grafana.default;
+        server kubecost-grafana.kubecost;
 
     }
 
@@ -11969,7 +11969,7 @@ data:
       isDefault: true
       name: Prometheus
       type: prometheus
-      url: http://kubecost-prometheus-server.default.svc.cluster.local
+      url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/alertmanager-pvc.yaml
@@ -12388,7 +12388,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kubecost-grafana
-    namespace: default
+    namespace: kubecost
 roleRef:
   kind: ClusterRole
   name: kubecost-grafana-clusterrole
@@ -12409,7 +12409,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kubecost-prometheus-kube-state-metrics
-    namespace: default
+    namespace: kubecost
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -12430,7 +12430,7 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: kubecost-prometheus-server
-    namespace: default
+    namespace: kubecost
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -12456,7 +12456,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: kubecost-cost-analyzer
-    namespace: default
+    namespace: kubecost
 ---
 # Source: cost-analyzer/charts/grafana/templates/role.yaml
 
@@ -13334,9 +13334,9 @@ spec:
                 memory: "200Mi"
             env:
             - name: COST_ANALYZER_SERVER_ENDPOINT
-              value: kubecost-cost-analyzer.default.svc.cluster.local:9001
+              value: kubecost-cost-analyzer.kubecost.svc.cluster.local:9001
             - name: COST_ANALYZER_MODEL_ENDPOINT
-              value: kubecost-cost-analyzer.default.svc.cluster.local:9003
+              value: kubecost-cost-analyzer.kubecost.svc.cluster.local:9003
             - name: PROMETHEUS_ALERTMANAGER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
