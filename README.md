@@ -1,7 +1,7 @@
 # cost-analyzer helm chart
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes resource spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
-While using Helm is the recommended install path, these resources can also be created with the following command: 
+While Helm is the recommended install path, these resources can also be created with the following command: 
   
 `kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
 
