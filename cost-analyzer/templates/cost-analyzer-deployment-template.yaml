@@ -103,10 +103,10 @@ spec:
         {{ end }}
           resources:
             requests:
-              cpu: "10m"
+              cpu: "100m"
               memory: "55Mi"
             limits:
-              cpu: "100m"
+              cpu: "500m"
               memory: "256Mi"
           name: cost-analyzer-server
           readinessProbe:
@@ -147,7 +147,7 @@ spec:
           name: cost-model
           resources:
             requests:
-              cpu: "10m"
+              cpu: "200m"
               memory: "55Mi"
             limits:
               cpu: "800m"
