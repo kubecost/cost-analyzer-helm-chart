@@ -1093,7 +1093,7 @@
 				"options":[
 
 				],
-				"query":"query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
+				"query":"query_result(sum(kube_namespace_created{namespace!=\"\"}) by (namespace))",
 				"refresh":1,
 				"regex":"/namespace=\\\"(.*?)(\\\")/",
 				"skipUrlSync":false,
