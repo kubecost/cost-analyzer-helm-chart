@@ -13,9 +13,9 @@ spec:
           containers:
           - name: cost-analyzer-checks
           {{- if .Values.kubecostChecks }}
-            image: {{ .Values.kubecostChecks.image }}:prod-{{ $.Chart.Version }}
+            image: {{ .Values.kubecostChecks.image }}:prod-{{ $.Chart.AppVersion }}
           {{- else }}
-            image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.Version }}
+            image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
           {{ end }}
             args:
             - node
@@ -30,6 +30,8 @@ spec:
             env:
             - name: COST_ANALYZER_SERVER_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9001
+            - name: COST_ANALYZER_MODEL_ENDPOINT
+              value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9003
             - name: PROMETHEUS_ALERTMANAGER_ENDPOINT
               valueFrom:
                 configMapKeyRef:

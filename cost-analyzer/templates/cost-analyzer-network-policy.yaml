@@ -9,7 +9,7 @@ metadata:
 spec:
   podSelector:
     matchLabels:
-      app: cost-analyzer
+      {{ include "cost-analyzer.selectorLabels" . | nindent 6 }}
   policyTypes:
   - Egress
   egress:

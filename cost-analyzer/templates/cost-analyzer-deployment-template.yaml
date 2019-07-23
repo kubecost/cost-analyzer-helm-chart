@@ -13,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app: cost-analyzer
+        {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
 {{- if .Values.global.podAnnotations}}
       annotations:
 {{- with .Values.global.podAnnotations }}
@@ -23,6 +23,7 @@ spec:
     spec:
       securityContext:
         runAsUser: 1001
+        runAsGroup: 1001
         fsGroup: 1001
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
@@ -46,6 +47,16 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
       initContainers:
+{{- if .Values.supportNFS }}
+        - name: config-perms-fix
+          image: busybox
+          command: ["/bin/chmod", "-R", "777", "/var/configs"]
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+          securityContext:
+            runAsUser: 0
+{{ end }}
         {{- if .Values.kubecostInit }}
         - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
@@ -64,6 +75,9 @@ spec:
         {{- else }}
         - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
+          env:
+            - name: GET_HOSTS_FROM
+              value: dns
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
