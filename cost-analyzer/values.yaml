@@ -26,12 +26,21 @@ kubecostChecks:
 
 kubecostFrontend:
   image: "ajaytripathy/kubecost-frontend"
+  #limits:
+  #  cpu: "100m"
+  #  memory: "256Mi"
 
 kubecost:
   image: "ajaytripathy/kubecost"
+  #limits:
+  #  cpu: "100m"
+  #  memory: "256Mi"
 
 kubecostModel:
   image: "ajaytripathy/kubecost-cost-model"
+  #limits:
+  #  cpu: "800m"
+  #  memory: "256Mi"
 
 kubecostInit:
   image: "ajaytripathy/kubecost-init"

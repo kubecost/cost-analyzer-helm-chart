@@ -86,9 +86,13 @@ spec:
             requests:
               cpu: "10m"
               memory: "55Mi"
+            {{- if .Values.kubecostFrontend }}
+            {{- if .Values.kubecostFrontend.limits }}
             limits:
-              cpu: "100m"
-              memory: "256Mi"
+              cpu: {{ .Values.kubecostFrontend.limits.cpu }}
+              memory: {{ .Values.kubecostFrontend.limits.memory }}
+            {{ end }}
+            {{ end }}
           readinessProbe:
             httpGet:
               path: /healthz
@@ -105,9 +109,13 @@ spec:
             requests:
               cpu: "100m"
               memory: "55Mi"
+            {{- if .Values.kubecost }}
+            {{- if .Values.kubecost.limits }}
             limits:
-              cpu: "500m"
-              memory: "256Mi"
+              cpu: {{ .Values.kubecost.limits.cpu }}
+              memory: {{ .Values.kubecost.limits.memory }}
+            {{ end }}
+            {{ end }}
           name: cost-analyzer-server
           readinessProbe:
             httpGet:
@@ -149,9 +157,13 @@ spec:
             requests:
               cpu: "200m"
               memory: "55Mi"
+            {{- if .Values.kubecostModel }}
+            {{- if .Values.kubecostModel.limits }}
             limits:
-              cpu: "800m"
-              memory: "256Mi"
+              cpu: {{ .Values.kubecostModel.limits.cpu }}
+              memory: {{ .Values.kubecostModel.limits.memory }}
+            {{ end }}
+            {{ end }}
           readinessProbe:
             httpGet:
               path: /healthz
