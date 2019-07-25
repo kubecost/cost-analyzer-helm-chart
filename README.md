@@ -1,14 +1,14 @@
 # cost-analyzer helm chart
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes resource spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
-While Helm is the recommended install path, these resources (with the default configuration options below) can also be created with the following command: 
+While Helm is the [recommended install path](http://kubecost.com/install), these resources (with the default configuration options below) can also be created with the following command: 
   
 `kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
 
 
 Parameter | Description | Default
 --------- | ----------- | -------
-`global.prometheus.enabled` | If true, use an existing Prometheus install. More info [here](http://docs.kubecost.com/custom-prom). | `false`
+`global.prometheus.enabled` | If true, use an existing Prometheus install. [More info](http://docs.kubecost.com/custom-prom). | `false`
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
 `prometheus.server.retention` | Determines when to remove old data. | `15d`
