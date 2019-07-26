@@ -2,7 +2,7 @@ global:
 
   prometheus:
     enabled: true # If false, Prometheus will not be installed
-    fqdn: http://byo-prometheus-server.monitoring.svc.cluster.local #example fqdn. Ignored if enabled: true
+    fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
   grafana:
     enabled: true # If false, Grafana will not be installed
