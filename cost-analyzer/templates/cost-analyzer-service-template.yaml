@@ -1,7 +1,7 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ template "cost-analyzer.fullname" . }}
+  name: kubecost-cost-analyzer
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:

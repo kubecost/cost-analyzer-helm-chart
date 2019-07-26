@@ -9,11 +9,11 @@ data:
     gzip_static  on;
 
     upstream api {
-        server {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace }}:9001;
+        server kubecost-cost-analyzer.{{ .Release.Namespace }}:9001;
     }
 
     upstream model {
-        server {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace }}:9003;
+        server kubecost-cost-analyzer.{{ .Release.Namespace }}:9003;
     }
 
 {{- if .Values.global.grafana.proxy }}
