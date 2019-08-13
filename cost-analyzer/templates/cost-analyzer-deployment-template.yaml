@@ -63,6 +63,7 @@ spec:
         - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-analyzer-init
+          imagePullPolicy: Always
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
@@ -93,6 +94,7 @@ spec:
               memory: {{ .Values.kubecostFrontend.limits.memory }}
             {{ end }}
             {{ end }}
+          imagePullPolicy: Always
           readinessProbe:
             httpGet:
               path: /healthz
@@ -153,6 +155,7 @@ spec:
         - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
+          imagePullPolicy: Always
           resources:
             requests:
               cpu: "200m"
