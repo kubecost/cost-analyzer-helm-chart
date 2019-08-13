@@ -1,7 +1,7 @@
 dependencies:
   - name: prometheus
     repository: file://./charts/
-    version: "8.11.X"
+    version: "8.15.X"
     condition: global.prometheus.enabled
   - name: grafana
     repository: file://./charts/
