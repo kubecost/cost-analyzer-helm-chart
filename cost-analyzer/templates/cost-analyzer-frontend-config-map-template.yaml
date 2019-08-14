@@ -1,3 +1,4 @@
+{{- $serviceName := include "cost-analyzer.serviceName" . -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,11 +10,11 @@ data:
     gzip_static  on;
 
     upstream api {
-        server kubecost-cost-analyzer.{{ .Release.Namespace }}:9001;
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
     }
 
     upstream model {
-        server kubecost-cost-analyzer.{{ .Release.Namespace }}:9003;
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
     }
 
 {{- if .Values.global.grafana.proxy }}
@@ -41,7 +42,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location /model/ {       	
+        location /model/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;

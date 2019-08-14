@@ -9,7 +9,7 @@ global:
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
-    
+
   notifications:
     slack: # Write to a webhook.
       enabled: false # Allow kubecost to write to your slackbot.
@@ -47,7 +47,7 @@ kubecostInit:
 
 ingress:
   enabled: false
-  annotations: 
+  annotations:
     kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   paths: ["/"] # There's no need to route specifically to the pods-- we have an nginx deployed that handles routing
@@ -80,7 +80,7 @@ prometheus:
       scheme: http
       dns_sd_configs:
       - names:
-        - kubecost-cost-analyzer
+        - {{ template "cost-analyzer.serviceName" . }}
         type: 'A'
         port: 9003
   server:
@@ -116,7 +116,7 @@ supportNFS: true
 grafana:
   sidecar:
     dashboards:
-      enabled: true 
+      enabled: true
     datasources:
       enabled: true
       defaultDatasourceEnabled: true
