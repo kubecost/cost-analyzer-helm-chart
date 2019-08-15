@@ -1,6 +1,7 @@
 {{- if .Values.ingress -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
+{{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -31,7 +32,7 @@ spec:
 	{{- range $ingressPaths }}
           - path: {{ . }}
             backend:
-              serviceName: {{ $fullName }}
+              serviceName: {{ $serviceName }}
               servicePort: frontend
 	{{- end }}
   {{- end }}
