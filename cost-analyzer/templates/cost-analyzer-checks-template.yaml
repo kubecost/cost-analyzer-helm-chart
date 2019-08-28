@@ -21,7 +21,7 @@ spec:
             - node
             - ./node/cron.js
             resources:
-{{ toYaml .Values.kubecostFrontend.resources | indent 14 }}
+{{ toYaml .Values.kubecostChecks.resources | indent 14 }}
             env:
             - name: COST_ANALYZER_SERVER_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}.svc.cluster.local:9001
