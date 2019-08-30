@@ -3,7 +3,7 @@ Helm chart for the Kubecost project, which is created to monitor and manage Kube
 
 While Helm is the [recommended install path](http://kubecost.com/install), these resources (with the default configuration options below) can also be created with the following command: 
   
-`kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
+<a name="manifest"></a>`kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
 
 
 Parameter | Description | Default
