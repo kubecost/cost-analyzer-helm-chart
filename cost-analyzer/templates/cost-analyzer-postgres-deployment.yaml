@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-postgres
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+        containers:
+            - image: timescale/pg_prometheus:latest
+              name: pgprometheus
+              ports:
+              - containerPort: 5432
+              args:
+                - -csynchronous_commit=off
+              env:
+                - name: POSTGRES_PASSWORD
+                  value: foo
+                - name: POSTGRES_USER
+                  value: postgres

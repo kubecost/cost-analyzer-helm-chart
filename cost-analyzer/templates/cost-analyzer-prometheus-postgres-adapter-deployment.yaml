@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-adapter
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: adapter
+    spec:
+        containers:
+            - image: timescale/prometheus-postgresql-adapter:latest
+              name: pgprometheusadapter
+              ports:
+                - containerPort: 9201
+              args:
+                - "-pg-host=pgprometheus"
+                - "-pg-prometheus-log-samples=true"
+                - "-pg-password=foo"

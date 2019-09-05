@@ -94,6 +94,11 @@ prometheus:
     persistentVolume:
       enabled: true
   serverFiles:
+    prometheus.yml:
+        remote_write:
+          - url: "http://pgprometheus-adapter:9201/write"
+        remote_read:
+          - url: "http://pgprometheus-adapter:9201/read"
     rules:
       groups:
         - name: CPU

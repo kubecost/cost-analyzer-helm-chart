@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: pgprometheus
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+    app: postgres
+  type: ClusterIP
+  ports:
+    - name: server
+      port: 5432
+      targetPort: 5432
