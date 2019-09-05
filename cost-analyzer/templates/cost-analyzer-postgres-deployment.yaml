@@ -24,6 +24,6 @@ spec:
                 - -csynchronous_commit=off
               env:
                 - name: POSTGRES_PASSWORD
-                  value: foo
+                  value: {{ .Values.remoteWrite.postgres.auth.password }}
                 - name: POSTGRES_USER
                   value: postgres

@@ -23,4 +23,4 @@ spec:
               args:
                 - "-pg-host=pgprometheus"
                 - "-pg-prometheus-log-samples=true"
-                - "-pg-password=foo"
+                - "-pg-password={{ .Values.remoteWrite.postgres.auth.password }}"

@@ -70,6 +70,12 @@ persistentVolume:
 service:
   type: ClusterIP
 
+remoteWrite:
+  postgres: 
+    enabled: true
+    auth:
+      password: admin # change me
+
 prometheus:
   extraScrapeConfigs: |
     - job_name: kubecost
