@@ -6,12 +6,20 @@ metadata:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
   {{- if .Values.global.prometheus.enabled }}
-    prometheus-alertmanager-endpoint: http://{{ .Release.Name }}-prometheus-alertmanager.{{ .Release.Namespace  }}.svc.cluster.local
+  {{- if .Values.global.zone }}
+    prometheus-alertmanager-endpoint: http://{{ .Release.Name }}-prometheus-alertmanager.{{ .Release.Namespace  }}.svc.{{ .Values.global.zone }}
+  {{ else }}
+    prometheus-alertmanager-endpoint: http://{{ .Release.Name }}-prometheus-alertmanager.{{ .Release.Namespace  }}
+  {{- end -}}
   {{ else }}
     prometheus-alertmanager-endpoint: {{ .Values.global.notifications.alertmanager.fqdn }}
   {{- end -}}
   {{- if .Values.global.prometheus.enabled }}
-    prometheus-server-endpoint: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
+  {{- if .Values.global.zone }}
+    prometheus-server-endpoint: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.{{ .Values.global.zone }}
+  {{ else }}
+    prometheus-server-endpoint: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}
+  {{- end -}}
   {{ else }}
     prometheus-server-endpoint: {{ .Values.global.prometheus.fqdn }}
   {{- end -}}
