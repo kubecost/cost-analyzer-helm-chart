@@ -103,6 +103,13 @@ prometheus:
     prometheus.yml:
         remote_write:
           - url: "http://pgprometheus-adapter:9201/write"
+            write_relabel_configs:
+              - source_labels: [__name__]
+                regex: 'container_.*'
+                action: keep
+            queue_config:
+              max_samples_per_send: 1000
+
         remote_read:
           - url: "http://pgprometheus-adapter:9201/read"
     rules:
@@ -113,6 +120,7 @@ prometheus:
               record: cluster:cpu_usage:rate5m
             - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
               record: cluster:cpu_usage_nosum:rate5m
+            - expr: 
 
 serviceMonitor:
   enabled: false
