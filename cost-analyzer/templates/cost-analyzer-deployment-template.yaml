@@ -84,16 +84,7 @@ spec:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
           resources:
-            requests:
-              cpu: "10m"
-              memory: "55Mi"
-            {{- if .Values.kubecostFrontend }}
-            {{- if .Values.kubecostFrontend.limits }}
-            limits:
-              cpu: {{ .Values.kubecostFrontend.limits.cpu }}
-              memory: {{ .Values.kubecostFrontend.limits.memory }}
-            {{ end }}
-            {{ end }}
+{{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
           imagePullPolicy: Always
           readinessProbe:
             httpGet:
@@ -108,16 +99,7 @@ spec:
         - image: ajaytripathy/kubecost:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           resources:
-            requests:
-              cpu: "100m"
-              memory: "55Mi"
-            {{- if .Values.kubecost }}
-            {{- if .Values.kubecost.limits }}
-            limits:
-              cpu: {{ .Values.kubecost.limits.cpu }}
-              memory: {{ .Values.kubecost.limits.memory }}
-            {{ end }}
-            {{ end }}
+{{ toYaml .Values.kubecost.resources | indent 12 }}
           name: cost-analyzer-server
           readinessProbe:
             httpGet:
@@ -157,16 +139,7 @@ spec:
           name: cost-model
           imagePullPolicy: Always
           resources:
-            requests:
-              cpu: "200m"
-              memory: "55Mi"
-            {{- if .Values.kubecostModel }}
-            {{- if .Values.kubecostModel.limits }}
-            limits:
-              cpu: {{ .Values.kubecostModel.limits.cpu }}
-              memory: {{ .Values.kubecostModel.limits.memory }}
-            {{ end }}
-            {{ end }}
+{{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
             httpGet:
               path: /healthz

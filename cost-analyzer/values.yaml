@@ -23,24 +23,43 @@ global:
 
 kubecostChecks:
   image: "ajaytripathy/kubecost-checks"
+  resources:
+    requests:
+      cpu: "20m"
+      memory: "100Mi"
+    limits:
+      cpu: "100m"
+      memory: "200Mi"
 
 kubecostFrontend:
   image: "ajaytripathy/kubecost-frontend"
-  #limits:
-  #  cpu: "100m"
-  #  memory: "256Mi"
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "55Mi"
+    #limits:
+    #  cpu: "100m"
+    #  memory: "256Mi"
 
 kubecost:
   image: "ajaytripathy/kubecost"
-  #limits:
-  #  cpu: "100m"
-  #  memory: "256Mi"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "55Mi"
+    #limits:
+    #  cpu: "100m"
+    #  memory: "256Mi"
 
 kubecostModel:
   image: "ajaytripathy/kubecost-cost-model"
-  #limits:
-  #  cpu: "800m"
-  #  memory: "256Mi"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "55Mi"
+    #limits:
+    #  cpu: "800m"
+    #  memory: "256Mi"
 
 kubecostInit:
   image: "ajaytripathy/kubecost-init"
