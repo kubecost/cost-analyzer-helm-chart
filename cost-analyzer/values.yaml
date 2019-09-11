@@ -72,7 +72,7 @@ service:
 
 remoteWrite:
   postgres: 
-    enabled: true
+    enabled: false
     auth:
       password: admin # change me
 
@@ -90,6 +90,12 @@ prometheus:
         type: 'A'
         port: 9003
   server:
+    global:
+      scrape_interval: 1m
+      scrape_timeout: 10s
+      evaluation_interval: 1m
+      external_labels:
+        cluster_id: cluster-one # Each cluster should have a unique ID
     persistentVolume:
       size: 32Gi
       enabled: true
@@ -105,13 +111,12 @@ prometheus:
           - url: "http://pgprometheus-adapter:9201/write"
             write_relabel_configs:
               - source_labels: [__name__]
-                regex: 'container_.*'
+                regex: 'container_.*|node_.*'
                 action: keep
             queue_config:
               max_samples_per_send: 1000
-
-        remote_read:
-          - url: "http://pgprometheus-adapter:9201/read"
+        #remote_read:
+        #  - url: "http://pgprometheus-adapter:9201/read"
     rules:
       groups:
         - name: CPU
@@ -120,7 +125,8 @@ prometheus:
               record: cluster:cpu_usage:rate5m
             - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
               record: cluster:cpu_usage_nosum:rate5m
-            - expr: 
+            - expr: avg(irate(container_cpu_usage_seconds_total{container_name!="POD", container_name!=""}[5m])) by (container_name,pod_name,namespace)
+              record: kubecost_container_cpu_usage_irate
 
 serviceMonitor:
   enabled: false

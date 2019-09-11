@@ -1,3 +1,6 @@
+{{- if .Values.remoteWrite -}}
+{{- if .Values.remoteWrite.postgres -}}
+{{- if .Values.remoteWrite.postgres.enabled -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -27,3 +30,14 @@ spec:
                   value: {{ .Values.remoteWrite.postgres.auth.password }}
                 - name: POSTGRES_USER
                   value: postgres
+              volumeMounts:
+                - mountPath: /var/lib/postgresql/data
+                  name: postgres-pv-volume
+                  subPath: postgres
+        volumes:
+          - name: postgres-pv-volume
+            persistentVolumeClaim:
+              claimName: postgres-pv-claim
+{{- end }}
+{{- end }}
+{{- end }}
