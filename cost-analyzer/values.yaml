@@ -91,7 +91,8 @@ service:
 
 remoteWrite:
   postgres: 
-    enabled: false
+    enabled: true
+    installLocal: true
     auth:
       password: admin # change me
 
@@ -130,7 +131,7 @@ prometheus:
           - url: "http://pgprometheus-adapter:9201/write"
             write_relabel_configs:
               - source_labels: [__name__]
-                regex: 'container_.*|node_.*'
+                regex: 'container_.*_allocation|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|kube_persistentvolumeclaim_resource_requests_storage_bytes'
                 action: keep
             queue_config:
               max_samples_per_send: 1000
