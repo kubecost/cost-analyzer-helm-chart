@@ -34,7 +34,11 @@ spec:
             ports:
               - containerPort: 9201
             args:
+            {{- if .Values.remoteWrite.postgres.installLocal }}
               - "-pg-host=pgprometheus"
+            {{- else }}
+              - "-pg-host={{ .Values.remoteWrite.postgres.remotePostgresAddress }}"
+            {{- end }}
               - "-pg-prometheus-log-samples=true"
               - "-pg-password={{ .Values.remoteWrite.postgres.auth.password }}"
 {{- end }}
