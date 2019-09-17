@@ -77,6 +77,8 @@ ingress:
   #    hosts:
   #      - cost-analyzer.local
 
+nodeSelector: {}
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
