@@ -1,0 +1,20 @@
+{{- if .Values.remoteWrite -}}
+{{- if .Values.remoteWrite.postgres -}}
+{{- if .Values.remoteWrite.postgres.enabled -}}
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+    name: postgres-pv-volume
+    labels:
+        type: local
+        app: postgres
+spec:
+    capacity:
+        storage: {{ .Values.remoteWrite.postgres.persistentVolume.size }}
+    accessModes:
+        - ReadWriteOnce
+    hostPath:
+        path: "/mnt/data"
+{{- end }}
+{{- end }}
+{{- end }}

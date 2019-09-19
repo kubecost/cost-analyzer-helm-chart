@@ -168,6 +168,18 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
+            {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
+            - name: CLUSTER_ID
+              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- end }}
+            {{- if .Values.remoteWrite.installLocal }}
+            - name: SQL_ADDRESS
+              value: pgprometheus
+            {{- else }}
+            - name: SQL_ADDRESS
+              value: {{.Values.remoteWrite.postgres.remotePostgresAddress }}
+            {{- end }}
+
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
