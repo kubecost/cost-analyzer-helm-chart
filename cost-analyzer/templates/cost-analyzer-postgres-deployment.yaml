@@ -25,6 +25,7 @@ spec:
               - containerPort: 5432
               args:
                 - -csynchronous_commit=off
+                - -S 1GB
               env:
                 - name: POSTGRES_PASSWORD
                   value: {{ .Values.remoteWrite.postgres.auth.password }}

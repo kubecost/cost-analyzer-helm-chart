@@ -91,8 +91,11 @@ service:
 
 remoteWrite:
   postgres: 
-    enabled: true
+    enabled: false
     installLocal: true
+    remotePostgresAddress: "" # ignored if installing locally
+    persistentVolume:
+      size: 200Gi
     auth:
       password: admin # change me
 
