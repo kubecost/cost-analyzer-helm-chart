@@ -8,10 +8,8 @@ metadata:
     labels:
         app: postgres
 spec:
-    volumeName: pvc-5a12bd6a-d8c8-11e9-b828-0265f54018f6
     accessModes:
         - ReadWriteOnce
-    storageClassName: "encrypted-gp2"
     resources:
         requests:
             storage: {{ .Values.remoteWrite.postgres.persistentVolume.size }}
