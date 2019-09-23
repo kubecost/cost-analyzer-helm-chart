@@ -5,7 +5,7 @@ kind: DaemonSet
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
   labels:
-    app: {{ template "cost-analyzer.networkCostsName" . }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   updateStrategy:
     type: RollingUpdate
