@@ -29,6 +29,13 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{/*
+Network Costs name used to tie autodiscovery of metrics to daemon set pods
+*/}}
+{{- define "cost-analyzer.networkCostsName" -}}
+{{- printf "%s-%s" .Release.Name "network-costs" -}}
+{{- end -}}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "cost-analyzer.chart" -}}

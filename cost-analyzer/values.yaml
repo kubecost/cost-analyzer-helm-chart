@@ -121,7 +121,7 @@ prometheus:
       # Scrape only the the targets matching the following metadata
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
-          regex:  kubecost-network-costs
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
     global:
       scrape_interval: 1m
@@ -164,6 +164,15 @@ prometheus:
               record: kubecost_container_memory_working_set_bytes
             - expr: sum(container_memory_working_set_bytes{container_name!="POD",container_name!=""})
               record: kubecost_cluster_memory_working_set_bytes
+
+networkCosts:
+  enabled: true
+  image: gcr.io/guestbook-227502/kubecost-network-costs:v26
+  resources:
+    #requests:
+    #  cpu: "200m"
+    #  memory: "200Mi"
+
 
 serviceMonitor:
   enabled: false
