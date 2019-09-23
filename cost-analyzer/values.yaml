@@ -166,13 +166,12 @@ prometheus:
               record: kubecost_cluster_memory_working_set_bytes
 
 networkCosts:
-  enabled: true
+  enabled: false
   image: gcr.io/guestbook-227502/kubecost-network-costs:v26
   resources:
     #requests:
-    #  cpu: "200m"
-    #  memory: "200Mi"
-
+    #  cpu: "50m"
+    #  memory: "20Mi"
 
 serviceMonitor:
   enabled: false
