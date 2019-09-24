@@ -172,12 +172,12 @@ spec:
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
             {{- end }}
-            {{- if .Values.remoteWrite.installLocal }}
+            {{- if .Values.remoteWrite.postgres.installLocal }}
             - name: SQL_ADDRESS
               value: pgprometheus
             {{- else }}
             - name: SQL_ADDRESS
-              value: {{.Values.remoteWrite.postgres.remotePostgresAddress }}
+              value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
 
             - name: KUBECOST_TOKEN
