@@ -5,6 +5,7 @@ While Helm is the [recommended install path](http://kubecost.com/install), these
   
 `kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
 
+<a name="config-options"></a>
 The following table lists the commonly used configurable parameters of the Kubecost Helm chart and their default values.
 
 Parameter | Description | Default
