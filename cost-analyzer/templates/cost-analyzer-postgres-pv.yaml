@@ -1,6 +1,7 @@
 {{- if .Values.remoteWrite -}}
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
+{{- if .Values.remoteWrite.postgres.installLocal -}}
 kind: PersistentVolume
 apiVersion: v1
 metadata:
@@ -15,6 +16,7 @@ spec:
         - ReadWriteOnce
     hostPath:
         path: "/mnt/data"
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

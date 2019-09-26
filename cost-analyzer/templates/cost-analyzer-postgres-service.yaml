@@ -1,6 +1,7 @@
 {{- if .Values.remoteWrite -}}
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
+{{- if .Values.remoteWrite.postgres.installLocal -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -15,6 +16,7 @@ spec:
     - name: server
       port: 5432
       targetPort: 5432
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
