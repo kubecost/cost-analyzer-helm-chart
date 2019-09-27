@@ -1,6 +1,7 @@
 {{- if .Values.remoteWrite -}}
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
+{{- if .Values.remoteWrite.postgres.installLocal -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -13,6 +14,7 @@ spec:
     resources:
         requests:
             storage: {{ .Values.remoteWrite.postgres.persistentVolume.size }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
