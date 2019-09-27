@@ -114,6 +114,14 @@ prometheus:
         - {{ template "cost-analyzer.serviceName" . }}
         type: 'A'
         port: 9003
+    - job_name: kubecost-networking
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
     global:
       scrape_interval: 1m
@@ -156,6 +164,14 @@ prometheus:
               record: kubecost_container_memory_working_set_bytes
             - expr: sum(container_memory_working_set_bytes{container_name!="POD",container_name!=""})
               record: kubecost_cluster_memory_working_set_bytes
+
+networkCosts:
+  enabled: false
+  image: gcr.io/kubecost1/kubecost-network-costs:v1
+  resources:
+    #requests:
+    #  cpu: "50m"
+    #  memory: "20Mi"
 
 serviceMonitor:
   enabled: false

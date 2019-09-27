@@ -1,0 +1,48 @@
+{{- if .Values.networkCosts -}}
+{{- if .Values.networkCosts.enabled -}}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ template "cost-analyzer.networkCostsName" . }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ template "cost-analyzer.networkCostsName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "cost-analyzer.networkCostsName" . }}
+    spec:
+      hostNetwork: true
+      serviceAccountName: {{ template "cost-analyzer.fullname" . }}
+      containers:
+      - name: {{ template "cost-analyzer.networkCostsName" . }}
+        image: {{ .Values.networkCosts.image }}
+{{- if .Values.networkCosts.resources }}
+        resources:
+{{ toYaml .Values.networkCosts.resources | indent 10 }}
+{{- end }}
+        volumeMounts:
+        - mountPath: /net
+          name: nf-conntrack
+        - mountPath: /netfilter
+          name: netfilter
+        securityContext:
+          privileged: true
+        ports:
+        - name: http-server
+          containerPort: 3001
+          hostPort: 3001
+      volumes:
+      - name: nf-conntrack
+        hostPath: 
+          path: /proc/net
+      - name: netfilter
+        hostPath:
+          path: /proc/sys/net/netfilter
+{{- end }}
+{{- end }}
