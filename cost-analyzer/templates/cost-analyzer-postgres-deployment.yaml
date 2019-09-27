@@ -1,6 +1,7 @@
 {{- if .Values.remoteWrite -}}
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
+{{- if .Values.remoteWrite.postgres.installLocal -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -39,6 +40,7 @@ spec:
           - name: postgres-pv-volume
             persistentVolumeClaim:
               claimName: postgres-pv-claim
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
