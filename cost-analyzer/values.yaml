@@ -166,7 +166,7 @@ prometheus:
               record: kubecost_cluster_memory_working_set_bytes
 
 networkCosts:
-  enabled: true
+  enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v1
   resources:
     #requests:
