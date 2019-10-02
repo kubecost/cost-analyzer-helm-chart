@@ -18,6 +18,7 @@ spec:
         app: {{ template "cost-analyzer.networkCostsName" . }}
     spec:
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
@@ -26,6 +27,11 @@ spec:
         resources:
 {{ toYaml .Values.networkCosts.resources | indent 10 }}
 {{- end }}
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         volumeMounts:
         - mountPath: /net
           name: nf-conntrack

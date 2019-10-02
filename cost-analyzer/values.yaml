@@ -167,7 +167,7 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v1
+  image: gcr.io/kubecost1/kubecost-network-costs:v3
   resources:
     #requests:
     #  cpu: "50m"
