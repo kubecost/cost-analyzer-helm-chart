@@ -18,7 +18,6 @@ spec:
         app: {{ template "cost-analyzer.networkCostsName" . }}
     spec:
       hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
