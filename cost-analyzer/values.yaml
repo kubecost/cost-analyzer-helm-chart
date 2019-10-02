@@ -22,6 +22,7 @@ global:
     # iam.amazonaws.com/role: role-arn
 
 kubecostChecks:
+  enabled: true
   image: "ajaytripathy/kubecost-checks"
   resources:
     requests:

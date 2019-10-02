@@ -1,3 +1,5 @@
+{{- if .Values.kubecostChecks -}}
+{{- if .Values.kubecostChecks.enabled -}}
 apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
@@ -33,3 +35,5 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-alertmanager-endpoint
           restartPolicy: OnFailure
+{{- end -}}
+{{- end -}}
