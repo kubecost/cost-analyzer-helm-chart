@@ -22,6 +22,11 @@ spec:
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
         image: {{ .Values.networkCosts.image }}
+{{- if .Values.networkCosts.imagePullPolicy }}
+        imagePullPolicy: {{ .Values.networkCosts.imagePullPolicy }}
+{{- else }}
+        imagePullPolicy: Always
+{{- end }}
 {{- if .Values.networkCosts.resources }}
         resources:
 {{ toYaml .Values.networkCosts.resources | indent 10 }}

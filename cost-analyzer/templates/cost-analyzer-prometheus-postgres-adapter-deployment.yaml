@@ -20,8 +20,12 @@ spec:
     spec:
       initContainers:
         - name: kubecost-sql-init
-          image: ajaytripathy/kubecost-sql-init:prod-{{ $.Chart.AppVersion }}
+          image: {{ .Values.remoteWrite.postgres.initImage }}:prod-{{ $.Chart.AppVersion }}
+        {{- if .Values.remoteWrite.postgres.initImagePullPolicy }}
+          imagePullPolicy: {{ .Values.remoteWrite.postgres.initImagePullPolicy }}
+        {{- else }}
           imagePullPolicy: Always
+        {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
