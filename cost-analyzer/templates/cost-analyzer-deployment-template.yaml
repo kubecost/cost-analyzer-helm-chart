@@ -61,9 +61,13 @@ spec:
         - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
         - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
           name: cost-analyzer-init
+        {{- if .Values.kubecostInit.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostInit.imagePullPolicy }}
+        {{- else }}
           imagePullPolicy: Always
+        {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
@@ -85,7 +89,11 @@ spec:
               mountPath: /etc/nginx/conf.d/
           resources:
 {{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
+        {{- if .Values.kubecostFrontend.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostFrontend.imagePullPolicy }}
+        {{- else }}
           imagePullPolicy: Always
+        {{- end }}
           readinessProbe:
             httpGet:
               path: /healthz
@@ -137,7 +145,11 @@ spec:
         - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
+        {{- if .Values.kubecostModel.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
+        {{- else }}
           imagePullPolicy: Always
+        {{- end }}
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
@@ -185,7 +197,6 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-          imagePullPolicy: Always
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

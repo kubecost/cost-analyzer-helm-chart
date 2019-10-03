@@ -22,6 +22,7 @@ global:
     # iam.amazonaws.com/role: role-arn
 
 kubecostChecks:
+  enabled: true
   image: "ajaytripathy/kubecost-checks"
   resources:
     requests:
@@ -33,6 +34,7 @@ kubecostChecks:
 
 kubecostFrontend:
   image: "ajaytripathy/kubecost-frontend"
+  imagePullPolicy: Always
   resources:
     requests:
       cpu: "10m"
@@ -53,6 +55,7 @@ kubecost:
 
 kubecostModel:
   image: "ajaytripathy/kubecost-cost-model"
+  imagePullPolicy: Always
   resources:
     requests:
       cpu: "200m"
@@ -63,6 +66,7 @@ kubecostModel:
 
 kubecostInit:
   image: "ajaytripathy/kubecost-init"
+  imagePullPolicy: Always
 
 ingress:
   enabled: false
@@ -94,6 +98,8 @@ service:
 remoteWrite:
   postgres: 
     enabled: false
+    initImage: "ajaytripathy/kubecost-sql-init"
+    initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally
     persistentVolume:
@@ -168,6 +174,7 @@ prometheus:
 networkCosts:
   enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v3
+  imagePullPolicy: Always
   resources:
     #requests:
     #  cpu: "50m"
