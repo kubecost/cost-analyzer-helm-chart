@@ -34,6 +34,7 @@ kubecostChecks:
 
 kubecostFrontend:
   image: "ajaytripathy/kubecost-frontend"
+  imagePullPolicy: Always
   resources:
     requests:
       cpu: "10m"
