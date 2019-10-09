@@ -1,7 +1,7 @@
 {{- if .Values.remoteWrite -}}
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}-adapter
