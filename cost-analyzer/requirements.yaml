@@ -7,3 +7,7 @@ dependencies:
     repository: file://./charts/
     version: "1.X.X"
     condition: global.grafana.enabled
+  - name: thanos
+    repository: file://./charts/
+    version: "0.X.X"
+    condition: global.thanos.enabled

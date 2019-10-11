@@ -1,0 +1,62 @@
+global:
+  thanos:
+    enabled: true
+
+prometheus:
+  server:
+    extraArgs:
+      storage.tsdb.min-block-duration: 2h
+      storage.tsdb.max-block-duration: 2h
+      storage.tsdb.retention: 2w
+    extraVolumes:
+    - name: object-store-volume
+      secret:
+        # Ensure this secret name matches thanos.storeSecretName
+        secretName: kubecost-thanos
+    enableAdminApi: true
+    sidecarContainers:
+    - name: thanos-sidecar
+      image: improbable/thanos:v0.6.0
+      args:
+      - sidecar
+      - --log.level=debug
+      - --tsdb.path=/data/
+      - --prometheus.url=http://127.0.0.1:9090
+      - --objstore.config-file=/etc/config/object-store.yaml
+      env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      ports:
+      - name: sidecar-http
+        containerPort: 10902
+      - name: grpc
+        containerPort: 10901
+      - name: cluster
+        containerPort: 10900
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/prometheus
+      - name: storage-volume
+        mountPath: /data
+        subPath: ""
+      - name: object-store-volume
+        mountPath: /etc/config
+        readonly: true
+    
+thanos:
+  store:
+    enabled: true
+  query: 
+    enabled: true
+  # Thanos Sidecar Service Discovery
+  sidecar:
+    enabled: true
+  bucket:
+    enabled: true
+  compact:
+    enabled: true
+  # This secret name should match the sidecar configured secret name volume
+  # in the prometheus.server.extraVolumes entry
+  storeSecretName: kubecost-thanos
