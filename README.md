@@ -27,6 +27,7 @@ Parameter | Description | Default
 `ingress.hosts` | Ingress hostnames | `[cost-analyzer.local]`
 `ingress.tls` | Ingress TLS configuration (YAML) | `[]`
 `networkPolicy.enabled` | If true, create a NetworkPolicy to deny egress  | `false`
+`networkCosts.enabled` | If true, collect network allocation metrics [More info](http://docs.kubecost.com/network-allocation) | `false`
 `serviceMonitor.enabled` | Set this to `true` to create ServiceMonitor for Prometheus operator | `false`
 `serviceMonitor.additionalLabels` | Additional labels that can be used so ServiceMonitor will be discovered by Prometheus | `{}`
 `prometheusRule.enabled` | Set this to `true` to create PrometheusRule for Prometheus operator | `false`

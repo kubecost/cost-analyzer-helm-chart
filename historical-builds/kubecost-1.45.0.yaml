@@ -54,7 +54,7 @@ metadata:
 type: Opaque
 data:
   admin-user: "YWRtaW4="
-  admin-password: "a2MxWnhQamk3ZWRkbEhYNUxjYno0OEp4OUxMSWNQVU54b05oOWhnVg=="
+  admin-password: "NmNFa1RHOHdjYTVGaGN3V3lBQVZ0cWxBbmRMcnp3cmJFODZQb0ZyVw=="
   ldap-toml: ""
 
 ---
@@ -405,7 +405,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -422,7 +422,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -449,7 +449,7 @@ data:
         root /var/www;
         index index.html;
         add_header Cache-Control "no-cache";
-        add_header ETag "1.45.2";
+        add_header ETag "1.45.0";
         location /api/ {
             proxy_pass http://api/;
             proxy_redirect off;
@@ -489,7 +489,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -2169,7 +2169,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -5659,7 +5659,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -7123,7 +7123,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -8605,7 +8605,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -9778,7 +9778,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -11165,7 +11165,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -11980,7 +11980,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -12062,7 +12062,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -12156,7 +12156,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -12311,7 +12311,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -12470,7 +12470,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -12680,7 +12680,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -13188,7 +13188,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -13232,7 +13232,7 @@ spec:
           securityContext:
             runAsUser: 0
 
-        - image: ajaytripathy/kubecost-init:prod-1.45.2
+        - image: ajaytripathy/kubecost-init:prod-1.45.0
           name: cost-analyzer-init
           imagePullPolicy: Always
           env:
@@ -13242,7 +13242,7 @@ spec:
                   name: kubecost-cost-analyzer
                   key: prometheus-server-endpoint
       containers:
-        - image: ajaytripathy/kubecost-frontend:prod-1.45.2
+        - image: ajaytripathy/kubecost-frontend:prod-1.45.0
           env:
             - name: GET_HOSTS_FROM
               value: dns
@@ -13263,7 +13263,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
-        - image: ajaytripathy/kubecost:prod-1.45.2
+        - image: ajaytripathy/kubecost:prod-1.45.0
           resources:
             requests:
               cpu: 100m
@@ -13293,7 +13293,7 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: ajaytripathy/kubecost-cost-model:prod-1.45.2
+        - image: ajaytripathy/kubecost-cost-model:prod-1.45.0
           name: cost-model
           imagePullPolicy: Always
           resources:
@@ -13344,7 +13344,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.45.2
+    helm.sh/chart: cost-analyzer-1.45.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Tiller
     app: cost-analyzer
@@ -13356,7 +13356,7 @@ spec:
         spec:
           containers:
           - name: cost-analyzer-checks
-            image: ajaytripathy/kubecost-checks:prod-1.45.2
+            image: ajaytripathy/kubecost-checks:prod-1.45.0
             args:
             - node
             - ./node/cron.js
