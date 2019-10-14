@@ -4,6 +4,9 @@ global:
     enabled: true # If false, Prometheus will not be installed
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
+  thanos:
+    enabled: false
+
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
