@@ -43,7 +43,6 @@ prometheus:
         subPath: ""
       - name: object-store-volume
         mountPath: /etc/config
-        readonly: true
     
 thanos:
   store:
