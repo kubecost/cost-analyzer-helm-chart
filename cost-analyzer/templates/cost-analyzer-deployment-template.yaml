@@ -180,12 +180,14 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
-            {{- if and .Values.thanos .Values.thanos.query }}
+            {{- if .Values.thanos }}
+            {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
-              value: {{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}.svc.cluster.local
+              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}.svc.cluster.local:10902
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
