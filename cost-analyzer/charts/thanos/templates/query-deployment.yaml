@@ -76,7 +76,7 @@ spec:
         {{- end }}
         ports:
         - name: http
-          containerPort: {{ .Values.query.http.port}}
+          containerPort: {{ .Values.query.http.port }}
         - name: grpc
           containerPort: {{ .Values.query.grpc.port }}
         resources:
