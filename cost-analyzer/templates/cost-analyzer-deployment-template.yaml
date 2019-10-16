@@ -186,7 +186,7 @@ spec:
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
-              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}.svc.cluster.local:10902
+              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
             {{- end }}
             {{- end }}
             {{- end }}
