@@ -19,6 +19,7 @@ spec:
           {{- else }}
             image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
           {{ end }}
+            imagePullPolicy: Always
             args:
             - node
             - ./node/cron.js
