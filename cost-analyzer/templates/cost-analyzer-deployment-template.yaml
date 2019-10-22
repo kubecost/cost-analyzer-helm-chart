@@ -1,10 +1,13 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  selector:
+    matchLabels:
+{{ include "cost-analyzer.selectorLabels" . | nindent 8}}
   strategy:
     rollingUpdate:
       maxSurge: 1

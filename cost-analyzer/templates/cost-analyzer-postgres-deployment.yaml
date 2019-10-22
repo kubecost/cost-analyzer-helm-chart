@@ -2,13 +2,16 @@
 {{- if .Values.remoteWrite.postgres -}}
 {{- if .Values.remoteWrite.postgres.enabled -}}
 {{- if .Values.remoteWrite.postgres.installLocal -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}-postgres
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  selector:
+    matchLabels:
+{{ include "cost-analyzer.selectorLabels" . | nindent 8}}
   strategy:
     rollingUpdate:
       maxSurge: 1

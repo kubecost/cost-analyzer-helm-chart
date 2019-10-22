@@ -1,7 +1,7 @@
 ---
 # Source: cost-analyzer/charts/grafana/templates/podsecuritypolicy.yaml
 
-apiVersion: extensions/v1beta1
+apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
 metadata:
   name: kubecost-grafana
@@ -12706,7 +12706,7 @@ spec:
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/node-exporter-daemonset.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   labels:
@@ -12900,7 +12900,7 @@ spec:
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/alertmanager-deployment.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -12990,7 +12990,7 @@ spec:
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/kube-state-metrics-deployment.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -13034,7 +13034,7 @@ spec:
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/pushgateway-deployment.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -13092,7 +13092,7 @@ spec:
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/server-deployment.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
@@ -13183,7 +13183,7 @@ spec:
             claimName: kubecost-prometheus-server
 ---
 # Source: cost-analyzer/templates/cost-analyzer-deployment-template.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubecost-cost-analyzer
