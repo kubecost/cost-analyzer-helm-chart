@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-{{ include "cost-analyzer.selectorLabels" . | nindent 8}}
+      app: adapter
   strategy:
     rollingUpdate:
       maxSurge: 1
