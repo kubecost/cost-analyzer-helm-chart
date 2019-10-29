@@ -11,7 +11,7 @@ metadata:
 spec:
   selector:
     matchLabels:
-{{ include "cost-analyzer.selectorLabels" . | nindent 8}}
+      app: postgres
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -23,7 +23,7 @@ spec:
         app: postgres
     spec:
         containers:
-            - image: timescale/pg_prometheus:latest
+            - image: timescale/pg_prometheus:latest-pg11
               name: pgprometheus
               ports:
               - containerPort: 5432
