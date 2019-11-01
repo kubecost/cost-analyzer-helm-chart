@@ -34,7 +34,6 @@ data:
         index index.html;
         add_header Cache-Control "max-age=0";
         add_header Cache-Control "must-revalidate";
-        add_header Cache-Control "no-cache";
         add_header ETag "{{ $.Chart.Version }}";
         location /api/ {
             proxy_pass http://api/;
