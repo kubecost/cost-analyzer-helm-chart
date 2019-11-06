@@ -41,6 +41,10 @@ spec:
           name: nf-conntrack
         - mountPath: /netfilter
           name: netfilter
+        {{- if .Values.networkCosts.config }}
+        - mountPath: /network-costs/config
+          name: network-costs-config
+        {{- end }}
         securityContext:
           privileged: true
         ports:
@@ -48,6 +52,11 @@ spec:
           containerPort: 3001
           hostPort: 3001
       volumes:
+      {{- if .Values.networkCosts.config }}
+      - name: network-costs-config
+        configMap:
+          name: network-costs-config
+      {{- end }}
       - name: nf-conntrack
         hostPath: 
           path: /proc/net

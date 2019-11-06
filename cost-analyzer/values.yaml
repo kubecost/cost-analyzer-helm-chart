@@ -176,12 +176,23 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v6
+  image: gcr.io/kubecost1/kubecost-network-costs:v7
   imagePullPolicy: Always
   resources:
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
+  config:
+    # White Listed from Egress Reporting
+    # Accepts both static IPs and CIDR block
+    whiteList:
+      - "127.0.0.1"
+      # IPv4 Link Local Address Space
+      - "169.254.0.0/16"
+      # Private Address Ranges in RFC-1918
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
 
 serviceMonitor:
   enabled: false
