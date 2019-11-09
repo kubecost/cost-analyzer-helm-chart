@@ -47,6 +47,9 @@ prometheus:
 thanos:
   store:
     enabled: true
+    resources: 
+      requests:
+        memory: "2Gi"
   query: 
     enabled: true
   # Thanos Sidecar Service Discovery
