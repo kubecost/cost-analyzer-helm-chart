@@ -6,7 +6,7 @@ global:
 
   thanos:
     enabled: false
-
+  
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
@@ -23,9 +23,13 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
-
+saml:
+  enabled: false
+  secretName: "okta"
+  idpMetadataURL: "https://dev-596290.okta.com/app/exk1sy65amhnU16ih357/sso/saml/metadata"
 kubecostChecks:
   enabled: true
+  debug: false
   image: "ajaytripathy/kubecost-checks"
   resources:
     requests:
