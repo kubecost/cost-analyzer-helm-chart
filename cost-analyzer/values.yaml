@@ -27,6 +27,7 @@ global:
 kubecostChecks:
   enabled: true
   image: "ajaytripathy/kubecost-checks"
+  debug: false
   resources:
     requests:
       cpu: "20m"
