@@ -31,6 +31,7 @@ kubecostChecks:
   enabled: true
   debug: false
   image: "ajaytripathy/kubecost-checks"
+  debug: false
   resources:
     requests:
       cpu: "20m"

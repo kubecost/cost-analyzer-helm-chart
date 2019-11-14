@@ -7,7 +7,11 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  {{- if .Values.kubecostChecks.debug }}
+  schedule: "*/1 * * * *"
+  {{- else }}
   schedule: "*/10 * * * *"
+  {{- end }}
   jobTemplate:
     spec:
       template:
@@ -17,7 +21,7 @@ spec:
           {{- if .Values.kubecostChecks }}
             image: {{ .Values.kubecostChecks.image }}:prod-{{ $.Chart.AppVersion }}
           {{- else }}
-            image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
+            image: ajaytripathy/kubecost-checks:prod-{{ $.Chart.AppVersion }}
           {{ end }}
             imagePullPolicy: Always
             args:
@@ -30,6 +34,12 @@ spec:
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}:9001
             - name: COST_ANALYZER_MODEL_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}:9003
+            {{- if .Values.kubecostChecks }}
+            {{- if .Values.kubecostChecks.debug }}
+            - name: SEND_UPDATES_NOW
+              value: "true"
+            {{- end }}
+            {{- end }}
             - name: PROMETHEUS_ALERTMANAGER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
