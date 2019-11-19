@@ -10,7 +10,7 @@ The following table lists the commonly used configurable parameters of the Kubec
 
 Parameter | Description | Default
 --------- | ----------- | -------
-`global.prometheus.enabled` | If true, use an existing Prometheus install. [More info](http://docs.kubecost.com/custom-prom). | `false`
+`global.prometheus.enabled` | If false, use an existing Prometheus install. [More info](http://docs.kubecost.com/custom-prom). | `true`
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
 `prometheus.server.retention` | Determines when to remove old data. | `15d`
