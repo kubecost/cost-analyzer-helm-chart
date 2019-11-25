@@ -33,7 +33,11 @@ spec:
             - name: COST_ANALYZER_SERVER_ENDPOINT
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}:9001
             - name: COST_ANALYZER_MODEL_ENDPOINT
+              {{- if .Values.saml.enabled }}
+              value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}:9004
+              {{- else }}
               value: {{ template "cost-analyzer.fullname" . }}.{{ .Release.Namespace  }}:9003
+              {{ end }}
             {{- if .Values.kubecostChecks }}
             {{- if .Values.kubecostChecks.debug }}
             - name: SEND_UPDATES_NOW

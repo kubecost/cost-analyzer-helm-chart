@@ -212,6 +212,8 @@ spec:
               value: "true"
             - name: IDP_URL
               value: {{ .Values.saml.idpMetadataURL }}
+            - name: SP_HOST
+              value: {{ .Values.saml.appRootURL }}
             {{- end }}
             {{- end }}
             {{- if .Values.prometheus.server.global.external_labels.cluster_id }}

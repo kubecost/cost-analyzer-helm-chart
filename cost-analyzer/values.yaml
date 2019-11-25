@@ -25,8 +25,9 @@ global:
     # iam.amazonaws.com/role: role-arn
 saml:
   enabled: false
-  secretName: "okta"
-  idpMetadataURL: "https://dev-596290.okta.com/app/exk1sy65amhnU16ih357/sso/saml/metadata"
+  secretName: "azure"
+  idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
+  appRootURL: "https://www.supplementrack.com" #sample URL
 kubecostChecks:
   enabled: true
   debug: false
@@ -180,8 +181,8 @@ prometheus:
               record: kubecost_cluster_memory_working_set_bytes
 
 networkCosts:
-  enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v7
+  enabled: true
+  image: gcr.io/kubecost1/kubecost-network-costs:v8
   imagePullPolicy: Always
   resources:
     #requests:
