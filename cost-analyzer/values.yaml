@@ -28,11 +28,11 @@ saml: # enterprise key required to use
   secretName: "azure"
   idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
   appRootURL: "https://www.stackwatch.com" #sample URL
+
 kubecostChecks:
   enabled: true
   debug: false
   image: "ajaytripathy/kubecost-checks"
-  debug: false
   resources:
     requests:
       cpu: "20m"
