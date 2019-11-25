@@ -37,6 +37,13 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- if .Values.saml }}
+        {{- if .Values.saml.enabled }}
+        - name: secret-volume
+          secret:
+            secretName: {{ .Values.saml.secretName }}
+        {{- end }}
+        {{- end }}
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -165,6 +172,12 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.saml }}
+            {{- if .Values.saml.enabled }}
+            - name: secret-volume
+              mountPath: /var/configs/secret-volume
+            {{- end }}
+            {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
@@ -191,6 +204,16 @@ spec:
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
             {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.saml }}
+            {{- if .Values.saml.enabled }}
+            - name: SAML_ENABLED
+              value: "true"
+            - name: IDP_URL
+              value: {{ .Values.saml.idpMetadataURL }}
+            - name: SP_HOST
+              value: {{ .Values.saml.appRootURL }}
             {{- end }}
             {{- end }}
             {{- if .Values.prometheus.server.global.external_labels.cluster_id }}

@@ -54,6 +54,29 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location /saml/ {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://model/saml/;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /login {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://model/login;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
 {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
             proxy_pass http://grafana/;

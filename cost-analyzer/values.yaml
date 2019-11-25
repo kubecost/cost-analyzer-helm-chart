@@ -6,7 +6,7 @@ global:
 
   thanos:
     enabled: false
-
+  
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
@@ -23,11 +23,16 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+saml: # enterprise key required to use
+  enabled: false
+  secretName: "azure"
+  idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
+  appRootURL: "https://www.stackwatch.com" #sample URL
 
 kubecostChecks:
   enabled: true
-  image: "ajaytripathy/kubecost-checks"
   debug: false
+  image: "ajaytripathy/kubecost-checks"
   resources:
     requests:
       cpu: "20m"
@@ -177,7 +182,7 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v7
+  image: gcr.io/kubecost1/kubecost-network-costs:v8
   imagePullPolicy: Always
   resources:
     #requests:

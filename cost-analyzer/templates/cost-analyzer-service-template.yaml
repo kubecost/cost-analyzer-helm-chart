@@ -26,3 +26,10 @@ spec:
     - name: frontend
       port: 9090
       targetPort: 9090
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    - name: apiserver
+      port: 9004
+      targetPort: 9004
+    {{- end }}
+    {{- end }}
