@@ -27,7 +27,7 @@ saml:
   enabled: false
   secretName: "azure"
   idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
-  appRootURL: "https://www.supplementrack.com" #sample URL
+  appRootURL: "https://www.stackwatch.com" #sample URL
 kubecostChecks:
   enabled: true
   debug: false
@@ -181,7 +181,7 @@ prometheus:
               record: kubecost_cluster_memory_working_set_bytes
 
 networkCosts:
-  enabled: true
+  enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v8
   imagePullPolicy: Always
   resources:
