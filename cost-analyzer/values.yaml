@@ -23,7 +23,7 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
-saml:
+saml: # enterprise key required to use
   enabled: false
   secretName: "azure"
   idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
