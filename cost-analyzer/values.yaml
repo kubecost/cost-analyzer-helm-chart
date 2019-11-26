@@ -105,7 +105,7 @@ service:
   type: ClusterIP
 
 remoteWrite:
-  postgres: 
+  postgres:
     enabled: false
     initImage: "ajaytripathy/kubecost-sql-init"
     initImagePullPolicy: Always
@@ -217,3 +217,6 @@ grafana:
     datasources:
       enabled: true
       defaultDatasourceEnabled: true
+
+serviceAccount:
+  create: true
