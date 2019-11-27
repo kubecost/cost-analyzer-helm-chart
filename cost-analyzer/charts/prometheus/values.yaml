@@ -1037,6 +1037,11 @@ serverFiles:
             action: keep
             regex: default;kubernetes;https
 
+        metric_relabel_configs:
+          - source_labels: [ __name__ ]
+            regex: (apiserver_request_latencies_bucket|apiserver_response_sizes_bucket|apiserver_request_latencies_summary)
+            action: drop
+
       - job_name: 'kubernetes-nodes'
 
         # Default to scraping over https. If required, just disable this or change to
@@ -1073,6 +1078,10 @@ serverFiles:
             target_label: __metrics_path__
             replacement: /api/v1/nodes/$1/proxy/metrics
 
+        metric_relabel_configs:
+          - source_labels: [ __name__ ]
+            regex: (storage_operation_duration_seconds_bucket|rest_client_request_latency_seconds_bucket)
+            action: drop
 
       - job_name: 'kubernetes-nodes-cadvisor'
 
@@ -1114,6 +1123,11 @@ serverFiles:
             regex: (.+)
             target_label: __metrics_path__
             replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
+
+        metric_relabel_configs:
+          - source_labels: [ __name__ ]
+            regex: (container_tasks_state|container_memory_failures_total|container_memory_swap|container_memory_cache|container_fs_reads_total|container_fs_writes_total|container_network_tcp_usage_total)
+            action: drop
 
       # Scrape config for service endpoints.
       #
