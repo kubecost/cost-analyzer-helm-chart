@@ -32,7 +32,7 @@ data:
         server_name _;
         root /var/www;
         index index.html;
-        add_header Cache-Control "max-age=0";
+        add_header Cache-Control "max-age=300";
         add_header Cache-Control "must-revalidate";
         add_header ETag "{{ $.Chart.Version }}";
         location /api/ {
