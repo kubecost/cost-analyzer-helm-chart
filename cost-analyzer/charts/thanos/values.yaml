@@ -1,6 +1,6 @@
 image:
-  repository: improbable/thanos
-  tag: v0.6.0
+  repository: thanosio/thanos
+  tag: v0.8.1
   pullPolicy: IfNotPresent
 
 store:

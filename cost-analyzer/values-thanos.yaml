@@ -16,13 +16,14 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: improbable/thanos:v0.6.0
+      image: thanosio/thanos:v0.8.1
       args:
       - sidecar
       - --log.level=debug
       - --tsdb.path=/data/
       - --prometheus.url=http://127.0.0.1:9090
       - --objstore.config-file=/etc/config/object-store.yaml
+      - --min-time=-3h
       env:
       - name: POD_NAME
         valueFrom:
