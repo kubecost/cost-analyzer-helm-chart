@@ -20,7 +20,7 @@ rules:
       - persistentvolumeclaims
       - persistentvolumes
       - endpoints
-      - secrets
+      # - secrets
       - configmaps
     verbs:
       - list
