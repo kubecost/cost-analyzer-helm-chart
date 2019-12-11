@@ -2,7 +2,7 @@
 
 --------------------------------------------------
 
-Kubecost has been successfully installed. Enabled port-forwarding with the following command:
+Kubecost has been successfully installed. When pods are Ready, you can enable port-forwarding with the following command:
     
     kubectl port-forward --namespace {{ .Release.Namespace }} deployment/{{ template "cost-analyzer.fullname" . }} 9090
     
