@@ -51,11 +51,15 @@ prometheus:
 thanos:
   store:
     enabled: true
+    grpcSeriesMaxConcurrency: 1
+    blockSyncConcurrency: 1
     resources: 
       requests:
-        memory: "2Gi"
+        memory: "2.5Gi"
   query: 
     enabled: true
+    timeout: 3m
+    maxConcurrent: 10
   # Thanos Sidecar Service Discovery
   sidecar:
     enabled: true

@@ -47,6 +47,8 @@ spec:
         - "--log.level={{ .Values.query.logLevel }}"
         - "--grpc-address=0.0.0.0:{{ .Values.query.grpc.port }}"
         - "--http-address=0.0.0.0:{{ .Values.query.http.port }}"
+        - "--query.timeout={{ .Values.query.timeout }}"
+        - "--query.max-concurrent={{ .Values.query.maxConcurrent }}"
         {{- if .Values.query.replicaLabel }}
         - "--query.replica-label={{ .Values.query.replicaLabel }}"
         {{- end }}
