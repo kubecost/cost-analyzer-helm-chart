@@ -1039,7 +1039,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (apiserver_request_latencies_bucket|apiserver_response_sizes_bucket|apiserver_request_latencies_summary|apiserver_request_count|apiserver_request_latencies_sum|apiserver_request_latencies_summary_count|apiserver_request_latencies_summary_sum|apiserver_request_latencies_count|apiserver_admission_controller_admission_latencies_seconds_bucket|apiserver_request_duration_seconds_bucket)
+            regex: (apiserver_request_latencies_bucket|apiserver_response_sizes_bucket|apiserver_request_latencies_summary|apiserver_request_latencies_sum|apiserver_request_latencies_summary_count|apiserver_request_latencies_summary_sum|apiserver_request_latencies_count|apiserver_admission_controller_admission_latencies_seconds_bucket|apiserver_request_duration_seconds_bucket)
             action: drop
 
       - job_name: 'kubernetes-nodes'
