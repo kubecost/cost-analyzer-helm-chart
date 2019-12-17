@@ -156,6 +156,11 @@ query:
   # can be useful, for example, if Thanos UI is served via Traefik reverse proxy with PathPrefixStrip option enabled, which sends the
   # stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a sub-path
   webPrefixHeader: ""
+  # Maximum time to process query by query node.
+  timeout: 2m
+  # Maximum number of queries processed
+  # concurrently by query node.
+  maxConcurrent: 20
   # https://github.com/improbable-eng/thanos/issues/1015
   storeDNSResolver: miekgdns
   # Enable DNS discovery for stores
