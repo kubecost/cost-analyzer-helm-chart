@@ -20,7 +20,7 @@ data:
       name: Prometheus
       type: prometheus
 {{- if .Values.global.prometheus.enabled }}
-      url: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}.svc.cluster.local
+      url: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}
 {{ else }}
       url: {{ .Values.global.prometheus.fqdn }}
 {{- end -}}
