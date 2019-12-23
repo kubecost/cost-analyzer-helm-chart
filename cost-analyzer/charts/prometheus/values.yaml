@@ -1027,7 +1027,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (storage_operation_duration_seconds_bucket|rest_client_request_latency_seconds_bucket)
+            regex: (storage_operation_duration_seconds_bucket|rest_client_request_latency_seconds_bucket|kubelet_runtime_operations_duration_seconds_bucket|kubelet_runtime_operations_latency_microseconds|kubelet_.*)
             action: drop
 
       - job_name: 'kubernetes-nodes-cadvisor'
@@ -1123,7 +1123,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready)
+            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready|kube_secret_.*|kube_configmap_.*)
             action: drop
 
       - job_name: 'prometheus-pushgateway'
