@@ -989,6 +989,7 @@ serverFiles:
           - targets:
             - localhost:9090
 
+<<<<<<< HEAD
       # A scrape configuration for running Prometheus on a Kubernetes cluster.
       # This uses separate scrape configs for cluster components (i.e. API server, node)
       # and services to allow each to use different authentication configs.
@@ -1042,6 +1043,8 @@ serverFiles:
             regex: (apiserver_request_latencies_bucket|apiserver_response_sizes_bucket|apiserver_request_latencies_summary|apiserver_request_latencies_sum|apiserver_request_latencies_summary_count|apiserver_request_latencies_summary_sum|apiserver_request_latencies_count|apiserver_admission_controller_admission_latencies_seconds_bucket|apiserver_request_duration_seconds_bucket)
             action: drop
 
+=======
+>>>>>>> f5e82afd18b2708006afff24121e90743106719a
       - job_name: 'kubernetes-nodes'
 
         # Default to scraping over https. If required, just disable this or change to
