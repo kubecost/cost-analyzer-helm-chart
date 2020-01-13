@@ -100,6 +100,7 @@ networkPolicy:
 persistentVolume:
   size: 0.2Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
+  # storageClass: "-" # 
 
 service:
   type: ClusterIP
