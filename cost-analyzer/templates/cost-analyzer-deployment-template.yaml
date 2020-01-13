@@ -227,7 +227,8 @@ spec:
             - name: SQL_ADDRESS
               value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
-
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
