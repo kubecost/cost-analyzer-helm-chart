@@ -221,3 +221,25 @@ grafana:
 
 serviceAccount:
   create: true
+
+# These configs are settable from either the /settings.html page or values.yaml
+# This block overrides configs set on /settings.html on pod restart
+#kubecostProductConfigs: 
+#  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
+#    CPU: 28.0
+#    spotCPU: 4.86
+#    RAM: 3.09
+#    spotRAM: 0.65
+#    GPU: 693.50
+#    spotGPU: 225.0
+#    storage: 0.04
+#    zoneNetworkEgress: 0.01
+#    regionNetworkEgress: 0.01
+#    internetNetworkEgress: 0.12
+#    enabled: true
+#  clusterName: ""
+#  currencyCode: "USD"
+#  discount: ""
+#  negotiatedDiscount: ""
+#  defaultIdle: false
+#  sharedNamespaces: ""

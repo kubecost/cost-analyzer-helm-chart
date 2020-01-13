@@ -1,0 +1,61 @@
+{{- if .Values.kubecostProductConfigs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pricing-configs
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing }}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.enabled }}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.CPU }}
+    CPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.CPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.CPU 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotCPU }}
+    spotCPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.RAM }}
+    RAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.RAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.RAM 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotRAM }}
+    spotRAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.GPU }}
+    GPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.GPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.GPU 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotGPU }}
+    spotGPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.storage }}
+    storage: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.storage 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.storage 100)  730) 100 | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress }}
+    zoneNetworkEgress: "{{ .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.regionNetworkEgress }}
+    regionNetworkEgress: "{{ .Values.kubecostProductConfigs.defaultModelPricing.regionNetworkEgress | toString }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultModelPricing.internetNetworkEgress }}
+    internetNetworkEgress: "{{ .Values.kubecostProductConfigs.defaultModelPricing.internetNetworkEgress | toString }}"
+  {{- end -}}
+  {{- end -}}
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.clusterName }}
+    clusterName: "{{ .Values.kubecostProductConfigs.clusterName }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.currencyCode }}
+    currencyCode: "{{ .Values.kubecostProductConfigs.currencyCode }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.discount }}
+    discount: "{{ .Values.kubecostProductConfigs.discount }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.negotiatedDiscount }}
+    negotiatedDiscount: "{{ .Values.kubecostProductConfigs.negotiatedDiscount }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.defaultIdle }}
+    defaultIdle: "{{ .Values.kubecostProductConfigs.defaultIdle }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
+    sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
+  {{- end -}}
+{{- end -}}
