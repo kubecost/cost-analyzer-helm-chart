@@ -222,10 +222,10 @@ grafana:
 serviceAccount:
   create: true
 
-# These configs are settable from either the /settings.html page or value.yaml
-# This block overrides set configs on /settings.html on pod restart
+# These configs are settable from either the /settings.html page or values.yaml
+# This block overrides configs set on /settings.html on pod restart
 #kubecostProductConfigs: 
-#  defaultModelPricing:
+#  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
 #    RAM: 3.09
