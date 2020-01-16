@@ -35,6 +35,10 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- printf "%s-%s" .Release.Name "network-costs" -}}
 {{- end -}}
 
+{{- define "kubecost.turndownName" -}}
+{{- printf "%s-%s" .Release.Name "turndown" -}}
+{{- end -}}
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}

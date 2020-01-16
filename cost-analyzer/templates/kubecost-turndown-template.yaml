@@ -1,0 +1,212 @@
+{{- if and .Values.turndown .Values.turndown.enabled }}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ template "kubecost.turndownName" . }}
+  labels:
+    app: {{ template "kubecost.turndownName" . }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ template "kubecost.turndownName" . }}
+  labels:
+    app: {{ template "kubecost.turndownName" . }}
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+      - deployments
+      - nodes
+      - pods
+      - events
+      - services
+      - resourcequotas
+      - replicationcontrollers
+      - limitranges
+      - persistentvolumeclaims
+      - persistentvolumes
+      - namespaces
+      - endpoints
+      - pods/eviction
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+      - update
+      - patch 
+      - delete
+  - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+      - deployments
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - apps
+    resources:
+      - statefulsets
+      - deployments
+      - daemonsets
+      - replicasets
+    verbs:
+      - get 
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - batch
+    resources:
+      - cronjobs
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - autoscaling
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - policy
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups: 
+      - storage.k8s.io
+    resources: 
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "kubecost.turndownName" . }}
+  labels:
+    app: {{ template "kubecost.turndownName" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ template "kubecost.turndownName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "kubecost.turndownName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "kubecost.turndownName" . }}
+  labels:
+    app: {{ template "kubecost.turndownName" . }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 0.1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "kubecost.turndownName" . }}
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: {{ template "kubecost.turndownName" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "kubecost.turndownName" . }}
+    spec:
+      containers:
+      - name: {{ template "kubecost.turndownName" . }}
+        image: {{ .Values.turndown.image }}
+        imagePullPolicy: {{ .Values.turndown.imagePullPolicy }}
+        volumeMounts:
+        - name: turndown-volume
+          mountPath: /var/configs
+        - name: turndown-keys
+          mountPath: /var/keys
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: TURNDOWN_NAMESPACE
+          value: {{ .Release.Namespace }}
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /var/keys/service-key.json
+        ports:
+        - name: http-server
+          containerPort: 9731
+          hostPort: 9731
+      serviceAccount: {{ template "kubecost.turndownName" . }}
+      serviceAccountName: {{ template "kubecost.turndownName" . }}
+      volumes:
+      - name: turndown-volume
+        persistentVolumeClaim:
+          claimName: {{ template "kubecost.turndownName" . }}
+      - name: turndown-keys
+        secret:
+          secretName: kubecost-turndown-service-key
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+          effect: NoSchedule
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "kubecost.turndownName" . }}-service
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    protocol: TCP
+    port: 9731
+    targetPort: 9731
+  selector:
+    app: {{ template "kubecost.turndownName" . }}
+{{- end }}

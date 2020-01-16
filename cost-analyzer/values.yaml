@@ -201,6 +201,11 @@ networkCosts:
       - "172.16.0.0/12"
       - "192.168.0.0/16"
 
+turndown:
+  enabled: false
+  image: gcr.io/kubecost1/kubecost-turndown:v1
+  imagePullPolicy: Always
+
 serviceMonitor:
   enabled: false
   additionalLabels: {}
