@@ -53,7 +53,7 @@ spec:
           hostPort: 3001
 {{- if .Values.networkCosts.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+{{ toYaml .Values.networkCosts.tolerations | indent 8 }}
     {{- end }}
       volumes:
       {{- if .Values.networkCosts.config }}
