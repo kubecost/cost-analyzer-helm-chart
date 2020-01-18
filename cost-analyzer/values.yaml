@@ -1,12 +1,12 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans 
+    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
   thanos:
     enabled: false
-  
+
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
@@ -200,6 +200,15 @@ networkCosts:
       - "10.0.0.0/8"
       - "172.16.0.0/12"
       - "192.168.0.0/16"
+  ## Node tolerations for server scheduling to nodes with taints
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+
 
 serviceMonitor:
   enabled: false
@@ -224,7 +233,7 @@ serviceAccount:
 
 # These configs are settable from either the /settings.html page or values.yaml
 # This block overrides configs set on /settings.html on pod restart
-#kubecostProductConfigs: 
+#kubecostProductConfigs:
 #  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
