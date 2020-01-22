@@ -1123,7 +1123,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready|kube_secret_.*|kube_configmap_.*)
+            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready|kube_secret_.*|kube_configmap_.*|kube_replicaset.*|node_network.*)
             action: drop
 
       - job_name: 'prometheus-pushgateway'
