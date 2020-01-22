@@ -214,6 +214,14 @@ spec:
               value: {{ .Values.saml.idpMetadataURL }}
             - name: SP_HOST
               value: {{ .Values.saml.appRootURL }}
+            {{- if .Values.saml.rbac.enabled }}
+            - name: SAML_RBAC_ENABLED
+              value: "true"
+            - name: USERTYPE_ASSERTION_NAME
+              value: {{ .Values.saml.rbac.userTypeAssertionName }}
+            - name: USERTYPE_ASSERTION_ADMIN_VALUE
+              value: {{ .Values.saml.rbac.userTypeAdminValue }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
