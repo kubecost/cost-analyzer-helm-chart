@@ -24,12 +24,12 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 saml: # enterprise key required to use
-  enabled: true
+  enabled: false
   secretName: "kubecost-authzero"
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
   appRootURL: "http://localhost:9090" #sample URL
   rbac:
-    enabled: true
+    enabled: false
     userTypeAssertionName: "http://schemas.auth0.com/userType" # The name of assertion for userType
     userTypeAdminValue: "admin"
 
