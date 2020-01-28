@@ -9,6 +9,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if .Values.persistentVolume.storageClass }}
+  storageClassName: {{ .Values.persistentVolume.storageClass }}
+  {{ end }}
   resources:
     requests:
     {{- if .Values.persistentVolume }}
@@ -27,6 +30,9 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  {{- if .Values.persistentVolume.storageClass }}
+  storageClassName: {{ .Values.persistentVolume.storageClass }}
+  {{ end }}
   resources:
     requests:
     {{- if .Values.persistentVolume }}
