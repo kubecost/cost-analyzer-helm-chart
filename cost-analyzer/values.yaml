@@ -217,6 +217,11 @@ networkCosts:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
 
+turndown:
+  enabled: false
+  image: gcr.io/kubecost1/kubecost-turndown:v2
+  imagePullPolicy: Always
+
 serviceMonitor:
   enabled: false
   additionalLabels: {}
