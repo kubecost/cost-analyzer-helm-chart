@@ -235,6 +235,8 @@ spec:
             - name: SQL_ADDRESS
               value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
+            - name: RELEASE_NAME
+              value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
             - name: KUBECOST_TOKEN
