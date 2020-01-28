@@ -27,9 +27,9 @@ rules:
       - limitranges
       - persistentvolumeclaims
       - persistentvolumes
-      - namespaces
       - endpoints
       - pods/eviction
+      - namespaces
     verbs:
       - get
       - list
@@ -191,10 +191,6 @@ spec:
       - name: turndown-keys
         secret:
           secretName: kubecost-turndown-service-key
-      tolerations:
-        - key: CriticalAddonsOnly
-          operator: Exists
-          effect: NoSchedule
 ---
 apiVersion: v1
 kind: Service
