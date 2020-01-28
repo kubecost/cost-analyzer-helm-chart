@@ -42,6 +42,11 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ .Values.saml.secretName }}
+        {{- if .Values.saml.rbac.enabled }}
+        - name: saml-roles
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-saml
+        {{- end }}
         {{- end }}
         {{- end }}
         - name: persistent-configs
@@ -176,6 +181,10 @@ spec:
             {{- if .Values.saml.enabled }}
             - name: secret-volume
               mountPath: /var/configs/secret-volume
+            {{- if .Values.saml.rbac.enabled }}
+            - name: saml-roles
+              mountPath: /var/configs/saml
+            {{- end }}
             {{- end }}
             {{- end }}
           env:
@@ -217,10 +226,6 @@ spec:
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"
-            - name: USERTYPE_ASSERTION_NAME
-              value: {{ .Values.saml.rbac.userTypeAssertionName }}
-            - name: USERTYPE_ASSERTION_ADMIN_VALUE
-              value: {{ .Values.saml.rbac.userTypeAdminValue }}
             {{- end }}
             {{- end }}
             {{- end }}

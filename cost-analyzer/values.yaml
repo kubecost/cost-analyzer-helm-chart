@@ -30,9 +30,18 @@ saml: # enterprise key required to use
   appRootURL: "http://localhost:9090" #sample URL
   rbac:
     enabled: false
-    userTypeAssertionName: "http://schemas.auth0.com/userType" # The name of assertion for userType
-    userTypeAdminValue: "admin"
-
+    groups:
+      - name: admin
+        enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
+        assertionName: "http://schemas.auth0.com/userType" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
+        assertionValues:
+          - "admin"
+          - "superusers"
+      - name: readonly 
+        enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
+        assertionName:  "http://schemas.auth0.com/userType"
+        assertionvalues:
+          - "readonly"
 kubecostChecks:
   enabled: true
   debug: false
