@@ -51,6 +51,13 @@ spec:
         - name: http-server
           containerPort: 3001
           hostPort: 3001
+{{- if .Values.networkCosts.priorityClassName }}
+      priorityClassName: "{{ .Values.networkCosts.priorityClassName }}"
+{{- end }}
+{{- if .Values.networkCosts.tolerations }}
+      tolerations:
+{{ toYaml .Values.networkCosts.tolerations | indent 8 }}
+    {{- end }}
       volumes:
       {{- if .Values.networkCosts.config }}
       - name: network-costs-config
@@ -58,7 +65,7 @@ spec:
           name: network-costs-config
       {{- end }}
       - name: nf-conntrack
-        hostPath: 
+        hostPath:
           path: /proc/net
       - name: netfilter
         hostPath:

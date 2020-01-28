@@ -1,12 +1,12 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans 
+    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
 
   thanos:
     enabled: false
-  
+
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
@@ -25,9 +25,13 @@ global:
     # iam.amazonaws.com/role: role-arn
 saml: # enterprise key required to use
   enabled: false
-  secretName: "azure"
-  idpMetadataURL: "https://login.microsoftonline.com/d87ca648-de70-4044-9064-e63fd27a901e/federationmetadata/2007-06/federationmetadata.xml?appid=b83c7bd2-90f6-4587-82fa-fe782aea1b45"
-  appRootURL: "https://www.stackwatch.com" #sample URL
+  secretName: "kubecost-authzero"
+  idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
+  appRootURL: "http://localhost:9090" #sample URL
+  rbac:
+    enabled: false
+    userTypeAssertionName: "http://schemas.auth0.com/userType" # The name of assertion for userType
+    userTypeAdminValue: "admin"
 
 kubecostChecks:
   enabled: true
@@ -185,7 +189,7 @@ networkCosts:
   enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v10
   imagePullPolicy: Always
-  resources:
+  resources: {}
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
@@ -200,6 +204,18 @@ networkCosts:
       - "10.0.0.0/8"
       - "172.16.0.0/12"
       - "192.168.0.0/16"
+  ## Node tolerations for server scheduling to nodes with taints
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  ##
+  tolerations: []
+  #  - key: "key"
+  #    operator: "Equal|Exists"
+  #    value: "value"
+  #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: []
 
 turndown:
   enabled: false
@@ -229,7 +245,7 @@ serviceAccount:
 
 # These configs are settable from either the /settings.html page or values.yaml
 # This block overrides configs set on /settings.html on pod restart
-#kubecostProductConfigs: 
+#kubecostProductConfigs:
 #  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
