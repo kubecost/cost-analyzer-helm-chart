@@ -6,6 +6,11 @@ metadata:
   labels:
     app: {{ template "kubecost.turndownName" . }}
 ---
+#
+# NOTE: 
+# The following ClusterRole permissions are only created and assigned for the 
+# turndown feature. They will not be added to any clusters by default. 
+#
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -16,29 +21,35 @@ rules:
   - apiGroups:
       - ''
     resources:
-      - configmaps
       - deployments
       - nodes
       - pods
-      - events
-      - services
       - resourcequotas
       - replicationcontrollers
       - limitranges
-      - persistentvolumeclaims
-      - persistentvolumes
-      - endpoints
       - pods/eviction
-      - namespaces
     verbs:
       - get
       - list
       - watch
-      - patch
       - create
+      - patch
       - update
-      - patch 
       - delete
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+      - namespaces
+      - persistentvolumeclaims
+      - persistentvolumes
+      - endpoints
+      - events
+      - services
+    verbs:
+      - get 
+      - list
+      - watch
   - apiGroups:
       - extensions
     resources:
