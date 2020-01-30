@@ -1,4 +1,4 @@
-# Log Access restricted to kubecost release namespace
+{{- if and .Values.bugReporting .Values.bugReporting.logCollection -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -14,6 +14,7 @@ rules:
     - list
     - watch
 ---
+{{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
