@@ -229,7 +229,7 @@ networkCosts:
 
 turndown:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-turndown:v3
+  image: gcr.io/kubecost1/kubecost-turndown:v3.1
   imagePullPolicy: Always
 
 # Kubecost bug report feature
