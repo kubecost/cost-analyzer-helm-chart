@@ -150,6 +150,8 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             - name: KUBECOST_TOKEN
