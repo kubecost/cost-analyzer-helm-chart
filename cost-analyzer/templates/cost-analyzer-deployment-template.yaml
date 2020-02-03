@@ -140,6 +140,16 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            {{- if .Values.thanos }}
+            {{- if .Values.thanos.query }}
+            {{- if .Values.thanos.query.enabled }}
+            - name: THANOS_ENABLED
+              value: "true"
+            - name: THANOS_QUERY_URL
+              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             - name: KUBECOST_TOKEN
