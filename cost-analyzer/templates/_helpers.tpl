@@ -76,12 +76,3 @@ app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
-
-{{/*
-Create the network costs selector labels.
-*/}}
-{{- define "cost-analyzer.networkCostsSelectorLabels" -}}
-app.kubernetes.io/name: {{ include "cost-analyzer.networkCostsName" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: cost-analyzer-network-costs
-{{- end -}}
