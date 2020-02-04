@@ -16,7 +16,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.8.1
+      image: thanosio/thanos:v0.10.1
       args:
       - sidecar
       - --log.level=debug
@@ -51,8 +51,8 @@ prometheus:
 thanos:
   store:
     enabled: true
-    grpcSeriesMaxConcurrency: 1
-    blockSyncConcurrency: 1
+    grpcSeriesMaxConcurrency: 20
+    blockSyncConcurrency: 20
     resources: 
       requests:
         memory: "2.5Gi"
