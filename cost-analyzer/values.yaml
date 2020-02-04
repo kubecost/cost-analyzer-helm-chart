@@ -228,7 +228,7 @@ networkCosts:
   priorityClassName: []
 
   ## Allows scraping of network metrics from a dedicated prometheus operator setup
-  serviceMonitor:
+  podMonitor:
     enabled: false
     additionalLabels: {}
 
