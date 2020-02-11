@@ -41,7 +41,7 @@ spec:
           - "bucket"
           - "web"
           - "--log.level={{ .Values.bucket.logLevel }}"
-          - "--listen=0.0.0.0:{{ .Values.bucket.http.port }}"
+          - "--http-address=0.0.0.0:{{ .Values.bucket.http.port }}"
           - "--objstore.config-file=/etc/config/object-store.yaml"
           {{- if .Values.bucket.refresh }}
           - "--refresh={{ .Values.bucket.refresh }}"
