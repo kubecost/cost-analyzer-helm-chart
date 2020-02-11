@@ -197,7 +197,7 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v10
+  image: gcr.io/kubecost1/kubecost-network-costs:v11
   imagePullPolicy: Always
   resources: {}
     #requests:
