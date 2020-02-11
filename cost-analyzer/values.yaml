@@ -105,6 +105,10 @@ ingress:
 
 nodeSelector: {}
 
+tolerations: []
+
+affinity: {}
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
