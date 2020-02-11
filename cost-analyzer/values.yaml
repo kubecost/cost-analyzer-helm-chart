@@ -279,7 +279,6 @@ serviceAccount:
 #    spotLabel: lifecycle
 #    spotLabelValue: Ec2Spot
 #    awsServiceKeyName: ACCESSKEYID
-#    awsServiceKeySecret: SECRETaccessKEY
 #    awsSpotDataRegion: us-east-1
 #    awsSpotDataBucket: spot-data-feed-s3-bucket
 #    awsSpotDataPrefix: dev
