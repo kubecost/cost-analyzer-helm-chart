@@ -58,4 +58,25 @@ data:
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
     sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.spotLabel }}
+    spotLabel: "{{ .Values.kubecostProductConfigs.spotLabel }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.spotLabelValue }}
+    spotLabelValue: "{{ .Values.kubecostProductConfigs.spotLabelValue }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsServiceKeyName }}
+    awsServiceKeyName: "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsServiceKeySecret }}
+    awsServiceKeySecret: "{{ .Values.kubecostProductConfigs.awsServiceKeySecret }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataRegion }}
+    awsSpotDataRegion: "{{ .Values.kubecostProductConfigs.awsSpotDataRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataBucket }}
+    awsSpotDataBucket: "{{ .Values.kubecostProductConfigs.awsSpotDataBucket }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataPrefix }}
+    awsSpotDataPrefix: "{{ .Values.kubecostProductConfigs.awsSpotDataPrefix }}"
+  {{- end -}}
 {{- end -}}

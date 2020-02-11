@@ -37,7 +37,7 @@ saml: # enterprise key required to use
         assertionValues:
           - "admin"
           - "superusers"
-      - name: readonly 
+      - name: readonly
         enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
@@ -117,7 +117,7 @@ networkPolicy:
 persistentVolume:
   size: 0.2Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
-  # storageClass: "-" # 
+  # storageClass: "-" #
 
 service:
   type: ClusterIP
@@ -276,6 +276,13 @@ serviceAccount:
 #    zoneNetworkEgress: 0.01
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
+#    spotLabel: lifecycle
+#    spotLabelValue: Ec2Spot
+#    awsServiceKeyName: ACCESSKEYID
+#    awsServiceKeySecret: SECRETaccessKEY
+#    awsSpotDataRegion: us-east-1
+#    awsSpotDataBucket: spot-data-feed-s3-bucket
+#    awsSpotDataPrefix: dev
 #    enabled: true
 #  clusterName: ""
 #  currencyCode: "USD"
