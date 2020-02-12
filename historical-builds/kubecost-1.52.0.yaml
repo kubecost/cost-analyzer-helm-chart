@@ -54,7 +54,7 @@ metadata:
 type: Opaque
 data:
   admin-user: "YWRtaW4="
-  admin-password: "QXNXMnlTQjZEYTFYZ05vSDBra0pCR2lyV1dzTnF2ZnVxUmRkaTVKZQ=="
+  admin-password: "dktLOHlhVklEeTY2TnJTN1g4c2tod3hvMjN0eHBtQm5yTUkxUllzMw=="
   ldap-toml: ""
 
 ---
