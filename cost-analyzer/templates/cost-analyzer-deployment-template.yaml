@@ -75,7 +75,7 @@ spec:
         {{- if .Values.kubecostInit }}
         - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-init:prod-{{ $.Chart.AppVersion }}
+        - image: gcr.io/kubecost1/init:prod-{{ $.Chart.AppVersion }}
         {{- end }}
           name: cost-analyzer-init
         {{- if .Values.kubecostInit.imagePullPolicy }}
@@ -93,7 +93,7 @@ spec:
         {{- if .Values.kubecostFrontend }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-frontend:prod-{{ $.Chart.AppVersion }}
+        - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           env:
             - name: GET_HOSTS_FROM
@@ -119,7 +119,7 @@ spec:
         {{- if .Values.kubecost }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost:prod-{{ $.Chart.AppVersion }}
+        - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           resources:
 {{ toYaml .Values.kubecost.resources | indent 12 }}
@@ -169,7 +169,7 @@ spec:
         {{- if .Values.kubecostModel }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
-        - image: ajaytripathy/kubecost-cost-model:prod-{{ $.Chart.AppVersion }}
+        - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
         {{- if .Values.kubecostModel.imagePullPolicy }}

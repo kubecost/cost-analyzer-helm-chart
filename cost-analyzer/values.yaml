@@ -45,7 +45,7 @@ saml: # enterprise key required to use
 kubecostChecks:
   enabled: true
   debug: false
-  image: "ajaytripathy/kubecost-checks"
+  image: "gcr.io/kubecost1/checks"
   resources:
     requests:
       cpu: "20m"
@@ -55,7 +55,7 @@ kubecostChecks:
       memory: "200Mi"
 
 kubecostFrontend:
-  image: "ajaytripathy/kubecost-frontend"
+  image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   resources:
     requests:
@@ -66,7 +66,7 @@ kubecostFrontend:
     #  memory: "256Mi"
 
 kubecost:
-  image: "ajaytripathy/kubecost"
+  image: "gcr.io/kubecost1/server"
   resources:
     requests:
       cpu: "100m"
@@ -76,7 +76,7 @@ kubecost:
     #  memory: "256Mi"
 
 kubecostModel:
-  image: "ajaytripathy/kubecost-cost-model"
+  image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
   resources:
     requests:
@@ -87,7 +87,7 @@ kubecostModel:
     #  memory: "256Mi"
 
 kubecostInit:
-  image: "ajaytripathy/kubecost-init"
+  image: "gcr.io/kubecost1/init"
   imagePullPolicy: Always
 
 ingress:
@@ -126,7 +126,7 @@ service:
 remoteWrite:
   postgres:
     enabled: false
-    initImage: "ajaytripathy/kubecost-sql-init"
+    initImage: "gcr.io/kubecost1/sql-init"
     initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally

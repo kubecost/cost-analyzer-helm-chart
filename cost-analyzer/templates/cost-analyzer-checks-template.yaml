@@ -21,7 +21,7 @@ spec:
           {{- if .Values.kubecostChecks }}
             image: {{ .Values.kubecostChecks.image }}:prod-{{ $.Chart.AppVersion }}
           {{- else }}
-            image: ajaytripathy/kubecost-checks:prod-{{ $.Chart.AppVersion }}
+            image: gcr.io/kubecost1/checks:prod-{{ $.Chart.AppVersion }}
           {{ end }}
             imagePullPolicy: Always
             args:
