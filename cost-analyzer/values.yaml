@@ -45,7 +45,7 @@ saml: # enterprise key required to use
 kubecostChecks:
   enabled: true
   debug: false
-  image: "ajaytripathy/kubecost-checks"
+  image: "gcr.io/kubecost1/kubecost-checks"
   resources:
     requests:
       cpu: "20m"
