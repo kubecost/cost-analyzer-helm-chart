@@ -2,14 +2,14 @@ global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
-    fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
+    fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
 
   thanos:
     enabled: false
 
   grafana:
     enabled: true # If false, Grafana will not be installed
-    domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
+    domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
@@ -19,7 +19,7 @@ global:
       webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # Example Webhook
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
-      fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if prometheus.enabled: true
+      fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
