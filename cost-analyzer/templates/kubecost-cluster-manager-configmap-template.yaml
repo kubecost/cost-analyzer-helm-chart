@@ -1,0 +1,11 @@
+{{- if and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.clusters }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubecost-clusters
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  default-clusters.yaml: |
+{{- toYaml .Values.kubecostProductConfigs.clusters | nindent 4 }}
+{{- end -}}

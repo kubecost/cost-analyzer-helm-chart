@@ -37,6 +37,11 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- if and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.clusters }}
+        - name: kubecost-clusters
+          configMap:
+            name: kubecost-clusters
+        {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
         - name: secret-volume
@@ -189,6 +194,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.clusters }}
+            - name: kubecost-clusters
+              mountPath: /var/configs/clusters
+            {{- end }}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
             - name: secret-volume
