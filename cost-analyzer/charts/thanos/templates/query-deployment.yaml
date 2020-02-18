@@ -65,10 +65,10 @@ spec:
         - "--store.sd-dns-resolver={{ .Values.query.storeDNSResolver }}"
         {{- end }}
         {{- if .Values.query.storeDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Release.Namespace }}.svc.cluster.local"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- if .Values.query.sidecarDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc.cluster.local"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- range .Values.query.stores }}
         - "--store={{ . }}"
