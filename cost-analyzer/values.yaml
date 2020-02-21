@@ -264,7 +264,7 @@ serviceAccount:
 
 # These configs are settable from either the /settings.html page or values.yaml
 # This block overrides configs set on /settings.html on pod restart
-kubecostProductConfigs:
+# kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. 
 #  clusters:
 #    - name: "Cluster A"
