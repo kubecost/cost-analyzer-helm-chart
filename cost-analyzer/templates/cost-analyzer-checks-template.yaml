@@ -13,8 +13,14 @@ spec:
   schedule: "*/10 * * * *"
   {{- end }}
   jobTemplate:
+    metadata:
+      labels:
+        {{ include "cost-analyzer.commonLabels" . | nindent 8 }}
     spec:
       template:
+        metada:
+          labels:
+            {{ include "cost-analyzer.commonLabels" . | nindent 12 }}
         spec:
           containers:
           - name: cost-analyzer-checks
