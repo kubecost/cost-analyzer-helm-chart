@@ -1,5 +1,5 @@
 The Prometheus server can be accessed via port {{ .Values.server.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "prometheus.server.fullname" . }}.{{ .Release.Namespace }}.svc
 
 {{ if .Values.server.ingress.enabled -}}
 From outside the cluster, the server URL(s) are:
@@ -34,7 +34,7 @@ Get the Prometheus server URL by running these commands in the same shell:
 
 {{ if .Values.alertmanager.enabled }}
 The Prometheus alertmanager can be accessed via port {{ .Values.alertmanager.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.alertmanager.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "prometheus.alertmanager.fullname" . }}.{{ .Release.Namespace }}.svc
 
 {{ if .Values.alertmanager.ingress.enabled -}}
 From outside the cluster, the alertmanager URL(s) are:
@@ -70,7 +70,7 @@ Get the Alertmanager URL by running these commands in the same shell:
 
 {{ if .Values.pushgateway.enabled }}
 The Prometheus PushGateway can be accessed via port {{ .Values.pushgateway.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.pushgateway.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+{{ template "prometheus.pushgateway.fullname" . }}.{{ .Release.Namespace }}.svc
 
 {{ if .Values.pushgateway.ingress.enabled -}}
 From outside the cluster, the pushgateway URL(s) are:
