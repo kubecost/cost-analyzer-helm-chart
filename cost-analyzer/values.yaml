@@ -264,7 +264,7 @@ serviceAccount:
 
 # These configs are settable from either the /settings.html page or values.yaml
 # This block overrides configs set on /settings.html on pod restart
-#kubecostProductConfigs:
+kubecostProductConfigs:
 #  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
@@ -283,6 +283,13 @@ serviceAccount:
 #    awsSpotDataBucket: spot-data-feed-s3-bucket
 #    awsSpotDataPrefix: dev
 #    enabled: true
+  labelMappingConfigs:
+    owner_label: "ownername"
+    team_label: "teamname"
+    department_label: "deptname"
+    product_label: "pname"
+    environment_label: "envname"
+    enabled: true
 #  clusterName: ""
 #  currencyCode: "USD"
 #  discount: ""
