@@ -17,7 +17,7 @@ data:
     datasources:
     - access: proxy
       isDefault: true
-      name: Prometheus
+      name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
       type: prometheus
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ .Release.Name }}-prometheus-server.{{ .Release.Namespace  }}

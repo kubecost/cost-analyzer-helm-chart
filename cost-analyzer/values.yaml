@@ -258,6 +258,7 @@ grafana:
     datasources:
       enabled: true
       defaultDatasourceEnabled: true
+      dataSourceName: Prometheus
 
 serviceAccount:
   create: true
