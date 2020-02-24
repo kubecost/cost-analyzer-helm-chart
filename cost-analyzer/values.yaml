@@ -284,7 +284,7 @@ serviceAccount:
 #    awsSpotDataPrefix: dev
 #    enabled: true
 #  clusterName: ""
-#  currencyCode: "USD"
+#  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  discount: ""
 #  negotiatedDiscount: ""
 #  defaultIdle: false
