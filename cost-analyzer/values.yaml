@@ -266,15 +266,12 @@ serviceAccount:
 # These configs are settable from either the /settings.html page or values.yaml
 # This block overrides configs set on /settings.html on pod restart
 # kubecostProductConfigs:
-<<<<<<< HEAD
-=======
 # An optional list of cluster definitions that can be added for frontend access. 
 #  clusters:
 #    - name: "Cluster A"
 #      address: http://cluster-a.kubecost.com:9090
 #    - name: "Cluster B"
 #      address: http://cluster-b.kubecost.com:9090
->>>>>>> bcc84bba72bac53c3686bd8c0c690f121a84a1ce
 #  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
