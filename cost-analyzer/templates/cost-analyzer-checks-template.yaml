@@ -9,6 +9,8 @@ metadata:
 spec:
   {{- if .Values.kubecostChecks.debug }}
   schedule: "*/1 * * * *"
+  {{- else if .Values.kubecostChecks.schedule }}
+  schedule: {{ .Values.kubecostChecks.schedule | quote }}
   {{- else }}
   schedule: "*/10 * * * *"
   {{- end }}
