@@ -37,12 +37,10 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
-        {{- if .Values.kubecostProductConfigs }}
-        {{- if .Values.kubecostProductConfigs.clusters }}
+        {{- if and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
           configMap:
             name: kubecost-clusters
-        {{- end }}
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
@@ -120,11 +118,9 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if .Values.kubecostProductConfigs }}
-            {{- if .Values.kubecostProductConfigs.clusters }}
+            {{- if and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.clusters }}
             - name: kubecost-clusters
               mountPath: /var/configs/clusters
-            {{- end }}
             {{- end }}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
