@@ -18,9 +18,6 @@ spec:
         {{ include "cost-analyzer.commonLabels" . | nindent 8 }}
     spec:
       template:
-        metadata:
-          labels:
-            {{ include "cost-analyzer.commonLabels" . | nindent 12 }}
         spec:
           containers:
           - name: cost-analyzer-checks
