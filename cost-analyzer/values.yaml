@@ -303,3 +303,6 @@ kubecostProductConfigs:
 #  negotiatedDiscount: ""
 #  defaultIdle: false
 #  sharedNamespaces: ""
+#  productKey:
+#    key: ""
+#    enabled: false
