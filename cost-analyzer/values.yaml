@@ -291,18 +291,19 @@ serviceAccount:
 #    awsSpotDataBucket: spot-data-feed-s3-bucket
 #    awsSpotDataPrefix: dev
 #    enabled: true
-# labelMappingConfigs:
-#   owner_label: "ownername"
-#   team_label: "teamname"
-#   department_label: "deptname"
-#   product_label: "pname"
-#   environment_label: "envname"
-#   enabled: true
+#  labelMappingConfigs:
+#    owner_label: "ownername"
+#    team_label: "teamname"
+#    department_label: "deptname"
+#    product_label: "pname"
+#    environment_label: "envname"
+#    enabled: true
 #  clusterName: ""
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  discount: ""
 #  negotiatedDiscount: ""
 #  defaultIdle: false
+#  serviceKeySecretName: ""
 #  sharedNamespaces: ""
 #  productKey:
 #    key: ""
