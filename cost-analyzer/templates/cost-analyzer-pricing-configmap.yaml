@@ -77,6 +77,6 @@ data:
     spotDataPrefix: "{{ .Values.kubecostProductConfigs.awsSpotDataPrefix }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.projectID }}
-    projectID: "{{ .Values.kubecostProductConfigs.awsProjectID }}"
+    projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
   {{- end -}}
 {{- end -}}
