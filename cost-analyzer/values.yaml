@@ -283,20 +283,20 @@ kubecostProductConfigs:
 #    zoneNetworkEgress: 0.01
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
-#    spotLabel: lifecycle
-#    spotLabelValue: Ec2Spot
-#    awsServiceKeyName: ACCESSKEYID
-#    awsSpotDataRegion: us-east-1
-#    awsSpotDataBucket: spot-data-feed-s3-bucket
-#    awsSpotDataPrefix: dev
+#  spotLabel: lifecycle
+#  spotLabelValue: Ec2Spot
+#  awsServiceKeyName: ACCESSKEYID
+#  awsSpotDataRegion: us-east-1
+#  awsSpotDataBucket: spot-data-feed-s3-bucket
+#  awsSpotDataPrefix: dev
+#  enabled: true
+#  labelMappingConfigs:
+#    owner_label: "ownername"
+#    team_label: "teamname"
+#    department_label: "deptname"
+#    product_label: "pname"
+#    environment_label: "envname"
 #    enabled: true
-# labelMappingConfigs:
-#   owner_label: "ownername"
-#   team_label: "teamname"
-#   department_label: "deptname"
-#   product_label: "pname"
-#   environment_label: "envname"
-#   enabled: true
 #  clusterName: ""
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  discount: ""
