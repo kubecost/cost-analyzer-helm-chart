@@ -17,8 +17,8 @@ Parameter | Description | Default
 `prometheus.server.resources.limits.memory` | Set a memory limit on Prometheus server container. | `not set`
 `prometheus.server.resources.limits.cpu` | Set a CPU limit on Prometheus server container. | `not set`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not crate NodeExporter daemonset.  | `true`
-`alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
-`pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
+`prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
+`prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
 `persistentVolume.size` | Define PVC size for cost-analyzer  | `0.2Gi`
 `ingress.enabled` | If true, Ingress will be created | `false`
