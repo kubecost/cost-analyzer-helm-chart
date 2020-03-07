@@ -9,5 +9,5 @@ metadata:
 data:
   default-clusters.yaml: |
 {{- toYaml .Values.kubecostProductConfigs.clusters | nindent 4 }}
-{{- end -}}
-{{- end -}}
+{{- end }}
+{{- end }}
