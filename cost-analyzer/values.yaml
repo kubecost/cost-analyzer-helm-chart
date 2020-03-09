@@ -264,6 +264,8 @@ grafana:
       enabled: true
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
+      # label that the configmaps with dashboards are marked with
+      label: grafana_dashboard
 
 serviceAccount:
   create: true
@@ -272,7 +274,7 @@ serviceAccount:
 # This block overrides configs set on /settings.html on pod restart
 # kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
-# cluster is *always* included by default, so this list is for non-local clusters. 
+# cluster is *always* included by default, so this list is for non-local clusters.
 #  clusters:
 #    - name: "Cluster A"
 #      address: http://cluster-a.kubecost.com:9090

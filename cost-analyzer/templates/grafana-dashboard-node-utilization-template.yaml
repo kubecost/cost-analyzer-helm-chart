@@ -8,7 +8,9 @@ metadata:
   name: node-utilization-dashboard
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-    grafana_dashboard: "1"
+    {{- if $.Values.grafana.sidecar.dashboards.label }}
+    {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
+    {{- end }}
 data:
     node-utilization.json: |-
 {{ .Files.Get "node-utilization.json" | indent 8 }}
