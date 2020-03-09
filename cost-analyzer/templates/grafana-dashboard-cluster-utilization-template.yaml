@@ -11,6 +11,9 @@ metadata:
     {{- if $.Values.grafana.sidecar.dashboards.label }}
     {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
     {{- end }}
+    {{- else }}
+    grafana_dashboard: "1"
+    {{- end }}
 data:
     cluster-utilization.json: |-
 {{ .Files.Get "cluster-utilization.json" | indent 8 }}
