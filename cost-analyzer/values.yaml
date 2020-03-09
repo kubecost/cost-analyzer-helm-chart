@@ -266,6 +266,8 @@ grafana:
       enabled: true
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
+      # label that the configmaps with datasources are marked with
+      label: grafana_datasource
 
 serviceAccount:
   create: true
