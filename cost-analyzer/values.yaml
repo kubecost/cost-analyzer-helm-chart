@@ -260,12 +260,12 @@ grafana:
   sidecar:
     dashboards:
       enabled: true
+      # label that the configmaps with dashboards are marked with
+      label: grafana_dashboard
     datasources:
       enabled: true
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
-      # label that the configmaps with dashboards are marked with
-      label: grafana_dashboard
 
 serviceAccount:
   create: true
