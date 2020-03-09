@@ -102,82 +102,6 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
       containers:
-        {{- if .Values.kubecostFrontend }}
-        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
-        {{- else }}
-        - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
-          env:
-            - name: GET_HOSTS_FROM
-              value: dns
-          name: cost-analyzer-frontend
-          volumeMounts:
-            - name: nginx-conf
-              mountPath: /etc/nginx/conf.d/
-          resources:
-{{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
-        {{- if .Values.kubecostFrontend.imagePullPolicy }}
-          imagePullPolicy: {{ .Values.kubecostFrontend.imagePullPolicy }}
-        {{- else }}
-          imagePullPolicy: Always
-        {{- end }}
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-        {{- if .Values.kubecost }}
-        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
-        {{- else }}
-        - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
-          resources:
-{{ toYaml .Values.kubecost.resources | indent 12 }}
-          name: cost-analyzer-server
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          volumeMounts:
-            - name: persistent-configs
-              mountPath: /var/configs
-          env:
-            - name: PROMETHEUS_SERVER_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "cost-analyzer.fullname" . }}
-                  key: prometheus-server-endpoint
-            {{- if .Values.thanos }}
-            {{- if .Values.thanos.query }}
-            {{- if .Values.thanos.query.enabled }}
-            - name: THANOS_ENABLED
-              value: "true"
-            - name: THANOS_QUERY_URL
-              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            - name: KUBECOST_NAMESPACE
-              value: {{ .Release.Namespace }}
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /var/configs/key.json
-            - name: KUBECOST_TOKEN
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "cost-analyzer.fullname" . }}
-                  key: kubecost-token
-            {{- if eq .Values.global.grafana.proxy false }}
-            - name: GRAFANA_URL
-              valueFrom: 
-                configMapKeyRef: 
-                  name: external-grafana-config-map
-                  key: grafanaURL
-            {{- end }}
         {{- if .Values.kubecostModel }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{- else }}
@@ -285,6 +209,87 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+        {{- if .Values.kubecostFrontend }}
+        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
+        {{- else }}
+        - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
+          env:
+            - name: GET_HOSTS_FROM
+              value: dns
+          name: cost-analyzer-frontend
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/conf.d/
+          resources:
+{{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
+        {{- if .Values.kubecostFrontend.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostFrontend.imagePullPolicy }}
+        {{- else }}
+          imagePullPolicy: Always
+        {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+        {{- if .Values.kubecost }}
+        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
+        {{- else }}
+        - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
+          resources:
+{{ toYaml .Values.kubecost.resources | indent 12 }}
+          name: cost-analyzer-server
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+          env:
+            - name: PROMETHEUS_SERVER_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: prometheus-server-endpoint
+            {{- if .Values.thanos }}
+            {{- if .Values.thanos.query }}
+            {{- if .Values.thanos.query.enabled }}
+            - name: THANOS_ENABLED
+              value: "true"
+            - name: THANOS_QUERY_URL
+              value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /var/configs/key.json
+            - name: KUBECOST_TOKEN
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ template "cost-analyzer.fullname" . }}
+                  key: kubecost-token
+            {{- if eq .Values.global.grafana.proxy false }}
+            - name: GRAFANA_URL
+              valueFrom: 
+                configMapKeyRef: 
+                  name: external-grafana-config-map
+                  key: grafanaURL
+            {{- end }}
+      {{- if .Values.priority }}
+      {{- if .Values.priority.enabled }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
+      {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

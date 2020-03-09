@@ -68,12 +68,15 @@ data:
     awsServiceKeyName: "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.awsSpotDataRegion }}
-    awsSpotDataRegion: "{{ .Values.kubecostProductConfigs.awsSpotDataRegion }}"
+    spotDataRegion: "{{ .Values.kubecostProductConfigs.awsSpotDataRegion }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.awsSpotDataBucket }}
-    awsSpotDataBucket: "{{ .Values.kubecostProductConfigs.awsSpotDataBucket }}"
+    spotDataBucket: "{{ .Values.kubecostProductConfigs.awsSpotDataBucket }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.awsSpotDataPrefix }}
-    awsSpotDataPrefix: "{{ .Values.kubecostProductConfigs.awsSpotDataPrefix }}"
+    spotDataPrefix: "{{ .Values.kubecostProductConfigs.awsSpotDataPrefix }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.projectID }}
+    projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
   {{- end -}}
 {{- end -}}

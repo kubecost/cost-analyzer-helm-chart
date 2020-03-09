@@ -109,6 +109,11 @@ tolerations: []
 
 affinity: {}
 
+# If true, creates a PriorityClass to be used by the cost-analyzer pod
+priority:
+  enabled: true
+  # value: 1000000
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
@@ -259,6 +264,8 @@ grafana:
       enabled: true
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
+      # label that the configmaps with dashboards are marked with
+      label: grafana_dashboard
 
 serviceAccount:
   create: true
@@ -267,8 +274,8 @@ serviceAccount:
 # This block overrides configs set on /settings.html on pod restart
 # kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
-# cluster is *always* included by default, so this list is for non-local clusters. 
-# clusters:
+# cluster is *always* included by default, so this list is for non-local clusters.
+#  clusters:
 #    - name: "Cluster A"
 #      address: http://cluster-a.kubecost.com:9090
 #    - name: "Cluster B"
@@ -284,13 +291,14 @@ serviceAccount:
 #    zoneNetworkEgress: 0.01
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
-#    spotLabel: lifecycle
-#    spotLabelValue: Ec2Spot
-#    awsServiceKeyName: ACCESSKEYID
-#    awsSpotDataRegion: us-east-1
-#    awsSpotDataBucket: spot-data-feed-s3-bucket
-#    awsSpotDataPrefix: dev
 #    enabled: true
+#  spotLabel: lifecycle
+#  spotLabelValue: Ec2Spot
+#  awsServiceKeyName: ACCESSKEYID
+#  awsSpotDataRegion: us-east-1
+#  awsSpotDataBucket: spot-data-feed-s3-bucket
+#  awsSpotDataPrefix: dev
+#  projectID: "123456789"
 #  labelMappingConfigs:
 #    owner_label: "ownername"
 #    team_label: "teamname"

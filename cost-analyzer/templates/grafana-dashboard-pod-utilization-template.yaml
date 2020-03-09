@@ -8,7 +8,11 @@ metadata:
   name: pod-utilization-dashboard
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- if $.Values.grafana.sidecar.dashboards.label }}
+    {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
+    {{- else }}
     grafana_dashboard: "1"
+    {{- end }}
 data:
     pod-utilization.json: |-
 {{ .Files.Get "pod-utilization.json" | indent 8 }}

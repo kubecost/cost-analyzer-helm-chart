@@ -8,7 +8,11 @@ metadata:
   name: label-cost-dashboard
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- if $.Values.grafana.sidecar.dashboards.label }}
+    {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
+    {{- else }}
     grafana_dashboard: "1"
+    {{- end }}
 data:
     label-cost-utilization.json: |-
 {{ .Files.Get "label-cost-utilization.json" | indent 8 }}
