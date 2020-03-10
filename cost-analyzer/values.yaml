@@ -313,6 +313,7 @@ serviceAccount:
 #  discount: ""
 #  negotiatedDiscount: ""
 #  defaultIdle: false
+#  serviceKeySecretName: ""
 #  sharedNamespaces: ""
 #  productKey:
 #    key: ""

@@ -38,6 +38,11 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- if .Values.kubecostProductConfigs }}
+        {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
+        - name: service-key-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.serviceKeySecretName }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
           configMap:
@@ -121,6 +126,10 @@ spec:
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
+            - name: service-key-secret
+              mountPath: /var/secrets
+            {{- end }}
             {{- if .Values.kubecostProductConfigs.clusters }}
             - name: kubecost-clusters
               mountPath: /var/configs/clusters
