@@ -257,6 +257,7 @@ prometheusRule:
 supportNFS: true
 
 grafana:
+  namespace_dashboards: kubecost
   sidecar:
     dashboards:
       enabled: true
