@@ -151,8 +151,6 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
-            - name: ALL_VALUES
-              value: '{{ .Values | toJson | b64enc }}'
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
