@@ -19,6 +19,28 @@ metadata:
     app: {{ template "kubecost.turndownName" . }}
 rules:
   - apiGroups:
+      - kubecost.k8s.io
+    resources:
+      - turndownschedules
+      - turndownschedules/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - ""
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+      - update
+  - apiGroups:
       - ''
     resources:
       - deployments
