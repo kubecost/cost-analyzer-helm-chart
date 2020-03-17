@@ -89,7 +89,11 @@ spec:
             runAsUser: 0
 {{ end }}
         {{- if .Values.kubecostInit }}
+        {{- if .Values.imageVersion}}
+        - image: {{ .Values.kubecostInit.image }}:{{ .Values.imageVersion }}
+        {{- else }}
         - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
         {{- else }}
         - image: gcr.io/kubecost1/init:prod-{{ $.Chart.AppVersion }}
         {{- end }}
@@ -107,7 +111,11 @@ spec:
                   key: prometheus-server-endpoint
       containers:
         {{- if .Values.kubecostModel }}
+        {{- if .Values.imageVersion}}
+        - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+        {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
         {{- else }}
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -212,7 +220,11 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
         {{- if .Values.kubecostFrontend }}
+        {{- if .Values.imageVersion}}
+        - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
+        {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
+        {{ end }}        
         {{- else }}
         - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -238,7 +250,11 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         {{- if .Values.kubecost }}
+        {{- if .Values.imageVersion}}
+        - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
+        {{- else }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
+        {{ end }}        
         {{- else }}
         - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
         {{ end }}
