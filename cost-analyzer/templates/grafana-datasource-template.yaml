@@ -7,6 +7,9 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: grafana-datasource
+  {{- if $.Values.grafana.namespace_datasources }}
+  namespace: {{ $.Values.grafana.namespace_datasources }}
+  {{- end }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if $.Values.grafana.sidecar.datasources.label }}

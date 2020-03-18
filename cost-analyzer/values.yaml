@@ -259,6 +259,7 @@ supportNFS: true
 
 grafana:
   namespace_dashboards: kubecost
+  namespace_datasources: kubecost
   sidecar:
     dashboards:
       enabled: true
