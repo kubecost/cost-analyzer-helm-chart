@@ -47,7 +47,6 @@ data:
 {{ end }}
 
     server {
-        listen 9090;
         server_name _;
         root /var/www;
         index index.html;
@@ -59,7 +58,11 @@ data:
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
         listen 443 ssl;
+{{- else }}
+        listen 9090;
 {{- end }}
+{{- else }}
+        listen 9090;
 {{- end }}
         location /api/ {
             proxy_pass http://api/;
