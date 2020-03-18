@@ -24,10 +24,22 @@ spec:
 {{- end }}
 {{- end }}
     spec:
+      {{- if .Values.kubecostFrontend.tls }}
+      {{- if .Values.kubecostFrontend.tls.enabled }}
+      securityContext:
+        runAsUser: 0
+      {{- else }}
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
+      {{- end }}
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.fullname" . }}
       volumes:
@@ -47,6 +59,18 @@ spec:
         - name: kubecost-clusters
           configMap:
             name: kubecost-clusters
+        {{- end }}
+        {{- end }}
+        {{- if .Values.kubecostFrontend.tls }}
+        {{- if .Values.kubecostFrontend.tls.enabled }}
+        - name: tls
+          secret:
+            secretName : {{ .Values.kubecostFrontend.tls.secretName }}
+            items:
+            - key: tls.crt
+              path: kc.crt
+            - key: tls.key
+              path: kc.key
         {{- end }}
         {{- end }}
         {{- if .Values.saml }}
@@ -216,6 +240,13 @@ spec:
         {{- else }}
         - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
+          {{- if .Values.kubecostFrontend.tls }}
+          {{- if .Values.kubecostFrontend.tls.enabled }}
+          command: ["nginx", "-g", "daemon off;"]
+          ports:
+            - containerPort: 443
+          {{- end }}
+          {{- end }}
           env:
             - name: GET_HOSTS_FROM
               value: dns
@@ -223,6 +254,12 @@ spec:
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
+            {{- if .Values.kubecostFrontend.tls }}
+            {{- if .Values.kubecostFrontend.tls.enabled }}
+            - name: tls
+              mountPath: /etc/ssl/certs
+            {{- end }}
+            {{- end }}
           resources:
 {{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
         {{- if .Values.kubecostFrontend.imagePullPolicy }}

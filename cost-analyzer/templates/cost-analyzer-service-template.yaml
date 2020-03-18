@@ -24,8 +24,18 @@ spec:
       port: 9003
       targetPort: 9003
     - name: frontend
+      {{- if .Values.kubecostFrontend.tls }}
+      {{- if .Values.kubecostFrontend.tls.enabled }}
+      port: 443
+      targetPort: 443
+      {{- else }}
       port: 9090
       targetPort: 9090
+      {{- end}}
+      {{- else }}
+      port: 9090
+      targetPort: 9090
+      {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     - name: apiserver
