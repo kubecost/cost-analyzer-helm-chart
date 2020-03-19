@@ -195,6 +195,8 @@ spec:
               fieldPath: spec.nodeName
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
+        - name: TURNDOWN_DEPLOYMENT
+          value: {{ template "kubecost.turndownName" . }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
         ports:
@@ -206,7 +208,7 @@ spec:
       volumes:
       - name: turndown-keys
         secret:
-          secretName: kubecost-turndown-service-key
+          secretName: cluster-turndown-service-key
 ---
 apiVersion: v1
 kind: Service
@@ -256,5 +258,18 @@ spec:
             repeat: 
               type: string
               enum: [none, daily, weekly]
+  additionalPrinterColumns:
+  - name: State
+    type: string
+    description: The state of the turndownschedule 
+    JSONPath: .status.state
+  - name: Next Turndown
+    type: string
+    description: The next turndown date-time
+    JSONPath: .status.nextScaleDownTime
+  - name: Next Turn Up
+    type: string
+    description: The next turn up date-time
+    JSONPath: .status.nextScaleUpTime
 {{- end }}
 {{- end }}
