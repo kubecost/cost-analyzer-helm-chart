@@ -259,7 +259,7 @@ supportNFS: true
 
 grafana:
   namespace_dashboards: kubecost
-  namespace_datasources: kubecost
+  # namespace_datasources: kubecost # override the default namespace here.
   sidecar:
     dashboards:
       enabled: true
