@@ -123,6 +123,7 @@ persistentVolume:
   size: 0.2Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
   # storageClass: "-" #
+  # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
 
 service:
   type: ClusterIP
@@ -257,6 +258,7 @@ prometheusRule:
 supportNFS: true
 
 grafana:
+  namespace_dashboards: kubecost
   sidecar:
     dashboards:
       enabled: true
