@@ -28,6 +28,10 @@ alertmanager:
   ##
   enabled: true
 
+  strategy:
+    type: Recreate
+    rollingUpdate: null
+
   ## alertmanager container name
   ##
   name: alertmanager
@@ -1031,9 +1035,10 @@ pushgateway:
     servicePort: 9091
     type: ClusterIP
 
-  ## pushgateway Deployment Strategy type
-  # strategy:
-  #   type: Recreate
+    strategy:
+      type: Recreate
+      rollingUpdate: null
+
 
   persistentVolume:
     ## If true, pushgateway will create/use a Persistent Volume Claim
