@@ -23,6 +23,7 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+
 saml: # enterprise key required to use
   enabled: false
   secretName: "kubecost-authzero"
