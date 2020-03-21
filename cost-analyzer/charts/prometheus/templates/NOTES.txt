@@ -1,5 +1,6 @@
+{{- if .Values.server.enabled -}}
 The Prometheus server can be accessed via port {{ .Values.server.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.server.fullname" . }}.{{ .Release.Namespace }}.svc
+{{ template "prometheus.server.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
 
 {{ if .Values.server.ingress.enabled -}}
 From outside the cluster, the server URL(s) are:
@@ -31,10 +32,11 @@ Get the Prometheus server URL by running these commands in the same shell:
 ######            the Server pod is terminated.                             #####
 #################################################################################
 {{- end }}
+{{- end }}
 
 {{ if .Values.alertmanager.enabled }}
 The Prometheus alertmanager can be accessed via port {{ .Values.alertmanager.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.alertmanager.fullname" . }}.{{ .Release.Namespace }}.svc
+{{ template "prometheus.alertmanager.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
 
 {{ if .Values.alertmanager.ingress.enabled -}}
 From outside the cluster, the alertmanager URL(s) are:
@@ -68,9 +70,19 @@ Get the Alertmanager URL by running these commands in the same shell:
 {{- end }}
 {{- end }}
 
+{{- if .Values.nodeExporter.podSecurityPolicy.enabled }}
+{{- else }}
+#################################################################################
+######   WARNING: Pod Security Policy has been moved to a global property.  #####
+######            use .Values.podSecurityPolicy.enabled with pod-based      #####
+######            annotations                                               #####
+######            (e.g. .Values.nodeExporter.podSecurityPolicy.annotations) #####
+#################################################################################
+{{- end }}
+
 {{ if .Values.pushgateway.enabled }}
 The Prometheus PushGateway can be accessed via port {{ .Values.pushgateway.service.servicePort }} on the following DNS name from within your cluster:
-{{ template "prometheus.pushgateway.fullname" . }}.{{ .Release.Namespace }}.svc
+{{ template "prometheus.pushgateway.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
 
 {{ if .Values.pushgateway.ingress.enabled -}}
 From outside the cluster, the pushgateway URL(s) are:

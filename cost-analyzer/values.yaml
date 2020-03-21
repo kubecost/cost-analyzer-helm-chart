@@ -173,9 +173,11 @@ prometheus:
       size: 32Gi
       enabled: true
   alertmanager:
+    # enabled: false
     persistentVolume:
       enabled: true
   pushgateway:
+    # enabled: false
     persistentVolume:
       enabled: true
   serverFiles:
