@@ -260,6 +260,7 @@ prometheusRule:
 supportNFS: true
 
 grafana:
+  # namespace_datasources: kubecost # override the default namespace here.
   # namespace_dashboards: kubecost # override the default namespace here.
   sidecar:
     dashboards:
