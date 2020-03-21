@@ -191,16 +191,26 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
-            {{- if .Values.thanos }}
+            {{- /* 
+              If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
+              to ensure that the custom query service target is used. The global.thanos.enabled
+              flag does not have any affect on this behavior.
+            */}}
+            {{- if .Values.global.thanos.queryService }}
+            - name: THANOS_ENABLED
+              value: "true"
+            - name: THANOS_QUERY_URL
+              value: {{ .Values.global.thanos.queryService }}    
+            {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
+            {{- end }} 
+            {{- end }} 
+            {{- end }} 
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
             - name: SAML_ENABLED
@@ -298,16 +308,26 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
-            {{- if .Values.thanos }}
+            {{- /* 
+              If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
+              to ensure that the custom query service target is used. The global.thanos.enabled
+              flag does not have any affect on this behavior.
+            */}}
+            {{- if .Values.global.thanos.queryService }}
+            - name: THANOS_ENABLED
+              value: "true"
+            - name: THANOS_QUERY_URL
+              value: {{ .Values.global.thanos.queryService }}    
+            {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
+            {{- end }} 
+            {{- end }} 
+            {{- end }} 
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
