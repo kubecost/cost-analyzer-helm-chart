@@ -47,14 +47,23 @@ data:
 {{ end }}
 
     server {
-        listen 9090;
         server_name _;
         root /var/www;
         index index.html;
         add_header Cache-Control "max-age=300";
         add_header Cache-Control "must-revalidate";
         add_header ETag "{{ $.Chart.Version }}";
-
+{{- if .Values.kubecostFrontend.tls }}
+{{- if .Values.kubecostFrontend.tls.enabled }}
+        ssl_certificate     /etc/ssl/certs/kc.crt;
+        ssl_certificate_key /etc/ssl/certs/kc.key;
+        listen 443 ssl;
+{{- else }}
+        listen 9090;
+{{- end }}
+{{- else }}
+        listen 9090;
+{{- end }}
         location /api/ {
             proxy_pass http://api/;
             proxy_redirect off;
