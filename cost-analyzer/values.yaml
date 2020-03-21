@@ -173,9 +173,11 @@ prometheus:
       size: 32Gi
       enabled: true
   alertmanager:
+    # enabled: false
     persistentVolume:
       enabled: true
   pushgateway:
+    # enabled: false
     persistentVolume:
       enabled: true
   serverFiles:
@@ -258,8 +260,8 @@ prometheusRule:
 supportNFS: true
 
 grafana:
-  namespace_dashboards: kubecost
   # namespace_datasources: kubecost # override the default namespace here.
+  # namespace_dashboards: kubecost # override the default namespace here.
   sidecar:
     dashboards:
       enabled: true
