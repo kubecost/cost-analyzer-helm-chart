@@ -24,6 +24,28 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+{{/*
+Create the fully qualified name for Prometheus server service.
+*/}}
+{{- define "cost-analyzer.prometheus.server.name" -}}
+{{- if .Values.prometheus.server.fullnameOverride -}}
+{{- .Values.prometheus.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-prometheus-server" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the fully qualified name for Prometheus alertmanager service.
+*/}}
+{{- define "cost-analyzer.prometheus.alertmanager.name" -}}
+{{- if .Values.prometheus.alertmanager.fullnameOverride -}}
+{{- .Values.prometheus.alertmanager.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-prometheus-alertmanager" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "cost-analyzer.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
