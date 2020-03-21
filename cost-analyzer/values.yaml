@@ -23,10 +23,6 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
-# Pinnable image version, but compatibility is not guaranteed between all helm chart versions. 
-# For best out-of-the-box results, we recommend leaving this commented.
-# We do not support the imageversion drifting between constituent containers in the Pod; this string sets all containers to the same version.
-# imageVersion: test123 
 
 saml: # enterprise key required to use
   enabled: false
