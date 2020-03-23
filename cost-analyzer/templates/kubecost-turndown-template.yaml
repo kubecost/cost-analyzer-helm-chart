@@ -1,4 +1,5 @@
-{{- if and .Values.turndown .Values.turndown.enabled }}
+{{- if .Values.turndown }}
+{{- if .Values.turndown.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -18,6 +19,28 @@ metadata:
   labels:
     app: {{ template "kubecost.turndownName" . }}
 rules:
+  - apiGroups:
+      - kubecost.k8s.io
+    resources:
+      - turndownschedules
+      - turndownschedules/status
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - patch
+      - update
+      - delete
+  - apiGroups:
+      - ""
+      - events.k8s.io
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+      - update
   - apiGroups:
       - ''
     resources:
@@ -140,19 +163,6 @@ subjects:
     name: {{ template "kubecost.turndownName" . }}
     namespace: {{ .Release.Namespace }}
 ---
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: {{ template "kubecost.turndownName" . }}
-  labels:
-    app: {{ template "kubecost.turndownName" . }}
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 0.1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -176,8 +186,6 @@ spec:
         image: {{ .Values.turndown.image }}
         imagePullPolicy: {{ .Values.turndown.imagePullPolicy }}
         volumeMounts:
-        - name: turndown-volume
-          mountPath: /var/configs
         - name: turndown-keys
           mountPath: /var/keys
         env:
@@ -187,6 +195,8 @@ spec:
               fieldPath: spec.nodeName
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
+        - name: TURNDOWN_DEPLOYMENT
+          value: {{ template "kubecost.turndownName" . }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
         ports:
@@ -196,12 +206,9 @@ spec:
       serviceAccount: {{ template "kubecost.turndownName" . }}
       serviceAccountName: {{ template "kubecost.turndownName" . }}
       volumes:
-      - name: turndown-volume
-        persistentVolumeClaim:
-          claimName: {{ template "kubecost.turndownName" . }}
       - name: turndown-keys
         secret:
-          secretName: kubecost-turndown-service-key
+          secretName: cluster-turndown-service-key
 ---
 apiVersion: v1
 kind: Service
@@ -216,4 +223,52 @@ spec:
     targetPort: 9731
   selector:
     app: {{ template "kubecost.turndownName" . }}
+---
+# TurndownSchedule Custom Resource Definition for persistence
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: turndownschedules.kubecost.k8s.io
+spec:
+  group: kubecost.k8s.io
+  version: v1alpha1
+  names:
+    kind: TurndownSchedule
+    singular: turndownschedule
+    plural: turndownschedules
+    shortNames:
+    - td
+    - tds
+  scope: Cluster
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          type: object
+          properties:
+            start: 
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+            repeat: 
+              type: string
+              enum: [none, daily, weekly]
+  additionalPrinterColumns:
+  - name: State
+    type: string
+    description: The state of the turndownschedule 
+    JSONPath: .status.state
+  - name: Next Turndown
+    type: string
+    description: The next turndown date-time
+    JSONPath: .status.nextScaleDownTime
+  - name: Next Turn Up
+    type: string
+    description: The next turn up date-time
+    JSONPath: .status.nextScaleUpTime
+{{- end }}
 {{- end }}
