@@ -30,7 +30,7 @@ data:
       isDefault: true
       name: Prometheus
       type: prometheus
-      url: http://{{ template "cost-analyzer.prometheus.server.name" }}.{{ .Release.Namespace }}.svc
+      url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace }}.svc
 {{ else }}
     - access: proxy
       isDefault: true
