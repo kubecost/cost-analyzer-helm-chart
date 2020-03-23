@@ -46,6 +46,18 @@ data:
   {{- if .Values.kubecostProductConfigs.currencyCode }}
     currencyCode: "{{ .Values.kubecostProductConfigs.currencyCode }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureBillingRegion }}
+    azureBillingRegion: "{{ .Values.kubecostProductConfigs.azureBillingRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureSubscriptionID }}
+    azureSubscriptionID: "{{ .Values.kubecostProductConfigs.azureSubscriptionID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureClientID }}
+    azureClientID: "{{ .Values.kubecostProductConfigs.azureClientID }}"
+  {{- end -}}
+    {{- if .Values.kubecostProductConfigs.azureTenantID }}
+    azureTenantID: "{{ .Values.kubecostProductConfigs.azureTenantID }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.discount }}
     discount: "{{ .Values.kubecostProductConfigs.discount }}"
   {{- end -}}
