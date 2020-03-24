@@ -1,4 +1,6 @@
 # Kubecost helm chart
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkubecost%2Fcost-analyzer-helm-chart.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkubecost%2Fcost-analyzer-helm-chart?ref=badge_shield)
+
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes resource spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
 While Helm is the [recommended install path](http://kubecost.com/install), these resources can also be deployed with the following command:<a name="manifest"></a>
@@ -36,3 +38,7 @@ Parameter | Description | Default
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
 `affinity` | pod affinity | `{}`
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fkubecost%2Fcost-analyzer-helm-chart.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fkubecost%2Fcost-analyzer-helm-chart?ref=badge_large)
