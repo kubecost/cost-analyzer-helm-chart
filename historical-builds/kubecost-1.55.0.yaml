@@ -54,7 +54,7 @@ metadata:
 type: Opaque
 data:
   admin-user: "YWRtaW4="
-  admin-password: "dmZSMWxZblNna2JpNjZkN3ZPVUV4SnFyMHlEUUVlSE42dEVJejJnZw=="
+  admin-password: "YU1lTkU4cHpFN1lBdlFYOGplell2dElBeVROa1o4b1loVE1abGdjMg=="
   ldap-toml: ""
 
 ---
@@ -12115,7 +12115,7 @@ data:
       isDefault: true
       name: Prometheus
       type: prometheus
-      url: http://%!s(<nil>)-prometheus-server.kubecost
+      url: http://kubecost-prometheus-server.kubecost
 
 ---
 # Source: cost-analyzer/charts/prometheus/templates/alertmanager-pvc.yaml
