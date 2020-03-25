@@ -27,7 +27,7 @@ data:
       name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
       type: prometheus
 {{- if .Values.global.prometheus.enabled }}
-      url: http://{{ template "cost-analyzer.prometheus.server.name" }}.{{ .Release.Namespace  }}
+      url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace  }}
 {{ else }}
       url: {{ .Values.global.prometheus.fqdn }}
 {{- end -}}
