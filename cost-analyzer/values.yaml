@@ -1,4 +1,3 @@
-imageVersion: prod-1.54.0
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
