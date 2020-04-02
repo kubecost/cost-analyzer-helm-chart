@@ -170,6 +170,9 @@ prometheus:
       evaluation_interval: 1m
       external_labels:
         cluster_id: cluster-one # Each cluster should have a unique ID
+        # If configmap_key_ref is defined, instead use user-generated configmap with key CLUSTER_ID to use as unique cluster ID.
+        # This overrides the above cluster_id.
+        # configmap_key_ref: cluster-id-configmap
     persistentVolume:
       size: 32Gi
       enabled: true
