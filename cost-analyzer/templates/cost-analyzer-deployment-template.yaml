@@ -88,7 +88,7 @@ spec:
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
-          persistentVolumeClaim: 
+          persistentVolumeClaim:
 {{- if .Values.persistentVolume.existingClaim }}
             claimName: {{ .Values.persistentVolume.existingClaim }}
 {{- else }}
@@ -98,7 +98,7 @@ spec:
           emptyDir: {}
 {{- end -}}
 {{- else }}
-          persistentVolumeClaim: 
+          persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
       initContainers:
@@ -199,7 +199,7 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
-            {{- /* 
+            {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
               flag does not have any affect on this behavior.
@@ -208,7 +208,7 @@ spec:
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
-              value: {{ .Values.global.thanos.queryService }}    
+              value: {{ .Values.global.thanos.queryService }}
             {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
@@ -216,9 +216,9 @@ spec:
               value: "true"
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-            {{- end }} 
-            {{- end }} 
-            {{- end }} 
+            {{- end }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
             - name: SAML_ENABLED
@@ -233,9 +233,16 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.global.external_labels.configmap_key_ref) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- end }}
+            {{- if .Values.prometheus.server.global.external_labels.configmap_key_ref }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.prometheus.server.global.external_labels.configmap_key_ref }}
+                  key: CLUSTER_ID
             {{- end }}
             {{- if .Values.remoteWrite.postgres.installLocal }}
             - name: SQL_ADDRESS
@@ -258,7 +265,7 @@ spec:
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}        
+        {{ end }}
         {{- else }}
         - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -301,7 +308,7 @@ spec:
         - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}        
+        {{ end }}
         {{- else }}
         - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -324,7 +331,7 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
-            {{- /* 
+            {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
               flag does not have any affect on this behavior.
@@ -333,7 +340,7 @@ spec:
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
-              value: {{ .Values.global.thanos.queryService }}    
+              value: {{ .Values.global.thanos.queryService }}
             {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
@@ -341,9 +348,9 @@ spec:
               value: "true"
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-            {{- end }} 
-            {{- end }} 
-            {{- end }} 
+            {{- end }}
+            {{- end }}
+            {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -355,8 +362,8 @@ spec:
                   key: kubecost-token
             {{- if eq .Values.global.grafana.proxy false }}
             - name: GRAFANA_URL
-              valueFrom: 
-                configMapKeyRef: 
+              valueFrom:
+                configMapKeyRef:
                   name: external-grafana-config-map
                   key: grafanaURL
             {{- end }}
