@@ -15,8 +15,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1586134665883,
+  "id": 7,
+  "iteration": 1586214000479,
   "links": [],
   "panels": [
     {
@@ -674,7 +674,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (container_memory_working_set_bytes{pod_name!=\"\",container_name!=\"POD\"}) by (pod_name),\n \"pod\",\n \"$1\", \n \"pod_name\", \n \"(.+)\")\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n)",
+          "expr": "sum(\n label_replace(\n sum (container_memory_working_set_bytes{pod_name!=\"\",container!=\"POD\",container!=\"\"}) by (pod_name),\n \"pod\",\n \"$1\", \n \"pod_name\", \n \"(.+)\")\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n)",
           "format": "time_series",
           "instant": true,
           "intervalFactor": 1,
@@ -827,7 +827,7 @@
           "refId": "B"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (rate (container_cpu_usage_seconds_total{image!=\"\",container_name!=\"POD\"}[10m])) by (container_name,pod_name),\n \"pod\", \n \"$1\", \n \"pod_name\", \n \"(.+)\"\n )\n * on (pod) group_left (label_$label)\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container)\n)\n",
+          "expr": "sum(\n label_replace(\n sum (rate (container_cpu_usage_seconds_total{image!=\"\",container!=\"POD\",container!=\"\"}[10m])) by (container,pod),\n \"pod\", \n \"$1\", \n \"pod_name\", \n \"(.+)\"\n )\n * on (pod) group_left (label_$label)\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container)\n)\n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "usage",
@@ -925,7 +925,7 @@
           "refId": "B"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (container_memory_working_set_bytes{container_name!=\"POD\"}) by (container_name,pod_name),\n \"pod\", \n \"$1\", \n \"pod_name\", \n \"(.+)\"\n )\n * on (pod) group_left (label_$label)\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container)\n)\n",
+          "expr": "sum(\n label_replace(\n sum (container_memory_working_set_bytes{container!=\"\",container!=\"POD\"}) by (container,pod),\n \"pod\", \n \"$1\", \n \"pod_name\", \n \"(.+)\"\n )\n * on (pod) group_left (label_$label)\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container)\n)\n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "usage",
@@ -1158,7 +1158,7 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {
@@ -1189,5 +1189,5 @@
   "timezone": "",
   "title": "Label costs & utilization",
   "uid": "lWMhIA-ik",
-  "version": 1
+  "version": 2
 }
