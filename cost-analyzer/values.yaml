@@ -4,6 +4,7 @@ global:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
 
+  # Durable storage option, product key required
   thanos:
     enabled: false
 
@@ -43,6 +44,7 @@ saml: # enterprise key required to use
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+
 kubecostChecks:
   enabled: true
   debug: false
@@ -118,7 +120,7 @@ priority:
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
-#
+
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
@@ -129,7 +131,7 @@ persistentVolume:
 service:
   type: ClusterIP
 
-# enabling long-term storage with Postgres requires an enterprise license
+# enabling long-term durable storage with Postgres requires an enterprise license
 remoteWrite:
   postgres:
     enabled: false
@@ -249,8 +251,9 @@ turndown:
   imagePullPolicy: Always
 
 # Kubecost bug report feature
+# Ref: http://docs.kubecost.com/bug-report
 bugReporting:
-  # .Release.Namespace Logs Access
+  # Logs access/collection limited to .Release.Namespace
   logCollection: true
 
 serviceMonitor:
@@ -264,8 +267,8 @@ prometheusRule:
 supportNFS: true
 
 grafana:
-  # namespace_datasources: kubecost # override the default namespace here.
-  # namespace_dashboards: kubecost # override the default namespace here.
+  # namespace_datasources: kubecost # override the default namespace here
+  # namespace_dashboards: kubecost # override the default namespace here
   sidecar:
     dashboards:
       enabled: true
@@ -281,17 +284,19 @@ grafana:
 serviceAccount:
   create: true
 
-# These configs are settable from either the /settings.html page or values.yaml
-# This block overrides configs set on /settings.html on pod restart
+# These configs can also be set the Settings page in the Kubecost UI
+# Values in this block override config changes in the Settings UI on pod restart
+# 
 # kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
+# Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
 #  clusters:
 #    - name: "Cluster A"
 #      address: http://cluster-a.kubecost.com:9090
 #    - name: "Cluster B"
 #      address: http://cluster-b.kubecost.com:9090
-#  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
+#  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
 #    RAM: 3.09
@@ -310,24 +315,24 @@ serviceAccount:
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
 #  projectID: "123456789"
-#  labelMappingConfigs:
-#    owner_label: "ownername"
-#    team_label: "teamname"
-#    department_label: "deptname"
-#    product_label: "pname"
-#    environment_label: "envname"
+#  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts 
+#    owner_label: "owner"
+#    team_label: "team"
+#    department_label: "dept"
+#    product_label: "product"
+#    environment_label: "env"
 #    enabled: true
-#  clusterName: ""
+#  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  azureBillingRegion: US
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
-#  discount: ""
-#  negotiatedDiscount: ""
+#  discount: "" # percentage discount applied to compute
+#  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
 #  serviceKeySecretName: ""
 #  sharedNamespaces: ""
-#  productKey:
+#  productKey: # apply business or enterprise product license 
 #    key: ""
 #    enabled: false
