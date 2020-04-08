@@ -49,3 +49,10 @@ spec:
       targetPort: 9004
     {{- end }}
     {{- end }}
+    {{- if .Values.kubecostFrontend.http }}
+    {{- if .Values.kubecostFrontend.http.enabled }}
+    - name: frontend-http
+      port: 80
+      targetPort: 9090
+    {{- end }}
+    {{- end }}
