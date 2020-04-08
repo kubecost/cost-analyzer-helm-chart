@@ -1159,47 +1159,6 @@ serverFiles:
       # Kubernetes labels will be added as Prometheus labels on metrics via the
       # `labelmap` relabeling action.
 
-      - job_name: 'kubernetes-nodes'
-
-        # Default to scraping over https. If required, just disable this or change to
-        # `http`.
-        scheme: https
-
-        # This TLS & bearer token file config is used to connect to the actual scrape
-        # endpoints for cluster components. This is separate to discovery auth
-        # configuration because discovery & scraping are two separate concerns in
-        # Prometheus. The discovery auth config is automatic if Prometheus runs inside
-        # the cluster. Otherwise, more config options have to be provided within the
-        # <kubernetes_sd_config>.
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-          # If your node certificates are self-signed or use a different CA to the
-          # master CA, then disable certificate verification below. Note that
-          # certificate verification is an integral part of a secure infrastructure
-          # so this should only be disabled in a controlled environment. You can
-          # disable certificate verification by uncommenting the line below.
-          #
-          insecure_skip_verify: true
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-
-        kubernetes_sd_configs:
-          - role: node
-
-        relabel_configs:
-          - action: labelmap
-            regex: __meta_kubernetes_node_label_(.+)
-          - target_label: __address__
-            replacement: kubernetes.default.svc:443
-          - source_labels: [__meta_kubernetes_node_name]
-            regex: (.+)
-            target_label: __metrics_path__
-            replacement: /api/v1/nodes/$1/proxy/metrics
-        
-        metric_relabel_configs:
-          - source_labels: [ __name__ ]
-            regex: (storage_operation_duration_seconds_bucket|rest_client_request_latency_seconds_bucket|kubelet_runtime_operations_duration_seconds_bucket|kubelet_runtime_operations_latency_microseconds|kubelet_.*)
-            action: drop
-
       - job_name: 'kubernetes-nodes-cadvisor'
 
         # Default to scraping over https. If required, just disable this or change to
@@ -1243,7 +1202,7 @@ serverFiles:
         
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (container_tasks_state|container_memory_failures_total|container_memory_swap|container_memory_cache|container_fs_reads_total|container_fs_writes_total|container_network_tcp_usage_total|container_spec_memory_limit_bytes|container_spec_memory_reservation_limit_bytes|container_spec_cpu_period|container_spec_memory_swap_limit_bytes|container_memory_max_usage_bytes|container_memory_mapped_file|container_last_seen|container_cpu_load_average_10s|container_memory_failcnt|container_memory_rss|container_start_time_seconds|container_network_udp_usage_total|container_spec_cpu_shares|container_cpu_schedstat_run_periods_total|container_cpu_schedstat_run_seconds_total|container_cpu_schedstat_runqueue_seconds_total|container_cpu_user_seconds_total|container_cpu_system_seconds_total|container_cpu_system_seconds_total|container_fs_reads_bytes_total|container_fs_read_seconds_total|container_fs_sector_writes_total|container_fs_sector_reads_total|container_file_descriptors|container_fs_reads_merged_total|container_fs_writes_merged_total|container_fs_io_current|container_network_transmit_packets_total|container_network_receive_packets_total|container_processes)
+            regex: (container_tasks_state|container_memory_failures_total|container_memory_swap|container_memory_cache|container_fs_reads_total|container_fs_writes_total|container_network_tcp_usage_total|container_spec_memory_limit_bytes|container_spec_memory_reservation_limit_bytes|container_spec_cpu_period|container_spec_memory_swap_limit_bytes|container_memory_max_usage_bytes|container_memory_mapped_file|container_last_seen|container_cpu_load_average_10s|container_memory_failcnt|container_memory_rss|container_start_time_seconds|container_network_udp_usage_total|container_spec_cpu_shares|container_cpu_schedstat_run_periods_total|container_cpu_schedstat_run_seconds_total|container_cpu_schedstat_runqueue_seconds_total|container_cpu_user_seconds_total|container_cpu_system_seconds_total|container_cpu_system_seconds_total|container_fs_reads_bytes_total|container_fs_read_seconds_total|container_fs_sector_writes_total|container_fs_sector_reads_total|container_file_descriptors|container_fs_reads_merged_total|container_fs_writes_merged_total|container_fs_io_current|container_network_transmit_packets_total|container_network_receive_packets_total|container_processes|container_fs_io.*)
             action: drop
           - source_labels: [ container ]
             target_label: container_name
@@ -1300,7 +1259,7 @@ serverFiles:
             target_label: kubernetes_node
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready|kube_secret_.*|kube_configmap_.*|kube_replicaset.*|node_network.*)
+            regex: (kube_pod_container_status_waiting_reason|kube_pod_container_status_terminated_reason|kube_pod_container_status_last_terminated_reason|kube_pod_status_scheduled|kube_pod_status_ready|kube_secret_.*|kube_configmap_.*|kube_replicaset.*|node_network.*|node_scrape_collector.*)
             action: drop
 
       # Scrape config for slow service endpoints; same as above, but with a larger
