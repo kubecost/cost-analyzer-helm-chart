@@ -1,6 +1,5 @@
 {{- if .Values.kubecostProductConfigs }}
-{{- if .Values.kubecostProductConfigs.labelMappingConfigs }}
-{{- if .Values.kubecostProductConfigs.labelMappingConfigs.enabled }}
+{{- if or .Values.kubecostProductConfigs.grafanaURL .Values.kubecostProductConfigs.labelMappingConfigs }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,6 +7,8 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
+{{- if .Values.kubecostProductConfigs.labelMappingConfigs }}
+{{- if .Values.kubecostProductConfigs.labelMappingConfigs.enabled }}
   {{- if .Values.kubecostProductConfigs.labelMappingConfigs.owner_label }}
     owner_label: "{{  .Values.kubecostProductConfigs.labelMappingConfigs.owner_label }}"
   {{- end -}}
@@ -24,5 +25,9 @@ data:
     environment_label: "{{  .Values.kubecostProductConfigs.labelMappingConfigs.environment_label }}"
   {{- end -}}
 {{- end -}}
+{{- end -}}
+  {{- if .Values.kubecostProductConfigs.grafanaURL }}
+    grafanaURL: "{{  .Values.kubecostProductConfigs.grafanaURL }}"
+  {{- end -}}
 {{- end -}}
 {{- end -}}
