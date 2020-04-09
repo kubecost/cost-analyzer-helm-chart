@@ -283,6 +283,7 @@ grafana:
 
 serviceAccount:
   create: true
+  annotations: {}
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
