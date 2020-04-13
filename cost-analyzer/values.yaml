@@ -322,6 +322,7 @@ serviceAccount:
 #    product_label: "product"
 #    environment_label: "env"
 #    enabled: true
+#  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  azureBillingRegion: US
