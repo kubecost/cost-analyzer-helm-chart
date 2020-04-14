@@ -16,7 +16,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.10.1
+      image: thanosio/thanos:v0.11.0
       args:
       - sidecar
       - --log.level=debug
