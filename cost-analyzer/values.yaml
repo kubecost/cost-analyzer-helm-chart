@@ -170,11 +170,13 @@ prometheus:
       scrape_interval: 1m
       scrape_timeout: 10s
       evaluation_interval: 1m
+      # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
+      # to use as unique cluster ID in kubecost cost-analyzer deployment.
+      # This overrides the cluster_id set in prometheus.server.global.external_labels.
+      # NOTE: This does not affect the external_labels set in prometheus config.
+      # clusterIDConfigmap: cluster-id-configmap
       external_labels:
         cluster_id: cluster-one # Each cluster should have a unique ID
-        # If configmap_key_ref is defined, instead use user-generated configmap with key CLUSTER_ID to use as unique cluster ID.
-        # This overrides the above cluster_id.
-        # configmap_key_ref: cluster-id-configmap
     persistentVolume:
       size: 32Gi
       enabled: true
@@ -289,7 +291,7 @@ serviceAccount:
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
-# 
+#
 # kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
@@ -318,13 +320,14 @@ serviceAccount:
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
 #  projectID: "123456789"
-#  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts 
+#  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    owner_label: "owner"
 #    team_label: "team"
 #    department_label: "dept"
 #    product_label: "product"
 #    environment_label: "env"
 #    enabled: true
+#  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
 #  azureBillingRegion: US
@@ -336,6 +339,6 @@ serviceAccount:
 #  defaultIdle: false
 #  serviceKeySecretName: ""
 #  sharedNamespaces: ""
-#  productKey: # apply business or enterprise product license 
+#  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
