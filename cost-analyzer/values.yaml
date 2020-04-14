@@ -280,7 +280,10 @@ grafana:
       dataSourceName: Prometheus
       # label that the configmaps with datasources are marked with
       label: grafana_datasource
-
+#  For grafana to be accessable at URLs, add the path to root_url.
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
   create: true
 
