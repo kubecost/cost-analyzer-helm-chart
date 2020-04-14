@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.10.1
+  tag: v0.11.0
   pullPolicy: IfNotPresent
 
 store:
@@ -320,9 +320,9 @@ compact:
   # How long to retain samples of resolution 2 (1 hour) in bucket. 0d - disables this retention
   retentionResolution1h: 1y
   # Number of goroutines to use when syncing block metadata from object storage.
-  compactConcurrency: 20
+  compactConcurrency: 1
   # Number of goroutines to use when compacting groups.
-  blockSyncConcurrency: 1
+  blockSyncConcurrency: 20
   # Log filtering level.
   logLevel: info
   # Compact service listening http port
