@@ -56,17 +56,21 @@ thanos:
     resources: 
       requests:
         memory: "2.5Gi"
+    serviceAccount: "kubecost-cost-analyzer"
   query: 
     enabled: true
     timeout: 3m
     maxConcurrent: 10
+    serviceAccount: "kubecost-cost-analyzer"
   # Thanos Sidecar Service Discovery
   sidecar:
     enabled: true
   bucket:
     enabled: true
+    serviceAccount: "kubecost-cost-analyzer"
   compact:
     enabled: true
+    serviceAccount: "kubecost-cost-analyzer"
   # This secret name should match the sidecar configured secret name volume
   # in the prometheus.server.extraVolumes entry
   storeSecretName: kubecost-thanos

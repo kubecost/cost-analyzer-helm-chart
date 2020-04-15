@@ -145,6 +145,10 @@ remoteWrite:
       password: admin # change me
 
 prometheus:
+  serviceAccounts:
+    server:
+      create: false
+      name: kubecost-cost-analyzer
   extraScrapeConfigs: |
     - job_name: kubecost
       honor_labels: true
