@@ -131,6 +131,10 @@ persistentVolume:
 
 service:
   type: ClusterIP
+  port: 9090
+  targetPort: 9090
+  labels: {}
+  annotations: {}
 
 # enabling long-term durable storage with Postgres requires an enterprise license
 remoteWrite:

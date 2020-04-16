@@ -1,10 +1,10 @@
 
 
 --------------------------------------------------
-
+{{- $servicePort := .Values.service.port | default 9090 -}}
 Kubecost has been successfully installed. When pods are Ready, you can enable port-forwarding with the following command:
     
-    kubectl port-forward --namespace {{ .Release.Namespace }} deployment/{{ template "cost-analyzer.fullname" . }} 9090
+    kubectl port-forward --namespace {{ .Release.Namespace }} deployment/{{ template "cost-analyzer.fullname" . }} {{ $servicePort }}
     
-Next, navigate to http://localhost:9090 in a web browser.
+Next, navigate to http://localhost:{{ $servicePort }} in a web browser.
 

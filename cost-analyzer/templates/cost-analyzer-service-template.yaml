@@ -1,9 +1,18 @@
+{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
+{{- $servicePort := .Values.service.port | default 9090 -}}
 kind: Service
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.serviceName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
+{{- end }}
+{{- if .Values.service.annotations }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
+{{- end }}
 spec:
   selector:
     {{ include "cost-analyzer.selectorLabels" . | nindent 4 }}
@@ -29,12 +38,12 @@ spec:
       port: 443
       targetPort: 443
       {{- else }}
-      port: 9090
-      targetPort: 9090
+      port: {{ $servicePort }}
+      targetPort: {{ $nginxPort }}
       {{- end}}
       {{- else }}
-      port: 9090
-      targetPort: 9090
+      port: {{ $servicePort }}
+      targetPort: {{ $nginxPort }}
       {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
