@@ -213,8 +213,6 @@ grafana.ini:
     enabled: true
     org_role:  Admin
     org_name: Main Org.
-  server:
-    root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 
 ## LDAP Authentication can be enabled with the following values on grafana.ini
 ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
