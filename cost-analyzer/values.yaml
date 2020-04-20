@@ -47,7 +47,6 @@ saml: # enterprise key required to use
 
 kubecostChecks:
   enabled: true
-  debug: false
   image: "gcr.io/kubecost1/checks"
   resources:
     requests:
