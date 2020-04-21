@@ -323,6 +323,18 @@ serviceAccount:
 #    department_label: "dept"
 #    product_label: "product"
 #    environment_label: "env"
+#    namespace_external_label: "kubernetes_namespace"
+#    cluster_external_label: "kubernetes_cluster"
+#    controller_external_label: "kubernetes_controller"
+#    product_external_label: "kubernetes_label_app"
+#    service_external_label: "kubernetes_service"
+#    deployment_external_label: "kubernetes_deployment"
+#    team_external_label: "kubernetes_label_team"
+#    environment_external_label: "kubernetes_label_env"
+#    department_external_label: "kubernetes_label_department"
+#    statefulset_external_label: "kubernetes_statefulset"
+#    daemonset_external_label: "kubernetes_daemonset"
+#    pod_external_label: "kubernetes_pod"
 #    enabled: true
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
