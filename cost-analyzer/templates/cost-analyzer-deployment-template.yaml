@@ -59,6 +59,13 @@ spec:
         - name: kubecost-clusters
           configMap:
             name: kubecost-clusters
+        {{- range .Values.kubecostProductConfigs.clusters }}
+        {{- if .auth }}
+        - name: {{ .auth.secretName }}
+          secret:
+            secretName: {{ .auth.secretName }}
+        {{- end }}
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- if .Values.kubecostFrontend.tls }}
@@ -169,6 +176,12 @@ spec:
             {{- if .Values.kubecostProductConfigs.clusters }}
             - name: kubecost-clusters
               mountPath: /var/configs/clusters
+            {{- range .Values.kubecostProductConfigs.clusters }}
+            {{- if .auth }}
+            - name: {{ .auth.secretName }}
+              mountPath: /var/secrets/{{ .auth.secretName }}
+            {{- end }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if .Values.saml }}

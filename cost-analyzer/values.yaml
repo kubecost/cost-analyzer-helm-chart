@@ -303,10 +303,20 @@ serviceAccount:
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
 #  clusters:
-#    - name: "Cluster A"
-#      address: http://cluster-a.kubecost.com:9090
-#    - name: "Cluster B"
-#      address: http://cluster-b.kubecost.com:9090
+#   - name: "Cluster A"
+#     address: http://cluster-a.kubecost.com:9090
+#     # Optional authentication credentials - only basic auth is currently supported.
+#     auth: 
+#       type: basic
+#       # Secret name should be a secret formatted based on: https://github.com/kubecost/docs/blob/master/ingress-examples.md
+#       secretName: cluster-a-auth
+#       # Or pass auth directly as base64 encoded user:pass
+#       data: YWRtaW46YWRtaW4=
+#       # Or user and pass directly
+#       user: admin
+#       pass: admin
+#   - name: "Cluster B"
+#     address: http://cluster-b.kubecost.com:9090
 #  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
