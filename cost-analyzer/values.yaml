@@ -318,12 +318,13 @@ serviceAccount:
 #  awsSpotDataPrefix: dev
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
+#    enabled: true    
 #    owner_label: "owner"
 #    team_label: "team"
 #    department_label: "dept"
 #    product_label: "product"
 #    environment_label: "env"
-#    namespace_external_label: "kubernetes_namespace"
+#    namespace_external_label: "kubernetes_namespace" # external labels are used to map external cloud costs to kubernetes concepts
 #    cluster_external_label: "kubernetes_cluster"
 #    controller_external_label: "kubernetes_controller"
 #    product_external_label: "kubernetes_label_app"
@@ -335,7 +336,6 @@ serviceAccount:
 #    statefulset_external_label: "kubernetes_statefulset"
 #    daemonset_external_label: "kubernetes_daemonset"
 #    pod_external_label: "kubernetes_pod"
-#    enabled: true
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
