@@ -67,6 +67,3 @@ data:
   {{- end -}}
 {{- end -}}
 {{- end -}}
-#    statefulset_external_label: ""
-#    daemonset_external_label: ""
-#    pod_external_label: ""
