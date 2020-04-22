@@ -170,15 +170,15 @@ prometheus:
           action: keep
           regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
+    # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
+    # to use as unique cluster ID in kubecost cost-analyzer deployment.
+    # This overrides the cluster_id set in prometheus.server.global.external_labels.
+    # NOTE: This does not affect the external_labels set in prometheus config.
+    # clusterIDConfigmap: cluster-id-configmap
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
       evaluation_interval: 1m
-      # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
-      # to use as unique cluster ID in kubecost cost-analyzer deployment.
-      # This overrides the cluster_id set in prometheus.server.global.external_labels.
-      # NOTE: This does not affect the external_labels set in prometheus config.
-      # clusterIDConfigmap: cluster-id-configmap
       external_labels:
         cluster_id: cluster-one # Each cluster should have a unique ID
     persistentVolume:
@@ -306,7 +306,7 @@ serviceAccount:
 #   - name: "Cluster A"
 #     address: http://cluster-a.kubecost.com:9090
 #     # Optional authentication credentials - only basic auth is currently supported.
-#     auth: 
+#     auth:
 #       type: basic
 #       # Secret name should be a secret formatted based on: https://github.com/kubecost/docs/blob/master/ingress-examples.md
 #       secretName: cluster-a-auth
@@ -337,7 +337,7 @@ serviceAccount:
 #  awsSpotDataPrefix: dev
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
-#    enabled: true    
+#    enabled: true
 #    owner_label: "owner"
 #    team_label: "team"
 #    department_label: "dept"
