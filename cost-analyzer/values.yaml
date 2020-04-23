@@ -236,24 +236,24 @@ networkCosts:
       # In Zone contains a list of address/range that will be
       # classified as in zone. 
       in-zone:
-          # Loopback
-          - "127.0.0.1"
-          # IPv4 Link Local Address Space
-          - "169.254.0.0/16"
-          # Private Address Ranges in RFC-1918
-          - "10.0.0.0/8"
-          - "172.16.0.0/12"
-          - "192.168.0.0/16"
+        # Loopback
+        - "127.0.0.1"
+        # IPv4 Link Local Address Space
+        - "169.254.0.0/16"
+        # Private Address Ranges in RFC-1918
+        - "10.0.0.0/8"
+        - "172.16.0.0/12"
+        - "192.168.0.0/16"
         
-        # In Region contains a list of address/range that will be
-        # classified as in region. This is synonymous with cross 
-        # zone traffic, where the regions between source and destinations 
-        # are the same, but the zone is different.
-        in-region: []
+      # In Region contains a list of address/range that will be
+      # classified as in region. This is synonymous with cross 
+      # zone traffic, where the regions between source and destinations 
+      # are the same, but the zone is different.
+      in-region: []
         
-        # Cross Region contains a list of address/range that will be
-        # classified as non-internet egress from one region to another. 
-        cross-region: []
+      # Cross Region contains a list of address/range that will be
+      # classified as non-internet egress from one region to another. 
+      cross-region: []
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
