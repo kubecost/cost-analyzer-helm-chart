@@ -26,6 +26,7 @@ spec:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: store
+{{ with .Values.store.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 
 ---
 
@@ -58,4 +59,5 @@ spec:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: store
+{{ with .Values.store.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end -}}
