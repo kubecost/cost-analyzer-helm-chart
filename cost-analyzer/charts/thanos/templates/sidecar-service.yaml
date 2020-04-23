@@ -24,6 +24,7 @@ spec:
       name: grpc
   selector:
     app: prometheus
+{{ with .Values.sidecar.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 
 ---
 
@@ -54,4 +55,5 @@ spec:
       name: http
   selector:
     app: prometheus
+{{ with .Values.sidecar.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end }}
