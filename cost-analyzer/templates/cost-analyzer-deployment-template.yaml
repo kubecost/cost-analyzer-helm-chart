@@ -248,15 +248,15 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.global.clusterIDConfigmap) }}
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
             {{- end }}
-            {{- if .Values.prometheus.server.global.clusterIDConfigmap }}
+            {{- if .Values.prometheus.server.clusterIDConfigmap }}
             - name: CLUSTER_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.prometheus.server.global.clusterIDConfigmap }}
+                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
             {{- end }}
             {{- if .Values.remoteWrite.postgres.installLocal }}
