@@ -1,3 +1,4 @@
+{{- $nginxPort := int .Values.service.port | default 9090 -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -34,6 +35,9 @@ spec:
         runAsGroup: 1001
         fsGroup: 1001
       {{- end }}
+      {{- else if lt $nginxPort 1025 }}
+      securityContext:
+        runAsUser: 0
       {{- else }}
       securityContext:
         runAsUser: 1001
@@ -41,7 +45,7 @@ spec:
         fsGroup: 1001
       {{- end }}
       restartPolicy: Always
-      serviceAccountName: {{ template "cost-analyzer.fullname" . }}
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
         - name: nginx-conf
           configMap:
