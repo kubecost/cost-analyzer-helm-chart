@@ -47,7 +47,6 @@ saml: # enterprise key required to use
 
 kubecostChecks:
   enabled: true
-  debug: false
   image: "gcr.io/kubecost1/checks"
   resources:
     requests:
@@ -288,9 +287,14 @@ grafana:
       dataSourceName: Prometheus
       # label that the configmaps with datasources are marked with
       label: grafana_datasource
-
+#  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
+#  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
   create: true
+  annotations: {}
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
@@ -334,12 +338,24 @@ serviceAccount:
 #  awsSpotDataPrefix: dev
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
+#    enabled: true    
 #    owner_label: "owner"
 #    team_label: "team"
 #    department_label: "dept"
 #    product_label: "product"
 #    environment_label: "env"
-#    enabled: true
+#    namespace_external_label: "kubernetes_namespace" # external labels are used to map external cloud costs to kubernetes concepts
+#    cluster_external_label: "kubernetes_cluster"
+#    controller_external_label: "kubernetes_controller"
+#    product_external_label: "kubernetes_label_app"
+#    service_external_label: "kubernetes_service"
+#    deployment_external_label: "kubernetes_deployment"
+#    team_external_label: "kubernetes_label_team"
+#    environment_external_label: "kubernetes_label_env"
+#    department_external_label: "kubernetes_label_department"
+#    statefulset_external_label: "kubernetes_statefulset"
+#    daemonset_external_label: "kubernetes_daemonset"
+#    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
