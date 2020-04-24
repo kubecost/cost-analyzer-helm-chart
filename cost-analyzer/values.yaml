@@ -251,7 +251,7 @@ networkCosts:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
 
-# Kubecost Cluster Controller for Automated Resizing and Cluster Turndown
+# Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
     enabled: false
     image: gcr.io/kubecost1/cluster-controller:v0.0.1
