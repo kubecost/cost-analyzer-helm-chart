@@ -31,10 +31,12 @@ data:
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
     }
 
-{{- if and .Values.turndown .Values.turndown.enabled }}
-    upstream turndown {
-        server {{ template "kubecost.turndownName" . }}-service.{{ .Release.Namespace }}:9731;
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
+    upstream clustercontroller {
+        server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
     }
+{{- end }}
 {{- end }}
 
 {{- if .Values.global.grafana.proxy }}
@@ -88,19 +90,28 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{- if and .Values.turndown .Values.turndown.enabled }}
-        location /turndown/ {
+        
+        location ~ ^/(turndown|cluster)/ {
+            add_header 'Access-Control-Allow-Origin' '*' always;
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
-            proxy_pass http://turndown/;
+            proxy_pass http://clustercontroller/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
             proxy_set_header X-Real-IP  $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
+        
+{{- else }}
+            return 404;
 {{- end }}
+{{- else }}
+            return 404;
+{{- end }}
+        }
         location /saml/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
