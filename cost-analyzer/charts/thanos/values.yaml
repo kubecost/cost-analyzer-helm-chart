@@ -67,6 +67,7 @@ store:
       annotations: {}
       # Labels to query grpc service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the grpc service
     ingress:
       enabled: false
@@ -93,6 +94,7 @@ store:
       annotations: {}
       # Labels to query http service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the http service
     ingress:
       enabled: false
@@ -209,6 +211,7 @@ query:
       annotations: {}
       # labels to query grpc service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the grpc service
     ingress:
       enabled: false
@@ -236,6 +239,7 @@ query:
       annotations: {}
       # Labels to query http service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the http service
     ingress:
       enabled: false
@@ -422,6 +426,7 @@ bucket:
       annotations: {}
       # Labels to query http service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the http service
     ingress:
       enabled: false
@@ -515,6 +520,7 @@ sidecar:
       annotations: {}
       # Labels to query grpc service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the grpc service
     ingress:
       enabled: false
@@ -541,6 +547,7 @@ sidecar:
       annotations: {}
       # Labels to query http service
       labels: {}
+      matchLabels: {}
     # Set up ingress for the http service
     ingress:
       enabled: false

@@ -24,4 +24,5 @@ spec:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: bucket
+{{ with .Values.bucket.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{ end }}
