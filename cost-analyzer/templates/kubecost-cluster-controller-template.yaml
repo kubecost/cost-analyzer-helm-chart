@@ -216,7 +216,7 @@ spec:
       volumes:
       - name: cluster-controller-keys
         secret:
-          secretName: {{ .Values.clusterController.secretName | default cluster-controller-service-key }}
+          secretName: {{ .Values.clusterController.secretName | default "cluster-controller-service-key" }}
 ---
 apiVersion: v1
 kind: Service
