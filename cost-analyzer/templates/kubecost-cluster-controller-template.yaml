@@ -1,5 +1,5 @@
-{{- if .Values.turndown }}
-{{- if .Values.turndown.enabled }}
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -10,7 +10,7 @@ metadata:
 #
 # NOTE: 
 # The following ClusterRole permissions are only created and assigned for the 
-# turndown feature. They will not be added to any clusters by default. 
+# cluster controller feature. They will not be added to any clusters by default. 
 #
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
