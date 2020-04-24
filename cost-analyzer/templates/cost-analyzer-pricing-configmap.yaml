@@ -8,6 +8,9 @@ metadata:
 data:
   {{- if .Values.kubecostProductConfigs.defaultModelPricing }}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.enabled }}
+  {{- if .Values.kubecostProductConfigs.customPricesEnabled }}
+    customPricesEnabled: "{{ .Values.kubecostProductConfigs.customPricesEnabled }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.CPU }}
     CPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.CPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.CPU 100)  730) 100 | toString }}"
   {{- end -}}
@@ -90,5 +93,11 @@ data:
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.projectID }}
     projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.gpuLabel }}
+    gpuLabel: "{{ .Values.kubecostProductConfigs.gpuLabel }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.gpuLabelValue }}
+    gpuLabelValue: "{{ .Values.kubecostProductConfigs.gpuLabelValue }}"
   {{- end -}}
 {{- end -}}

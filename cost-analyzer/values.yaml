@@ -329,8 +329,11 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
+#  customPricesEnabled:
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
+#  gpuLabel: gpu
+#  gpuLabelValue: true
 #  awsServiceKeyName: ACCESSKEYID
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
