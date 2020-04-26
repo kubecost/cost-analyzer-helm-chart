@@ -329,7 +329,7 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
-#  customPricesEnabled:
+#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
 #  gpuLabel: gpu

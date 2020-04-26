@@ -11,7 +11,7 @@ roleRef:
   name: {{ template "cost-analyzer.fullname" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "cost-analyzer.fullname" . }}
+    name: {{ template "cost-analyzer.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 ---
 {{- end }}
@@ -27,5 +27,5 @@ roleRef:
   name: {{ template "cost-analyzer.fullname" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "cost-analyzer.fullname" . }}
+    name: {{ template "cost-analyzer.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
