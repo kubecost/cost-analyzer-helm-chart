@@ -221,23 +221,38 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v12
+  image: gcr.io/kubecost1/kubecost-network-costs:v13
   imagePullPolicy: Always
   resources: {}
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
   config:
-    # White Listed from Egress Reporting
-    # Accepts both static IPs and CIDR block
-    whiteList:
-      - "127.0.0.1"
-      # IPv4 Link Local Address Space
-      - "169.254.0.0/16"
-      # Private Address Ranges in RFC-1918
-      - "10.0.0.0/8"
-      - "172.16.0.0/12"
-      - "192.168.0.0/16"
+    # Configuration for traffic destinations, including specific classification 
+    # for IPs and CIDR blocks. This configuration will act as an override to the
+    # automatic classification provided by network-costs.
+    destinations:
+      # In Zone contains a list of address/range that will be
+      # classified as in zone. 
+      in-zone:
+        # Loopback
+        - "127.0.0.1"
+        # IPv4 Link Local Address Space
+        - "169.254.0.0/16"
+        # Private Address Ranges in RFC-1918
+        - "10.0.0.0/8"
+        - "172.16.0.0/12"
+        - "192.168.0.0/16"
+        
+      # In Region contains a list of address/range that will be
+      # classified as in region. This is synonymous with cross 
+      # zone traffic, where the regions between source and destinations 
+      # are the same, but the zone is different.
+      in-region: []
+        
+      # Cross Region contains a list of address/range that will be
+      # classified as non-internet egress from one region to another. 
+      cross-region: []
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
