@@ -292,8 +292,9 @@ grafana:
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
-  create: true
+  create: true # Set this to false if you're bringing your own service account.
   annotations: {}
+  # name: kc-test
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
@@ -329,7 +330,7 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
-#  customPricesEnabled:
+#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
 #  gpuLabel: gpu
