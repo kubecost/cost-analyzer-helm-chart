@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: {{ template "cost-analyzer.fullname" . }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
 rules:
 - apiGroups: 
     - ''
