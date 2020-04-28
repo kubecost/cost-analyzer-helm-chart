@@ -194,8 +194,8 @@ prometheus:
     # enabled: false
     persistentVolume:
       enabled: true
-  #serverFiles: # Sample block -- enable if using an in cluster durable store.
-  #  prometheus.yml:
+  serverFiles: 
+  #  prometheus.yml: # Sample block -- enable if using an in cluster durable store.
   #      remote_write:
   #        - url: "http://pgprometheus-adapter:9201/write"
   #          write_relabel_configs:
