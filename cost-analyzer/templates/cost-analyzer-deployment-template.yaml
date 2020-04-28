@@ -218,6 +218,8 @@ spec:
             {{- end }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
+            - name: SAVINGS_CACHE_WARMING_ENABLED
+              value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
