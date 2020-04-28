@@ -184,6 +184,8 @@ prometheus:
     persistentVolume:
       size: 32Gi
       enabled: true
+    extraArgs:
+      query.max-concurrency: 1
   alertmanager:
     # enabled: false
     persistentVolume:
