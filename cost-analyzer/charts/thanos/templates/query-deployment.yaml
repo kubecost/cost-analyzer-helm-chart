@@ -73,6 +73,12 @@ spec:
         {{- range .Values.query.stores }}
         - "--store={{ . }}"
         {{- end }}
+        {{- range .Values.query.serviceDiscoveryFiles }}
+        - "--store.sd-files={{ . }}"
+        {{- end }}
+        {{- if .Values.query.serviceDiscoveryInterval }}
+        - "--store.sd-interval={{ .Values.query.serviceDiscoveryInterval }}"
+        {{- end }}
         {{- if .Values.query.extraArgs }}
         {{ toYaml .Values.query.extraArgs | nindent 8 }}
         {{- end }}
