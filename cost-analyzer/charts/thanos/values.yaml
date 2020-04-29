@@ -21,12 +21,12 @@ store:
   blockSyncConcurrency: 20
   # Log filtering level.
   logLevel: info
-  # Add extra environment variables to compact
+  # Add extra environment variables to store
   extraEnv: []
   # - name: ENV
   #   value: value
   #
-  # Add extra arguments to the compact service
+  # Add extra arguments to the store service
   extraArgs: []
   # - "--extraargs=extravalue"
   #
@@ -36,18 +36,21 @@ store:
   labels: {}
   #  cluster: example
   #
-  # Extra annotations for compact pod template
+  # Extra annotations for store pod template
   annotations: {}
   #  example.com: default
   #
-  # Add extra labels to compact deployment
+  # Add extra labels to store deployment
   deploymentLabels: {}
   #  extraLabel: extraLabelValue
   #
-  # Add extra annotations to compact deployment
+  # Add extra annotations to store deployment
   deploymentAnnotations: {}
   #  extraAnnotation: extraAnnotationValue
-  # Enable metrics collecting for compat service
+  #
+  # Add extra selector matchLabels to store deployment
+  deploymentMatchLabels: {}
+  # Enable metrics collecting for store service
   metrics:
     # This is the Prometheus annotation type scraping configuration
     annotations:
@@ -127,7 +130,7 @@ store:
   #   value: "value"
   #   effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
   #
-  # Node labels for compact pod assignment
+  # Node labels for store pod assignment
   # Ref: https://kubernetes.io/docs/user-guide/node-selection/
   #
   nodeSelector: {}
@@ -176,12 +179,12 @@ query:
   #
   # Log filtering level.
   logLevel: info
-  # Add extra environment variables to compact
+  # Add extra environment variables to query
   extraEnv: []
   # - name: ENV
   #   value: value
   #
-  # Add extra arguments to the compact service
+  # Add extra arguments to the query service
   extraArgs: []
   # - "--extraargs=extravalue"
   #
@@ -260,19 +263,21 @@ query:
   labels: {}
   #  cluster: example
   #
-  # Extra annotations for compact pod template
+  # Extra annotations for query pod template
   annotations: {}
   #  example.com: default
   #
-  # Add extra labels to compact deployment
+  # Add extra labels to query deployment
   deploymentLabels: {}
   #  extraLabel: extraLabelValue
   #
-  # Add extra annotations to compact deployment
+  # Add extra annotations to query deployment
   deploymentAnnotations: {}
   #  extraAnnotation: extraAnnotationValue
   #
-  # Enable metrics collecting for compat service
+  # Add extra selector matchLabels to query deployment
+  deploymentMatchLabels: {}
+  # Enable metrics collecting for query service
 
 
   metrics:
@@ -364,7 +369,10 @@ compact:
   deploymentAnnotations: {}
   #  extraAnnotation: extraAnnotationValue
   #
-  # Enable metrics collecting for compat service
+  # Add extra selector matchLabels to compact deployment
+  deploymentMatchLabels: {}
+  #
+  # Enable metrics collecting for compact service
   metrics:
     # This is the Prometheus annotation type scraping configuration
     annotations:
@@ -419,12 +427,12 @@ bucket:
   http:
     # http listen port number
     port: 8080
-    # Service definition for query http service
+    # Service definition for bucket http service
     service:
       type: ClusterIP
-      # Annotations to query http service
+      # Annotations to bucket http service
       annotations: {}
-      # Labels to query http service
+      # Labels to bucket http service
       labels: {}
       matchLabels: {}
     # Set up ingress for the http service
@@ -464,8 +472,11 @@ bucket:
   #
   # Add extra annotations to bucket deployment
   deploymentAnnotations: {}
+  #
+  # Add extra selector matchLabels to bucket deployment
+  deploymentMatchLabels: {}
 
-  # Enable podDisruptionBudget for query component
+  # Enable podDisruptionBudget for bucket component
   podDisruptionBudget:
     enabled: false
       # minAvailable and maxUnavailable can't be used simultaneous. Choose one.
@@ -503,7 +514,7 @@ bucket:
 sidecar:
   # NOTE: This is only the service references for the sidecar
   enabled: true
-  # Enable metrics collecting for compat service
+  # Enable metrics collecting for sidecar service
   metrics:
     # Enable ServiceMonitor https://github.com/coreos/prometheus-operator
     serviceMonitor:
@@ -514,11 +525,11 @@ sidecar:
   grpc:
     # grpc listen port number
     port: 10901
-    # Service definition for query grpc service
+    # Service definition for sidecar grpc service
     service:
-      # Annotations to query grpc service
+      # Annotations to sidecar grpc service
       annotations: {}
-      # Labels to query grpc service
+      # Labels to sidecar grpc service
       labels: {}
       matchLabels: {}
     # Set up ingress for the grpc service
@@ -540,12 +551,12 @@ sidecar:
   http:
     # http listen port number
     port: 10902
-    # Service definition for query http service
+    # Service definition for sidecar http service
     service:
       type: ClusterIP
-      # Annotations to query http service
+      # Annotations to sidecar http service
       annotations: {}
-      # Labels to query http service
+      # Labels to sidecar http service
       labels: {}
       matchLabels: {}
     # Set up ingress for the http service
