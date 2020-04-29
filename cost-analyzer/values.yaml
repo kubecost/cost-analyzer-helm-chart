@@ -184,6 +184,8 @@ prometheus:
     persistentVolume:
       size: 32Gi
       enabled: true
+    extraArgs:
+      query.max-concurrency: 1
   alertmanager:
     # enabled: false
     persistentVolume:
@@ -192,16 +194,16 @@ prometheus:
     # enabled: false
     persistentVolume:
       enabled: true
-  serverFiles:
-    prometheus.yml:
-        remote_write:
-          - url: "http://pgprometheus-adapter:9201/write"
-            write_relabel_configs:
-              - source_labels: [__name__]
-                regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
-                action: keep
-            queue_config:
-              max_samples_per_send: 1000
+  serverFiles: 
+  #  prometheus.yml: # Sample block -- enable if using an in cluster durable store.
+  #      remote_write:
+  #        - url: "http://pgprometheus-adapter:9201/write"
+  #          write_relabel_configs:
+  #            - source_labels: [__name__]
+  #              regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
+  #              action: keep
+  #          queue_config:
+  #            max_samples_per_send: 1000
         #remote_read:
         #  - url: "http://pgprometheus-adapter:9201/read"
     rules:
@@ -293,8 +295,9 @@ grafana:
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
-  create: true
+  create: true # Set this to false if you're bringing your own service account.
   annotations: {}
+  # name: kc-test
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
@@ -330,8 +333,11 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
+#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
+#  gpuLabel: gpu
+#  gpuLabelValue: true
 #  awsServiceKeyName: ACCESSKEYID
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
