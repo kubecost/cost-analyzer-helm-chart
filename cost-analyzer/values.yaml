@@ -302,7 +302,7 @@ serviceAccount:
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-# kubecostProductConfigs:
+kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
@@ -342,6 +342,11 @@ serviceAccount:
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
+#  athenaProjectID: "530337586275"
+#  athenaBucketName: "s3://aws-athena-query-results-530337586275-us-east-1"
+#  athenaRegion: us-east-1
+#  athenaDatabase: athenacurcfn_athena_test
+#  athenaTable: "athena_test"
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
