@@ -81,6 +81,7 @@ kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
   warmCache: true
+  warmSavingsCache: true
   resources:
     requests:
       cpu: "200m"
@@ -223,38 +224,23 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13
+  image: gcr.io/kubecost1/kubecost-network-costs:v12
   imagePullPolicy: Always
   resources: {}
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
   config:
-    # Configuration for traffic destinations, including specific classification 
-    # for IPs and CIDR blocks. This configuration will act as an override to the
-    # automatic classification provided by network-costs.
-    destinations:
-      # In Zone contains a list of address/range that will be
-      # classified as in zone. 
-      in-zone:
-        # Loopback
-        - "127.0.0.1"
-        # IPv4 Link Local Address Space
-        - "169.254.0.0/16"
-        # Private Address Ranges in RFC-1918
-        - "10.0.0.0/8"
-        - "172.16.0.0/12"
-        - "192.168.0.0/16"
-        
-      # In Region contains a list of address/range that will be
-      # classified as in region. This is synonymous with cross 
-      # zone traffic, where the regions between source and destinations 
-      # are the same, but the zone is different.
-      in-region: []
-        
-      # Cross Region contains a list of address/range that will be
-      # classified as non-internet egress from one region to another. 
-      cross-region: []
+    # White Listed from Egress Reporting
+    # Accepts both static IPs and CIDR block
+    whiteList:
+      - "127.0.0.1"
+      # IPv4 Link Local Address Space
+      - "169.254.0.0/16"
+      # Private Address Ranges in RFC-1918
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+      - "192.168.0.0/16"
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -356,6 +342,11 @@ serviceAccount:
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
+#  athenaProjectID: "530337586275"
+#  athenaBucketName: "s3://aws-athena-query-results-530337586275-us-east-1"
+#  athenaRegion: us-east-1
+#  athenaDatabase: athenacurcfn_athena_test
+#  athenaTable: "athena_test"
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
