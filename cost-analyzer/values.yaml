@@ -358,6 +358,11 @@ serviceAccount:
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
+#  athenaProjectID: "530337586277"
+#  athenaBucketName: "s3://aws-athena-query-results-530337586277-us-east-1"
+#  athenaRegion: us-east-1
+#  athenaDatabase: athenacurcfn_athena_test1
+#  athenaTable: "athena_test1"
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
