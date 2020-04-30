@@ -221,7 +221,7 @@ spec:
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
             - name: PRODUCT_ANALYTICS_ENABLED
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
-            - name: ERROR_REPORTING
+            - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
             {{- end }}
             - name: CACHE_WARMING_ENABLED
