@@ -94,6 +94,21 @@ data:
   {{- if .Values.kubecostProductConfigs.projectID }}
     projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaProjectID }}
+    athenaProjectID: "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaBucketName }}
+    athenaBucketName: "{{ .Values.kubecostProductConfigs.athenaBucketName }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaRegion }}
+    athenaRegion: "{{ .Values.kubecostProductConfigs.athenaRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaDatabase }}
+    athenaDatabase: "{{ .Values.kubecostProductConfigs.athenaDatabase }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaTable }}
+    athenaTable: "{{ .Values.kubecostProductConfigs.athenaTable }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.gpuLabel }}
     gpuLabel: "{{ .Values.kubecostProductConfigs.gpuLabel }}"
   {{- end -}}
