@@ -1,23 +1,23 @@
-{{- if .Values.turndown }}
-{{- if .Values.turndown.enabled }}
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ template "kubecost.turndownName" . }}
+  name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    app: {{ template "kubecost.turndownName" . }}
+    app: {{ template "kubecost.clusterControllerName" . }}
 ---
 #
 # NOTE: 
 # The following ClusterRole permissions are only created and assigned for the 
-# turndown feature. They will not be added to any clusters by default. 
+# cluster controller feature. They will not be added to any clusters by default. 
 #
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "kubecost.turndownName" . }}
+  name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    app: {{ template "kubecost.turndownName" . }}
+    app: {{ template "kubecost.clusterControllerName" . }}
 rules:
   - apiGroups:
       - kubecost.k8s.io
@@ -151,22 +151,22 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ template "kubecost.turndownName" . }}
+  name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    app: {{ template "kubecost.turndownName" . }}
+    app: {{ template "kubecost.clusterControllerName" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ template "kubecost.turndownName" . }}
+  name: {{ template "kubecost.clusterControllerName" . }}
 subjects:
   - kind: ServiceAccount
-    name: {{ template "kubecost.turndownName" . }}
+    name: {{ template "kubecost.clusterControllerName" . }}
     namespace: {{ .Release.Namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "kubecost.turndownName" . }}
+  name: {{ template "kubecost.clusterControllerName" . }}
 spec:
   strategy:
     rollingUpdate:
@@ -175,20 +175,28 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      app: {{ template "kubecost.turndownName" . }}
+      app: {{ template "kubecost.clusterControllerName" . }}
   template:
     metadata:
       labels:
-        app: {{ template "kubecost.turndownName" . }}
+        app: {{ template "kubecost.clusterControllerName" . }}
     spec:
       containers:
-      - name: {{ template "kubecost.turndownName" . }}
-        image: {{ .Values.turndown.image }}
-        imagePullPolicy: {{ .Values.turndown.imagePullPolicy }}
+      - name: {{ template "kubecost.clusterControllerName" . }}
+        image: {{ .Values.clusterController.image }}
+        imagePullPolicy: {{ .Values.clusterController.imagePullPolicy }}
         volumeMounts:
-        - name: turndown-keys
+        - name: cluster-controller-keys
           mountPath: /var/keys
         env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -196,24 +204,24 @@ spec:
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
-          value: {{ template "kubecost.turndownName" . }}
+          value: {{ template "kubecost.clusterControllerName" . }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
         ports:
         - name: http-server
           containerPort: 9731
           hostPort: 9731
-      serviceAccount: {{ template "kubecost.turndownName" . }}
-      serviceAccountName: {{ template "kubecost.turndownName" . }}
+      serviceAccount: {{ template "kubecost.clusterControllerName" . }}
+      serviceAccountName: {{ template "kubecost.clusterControllerName" . }}
       volumes:
-      - name: turndown-keys
+      - name: cluster-controller-keys
         secret:
-          secretName: cluster-turndown-service-key
+          secretName: {{ .Values.clusterController.secretName | default "cluster-controller-service-key" }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "kubecost.turndownName" . }}-service
+  name: {{ template "kubecost.clusterControllerName" . }}-service
 spec:
   type: ClusterIP
   ports:
@@ -222,7 +230,7 @@ spec:
     port: 9731
     targetPort: 9731
   selector:
-    app: {{ template "kubecost.turndownName" . }}
+    app: {{ template "kubecost.clusterControllerName" . }}
 ---
 # TurndownSchedule Custom Resource Definition for persistence
 apiVersion: apiextensions.k8s.io/v1beta1
