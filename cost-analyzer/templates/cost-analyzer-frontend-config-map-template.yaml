@@ -90,6 +90,11 @@ data:
         }
 {{- if and .Values.turndown .Values.turndown.enabled }}
         location /turndown/ {
+            {{- if .Values.saml.enabled }}
+            auth_request /auth;
+            {{- else if  .Values.saml.rbac.enabled }}
+            auth_request /authrbac;
+            {{- end }}
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
@@ -126,6 +131,9 @@ data:
 
 {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
+        {{- if .Values.saml.enabled }}
+            auth_request /auth;
+        {{- end }}
             proxy_pass http://grafana/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -133,5 +141,16 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+
+        {{- if .Values.saml.enabled }}
+        location /auth {
+            proxy_pass http://model/isAuthenticated;
+        }
+        {{- end }}
+        {{- if .Values.saml.rbac.enabled }}
+        location /authrbac {
+            proxy_pass http://model/isAdminAuthenticated;
+        }
+        {{- end }}
 {{ end }}
     }
