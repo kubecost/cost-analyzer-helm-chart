@@ -269,10 +269,11 @@ networkCosts:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
 
-turndown:
-  enabled: false
-  image: gcr.io/kubecost1/cluster-turndown:v1.0
-  imagePullPolicy: Always
+# Kubecost Cluster Controller for Right Sizing and Cluster Turndown
+clusterController:
+    enabled: false
+    image: gcr.io/kubecost1/cluster-controller:v0.0.1
+    imagePullPolicy: Always
 
 # Kubecost bug report feature
 # Ref: http://docs.kubecost.com/bug-report
