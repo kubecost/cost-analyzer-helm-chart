@@ -186,7 +186,7 @@ prometheus:
       size: 32Gi
       enabled: true
     extraArgs:
-      query.max-concurrency: 1
+      query.max-concurrency: 2
   alertmanager:
     # enabled: false
     persistentVolume:
