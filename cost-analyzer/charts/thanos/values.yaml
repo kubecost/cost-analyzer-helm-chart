@@ -176,6 +176,8 @@ query:
   #
   # Path to files that contains addresses of store API servers. The path can be a glob pattern (repeatable).
   serviceDiscoveryFiles: []
+  # Names of configmaps that contain addresses of store API servers, used for file service discovery.
+  serviceDiscoveryFileConfigMaps: []
   # Refresh interval to re-read file SD files. It is used as a resync fallback.
   serviceDiscoveryInterval: 5m
   # Log filtering level.
