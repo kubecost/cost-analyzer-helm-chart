@@ -216,14 +216,6 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
-            {{- if .Values.reporting }}
-            - name: LOG_COLLECTION_ENABLED
-              value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
-            - name: PRODUCT_ANALYTICS_ENABLED
-              value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
-            - name: ERROR_REPORTING_ENABLED
-              value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
-            {{- end }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
