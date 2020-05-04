@@ -274,12 +274,11 @@ turndown:
   image: gcr.io/kubecost1/cluster-turndown:v1.0
   imagePullPolicy: Always
 
-reporting:
-  # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
-  # Ref: http://docs.kubecost.com/bug-report
-  logCollection: true 
-  productAnalytics: true 
-  errorReporting: true
+# Kubecost bug report feature
+# Ref: http://docs.kubecost.com/bug-report
+bugReporting:
+  # Logs access/collection limited to .Release.Namespace
+  logCollection: true
 
 serviceMonitor:
   enabled: false
