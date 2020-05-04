@@ -89,6 +89,11 @@ spec:
         - name: secret-volume
           secret:
             secretName: {{ .Values.saml.secretName }}
+        {{- if .Values.saml.metadataSecretName }}
+        - name: metadata-secret-volume
+          secret:
+            secretName: {{ .Values.saml.metadataSecretName }}
+        {{- end }}
         {{- if .Values.saml.rbac.enabled }}
         - name: saml-roles
           configMap:
@@ -192,6 +197,10 @@ spec:
             {{- if .Values.saml.enabled }}
             - name: secret-volume
               mountPath: /var/configs/secret-volume
+            {{- if .Values.saml.metadataSecretName }}
+            - name: metadata-secret-volume
+              mountPath: /var/configs/metadata-secret-volume
+            {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: saml-roles
               mountPath: /var/configs/saml
