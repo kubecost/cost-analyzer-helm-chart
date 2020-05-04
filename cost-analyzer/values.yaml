@@ -82,6 +82,7 @@ kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
   warmCache: true
+  warmSavingsCache: true
   resources:
     requests:
       cpu: "200m"
@@ -185,6 +186,8 @@ prometheus:
     persistentVolume:
       size: 32Gi
       enabled: true
+    extraArgs:
+      query.max-concurrency: 1
   alertmanager:
     # enabled: false
     persistentVolume:
@@ -193,16 +196,16 @@ prometheus:
     # enabled: false
     persistentVolume:
       enabled: true
-  serverFiles:
-    prometheus.yml:
-        remote_write:
-          - url: "http://pgprometheus-adapter:9201/write"
-            write_relabel_configs:
-              - source_labels: [__name__]
-                regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
-                action: keep
-            queue_config:
-              max_samples_per_send: 1000
+  serverFiles: 
+  #  prometheus.yml: # Sample block -- enable if using an in cluster durable store.
+  #      remote_write:
+  #        - url: "http://pgprometheus-adapter:9201/write"
+  #          write_relabel_configs:
+  #            - source_labels: [__name__]
+  #              regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
+  #              action: keep
+  #          queue_config:
+  #            max_samples_per_send: 1000
         #remote_read:
         #  - url: "http://pgprometheus-adapter:9201/read"
     rules:
@@ -222,23 +225,38 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v12
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.1
   imagePullPolicy: Always
   resources: {}
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
   config:
-    # White Listed from Egress Reporting
-    # Accepts both static IPs and CIDR block
-    whiteList:
-      - "127.0.0.1"
-      # IPv4 Link Local Address Space
-      - "169.254.0.0/16"
-      # Private Address Ranges in RFC-1918
-      - "10.0.0.0/8"
-      - "172.16.0.0/12"
-      - "192.168.0.0/16"
+    # Configuration for traffic destinations, including specific classification 
+    # for IPs and CIDR blocks. This configuration will act as an override to the
+    # automatic classification provided by network-costs.
+    destinations:
+      # In Zone contains a list of address/range that will be
+      # classified as in zone. 
+      in-zone:
+        # Loopback
+        - "127.0.0.1"
+        # IPv4 Link Local Address Space
+        - "169.254.0.0/16"
+        # Private Address Ranges in RFC-1918
+        - "10.0.0.0/8"
+        - "172.16.0.0/12"
+        - "192.168.0.0/16"
+        
+      # In Region contains a list of address/range that will be
+      # classified as in region. This is synonymous with cross 
+      # zone traffic, where the regions between source and destinations 
+      # are the same, but the zone is different.
+      in-region: []
+        
+      # Cross Region contains a list of address/range that will be
+      # classified as non-internet egress from one region to another. 
+      cross-region: []
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -252,16 +270,18 @@ networkCosts:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
 
-turndown:
-  enabled: false
-  image: gcr.io/kubecost1/cluster-turndown:v1.0
-  imagePullPolicy: Always
+# Kubecost Cluster Controller for Right Sizing and Cluster Turndown
+clusterController:
+    enabled: false
+    image: gcr.io/kubecost1/cluster-controller:v0.0.1
+    imagePullPolicy: Always
 
-# Kubecost bug report feature
-# Ref: http://docs.kubecost.com/bug-report
-bugReporting:
-  # Logs access/collection limited to .Release.Namespace
-  logCollection: true
+reporting:
+  # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
+  # Ref: http://docs.kubecost.com/bug-report
+  logCollection: true 
+  productAnalytics: true 
+  errorReporting: true
 
 serviceMonitor:
   enabled: false
@@ -293,8 +313,9 @@ grafana:
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
-  create: true
+  create: true # Set this to false if you're bringing your own service account.
   annotations: {}
+  # name: kc-test
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
@@ -330,7 +351,7 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
-#  customPricesEnabled:
+#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
 #  gpuLabel: gpu
@@ -339,6 +360,11 @@ serviceAccount:
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
+#  athenaProjectID: "530337586277"
+#  athenaBucketName: "s3://aws-athena-query-results-530337586277-us-east-1"
+#  athenaRegion: us-east-1
+#  athenaDatabase: athenacurcfn_athena_test1
+#  athenaTable: "athena_test1"
 #  projectID: "123456789"
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
