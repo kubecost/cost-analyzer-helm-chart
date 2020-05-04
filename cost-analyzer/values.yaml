@@ -275,11 +275,12 @@ clusterController:
     image: gcr.io/kubecost1/cluster-controller:v0.0.1
     imagePullPolicy: Always
 
-# Kubecost bug report feature
-# Ref: http://docs.kubecost.com/bug-report
-bugReporting:
-  # Logs access/collection limited to .Release.Namespace
-  logCollection: true
+reporting:
+  # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
+  # Ref: http://docs.kubecost.com/bug-report
+  logCollection: true 
+  productAnalytics: true 
+  errorReporting: true
 
 serviceMonitor:
   enabled: false
