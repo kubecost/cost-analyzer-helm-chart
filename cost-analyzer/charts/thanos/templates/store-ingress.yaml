@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: store
   {{- if .Values.store.http.ingress.labels }}
-  {{ toYaml .Values.ingress.http.labels | indent 4 }}
+  {{ toYaml .Values.store.http.ingress.labels | indent 4 }}
   {{- end }}
   {{- with .Values.store.http.ingress.annotations }}
   annotations: {{ toYaml . | nindent 4 }}
