@@ -1,4 +1,5 @@
-{{- if and .Values.reporting .Values.reporting.logCollection -}}
+{{- if .Values.reporting }}
+{{- if .Values.reporting.logCollection }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
@@ -14,6 +15,7 @@ subjects:
     name: {{ template "cost-analyzer.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 ---
+{{- end }}
 {{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
