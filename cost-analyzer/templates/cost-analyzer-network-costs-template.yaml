@@ -18,7 +18,7 @@ spec:
         app: {{ template "cost-analyzer.networkCostsName" . }}
     spec:
       hostNetwork: true
-      serviceAccountName: {{ template "cost-analyzer.fullname" . }}
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
         image: {{ .Values.networkCosts.image }}
