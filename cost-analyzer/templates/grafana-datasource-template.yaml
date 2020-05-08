@@ -19,6 +19,7 @@ metadata:
     {{- end }}
 data:
   datasource.yaml: |-
+    # config file version
     apiVersion: 1
     datasources:
     - access: proxy
@@ -29,17 +30,7 @@ data:
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace  }}
 {{ else }}
       url: {{ .Values.global.prometheus.fqdn }}
-{{- end }}
-{{- if .Values.global.thanos.enabled }}
-    - access: proxy
-      name: "Thanos"
-      type: prometheus
-{{- if .Values.global.prometheus.enabled }}
-      url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-{{ else }}
-      url: {{ .Values.global.thanos.queryService }}
-{{- end }}
-{{- end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
