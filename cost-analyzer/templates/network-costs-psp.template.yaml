@@ -27,7 +27,7 @@ kind: Role
 metadata:
     name: kubecost-network-costs
 rules:
-	- apiGroups:
+    - apiGroups:
     	- extensions
         resources:
   	    - podsecuritypolicies
