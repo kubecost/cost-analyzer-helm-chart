@@ -225,6 +225,8 @@ prometheus:
 
 networkCosts:
   enabled: false
+  podSecurityPolicy:
+    enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v13.1
   imagePullPolicy: Always
   resources: {}
