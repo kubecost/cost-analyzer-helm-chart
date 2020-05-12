@@ -224,7 +224,9 @@ prometheus:
               record: kubecost_cluster_memory_working_set_bytes
 
 networkCosts:
-  enabled: false
+  enabled: true
+  podSecurityPolicy:
+    enabled: true
   image: gcr.io/kubecost1/kubecost-network-costs:v13.1
   imagePullPolicy: Always
   resources: {}
