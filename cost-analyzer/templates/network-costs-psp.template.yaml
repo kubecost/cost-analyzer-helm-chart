@@ -1,0 +1,53 @@
+{{- if .Values.networkCosts }}
+{{- if .Values.networkCosts.enabled }}
+{{- if .Values.networkCosts.podSecurityPolicy }}
+{{- if .Values.networkCosts.podSecurityPolicy.enabled }}
+- apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+    name: kubecost-network-costs
+    annotations:
+{{- if .Values.networkCosts.podSecurityPolicy.annotations }}
+{{ toYaml .Values.networkCosts.podSecurityPolicy.annotations | indent 8 }}
+{{- end }}
+    spec:
+        privileged: true
+        seLinux:
+            rule: RunAsAny
+        supplementalGroups:
+            rule: RunAsAny
+        runAsUser:
+            rule: RunAsAny
+        fsGroup:
+            rule: RunAsAny
+        volumes:
+            - '*'
+- apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: kubecost-network-costs
+rules:
+	- apiGroups:
+    	- extensions
+        resources:
+  	    - podsecuritypolicies
+        resourceNames:
+        - kubecost-network-costs
+        verbs:
+        - use
+- apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: kubecost-network-costs
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: kubecost-network-costs
+subjects:
+    - kind: ServiceAccount
+    name: {{ template "cost-analyzer.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
