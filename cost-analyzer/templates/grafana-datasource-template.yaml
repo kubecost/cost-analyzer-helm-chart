@@ -22,18 +22,27 @@ data:
     apiVersion: 1
     datasources:
     - access: proxy
+{{- if .Values.global.thanos }}
+{{- if .Values.global.thanos.enabled }}
+      isDefault: false
+{{- else }}
       isDefault: true
+{{- end }}
+{{- else }}
+      isDefault: true
+{{- end }}
       name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
       type: prometheus
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace  }}
-{{ else }}
+{{- else }}
       url: {{ .Values.global.prometheus.fqdn }}
 {{- end }}
 {{- if .Values.global.thanos.enabled }}
     - access: proxy
       name: "Thanos"
       type: prometheus
+      isDefault: true
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
 {{ else }}
