@@ -123,6 +123,9 @@ priority:
 networkPolicy:
   enabled: false
 
+podSecurityPolicy:
+  enabled: false
+
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
