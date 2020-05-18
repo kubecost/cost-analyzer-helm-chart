@@ -7,6 +7,7 @@ global:
   # Durable storage option, product key required
   thanos:
     enabled: false
+    # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
 
   grafana:
     enabled: true # If false, Grafana will not be installed
