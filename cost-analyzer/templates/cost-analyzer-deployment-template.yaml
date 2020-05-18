@@ -6,6 +6,9 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+{{- if .Values.kubecostDeployment }}
+  replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
+{{- end }}
   selector:
     matchLabels:
 {{ include "cost-analyzer.selectorLabels" . | nindent 8}}
