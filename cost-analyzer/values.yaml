@@ -7,6 +7,7 @@ global:
   # Durable storage option, product key required
   thanos:
     enabled: false
+    # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
 
   grafana:
     enabled: true # If false, Grafana will not be installed
@@ -123,6 +124,9 @@ priority:
 networkPolicy:
   enabled: false
 
+podSecurityPolicy:
+  enabled: false
+
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
@@ -225,6 +229,8 @@ prometheus:
 
 networkCosts:
   enabled: false
+  podSecurityPolicy:
+    enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v13.1
   imagePullPolicy: Always
   resources: {}
