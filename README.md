@@ -34,6 +34,7 @@ Parameter | Description | Default
 `serviceMonitor.additionalLabels` | Additional labels that can be used so ServiceMonitor will be discovered by Prometheus | `{}`
 `prometheusRule.enabled` | Set this to `true` to create PrometheusRule for Prometheus operator | `false`
 `prometheusRule.additionalLabels` | Additional labels that can be used so PrometheusRule will be discovered by Prometheus | `{}`
+`grafana.resources` | Grafana resource requests and limits. | `{}`
 `grafana.sidecar.datasources.defaultDatasourceEnabled` | Set this to `false` to disable creation of Prometheus datasource in Grafana | `true`
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
