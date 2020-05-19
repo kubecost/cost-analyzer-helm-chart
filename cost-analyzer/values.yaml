@@ -7,6 +7,7 @@ global:
   # Durable storage option, product key required
   thanos:
     enabled: false
+    # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
 
   grafana:
     enabled: true # If false, Grafana will not be installed
@@ -83,6 +84,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
+  etl: true
   resources:
     requests:
       cpu: "200m"
@@ -121,6 +123,9 @@ priority:
 
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
+  enabled: false
+
+podSecurityPolicy:
   enabled: false
 
 # Define persistence volume for cost-analyzer
@@ -225,6 +230,8 @@ prometheus:
 
 networkCosts:
   enabled: false
+  podSecurityPolicy:
+    enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v13.1
   imagePullPolicy: Always
   resources: {}
@@ -270,11 +277,16 @@ networkCosts:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
 
+# Kubecost Deployment Configuration
+# Used for HA mode in Business & Enterprise tier
+kubecostDeployment:
+  replicas: 1
+
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
-    enabled: false
-    image: gcr.io/kubecost1/cluster-controller:v0.0.1
-    imagePullPolicy: Always
+  enabled: false
+  image: gcr.io/kubecost1/cluster-controller:v0.0.1
+  imagePullPolicy: Always
 
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace

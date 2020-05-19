@@ -1,0 +1,24 @@
+{{- if .Values.networkCosts }}
+{{- if .Values.networkCosts.enabled }}
+{{- if .Values.networkCosts.podSecurityPolicy }}
+{{- if .Values.networkCosts.podSecurityPolicy.enabled }}
+apiVersion: extensions/v1beta1
+kind: PodSecurityPolicy
+metadata:
+    name: kubecost-network-costs
+spec:
+    privileged: true
+    seLinux:
+        rule: RunAsAny
+    supplementalGroups:
+        rule: RunAsAny
+    runAsUser:
+        rule: RunAsAny
+    fsGroup:
+        rule: RunAsAny
+    volumes:
+        - '*'
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

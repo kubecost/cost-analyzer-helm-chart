@@ -6,6 +6,9 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+{{- if .Values.kubecostDeployment }}
+  replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
+{{- end }}
   selector:
     matchLabels:
 {{ include "cost-analyzer.selectorLabels" . | nindent 8}}
@@ -237,6 +240,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
+            - name: ETL_ENABLED
+              value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled

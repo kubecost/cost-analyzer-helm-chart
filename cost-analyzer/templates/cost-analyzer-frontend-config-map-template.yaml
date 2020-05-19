@@ -72,6 +72,9 @@ data:
         listen {{ $nginxPort }};
 {{- end }}
         location /api/ {
+            {{- if .Values.saml.enabled }}
+            auth_request /auth;
+            {{- end }}
             proxy_pass http://api/;
             proxy_redirect off;
             proxy_http_version 1.1;
