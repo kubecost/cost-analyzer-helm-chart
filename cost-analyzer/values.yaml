@@ -197,6 +197,8 @@ prometheus:
     # enabled: false
     persistentVolume:
       enabled: true
+  nodeExporter:
+    enabled: true
   pushgateway:
     # enabled: false
     persistentVolume:
