@@ -84,7 +84,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
-  etl: true
+  etl: false
   resources:
     requests:
       cpu: "200m"
@@ -192,7 +192,7 @@ prometheus:
       size: 32Gi
       enabled: true
     extraArgs:
-      query.max-concurrency: 2
+      query.max-concurrency: 1
   alertmanager:
     # enabled: false
     persistentVolume:
