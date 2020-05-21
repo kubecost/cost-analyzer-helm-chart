@@ -89,9 +89,11 @@ spec:
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
+        {{- if .Values.saml.secretName }}
         - name: secret-volume
           secret:
             secretName: {{ .Values.saml.secretName }}
+        {{- end }}
         {{- if .Values.saml.metadataSecretName }}
         - name: metadata-secret-volume
           secret:
@@ -198,8 +200,10 @@ spec:
             {{- end }}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
+            {{- if .Values.saml.secretName }}
             - name: secret-volume
               mountPath: /var/configs/secret-volume
+            {{- end }}
             {{- if .Values.saml.metadataSecretName }}
             - name: metadata-secret-volume
               mountPath: /var/configs/metadata-secret-volume
