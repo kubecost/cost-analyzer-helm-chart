@@ -60,6 +60,7 @@ thanos:
     enabled: true
     timeout: 3m
     maxConcurrent: 10
+    autoDownsampling: true
   # Thanos Sidecar Service Discovery
   sidecar:
     enabled: true

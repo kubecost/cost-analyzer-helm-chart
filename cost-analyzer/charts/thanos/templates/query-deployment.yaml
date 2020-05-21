@@ -50,6 +50,9 @@ spec:
         - "--http-address=0.0.0.0:{{ .Values.query.http.port }}"
         - "--query.timeout={{ .Values.query.timeout }}"
         - "--query.max-concurrent={{ .Values.query.maxConcurrent }}"
+        {{- if .Values.query.autoDownsampling }}
+        - "--query.auto-downsampling"
+        {{- end }}
         {{- if .Values.query.replicaLabel }}
         - "--query.replica-label={{ .Values.query.replicaLabel }}"
         {{- end }}
