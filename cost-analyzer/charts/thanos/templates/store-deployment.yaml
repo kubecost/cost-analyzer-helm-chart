@@ -74,6 +74,8 @@ spec:
           containerPort: {{ .Values.store.http.port }}
         - name: grpc
           containerPort: {{ .Values.store.grpc.port }}
+        env:
+          {{- toYaml .Values.store.extraEnv | nindent 10 }}
         volumeMounts:
         - name: config-volume
           mountPath: /etc/config
