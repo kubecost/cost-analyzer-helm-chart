@@ -55,18 +55,21 @@ thanos:
     blockSyncConcurrency: 20
     extraEnv:
       - name: GOGC
-        value: "40"
+        value: "100"
     resources: 
       requests:
         memory: "2.5Gi"
   query: 
     enabled: true
     timeout: 3m
-    maxConcurrent: 10
+    maxConcurrent: 1
+    resources:
+      requests:
+        memory: "2.5Gi"
     autoDownsampling: false
     extraEnv:
       - name: GOGC
-        value: "40"
+        value: "100"
   # Thanos Sidecar Service Discovery
   sidecar:
     enabled: true
