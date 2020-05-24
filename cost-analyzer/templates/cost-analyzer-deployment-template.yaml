@@ -232,6 +232,8 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
+            - name: GOGC
+              value: "40"
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
