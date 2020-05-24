@@ -50,6 +50,9 @@ spec:
         - "--http-address=0.0.0.0:{{ .Values.query.http.port }}"
         - "--query.timeout={{ .Values.query.timeout }}"
         - "--query.max-concurrent={{ .Values.query.maxConcurrent }}"
+        {{- if .Values.query.autoDownsampling }}
+        - "--query.auto-downsampling"
+        {{- end }}
         {{- if .Values.query.replicaLabel }}
         - "--query.replica-label={{ .Values.query.replicaLabel }}"
         {{- end }}
@@ -96,6 +99,8 @@ spec:
           containerPort: {{ .Values.query.grpc.port }}
         resources:
           {{ toYaml .Values.query.resources | nindent 10 }}
+        env:
+          {{- toYaml .Values.query.extraEnv | nindent 10 }}
         volumeMounts:
         {{- range .Values.query.serviceDiscoveryFileConfigMaps }}
         - mountPath: /etc/query/{{ . }}

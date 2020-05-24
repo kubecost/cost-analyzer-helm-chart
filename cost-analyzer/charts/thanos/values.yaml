@@ -166,6 +166,9 @@ query:
   # Maximum number of queries processed
   # concurrently by query node.
   maxConcurrent: 20
+  # Enable automatic adjustment (step / 5) to what source of data should be used in store gateways 
+  # if no max_source_resolution param is specified.
+  autoDownsampling: false                                        
   # https://github.com/improbable-eng/thanos/issues/1015
   storeDNSResolver: miekgdns
   # Enable DNS discovery for stores
