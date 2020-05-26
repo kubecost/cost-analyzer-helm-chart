@@ -15,7 +15,7 @@ metadata:
     {{- if $.Values.grafana.sidecar.datasources.label }}
     {{ $.Values.grafana.sidecar.datasources.label }}: "1"
     {{- else }}
-    grafana_datasource: "1"
+    kubecost_grafana_datasource: "1"
     {{- end }}
 data:
   datasource.yaml: |-
