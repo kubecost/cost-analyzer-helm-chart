@@ -82,9 +82,9 @@ kubecost:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
-  warmCache: false
-  warmSavingsCache: false
-  etl: true
+  warmCache: true
+  warmSavingsCache: true
+  etl: false
   resources:
     requests:
       cpu: "200m"
