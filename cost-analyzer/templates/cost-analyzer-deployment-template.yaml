@@ -135,7 +135,11 @@ spec:
       initContainers:
 {{- if .Values.supportNFS }}
         - name: config-perms-fix
+        {{- if .Values.initChownDataImage }}
+          image: .Values.initChownDataImage
+        {{- else }}
           image: busybox
+        {{- end }}
           command: ["/bin/chmod", "-R", "777", "/var/configs"]
           volumeMounts:
             - name: persistent-configs
