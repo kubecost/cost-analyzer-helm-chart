@@ -148,7 +148,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-{{- if .Values.global.grafana.proxy }}
+    {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
         {{- if .Values.saml.enabled }}
             auth_request /auth;
@@ -160,7 +160,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{ end }}
+    {{ end }}
     {{- if .Values.saml.enabled }}
         location /auth {
             proxy_pass http://model/isAuthenticated;
