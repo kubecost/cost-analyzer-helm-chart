@@ -136,7 +136,7 @@ spec:
 {{- if .Values.supportNFS }}
         - name: config-perms-fix
         {{- if .Values.initChownDataImage }}
-          image: .Values.initChownDataImage
+          image: {{ .Values.initChownDataImage }}
         {{- else }}
           image: busybox
         {{- end }}
