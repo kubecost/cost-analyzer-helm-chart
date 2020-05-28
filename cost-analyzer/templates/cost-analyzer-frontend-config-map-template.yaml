@@ -170,5 +170,5 @@ data:
         location /authrbac {
             proxy_pass http://model/isAdminAuthenticated;
         }
-        {{- end }}
+    {{- end }}
     }
