@@ -1,3 +1,4 @@
+{{- if .Values.awsstore }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +6,7 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  serviceAccountName: awsstore-serviceaccount
   selector:
     matchLabels:
       app: awsstore
@@ -21,3 +23,4 @@ spec:
         containers:
             - image: gcr.io/kubecost1/awsstore:latest
               name: awsstore
+{{- end }}
