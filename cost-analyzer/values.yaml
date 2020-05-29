@@ -84,7 +84,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
-  etl: true
+  etl: false
   resources:
     requests:
       cpu: "200m"
@@ -192,7 +192,7 @@ prometheus:
       size: 32Gi
       enabled: true
     extraArgs:
-      query.max-concurrency: 2
+      query.max-concurrency: 1
   alertmanager:
     # enabled: false
     persistentVolume:
@@ -232,7 +232,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.1
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.2
   imagePullPolicy: Always
   resources: {}
     #requests:
@@ -318,7 +318,7 @@ grafana:
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
       # label that the configmaps with datasources are marked with
-      label: grafana_datasource
+      label: kubecost_grafana_datasource
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:

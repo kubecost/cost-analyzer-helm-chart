@@ -5,6 +5,11 @@ metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.kubecostDeployment }}
+{{- with .Values.kubecostDeployment.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{- end }}
 spec:
 {{- if .Values.kubecostDeployment }}
   replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
@@ -21,6 +26,11 @@ spec:
     metadata:
       labels:
         {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
+{{- if .Values.kubecostDeployment }}
+{{- with .Values.kubecostDeployment.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}
 {{- if .Values.global.podAnnotations}}
       annotations:
 {{- with .Values.global.podAnnotations }}
@@ -89,9 +99,11 @@ spec:
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
+        {{- if .Values.saml.secretName }}
         - name: secret-volume
           secret:
             secretName: {{ .Values.saml.secretName }}
+        {{- end }}
         {{- if .Values.saml.metadataSecretName }}
         - name: metadata-secret-volume
           secret:
@@ -198,8 +210,10 @@ spec:
             {{- end }}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
+            {{- if .Values.saml.secretName }}
             - name: secret-volume
               mountPath: /var/configs/secret-volume
+            {{- end }}
             {{- if .Values.saml.metadataSecretName }}
             - name: metadata-secret-volume
               mountPath: /var/configs/metadata-secret-volume
@@ -228,6 +242,8 @@ spec:
             - name: REMOTE_WRITE_ENABLED
               value: "true"
             {{- end }}
+            - name: GOGC
+              value: "40"
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
@@ -235,6 +251,10 @@ spec:
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
+            {{- if .Values.reporting.errorReporting }}
+            - name: SENTRY_DSN
+              value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
+            {{- end }}
             {{- end }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
