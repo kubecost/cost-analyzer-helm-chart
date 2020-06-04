@@ -67,6 +67,14 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- if .Values.kubecostProductConfigs }}
+        {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+        - name: gcp-key-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
+            items:
+            - key: compute-viewer-kubecost-key.json
+              path: key.json
+        {{- end }}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
         - name: service-key-secret
           secret:
@@ -193,6 +201,10 @@ spec:
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+            - name: gcp-key-secret
+              mountPath: /models
+            {{- end }}
             {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
             - name: service-key-secret
               mountPath: /var/secrets
