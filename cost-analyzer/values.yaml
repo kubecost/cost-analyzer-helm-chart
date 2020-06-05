@@ -31,7 +31,8 @@ saml: # enterprise key required to use
   secretName: "kubecost-authzero"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
-  appRootURL: "http://localhost:9090" #sample URL
+  appRootURL: "http://localhost:9090" # sample URL
+  # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   rbac:
     enabled: false
     groups:

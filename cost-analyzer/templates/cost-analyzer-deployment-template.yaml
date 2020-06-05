@@ -290,6 +290,10 @@ spec:
               value: {{ .Values.saml.idpMetadataURL }}
             - name: SP_HOST
               value: {{ .Values.saml.appRootURL }}
+            {{- if .Values.saml.audienceURI }}
+            - name: AUDIENCE_URI
+              value: {{ .Values.saml.audienceURI }}
+            {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"
