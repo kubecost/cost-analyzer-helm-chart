@@ -199,7 +199,7 @@ prometheus:
     persistentVolume:
       enabled: true
   pushgateway:
-    # enabled: false
+    enabled: false
     persistentVolume:
       enabled: true
   serverFiles: 
