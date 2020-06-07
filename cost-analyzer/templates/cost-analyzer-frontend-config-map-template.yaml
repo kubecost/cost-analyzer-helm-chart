@@ -72,7 +72,7 @@ data:
         listen {{ $nginxPort }};
 {{- end }}
         location ~* \.(js|html|css|png|jpg|jpeg|gif)$ {
-            add_header Cache-Control "max-age=43200";
+            add_header Cache-Control "max-age=604800";
             add_header Cache-Control "must-revalidate";
         {{- if .Values.imageVersion }}
             add_header ETag "{{ $.Values.imageVersion }}";
