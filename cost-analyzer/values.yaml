@@ -380,7 +380,7 @@ kubecostProductConfigs:
 #  athenaTable: "athena_test1"
 #  projectID: "123456789"
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
-#  biqQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
+#  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
 #    owner_label: "owner"

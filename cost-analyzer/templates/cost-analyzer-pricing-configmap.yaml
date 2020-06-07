@@ -94,8 +94,8 @@ data:
   {{- if .Values.kubecostProductConfigs.projectID }}
     projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
   {{- end -}}
-  {{- if .Values.kubecostProductConfigs.biqQueryBillingDataDataset }}
-    billingDataDataset: "{{ .Values.kubecostProductConfigs.biqQueryBillingDataDataset }}"
+  {{- if .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}
+    billingDataDataset: "{{ .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.athenaProjectID }}
     athenaProjectID: "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
