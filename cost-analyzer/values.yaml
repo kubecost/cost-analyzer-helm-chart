@@ -85,6 +85,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
+# useEtlCache: false
   etl: true
   resources:
     requests:
