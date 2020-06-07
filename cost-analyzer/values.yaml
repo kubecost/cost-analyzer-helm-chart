@@ -85,7 +85,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
-  etl: false
+  etl: true
   resources:
     requests:
       cpu: "200m"
