@@ -85,7 +85,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
-  etl: false
+  etl: true
   resources:
     requests:
       cpu: "200m"
@@ -199,7 +199,7 @@ prometheus:
     persistentVolume:
       enabled: true
   pushgateway:
-    # enabled: false
+    enabled: false
     persistentVolume:
       enabled: true
   serverFiles: 
