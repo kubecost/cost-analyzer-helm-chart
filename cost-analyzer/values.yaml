@@ -305,6 +305,7 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest
 
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
