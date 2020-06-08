@@ -260,6 +260,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
+            - name: USE_ETL_CACHE
+              value: {{ (quote .Values.kubecostModel.useEtlCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
             - name: PV_ENABLED
