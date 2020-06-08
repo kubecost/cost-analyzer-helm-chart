@@ -1,0 +1,26 @@
+{{- if .Values.awsstore }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-awsstore
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  serviceAccountName: awsstore-serviceaccount
+  selector:
+    matchLabels:
+      app: awsstore
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: awsstore
+    spec:
+        containers:
+            - image: gcr.io/kubecost1/awsstore:latest
+              name: awsstore
+{{- end }}
