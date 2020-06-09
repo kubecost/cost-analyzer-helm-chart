@@ -27,8 +27,8 @@ global:
     # iam.amazonaws.com/role: role-arn
 
 saml: # enterprise key required to use
-  enabled: true
-  #secretName: "kubecost-authzero"
+  enabled: false
+  secretName: "kubecost-authzero"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
   appRootURL: "http://localhost:9090" # sample URL
