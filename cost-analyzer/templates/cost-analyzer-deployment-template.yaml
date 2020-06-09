@@ -67,6 +67,14 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- if .Values.kubecostProductConfigs }}
+        {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+        - name: gcp-key-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
+            items:
+            - key: compute-viewer-kubecost-key.json
+              path: key.json
+        {{- end }}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
         - name: service-key-secret
           secret:
@@ -135,7 +143,11 @@ spec:
       initContainers:
 {{- if .Values.supportNFS }}
         - name: config-perms-fix
+        {{- if .Values.initChownDataImage }}
+          image: {{ .Values.initChownDataImage }}
+        {{- else }}
           image: busybox
+        {{- end }}
           command: ["/bin/chmod", "-R", "777", "/var/configs"]
           volumeMounts:
             - name: persistent-configs
@@ -193,6 +205,10 @@ spec:
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+            - name: gcp-key-secret
+              mountPath: /models
+            {{- end }}
             {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
             - name: service-key-secret
               mountPath: /var/secrets
@@ -251,13 +267,21 @@ spec:
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
+            {{- if .Values.reporting.errorReporting }}
+            - name: SENTRY_DSN
+              value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
+            {{- end }}
             {{- end }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
+            - name: USE_ETL_CACHE
+              value: {{ (quote .Values.kubecostModel.useEtlCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            - name: PV_ENABLED
+              value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
@@ -286,6 +310,10 @@ spec:
               value: {{ .Values.saml.idpMetadataURL }}
             - name: SP_HOST
               value: {{ .Values.saml.appRootURL }}
+            {{- if .Values.saml.audienceURI }}
+            - name: AUDIENCE_URI
+              value: {{ .Values.saml.audienceURI }}
+            {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"

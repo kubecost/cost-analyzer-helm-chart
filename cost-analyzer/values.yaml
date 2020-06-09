@@ -31,7 +31,8 @@ saml: # enterprise key required to use
   secretName: "kubecost-authzero"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
-  appRootURL: "http://localhost:9090" #sample URL
+  appRootURL: "http://localhost:9090" # sample URL
+  # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   rbac:
     enabled: false
     groups:
@@ -84,7 +85,7 @@ kubecostModel:
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
-  etl: false
+  etl: true
   resources:
     requests:
       cpu: "200m"
@@ -200,7 +201,7 @@ prometheus:
   nodeExporter:
     enabled: true
   pushgateway:
-    # enabled: false
+    enabled: false
     persistentVolume:
       enabled: true
   serverFiles: 
@@ -287,7 +288,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.0.1
+  image: gcr.io/kubecost1/cluster-controller:v0.0.2
   imagePullPolicy: Always
 
 reporting:
@@ -306,6 +307,7 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest
 
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
@@ -320,7 +322,7 @@ grafana:
       defaultDatasourceEnabled: true
       dataSourceName: Prometheus
       # label that the configmaps with datasources are marked with
-      label: grafana_datasource
+      label: kubecost_grafana_datasource
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
@@ -380,6 +382,8 @@ serviceAccount:
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
 #  projectID: "123456789"
+#  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
+#  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
 #    enabled: true
 #    owner_label: "owner"
