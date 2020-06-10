@@ -198,6 +198,8 @@ prometheus:
     # enabled: false
     persistentVolume:
       enabled: true
+  nodeExporter:
+    enabled: true
   pushgateway:
     enabled: false
     persistentVolume:
@@ -404,7 +406,7 @@ serviceAccount:
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
 #  currencyCode: "USD" # offical support for USD, EUR, and CHF
-#  azureBillingRegion: US
+#  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
