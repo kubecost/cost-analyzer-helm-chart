@@ -239,6 +239,14 @@ spec:
             {{- end }}
             - name: GOGC
               value: "40"
+            {{- if .Values.pricingCsv }}
+            {{- if .Values.pricingCsv.enabled }}
+            - name: USE_CSV_PROVIDER
+              value: "true"
+            - name: CSV_PATH
+              value: {{ .Values.pricingCsv.location }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}

@@ -26,6 +26,10 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
+pricingCsv:
+  enabled: false
+  location: s3://<bucket-name>/<key> # a valid file URI
+
 saml: # enterprise key required to use
   enabled: false
   secretName: "kubecost-authzero"
