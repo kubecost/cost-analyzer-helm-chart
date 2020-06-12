@@ -247,6 +247,20 @@ spec:
               value: {{ .Values.pricingCsv.location.URI }}
             - name: CSV_REGION
               value: {{ .Values.pricingCsv.location.region }}
+            {{- if eq .Values.pricingCsv.location.provider "AWS"}}
+            {{- if .Values.pricingCsv.location.csvAccessCredentials }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.pricingCsv.location.csvAccessCredentials }}
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.pricingCsv.location.csvAccessCredentials }}
+                  key: AWS_SECRET_ACCESS_KEY
+            {{- end }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- if .Values.reporting }}
