@@ -28,7 +28,9 @@ global:
 
 pricingCsv:
   enabled: false
-  location: s3://<bucket-name>/<key> # a valid file URI
+  location:
+    region: "us-east-1" 
+    URI: s3://kc-csv-test/pricing_schema.csv # a valid file URI
 
 saml: # enterprise key required to use
   enabled: false

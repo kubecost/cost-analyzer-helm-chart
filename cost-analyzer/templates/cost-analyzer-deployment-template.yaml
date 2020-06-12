@@ -244,7 +244,9 @@ spec:
             - name: USE_CSV_PROVIDER
               value: "true"
             - name: CSV_PATH
-              value: {{ .Values.pricingCsv.location }}
+              value: {{ .Values.pricingCsv.location.URI }}
+            - name: CSV_REGION
+              value: {{ .Values.pricingCsv.location.region }}
             {{- end }}
             {{- end }}
             {{- if .Values.reporting }}
