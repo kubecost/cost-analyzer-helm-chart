@@ -259,7 +259,7 @@ spec:
               value: "true"
             {{- end }}
             - name: GOGC
-              value: "40"
+              value: "60"
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
