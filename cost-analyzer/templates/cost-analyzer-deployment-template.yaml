@@ -155,27 +155,6 @@ spec:
           securityContext:
             runAsUser: 0
 {{ end }}
-        {{- if .Values.kubecostInit }}
-        {{- if .Values.imageVersion}}
-        - image: {{ .Values.kubecostInit.image }}:{{ .Values.imageVersion }}
-        {{- else }}
-        - image: {{ .Values.kubecostInit.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
-        {{- else }}
-        - image: gcr.io/kubecost1/init:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-          name: cost-analyzer-init
-        {{- if .Values.kubecostInit.imagePullPolicy }}
-          imagePullPolicy: {{ .Values.kubecostInit.imagePullPolicy }}
-        {{- else }}
-          imagePullPolicy: Always
-        {{- end }}
-          env:
-            - name: PROMETHEUS_SERVER_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "cost-analyzer.fullname" . }}
-                  key: prometheus-server-endpoint
       containers:
         {{- if .Values.kubecostModel }}
         {{- if .Values.imageVersion}}
@@ -260,6 +239,30 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            {{- if .Values.pricingCsv }}
+            {{- if .Values.pricingCsv.enabled }}
+            - name: USE_CSV_PROVIDER
+              value: "true"
+            - name: CSV_PATH
+              value: {{ .Values.pricingCsv.location.URI }}
+            - name: CSV_REGION
+              value: {{ .Values.pricingCsv.location.region }}
+            {{- if eq .Values.pricingCsv.location.provider "AWS"}}
+            {{- if .Values.pricingCsv.location.csvAccessCredentials }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.pricingCsv.location.csvAccessCredentials }}
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.pricingCsv.location.csvAccessCredentials }}
+                  key: AWS_SECRET_ACCESS_KEY
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
