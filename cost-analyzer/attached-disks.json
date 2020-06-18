@@ -356,7 +356,11 @@
   ],
   "schemaVersion": 16,
   "style": "dark",
-  "tags": [],
+  "tags": [
+    "cost",
+    "utilization",
+    "metrics"
+  ],
   "templating": {
     "list": [
       {
