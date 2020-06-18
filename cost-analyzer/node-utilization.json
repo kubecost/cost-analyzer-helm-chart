@@ -1,7 +1,7 @@
-{  
-	"annotations":{  
-		"list":[  
-			{  
+{
+	"annotations":{
+		"list":[
+			{
 				"builtIn":1,
 				"datasource":"-- Grafana --",
 				"enable":true,
@@ -17,29 +17,29 @@
 	"graphTooltip":0,
 	"id":6,
 	"iteration":1557245882378,
-	"links":[  
+	"links":[
 
 	],
-	"panels":[  
-		{  
+	"panels":[
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"percentunit",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":true,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":7,
 				"w":8,
 				"x":0,
@@ -47,16 +47,16 @@
 			},
 			"id":2,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -68,22 +68,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(irate(container_cpu_usage_seconds_total{id=\"/\",instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -94,8 +94,8 @@
 			"title":"CPU Usage",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -103,25 +103,25 @@
 			],
 			"valueName":"avg"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"percentunit",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":true,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":7,
 				"w":8,
 				"x":8,
@@ -129,16 +129,16 @@
 			},
 			"id":3,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -150,22 +150,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -176,8 +176,8 @@
 			"title":"Memory Usage",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -185,25 +185,25 @@
 			],
 			"valueName":"avg"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"percentunit",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":true,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":7,
 				"w":8,
 				"x":16,
@@ -211,16 +211,16 @@
 			},
 			"id":4,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -232,22 +232,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\",instance=\"$node\"}) /\nsum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\",instance=\"$node\"})",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -258,8 +258,8 @@
 			"title":"Storage Usage",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -267,16 +267,16 @@
 			],
 			"valueName":"avg"
 		},
-		{  
-			"columns":[  
-				{  
+		{
+			"columns":[
+				{
 					"text":"Avg",
 					"value":"avg"
 				}
 			],
-			"datasource":"default",
+			"datasource":"default-kubecost",
 			"fontSize":"100%",
-			"gridPos":{  
+			"gridPos":{
 				"h":8,
 				"w":16,
 				"x":0,
@@ -284,7 +284,7 @@
 			},
 			"hideTimeOverride":true,
 			"id":21,
-			"links":[  
+			"links":[
 
 			],
 			"pageSize":8,
@@ -292,15 +292,15 @@
 			"repeatDirection":"v",
 			"scroll":true,
 			"showHeader":true,
-			"sort":{  
+			"sort":{
 				"col":4,
 				"desc":true
 			},
-			"styles":[  
-				{  
+			"styles":[
+				{
 					"alias":"Pod",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(50, 172, 45, 0.97)",
 						"#c15c17"
@@ -311,17 +311,17 @@
 					"linkTooltip":"",
 					"linkUrl":"",
 					"pattern":"pod_name",
-					"thresholds":[  
+					"thresholds":[
 						"30",
 						"80"
 					],
 					"type":"string",
 					"unit":"currencyUSD"
 				},
-				{  
+				{
 					"alias":"",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -330,16 +330,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Time",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"hidden",
 					"unit":"short"
 				},
-				{  
+				{
 					"alias":"CPU Usage",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -348,16 +348,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #C",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"short"
 				},
-				{  
+				{
 					"alias":"CPU Request",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -366,16 +366,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #A",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"short"
 				},
-				{  
+				{
 					"alias":"CPU Limit",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -384,16 +384,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #B",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"short"
 				},
-				{  
+				{
 					"alias":"Mem Usage",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -402,16 +402,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #D",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"bytes"
 				},
-				{  
+				{
 					"alias":"Mem Request",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -420,16 +420,16 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #E",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"bytes"
 				},
-				{  
+				{
 					"alias":"Mem Limit",
 					"colorMode":null,
-					"colors":[  
+					"colors":[
 						"rgba(245, 54, 54, 0.9)",
 						"rgba(237, 129, 40, 0.89)",
 						"rgba(50, 172, 45, 0.97)"
@@ -438,36 +438,36 @@
 					"decimals":2,
 					"mappingType":1,
 					"pattern":"Value #F",
-					"thresholds":[  
+					"thresholds":[
 
 					],
 					"type":"number",
 					"unit":"bytes"
 				}
 			],
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(rate(container_cpu_usage_seconds_total{container_name!=\"\",container_name!=\"POD\",pod_name!=\"\",instance=\"$node\"}[24h])) by (pod_name)",
 					"format":"table",
 					"instant":true,
 					"intervalFactor":1,
 					"refId":"C"
 				},
-				{  
+				{
 					"expr":"sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
 					"format":"table",
 					"instant":true,
 					"intervalFactor":1,
 					"refId":"A"
 				},
-				{  
+				{
 					"expr":"sum(avg_over_time(container_memory_usage_bytes{container_name!=\"\",container_name!=\"POD\",pod_name!=\"\",instance=\"$node\"}[24h])) by (pod_name)\n",
 					"format":"table",
 					"instant":true,
 					"intervalFactor":1,
 					"refId":"D"
 				},
-				{  
+				{
 					"expr":"sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
 					"format":"table",
 					"instant":true,
@@ -482,11 +482,11 @@
 			"transparent":false,
 			"type":"table"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
@@ -494,14 +494,14 @@
 			"datasource":null,
 			"decimals":0,
 			"format":"none",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":false,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":4,
 				"w":4,
 				"x":16,
@@ -509,16 +509,16 @@
 			},
 			"id":8,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -530,22 +530,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(\n count(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod)\n * on (pod) group_right()\n sum(kube_pod_container_status_running) by (pod)\n)",
 					"format":"time_series",
 					"instant":true,
@@ -557,8 +557,8 @@
 			"title":"Pods Running",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -566,25 +566,25 @@
 			],
 			"valueName":"current"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"bytes",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":false,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":4,
 				"w":4,
 				"x":20,
@@ -592,16 +592,16 @@
 			},
 			"id":18,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -613,22 +613,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\",instance=\"$node\"})",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -639,8 +639,8 @@
 			"title":"Storage Capacity",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -648,25 +648,25 @@
 			],
 			"valueName":"current"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"none",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":false,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":4,
 				"w":4,
 				"x":16,
@@ -674,16 +674,16 @@
 			},
 			"id":9,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -695,22 +695,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"kube_node_status_capacity_cpu_cores{node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -721,8 +721,8 @@
 			"title":"CPU Capacity",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -730,25 +730,25 @@
 			],
 			"valueName":"avg"
 		},
-		{  
+		{
 			"cacheTimeout":null,
 			"colorBackground":false,
 			"colorValue":false,
-			"colors":[  
+			"colors":[
 				"#299c46",
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
 			"datasource":null,
 			"format":"bytes",
-			"gauge":{  
+			"gauge":{
 				"maxValue":100,
 				"minValue":0,
 				"show":false,
 				"thresholdLabels":false,
 				"thresholdMarkers":true
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":4,
 				"w":4,
 				"x":20,
@@ -756,16 +756,16 @@
 			},
 			"id":19,
 			"interval":null,
-			"links":[  
+			"links":[
 
 			],
 			"mappingType":1,
-			"mappingTypes":[  
-				{  
+			"mappingTypes":[
+				{
 					"name":"value to text",
 					"value":1
 				},
-				{  
+				{
 					"name":"range to text",
 					"value":2
 				}
@@ -777,22 +777,22 @@
 			"postfixFontSize":"50%",
 			"prefix":"",
 			"prefixFontSize":"50%",
-			"rangeMaps":[  
-				{  
+			"rangeMaps":[
+				{
 					"from":"null",
 					"text":"N/A",
 					"to":"null"
 				}
 			],
-			"sparkline":{  
+			"sparkline":{
 				"fillColor":"rgba(31, 118, 189, 0.18)",
 				"full":false,
 				"lineColor":"rgb(31, 120, 193)",
 				"show":false
 			},
 			"tableColumn":"",
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"kube_node_status_capacity_memory_bytes{node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
@@ -803,8 +803,8 @@
 			"title":"RAM Capacity",
 			"type":"singlestat",
 			"valueFontSize":"80%",
-			"valueMaps":[  
-				{  
+			"valueMaps":[
+				{
 					"op":"=",
 					"text":"N/A",
 					"value":"null"
@@ -812,23 +812,23 @@
 			],
 			"valueName":"current"
 		},
-		{  
-			"aliasColors":{  
+		{
+			"aliasColors":{
 
 			},
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default",
+			"datasource":"default-kubecost",
 			"decimals":3,
 			"description":"This panel shows historical utilization for the node.",
 			"editable":true,
 			"error":false,
 			"fill":0,
-			"grid":{  
+			"grid":{
 
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":6,
 				"w":12,
 				"x":0,
@@ -837,7 +837,7 @@
 			"height":"",
 			"id":11,
 			"isNew":true,
-			"legend":{  
+			"legend":{
 				"alignAsTable":false,
 				"avg":false,
 				"current":false,
@@ -855,7 +855,7 @@
 			},
 			"lines":true,
 			"linewidth":2,
-			"links":[  
+			"links":[
 
 			],
 			"nullPointMode":"connected",
@@ -863,14 +863,14 @@
 			"pointradius":5,
 			"points":false,
 			"renderer":"flot",
-			"seriesOverrides":[  
+			"seriesOverrides":[
 
 			],
 			"spaceLength":10,
 			"stack":false,
 			"steppedLine":true,
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum(irate(container_cpu_usage_seconds_total{id=\"/\",instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"hide":false,
@@ -883,30 +883,30 @@
 					"step":10
 				}
 			],
-			"thresholds":[  
+			"thresholds":[
 
 			],
 			"timeFrom":"",
 			"timeShift":null,
 			"title":"CPU Utilization",
-			"tooltip":{  
+			"tooltip":{
 				"msResolution":true,
 				"shared":true,
 				"sort":2,
 				"value_type":"cumulative"
 			},
 			"type":"graph",
-			"xaxis":{  
+			"xaxis":{
 				"buckets":null,
 				"mode":"time",
 				"name":null,
 				"show":true,
-				"values":[  
+				"values":[
 
 				]
 			},
-			"yaxes":[  
-				{  
+			"yaxes":[
+				{
 					"decimals":null,
 					"format":"percentunit",
 					"label":"",
@@ -915,7 +915,7 @@
 					"min":"0",
 					"show":true
 				},
-				{  
+				{
 					"format":"short",
 					"label":null,
 					"logBase":1,
@@ -924,28 +924,28 @@
 					"show":false
 				}
 			],
-			"yaxis":{  
+			"yaxis":{
 				"align":false,
 				"alignLevel":null
 			}
 		},
-		{  
-			"aliasColors":{  
+		{
+			"aliasColors":{
 
 			},
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default",
+			"datasource":"default-kubecost",
 			"decimals":2,
 			"description":"This panel shows historical utilization for the node.",
 			"editable":true,
 			"error":false,
 			"fill":0,
-			"grid":{  
+			"grid":{
 
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":6,
 				"w":12,
 				"x":12,
@@ -953,7 +953,7 @@
 			},
 			"id":13,
 			"isNew":true,
-			"legend":{  
+			"legend":{
 				"alignAsTable":false,
 				"avg":false,
 				"current":false,
@@ -969,7 +969,7 @@
 			},
 			"lines":true,
 			"linewidth":2,
-			"links":[  
+			"links":[
 
 			],
 			"nullPointMode":"connected",
@@ -977,14 +977,14 @@
 			"pointradius":5,
 			"points":false,
 			"renderer":"flot",
-			"seriesOverrides":[  
+			"seriesOverrides":[
 
 			],
 			"spaceLength":10,
 			"stack":false,
 			"steppedLine":true,
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
 					"format":"time_series",
 					"instant":false,
@@ -996,30 +996,30 @@
 					"step":10
 				}
 			],
-			"thresholds":[  
+			"thresholds":[
 
 			],
 			"timeFrom":"",
 			"timeShift":null,
 			"title":"RAM Utilization",
-			"tooltip":{  
+			"tooltip":{
 				"msResolution":false,
 				"shared":true,
 				"sort":2,
 				"value_type":"cumulative"
 			},
 			"type":"graph",
-			"xaxis":{  
+			"xaxis":{
 				"buckets":null,
 				"mode":"time",
 				"name":null,
 				"show":true,
-				"values":[  
+				"values":[
 
 				]
 			},
-			"yaxes":[  
-				{  
+			"yaxes":[
+				{
 					"decimals":null,
 					"format":"percentunit",
 					"label":null,
@@ -1028,7 +1028,7 @@
 					"min":"0",
 					"show":true
 				},
-				{  
+				{
 					"format":"short",
 					"label":null,
 					"logBase":1,
@@ -1037,28 +1037,28 @@
 					"show":false
 				}
 			],
-			"yaxis":{  
+			"yaxis":{
 				"align":false,
 				"alignLevel":null
 			}
 		},
-		{  
-			"aliasColors":{  
+		{
+			"aliasColors":{
 
 			},
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default",
+			"datasource":"default-kubecost",
 			"decimals":2,
 			"description":"Traffic in and out of this namespace, as a sum of the pods within it",
 			"editable":true,
 			"error":false,
 			"fill":1,
-			"grid":{  
+			"grid":{
 
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":6,
 				"w":12,
 				"x":0,
@@ -1067,7 +1067,7 @@
 			"height":"",
 			"id":15,
 			"isNew":true,
-			"legend":{  
+			"legend":{
 				"alignAsTable":false,
 				"avg":true,
 				"current":true,
@@ -1085,7 +1085,7 @@
 			},
 			"lines":true,
 			"linewidth":2,
-			"links":[  
+			"links":[
 
 			],
 			"nullPointMode":"connected",
@@ -1093,14 +1093,14 @@
 			"pointradius":5,
 			"points":false,
 			"renderer":"flot",
-			"seriesOverrides":[  
+			"seriesOverrides":[
 
 			],
 			"spaceLength":10,
 			"stack":false,
 			"steppedLine":false,
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum (rate (container_network_receive_bytes_total{instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"hide":false,
@@ -1112,7 +1112,7 @@
 					"refId":"A",
 					"step":10
 				},
-				{  
+				{
 					"expr":"- sum (rate (container_network_transmit_bytes_total{instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"hide":false,
@@ -1123,30 +1123,30 @@
 					"refId":"B"
 				}
 			],
-			"thresholds":[  
+			"thresholds":[
 
 			],
 			"timeFrom":"",
 			"timeShift":null,
 			"title":"Network IO",
-			"tooltip":{  
+			"tooltip":{
 				"msResolution":true,
 				"shared":true,
 				"sort":2,
 				"value_type":"cumulative"
 			},
 			"type":"graph",
-			"xaxis":{  
+			"xaxis":{
 				"buckets":null,
 				"mode":"time",
 				"name":null,
 				"show":true,
-				"values":[  
+				"values":[
 
 				]
 			},
-			"yaxes":[  
-				{  
+			"yaxes":[
+				{
 					"format":"Bps",
 					"label":"",
 					"logBase":1,
@@ -1154,7 +1154,7 @@
 					"min":null,
 					"show":true
 				},
-				{  
+				{
 					"format":"short",
 					"label":null,
 					"logBase":1,
@@ -1163,28 +1163,28 @@
 					"show":false
 				}
 			],
-			"yaxis":{  
+			"yaxis":{
 				"align":false,
 				"alignLevel":null
 			}
 		},
-		{  
-			"aliasColors":{  
+		{
+			"aliasColors":{
 
 			},
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default",
+			"datasource":"default-kubecost",
 			"decimals":2,
 			"description":"Disk reads and writes for the namespace, as a sum of the pods within it",
 			"editable":true,
 			"error":false,
 			"fill":1,
-			"grid":{  
+			"grid":{
 
 			},
-			"gridPos":{  
+			"gridPos":{
 				"h":6,
 				"w":12,
 				"x":12,
@@ -1193,7 +1193,7 @@
 			"height":"",
 			"id":17,
 			"isNew":true,
-			"legend":{  
+			"legend":{
 				"alignAsTable":false,
 				"avg":true,
 				"current":true,
@@ -1211,7 +1211,7 @@
 			},
 			"lines":true,
 			"linewidth":2,
-			"links":[  
+			"links":[
 
 			],
 			"nullPointMode":"connected",
@@ -1219,14 +1219,14 @@
 			"pointradius":5,
 			"points":false,
 			"renderer":"flot",
-			"seriesOverrides":[  
+			"seriesOverrides":[
 
 			],
 			"spaceLength":10,
 			"stack":false,
 			"steppedLine":false,
-			"targets":[  
-				{  
+			"targets":[
+				{
 					"expr":"sum (rate (container_fs_writes_bytes_total{instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"hide":false,
@@ -1238,7 +1238,7 @@
 					"refId":"A",
 					"step":10
 				},
-				{  
+				{
 					"expr":"- sum (rate (container_fs_reads_bytes_total{instance=\"$node\"}[10m]))",
 					"format":"time_series",
 					"hide":false,
@@ -1249,30 +1249,30 @@
 					"refId":"B"
 				}
 			],
-			"thresholds":[  
+			"thresholds":[
 
 			],
 			"timeFrom":"",
 			"timeShift":null,
 			"title":"Disk IO",
-			"tooltip":{  
+			"tooltip":{
 				"msResolution":true,
 				"shared":true,
 				"sort":2,
 				"value_type":"cumulative"
 			},
 			"type":"graph",
-			"xaxis":{  
+			"xaxis":{
 				"buckets":null,
 				"mode":"time",
 				"name":null,
 				"show":true,
-				"values":[  
+				"values":[
 
 				]
 			},
-			"yaxes":[  
-				{  
+			"yaxes":[
+				{
 					"format":"Bps",
 					"label":"",
 					"logBase":1,
@@ -1280,7 +1280,7 @@
 					"min":null,
 					"show":true
 				},
-				{  
+				{
 					"format":"short",
 					"label":null,
 					"logBase":1,
@@ -1289,7 +1289,7 @@
 					"show":false
 				}
 			],
-			"yaxis":{  
+			"yaxis":{
 				"align":false,
 				"alignLevel":null
 			}
@@ -1297,26 +1297,26 @@
 	],
 	"schemaVersion":16,
 	"style":"dark",
-	"tags":[  
+	"tags":[
 		"cost",
 		"utilization",
 		"metrics"
 	],
-	"templating":{  
-		"list":[  
-			{  
+	"templating":{
+		"list":[
+			{
 				"allValue":null,
-				"current":{  
+				"current":{
 					"text":"ip-172-20-44-170.us-east-2.compute.internal",
 					"value":"ip-172-20-44-170.us-east-2.compute.internal"
 				},
-				"datasource":"default",
+				"datasource":"default-kubecost",
 				"hide":0,
 				"includeAll":false,
 				"label":null,
 				"multi":false,
 				"name":"node",
-				"options":[  
+				"options":[
 
 				],
 				"query":"query_result(kube_node_labels)",
@@ -1325,7 +1325,7 @@
 				"skipUrlSync":false,
 				"sort":0,
 				"tagValuesQuery":"",
-				"tags":[  
+				"tags":[
 
 				],
 				"tagsQuery":"",
@@ -1334,12 +1334,12 @@
 			}
 		]
 	},
-	"time":{  
+	"time":{
 		"from":"now-6h",
 		"to":"now"
 	},
-	"timepicker":{  
-		"refresh_intervals":[  
+	"timepicker":{
+		"refresh_intervals":[
 			"5s",
 			"10s",
 			"30s",
@@ -1351,7 +1351,7 @@
 			"2h",
 			"1d"
 		],
-		"time_options":[  
+		"time_options":[
 			"5m",
 			"15m",
 			"1h",

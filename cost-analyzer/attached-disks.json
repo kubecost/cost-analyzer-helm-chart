@@ -365,7 +365,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "Prometheus",
+        "datasource": "default-kubecost",
         "hide": 0,
         "includeAll": true,
         "label": null,
