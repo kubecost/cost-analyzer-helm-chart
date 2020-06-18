@@ -2,7 +2,6 @@
 {{- if .Values.grafana.sidecar -}}
 {{- if .Values.grafana.sidecar.datasources -}}
 {{- if .Values.grafana.sidecar.datasources.enabled -}}
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -30,10 +29,18 @@ data:
 {{- if .Values.global.thanos.enabled }}
       isDefault: false
 {{- else }}
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- end }}
 {{- else }}
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- end }}
       name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
       type: prometheus
@@ -46,14 +53,17 @@ data:
     - access: proxy
       name: "Thanos"
       type: prometheus
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
 {{ else }}
       url: {{ .Values.global.thanos.queryService }}
 {{- end }}
 {{- end }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
