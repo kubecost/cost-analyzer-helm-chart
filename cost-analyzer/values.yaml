@@ -364,10 +364,10 @@ serviceAccount:
 #   - name: "Cluster B"
 #     address: http://cluster-b.kubecost.com:9090
 #  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters
-#    CPU: 28.0
-#    spotCPU: 4.86
-#    RAM: 3.09
-#    spotRAM: 0.65
+#    CPU: 28.0       # monthly price for a standard CPU
+#    spotCPU: 4.86   # monthly price for CPU attached to a node matching spotLabel & spotLabelValue
+#    RAM: 3.09       # monthly price for a standard RAM Gb
+#    spotRAM: 0.65   # monthly price for a RAM Gb attached to a node matching spotLabel & spotLabelValue
 #    GPU: 693.50
 #    spotGPU: 225.0
 #    storage: 0.04
@@ -375,7 +375,7 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
-#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
+#  customPricesEnabled: false # Enabling makes the custom prices supplied above the default view
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
 #  gpuLabel: gpu
