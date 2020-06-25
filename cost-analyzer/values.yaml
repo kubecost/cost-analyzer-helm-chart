@@ -27,7 +27,7 @@ global:
     # iam.amazonaws.com/role: role-arn
 
 pricingCsv:
-  enabled: true
+  enabled: false
   location:
     provider: "AWS"
     region: "us-east-1" 
