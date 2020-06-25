@@ -112,6 +112,9 @@ data:
   {{- if .Values.kubecostProductConfigs.athenaTable }}
     athenaTable: "{{ .Values.kubecostProductConfigs.athenaTable }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.masterPayerARN}}
+    masterPayerARN: "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
+  {{- end }}
   {{- if .Values.kubecostProductConfigs.gpuLabel }}
     gpuLabel: "{{ .Values.kubecostProductConfigs.gpuLabel }}"
   {{- end -}}
