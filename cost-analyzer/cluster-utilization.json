@@ -1,7 +1,7 @@
-{  
-    "annotations":{  
-        "list":[  
-            {  
+{
+    "annotations":{
+        "list":[
+            {
                 "builtIn":1,
                 "datasource":"-- Grafana --",
                 "enable":true,
@@ -18,20 +18,20 @@
     "graphTooltip":0,
     "id":4,
     "iteration":1556759633456,
-    "links":[  
+    "links":[
 
     ],
-    "panels":[  
-        {  
+    "panels":[
+        {
             "content":"This dashboard shows monthly cost estimates for the cluster, based on **current** CPU, RAM and storage provisioned.",
-            "gridPos":{  
+            "gridPos":{
                 "h":2,
                 "w":24,
                 "x":0,
                 "y":0
             },
             "id":86,
-            "links":[  
+            "links":[
 
             ],
             "mode":"markdown",
@@ -39,26 +39,26 @@
             "transparent":true,
             "type":"text"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":false,
-            "colors":[  
+            "colors":[
                 "#299c46",
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "format":"currencyUSD",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":false,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":6,
                 "x":0,
@@ -67,16 +67,16 @@
             "hideTimeOverride":true,
             "id":75,
             "interval":null,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -88,22 +88,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"label_cloud_google_com_gke_preemptible",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) ",
                     "format":"time_series",
                     "instant":true,
@@ -119,8 +119,8 @@
             "title":"CPU Cost",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -128,26 +128,26 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":false,
-            "colors":[  
+            "colors":[
                 "#299c46",
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "format":"currencyUSD",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":false,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":6,
                 "x":6,
@@ -156,16 +156,16 @@
             "hideTimeOverride":true,
             "id":77,
             "interval":null,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -177,22 +177,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"label_cloud_google_com_gke_preemptible",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) ",
                     "format":"time_series",
                     "instant":true,
@@ -208,8 +208,8 @@
             "title":"RAM Cost",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -217,26 +217,26 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":false,
-            "colors":[  
+            "colors":[
                 "#299c46",
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "format":"currencyUSD",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":false,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":6,
                 "x":12,
@@ -245,16 +245,16 @@
             "hideTimeOverride":true,
             "id":78,
             "interval":null,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -266,22 +266,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"label_cloud_google_com_gke_preemptible",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard",
                     "format":"time_series",
                     "instant":true,
@@ -297,8 +297,8 @@
             "title":"Storage Cost (Cluster and PVC)",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -306,27 +306,27 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":false,
-            "colors":[  
+            "colors":[
                 "#299c46",
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"Represents a near worst-case approximation of network costs.",
             "format":"currencyUSD",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":false,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":6,
                 "x":18,
@@ -335,16 +335,16 @@
             "hideTimeOverride":true,
             "id":129,
             "interval":null,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -356,22 +356,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"label_cloud_google_com_gke_preemptible",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                     "format":"time_series",
                     "instant":true,
@@ -387,8 +387,8 @@
             "title":"Network Egress Cost",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -396,29 +396,29 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"Current CPU use from applications divided by allocatable CPUs",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":0,
@@ -429,16 +429,16 @@
             "id":82,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -450,22 +450,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"(\n sum(\n count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n * on (instance) \n sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable_cpu_cores))\n) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -479,8 +479,8 @@
             "title":"CPU Utilization",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -488,29 +488,29 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"Current CPU reservation requests from applications vs allocatable CPU",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":3,
@@ -520,16 +520,16 @@
             "id":91,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -541,22 +541,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(kube_pod_container_resource_requests_cpu_cores) / SUM(kube_node_status_allocatable_cpu_cores) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -569,8 +569,8 @@
             "title":"CPU Requests",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -578,28 +578,28 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Current RAM use vs RAM available",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":6,
@@ -610,16 +610,16 @@
             "id":80,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -631,22 +631,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable_memory_bytes) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -654,7 +654,7 @@
                     "refId":"A",
                     "step":10
                 },
-                {  
+                {
                     "expr":"",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -667,8 +667,8 @@
             "transparent":false,
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -676,28 +676,28 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Current RAM requests vs RAM available",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":9,
@@ -707,16 +707,16 @@
             "id":92,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -728,22 +728,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"})\n /\n sum(kube_node_status_allocatable_memory_bytes)\n) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -757,8 +757,8 @@
             "transparent":false,
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -766,29 +766,29 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"This gauge shows the current standard storage use, including cluster storage, vs storage available",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":12,
@@ -799,16 +799,16 @@
             "id":95,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -820,22 +820,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kubelet_volume_stats_used_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) /\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -849,8 +849,8 @@
             "title":"Storage Utilization",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -858,29 +858,29 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":true,
-            "colors":[  
+            "colors":[
                 "rgba(245, 54, 54, 0.9)",
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"This gauge shows the current SSD use vs SSD available",
             "editable":true,
             "error":false,
             "format":"percent",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":true,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":3,
                 "x":15,
@@ -891,16 +891,16 @@
             "id":96,
             "interval":null,
             "isNew":true,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -912,22 +912,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kubelet_volume_stats_used_bytes) by (persistentvolumeclaim, namespace)\n) /\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace)\n) * 100",
                     "format":"time_series",
                     "interval":"",
@@ -941,8 +941,8 @@
             "title":"SSD Utilization",
             "type":"singlestat",
             "valueFontSize":"80%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -950,27 +950,27 @@
             ],
             "valueName":"current"
         },
-        {  
+        {
             "cacheTimeout":null,
             "colorBackground":false,
             "colorValue":false,
-            "colors":[  
+            "colors":[
                 "#299c46",
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "decimals":2,
             "description":"Expected monthly cost given current CPU, memory storage, and network resource consumption",
             "format":"currencyUSD",
-            "gauge":{  
+            "gauge":{
                 "maxValue":100,
                 "minValue":0,
                 "show":false,
                 "thresholdLabels":false,
                 "thresholdMarkers":true
             },
-            "gridPos":{  
+            "gridPos":{
                 "h":4,
                 "w":6,
                 "x":18,
@@ -979,16 +979,16 @@
             "hideTimeOverride":true,
             "id":93,
             "interval":null,
-            "links":[  
+            "links":[
 
             ],
             "mappingType":1,
-            "mappingTypes":[  
-                {  
+            "mappingTypes":[
+                {
                     "name":"value to text",
                     "value":1
                 },
-                {  
+                {
                     "name":"range to text",
                     "value":2
                 }
@@ -1000,22 +1000,22 @@
             "postfixFontSize":"50%",
             "prefix":"",
             "prefixFontSize":"50%",
-            "rangeMaps":[  
-                {  
+            "rangeMaps":[
+                {
                     "from":"null",
                     "text":"N/A",
                     "to":"null"
                 }
             ],
-            "sparkline":{  
+            "sparkline":{
                 "fillColor":"rgba(31, 118, 189, 0.18)",
                 "full":false,
                 "lineColor":"rgb(31, 120, 193)",
                 "show":false
             },
             "tableColumn":"label_cloud_google_com_gke_preemptible",
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n)\n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                     "format":"time_series",
                     "instant":true,
@@ -1031,8 +1031,8 @@
             "title":"Total Monthly Cost",
             "type":"singlestat",
             "valueFontSize":"120%",
-            "valueMaps":[  
-                {  
+            "valueMaps":[
+                {
                     "op":"=",
                     "text":"N/A",
                     "value":"null"
@@ -1040,24 +1040,24 @@
             ],
             "valueName":"current"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Expected monthly CPU, memory and storage costs given provisioned resources",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":12,
                 "x":0,
                 "y":10
             },
             "id":120,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -1068,7 +1068,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -1076,14 +1076,14 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) \n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -1091,29 +1091,29 @@
                     "refId":"A"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Total monthly cost",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"currencyUSD",
                     "label":null,
                     "logBase":1,
@@ -1121,7 +1121,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -1130,22 +1130,22 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Resources allocated to namespace based on container requests",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":12,
                 "x":12,
@@ -1153,7 +1153,7 @@
             },
             "hideTimeOverride":false,
             "id":73,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":10,
@@ -1161,15 +1161,15 @@
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":7,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"Namespace",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(50, 172, 45, 0.97)",
                         "#c15c17"
@@ -1180,17 +1180,17 @@
                     "linkTooltip":"View namespace cost metrics",
                     "linkUrl":"d/at-cost-analysis-namespace2/namespace-cost-metrics?&var-namespace=$__cell",
                     "pattern":"namespace",
-                    "thresholds":[  
+                    "thresholds":[
                         "30",
                         "80"
                     ],
                     "type":"string",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"RAM",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1198,16 +1198,16 @@
                     "dateFormat":"YYYY-MM-DD HH:mm:ss",
                     "decimals":2,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"CPU",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1216,16 +1216,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1234,16 +1234,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"PV Storage",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1252,16 +1252,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #C",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"Total",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1270,16 +1270,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #D",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"CPU Utilization",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "#bf1b00",
                         "rgba(50, 172, 45, 0.97)",
                         "#ef843c"
@@ -1288,17 +1288,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #E",
-                    "thresholds":[  
+                    "thresholds":[
                         "30",
                         "80"
                     ],
                     "type":"number",
                     "unit":"percent"
                 },
-                {  
+                {
                     "alias":"RAM Utilization",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(50, 172, 45, 0.97)",
                         "#ef843c"
@@ -1307,7 +1307,7 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #F",
-                    "thresholds":[  
+                    "thresholds":[
                         "30",
                         "80"
                     ],
@@ -1315,8 +1315,8 @@
                     "unit":"percent"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                     "format":"table",
                     "hide":false,
@@ -1326,7 +1326,7 @@
                     "legendFormat":"{{ namespace }}",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                     "format":"table",
                     "instant":true,
@@ -1334,7 +1334,7 @@
                     "legendFormat":"{{ namespace }}",
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard",
                     "format":"table",
                     "instant":true,
@@ -1342,7 +1342,7 @@
                     "legendFormat":"{{ namespace }}",
                     "refId":"C"
                 },
-                {  
+                {
                     "expr":"# CPU \n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n#END CPU \n# Memory \n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n# PV storage\n\n(\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard \n)",
                     "format":"table",
                     "instant":true,
@@ -1358,38 +1358,38 @@
             "transparent":false,
             "type":"table"
         },
-        {  
+        {
             "collapsed":false,
-            "gridPos":{  
+            "gridPos":{
                 "h":1,
                 "w":24,
                 "x":0,
                 "y":18
             },
             "id":108,
-            "panels":[  
+            "panels":[
 
             ],
             "title":"CPU Metrics",
             "type":"row"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":24,
                 "x":0,
                 "y":19
             },
             "id":116,
-            "legend":{  
+            "legend":{
                 "alignAsTable":false,
                 "avg":false,
                 "current":false,
@@ -1402,7 +1402,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -1410,35 +1410,35 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(kube_node_status_capacity_cpu_cores)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"capacity",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"SUM(kube_pod_container_resource_requests_cpu_cores)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"requests",
                     "refId":"C"
                 },
-                {  
+                {
                     "expr":"SUM(irate(container_cpu_usage_seconds_total{id=\"/\"}[5m]))",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"usage",
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"SUM(kube_pod_container_resource_limits_cpu_cores) ",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -1446,29 +1446,29 @@
                     "refId":"D"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Cluster CPUs",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "decimals":1,
                     "format":"short",
                     "label":null,
@@ -1477,7 +1477,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -1486,28 +1486,28 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":24,
                 "x":0,
                 "y":27
             },
             "id":130,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -1518,7 +1518,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -1526,14 +1526,14 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"avg(irate(node_cpu_seconds_total{mode!=\"idle\"}[5m])) by (mode) * 100",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -1541,29 +1541,29 @@
                     "refId":"A"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"CPU Mode",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"percent",
                     "label":null,
                     "logBase":1,
@@ -1571,7 +1571,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"percent",
                     "label":null,
                     "logBase":1,
@@ -1580,22 +1580,22 @@
                     "show":false
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"This table shows the comparison of CPU requests and usage by namespace",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":0,
@@ -1603,22 +1603,22 @@
             },
             "hideTimeOverride":true,
             "id":104,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":8,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":1,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"CPU Requests",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "#fceaca",
                         "#fce2de",
                         "rgba(245, 54, 54, 0.9)"
@@ -1627,16 +1627,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
                         ""
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Node",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1645,16 +1645,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"node",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1663,16 +1663,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"CPU Requests",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(50, 172, 45, 0.97)",
                         "#cffaff"
@@ -1681,16 +1681,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
                         ""
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"24h CPU Usage",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1699,16 +1699,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #C",
-                    "thresholds":[  
+                    "thresholds":[
                         "30"
                     ],
                     "type":"number",
                     "unit":"none"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1720,15 +1720,15 @@
                     "linkUrl":"d/at-cost-analysis-namespace2/namespace-cost-metrics?&var-namespace=$__cell",
                     "mappingType":1,
                     "pattern":"namespace",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\"}) by (namespace) ",
                     "format":"table",
                     "hide":false,
@@ -1738,7 +1738,7 @@
                     "legendFormat":"",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"sum (rate (container_cpu_usage_seconds_total{image!=\"\",namespace!=\"\"}[24h])) by (namespace)",
                     "format":"table",
                     "instant":true,
@@ -1754,17 +1754,17 @@
             "transparent":false,
             "type":"table"
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"This table shows the comparison of application CPU usage vs the capacity of the node (measured over last 60 minutes)",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":12,
@@ -1772,22 +1772,22 @@
             },
             "hideTimeOverride":true,
             "id":90,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":8,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":2,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"CPU Request Utilization",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "#ef843c",
                         "rgba(50, 172, 45, 0.97)",
                         "rgba(245, 54, 54, 0.9)"
@@ -1796,17 +1796,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
                         ".30",
                         " .80"
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 },
-                {  
+                {
                     "alias":"Node",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1815,16 +1815,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"node",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1833,16 +1833,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"CPU Utilization",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "#ef843c",
                         "rgba(50, 172, 45, 0.97)",
                         "rgba(245, 54, 54, 0.9)"
@@ -1851,17 +1851,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
                         ".20",
                         " .80"
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 },
-                {  
+                {
                     "alias":"24h Utilization ",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -1870,22 +1870,22 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(\nSUM(rate(container_cpu_usage_seconds_total[24h])) by (pod_name)\n* on (pod_name) group_left (node) \nlabel_replace(\n avg(kube_pod_info{}),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n)\n) by (node) \n/ \nsum(kube_node_status_capacity_cpu_cores) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"sum(kube_pod_container_resource_requests_cpu_cores) by (node) / sum(kube_node_status_capacity_cpu_cores) by (node)",
                     "format":"table",
                     "instant":true,
@@ -1900,38 +1900,38 @@
             "transparent":false,
             "type":"table"
         },
-        {  
+        {
             "collapsed":false,
-            "gridPos":{  
+            "gridPos":{
                 "h":1,
                 "w":24,
                 "x":0,
                 "y":45
             },
             "id":113,
-            "panels":[  
+            "panels":[
 
             ],
             "title":"Memory Metrics",
             "type":"row"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":24,
                 "x":0,
                 "y":46
             },
             "id":117,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -1942,7 +1942,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -1950,35 +1950,35 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(kube_node_status_capacity_memory_bytes / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"capacity",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"SUM(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"requests",
                     "refId":"C"
                 },
-                {  
+                {
                     "expr":"SUM(container_memory_usage_bytes{image!=\"\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"usage",
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"SUM(kube_pod_container_resource_limits_memory_bytes {namespace!=\"\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -1986,29 +1986,29 @@
                     "refId":"D"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Cluster memory (GB)",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"decgbytes",
                     "label":null,
                     "logBase":1,
@@ -2016,7 +2016,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -2025,28 +2025,28 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":8,
                 "w":24,
                 "x":0,
                 "y":54
             },
             "id":131,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -2057,7 +2057,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -2065,14 +2065,14 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"1 - sum(node_memory_MemAvailable_bytes) by (node) / sum(node_memory_MemTotal_bytes) by (node)",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -2080,29 +2080,29 @@
                     "refId":"A"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Cluster Memory Utilization",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"percentunit",
                     "label":null,
                     "logBase":1,
@@ -2110,7 +2110,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -2119,22 +2119,22 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Comparison of memory requests and current usage by namespace",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":0,
@@ -2142,22 +2142,22 @@
             },
             "hideTimeOverride":true,
             "id":109,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":7,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":1,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"Mem Requests (GB)",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "#fceaca",
                         "#fce2de",
                         "rgba(245, 54, 54, 0.9)"
@@ -2166,16 +2166,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
                         ""
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Node",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2184,16 +2184,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"node",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2202,16 +2202,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"CPU Requests",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(50, 172, 45, 0.97)",
                         "#cffaff"
@@ -2220,16 +2220,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
                         ""
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"24h Mem Usage",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "#508642",
                         "#e5ac0e"
@@ -2238,17 +2238,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #C",
-                    "thresholds":[  
+                    "thresholds":[
                         ".30",
                         ".75"
                     ],
                     "type":"number",
                     "unit":"none"
                 },
-                {  
+                {
                     "alias":"Namespace",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2260,15 +2260,15 @@
                     "linkUrl":"d/at-cost-analysis-namespace2/namespace-cost-metrics?&var-namespace=$__cell",
                     "mappingType":1,
                     "pattern":"namespace",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace) ",
                     "format":"table",
                     "hide":false,
@@ -2278,7 +2278,7 @@
                     "legendFormat":"",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"SUM(container_memory_usage_bytes{image!=\"\",namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace)",
                     "format":"table",
                     "instant":true,
@@ -2294,17 +2294,17 @@
             "transparent":false,
             "type":"table"
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "description":"Container RAM usage vs node capacity",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":12,
@@ -2312,22 +2312,22 @@
             },
             "hideTimeOverride":true,
             "id":114,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":8,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":1,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"RAM Requests",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "#ef843c",
                         "rgba(50, 172, 45, 0.97)",
                         "rgba(245, 54, 54, 0.9)"
@@ -2336,17 +2336,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
                         "30",
                         " 80"
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 },
-                {  
+                {
                     "alias":"Node",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2355,16 +2355,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"node",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2373,16 +2373,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"RAM Usage",
                     "colorMode":"value",
-                    "colors":[  
+                    "colors":[
                         "#ef843c",
                         "rgba(50, 172, 45, 0.97)",
                         "rgba(245, 54, 54, 0.9)"
@@ -2391,17 +2391,17 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
                         "25",
                         " 80"
                     ],
                     "type":"number",
                     "unit":"percent"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2410,22 +2410,22 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(label_replace(container_memory_usage_bytes{namespace!=\"\"}, \"node\", \"$1\", \"instance\",\"(.+)\")) by (node) * 100\n/\nSUM(kube_node_status_capacity_memory_bytes) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"}) by (node) / SUM(kube_node_status_capacity_memory_bytes) by (node)",
                     "format":"table",
                     "instant":true,
@@ -2440,31 +2440,31 @@
             "transparent":false,
             "type":"table"
         },
-        {  
+        {
             "collapsed":false,
-            "gridPos":{  
+            "gridPos":{
                 "h":1,
                 "w":24,
                 "x":0,
                 "y":72
             },
             "id":101,
-            "panels":[  
+            "panels":[
 
             ],
             "title":"Storage Metrics",
             "type":"row"
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":9,
                 "w":12,
                 "x":0,
@@ -2472,22 +2472,22 @@
             },
             "hideTimeOverride":true,
             "id":97,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":8,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":4,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"Node",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2496,16 +2496,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"instance",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"PVC Name",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2514,16 +2514,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"persistentvolumeclaim",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Storage Class",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2532,16 +2532,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"storageclass",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Cost",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2550,16 +2550,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2568,16 +2568,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Cost",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2586,16 +2586,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"Size (GB)",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2604,16 +2604,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Usage",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2622,22 +2622,22 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #C",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(container_fs_limit_bytes{id=\"/\"}) by (instance) / 1024 / 1024 / 1024 * 1.03",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"SUM(container_fs_limit_bytes{id=\"/\"}) by (instance) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard\n",
                     "format":"table",
                     "hide":false,
@@ -2647,7 +2647,7 @@
                     "legendFormat":"{{ persistentvolumeclaim }}",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"} / container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"}) by (instance) \n",
                     "format":"table",
                     "instant":true,
@@ -2662,23 +2662,23 @@
             "transparent":false,
             "type":"table"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":9,
                 "w":12,
                 "x":12,
                 "y":73
             },
             "id":128,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -2689,7 +2689,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -2697,14 +2697,14 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(container_fs_usage_bytes{id=\"/\"}) / SUM(container_fs_limit_bytes{id=\"/\"})",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -2712,29 +2712,29 @@
                     "refId":"D"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Local storage utilization",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"percent",
                     "label":"IOPS",
                     "logBase":1,
@@ -2742,7 +2742,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -2751,21 +2751,21 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "columns":[  
-                {  
+        {
+            "columns":[
+                {
                     "text":"Avg",
                     "value":"avg"
                 }
             ],
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fontSize":"100%",
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":0,
@@ -2773,22 +2773,22 @@
             },
             "hideTimeOverride":true,
             "id":94,
-            "links":[  
+            "links":[
 
             ],
             "pageSize":10,
             "repeatDirection":"v",
             "scroll":true,
             "showHeader":true,
-            "sort":{  
+            "sort":{
                 "col":2,
                 "desc":true
             },
-            "styles":[  
-                {  
+            "styles":[
+                {
                     "alias":"Namespace",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2800,16 +2800,16 @@
                     "linkUrl":"d/at-cost-analysis-namespace2/namespace-cost-metrics?&var-namespace=$__cell",
                     "mappingType":1,
                     "pattern":"namespace",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"string",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"PVC Name",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2818,16 +2818,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"persistentvolumeclaim",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Storage Class",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2836,16 +2836,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"storageclass",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Cost",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2854,16 +2854,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2872,16 +2872,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Time",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"hidden",
                     "unit":"short"
                 },
-                {  
+                {
                     "alias":"Cost",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2890,16 +2890,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #A",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"currencyUSD"
                 },
-                {  
+                {
                     "alias":"Usage",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2908,16 +2908,16 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #B",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"percentunit"
                 },
-                {  
+                {
                     "alias":"Size (GB)",
                     "colorMode":null,
-                    "colors":[  
+                    "colors":[
                         "rgba(245, 54, 54, 0.9)",
                         "rgba(237, 129, 40, 0.89)",
                         "rgba(50, 172, 45, 0.97)"
@@ -2926,22 +2926,22 @@
                     "decimals":2,
                     "mappingType":1,
                     "pattern":"Value #C",
-                    "thresholds":[  
+                    "thresholds":[
 
                     ],
                     "type":"number",
                     "unit":"short"
                 }
             ],
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n * on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace)\n) by (namespace,persistentvolumeclaim,storageclass) / 1024 / 1024 /1024\n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n * on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace)\n) by (namespace,persistentvolumeclaim,storageclass) / 1024 / 1024 /1024\n\n\n",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"C"
                 },
-                {  
+                {
                     "expr":"sum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n * on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace)\n) by (namespace,persistentvolumeclaim,storageclass) / 1024 / 1024 /1024 * $costStorageSSD\n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n * on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace)\n) by (namespace,persistentvolumeclaim,storageclass) / 1024 / 1024 /1024 * $costStorageStandard\n",
                     "format":"table",
                     "hide":false,
@@ -2951,7 +2951,7 @@
                     "legendFormat":"{{ persistentvolumeclaim }}",
                     "refId":"A"
                 },
-                {  
+                {
                     "expr":"sum(kubelet_volume_stats_used_bytes) by (persistentvolumeclaim, namespace) \n/\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n * on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace)\n) by (namespace,persistentvolumeclaim)",
                     "format":"table",
                     "instant":true,
@@ -2966,23 +2966,23 @@
             "transparent":false,
             "type":"table"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":10,
                 "w":12,
                 "x":12,
                 "y":82
             },
             "id":132,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -2993,7 +2993,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -3001,21 +3001,21 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM(rate(node_disk_reads_completed_total[10m])) or SUM(rate(node_disk_reads_completed[10m]))\n",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"reads",
                     "refId":"D"
                 },
-                {  
+                {
                     "expr":"SUM(rate(node_disk_writes_completed_total[10m])) or SUM(rate(node_disk_writes_completed[10m]))",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -3023,29 +3023,29 @@
                     "refId":"A"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Disk IOPS",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"none",
                     "label":"IOPS",
                     "logBase":1,
@@ -3053,7 +3053,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -3062,28 +3062,28 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":9,
                 "w":24,
                 "x":0,
                 "y":92
             },
             "id":122,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -3094,7 +3094,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -3102,14 +3102,14 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"SUM( kubelet_volume_stats_inodes_used / kubelet_volume_stats_inodes) by (persistentvolumeclaim) * 100",
                     "format":"time_series",
                     "intervalFactor":1,
@@ -3117,29 +3117,29 @@
                     "refId":"D"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Inode usage",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"percent",
                     "label":null,
                     "logBase":1,
@@ -3147,7 +3147,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -3156,43 +3156,43 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
         },
-        {  
+        {
             "collapsed":false,
-            "gridPos":{  
+            "gridPos":{
                 "h":1,
                 "w":24,
                 "x":0,
                 "y":101
             },
             "id":127,
-            "panels":[  
+            "panels":[
 
             ],
             "title":"Network",
             "type":"row"
         },
-        {  
-            "aliasColors":{  
+        {
+            "aliasColors":{
 
             },
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default",
+            "datasource":"default-kubecost",
             "fill":1,
-            "gridPos":{  
+            "gridPos":{
                 "h":9,
                 "w":24,
                 "x":0,
                 "y":102
             },
             "id":123,
-            "legend":{  
+            "legend":{
                 "avg":false,
                 "current":false,
                 "max":false,
@@ -3203,7 +3203,7 @@
             },
             "lines":true,
             "linewidth":1,
-            "links":[  
+            "links":[
 
             ],
             "nullPointMode":"null",
@@ -3211,21 +3211,21 @@
             "pointradius":5,
             "points":false,
             "renderer":"flot",
-            "seriesOverrides":[  
+            "seriesOverrides":[
 
             ],
             "spaceLength":10,
             "stack":false,
             "steppedLine":false,
-            "targets":[  
-                {  
+            "targets":[
+                {
                     "expr":"sum (rate (node_network_transmit_bytes_total{}[60m]))\n",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"node_out",
                     "refId":"B"
                 },
-                {  
+                {
                     "expr":"SUM ( rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]))",
                     "format":"time_series",
                     "instant":false,
@@ -3234,29 +3234,29 @@
                     "refId":"C"
                 }
             ],
-            "thresholds":[  
+            "thresholds":[
 
             ],
             "timeFrom":null,
             "timeShift":null,
             "title":"Node network transmit",
-            "tooltip":{  
+            "tooltip":{
                 "shared":true,
                 "sort":0,
                 "value_type":"individual"
             },
             "type":"graph",
-            "xaxis":{  
+            "xaxis":{
                 "buckets":null,
                 "mode":"time",
                 "name":null,
                 "show":true,
-                "values":[  
+                "values":[
 
                 ]
             },
-            "yaxes":[  
-                {  
+            "yaxes":[
+                {
                     "format":"decbytes",
                     "label":null,
                     "logBase":1,
@@ -3264,7 +3264,7 @@
                     "min":null,
                     "show":true
                 },
-                {  
+                {
                     "format":"short",
                     "label":null,
                     "logBase":1,
@@ -3273,7 +3273,7 @@
                     "show":true
                 }
             ],
-            "yaxis":{  
+            "yaxis":{
                 "align":false,
                 "alignLevel":null
             }
@@ -3282,23 +3282,23 @@
     "refresh":"15m",
     "schemaVersion":16,
     "style":"dark",
-    "tags":[  
+    "tags":[
         "cost",
         "utilization",
         "metrics"
     ],
-    "templating":{  
-        "list":[  
-            {  
-                "current":{  
+    "templating":{
+        "list":[
+            {
+                "current":{
                     "text":"23.076",
                     "value":"23.076"
                 },
                 "hide":0,
                 "label":"CPU",
                 "name":"costcpu",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"23.076",
                         "value":"23.076"
                     }
@@ -3307,16 +3307,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":"5.10",
                     "value":"5.10"
                 },
                 "hide":0,
                 "label":"PE CPU",
                 "name":"costpcpu",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"5.10",
                         "value":"5.10"
                     }
@@ -3325,16 +3325,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":"3.25",
                     "value":"3.25"
                 },
                 "hide":0,
                 "label":"RAM",
                 "name":"costram",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"3.25",
                         "value":"3.25"
                     }
@@ -3343,16 +3343,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":"0.6862",
                     "value":"0.6862"
                 },
                 "hide":0,
                 "label":"PE RAM",
                 "name":"costpram",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"0.6862",
                         "value":"0.6862"
                     }
@@ -3361,16 +3361,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":"0.040",
                     "value":"0.040"
                 },
                 "hide":0,
                 "label":"Storage",
                 "name":"costStorageStandard",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"0.040",
                         "value":"0.040"
                     }
@@ -3379,16 +3379,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":".17",
                     "value":".17"
                 },
                 "hide":0,
                 "label":"SSD",
                 "name":"costStorageSSD",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":".17",
                         "value":".17"
                     }
@@ -3397,16 +3397,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":".12",
                     "value":".12"
                 },
                 "hide":0,
                 "label":"Egress",
                 "name":"costEgress",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "selected":true,
                         "text":".12",
                         "value":".12"
@@ -3416,16 +3416,16 @@
                 "skipUrlSync":false,
                 "type":"constant"
             },
-            {  
-                "current":{  
+            {
+                "current":{
                     "text":"30",
                     "value":"30"
                 },
                 "hide":0,
                 "label":"Discount",
                 "name":"costDiscount",
-                "options":[  
-                    {  
+                "options":[
+                    {
                         "text":"30",
                         "value":"30"
                     }
@@ -3436,13 +3436,13 @@
             }
         ]
     },
-    "time":{  
+    "time":{
         "from":"now-24h",
         "to":"now"
     },
-    "timepicker":{  
+    "timepicker":{
         "hidden":false,
-        "refresh_intervals":[  
+        "refresh_intervals":[
             "5s",
             "10s",
             "30s",
@@ -3454,7 +3454,7 @@
             "2h",
             "1d"
         ],
-        "time_options":[  
+        "time_options":[
             "5m",
             "15m",
             "1h",
