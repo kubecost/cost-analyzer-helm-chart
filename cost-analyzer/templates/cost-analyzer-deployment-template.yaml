@@ -290,12 +290,12 @@ spec:
               to ensure that the custom query service target is used. The global.thanos.enabled
               flag does not have any affect on this behavior.
             */}}
-            {{- if .Values.global.thanos.queryService }}
+            {{- if .Values.thanos.enabled and .Values.global.thanos.queryService }}
             - name: THANOS_ENABLED
               value: "true"
             - name: THANOS_QUERY_URL
               value: {{ .Values.global.thanos.queryService }}
-            {{- else if .Values.thanos }}
+            {{- else if .Values.thanos and .Values.thanos.enabled }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
