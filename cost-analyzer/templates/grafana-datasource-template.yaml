@@ -2,7 +2,6 @@
 {{- if .Values.grafana.sidecar -}}
 {{- if .Values.grafana.sidecar.datasources -}}
 {{- if .Values.grafana.sidecar.datasources.enabled -}}
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -28,14 +27,24 @@ data:
     - access: proxy
 {{- if .Values.global.thanos }}
 {{- if .Values.global.thanos.enabled }}
+      name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
       isDefault: false
 {{- else }}
+      name: "default-kubecost"
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- end }}
 {{- else }}
+      name: "default-kubecost"
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
 {{- end }}
-      name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
+{{- end }}
       type: prometheus
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace  }}
@@ -44,16 +53,19 @@ data:
 {{- end }}
 {{- if .Values.global.thanos.enabled }}
     - access: proxy
-      name: "Thanos"
+      name: "default-kubecost"
       type: prometheus
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
       isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
 {{ else }}
       url: {{ .Values.global.thanos.queryService }}
 {{- end }}
 {{- end }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

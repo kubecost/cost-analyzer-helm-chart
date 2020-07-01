@@ -27,7 +27,7 @@
           "value": "avg"
         }
       ],
-      "datasource": "default",
+      "datasource": "default-kubecost",
       "fontSize": "100%",
       "gridPos": {
         "h": 5,
@@ -195,7 +195,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default",
+      "datasource": "default-kubecost",
       "decimals": 3,
       "description": "This graph attempts to show you CPU use of your application vs its requests",
       "editable": true,
@@ -307,7 +307,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default",
+      "datasource": "default-kubecost",
       "decimals": 3,
       "description": "This graph attempts to show you RAM use of your application vs its requests",
       "editable": true,
@@ -420,7 +420,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default",
+      "datasource": "default-kubecost",
       "decimals": 2,
       "description": "Traffic in and out of this pod, as a sum of its containers",
       "editable": true,
@@ -534,7 +534,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default",
+      "datasource": "default-kubecost",
       "decimals": 2,
       "description": "Disk read writes",
       "editable": true,
@@ -715,7 +715,7 @@
           "text": "kubecost",
           "value": "kubecost"
         },
-        "datasource": "default",
+        "datasource": "default-kubecost",
         "hide": 0,
         "includeAll": false,
         "label": "NS",
@@ -741,7 +741,7 @@
           "text": "kubecost-grafana-5cc9f5bf6-7kmgl",
           "value": "kubecost-grafana-5cc9f5bf6-7kmgl"
         },
-        "datasource": "default",
+        "datasource": "default-kubecost",
         "hide": 0,
         "includeAll": false,
         "label": "Pod",
