@@ -95,6 +95,7 @@ kubecostModel:
   warmSavingsCache: true
   etl: true
   maxQueryConcurrency: 5
+  utcOffset: "+00:00"
   resources:
     requests:
       cpu: "200m"
