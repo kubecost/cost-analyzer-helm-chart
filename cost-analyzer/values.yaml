@@ -244,7 +244,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.2
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.3
   imagePullPolicy: Always
   resources: {}
     #requests:
@@ -276,6 +276,16 @@ networkCosts:
       # Cross Region contains a list of address/range that will be
       # classified as non-internet egress from one region to another. 
       cross-region: []
+
+      # Direct Classification specifically maps an ip address or range
+      # to a region (required) and/or zone (optional). This classification
+      # takes priority over in-zone, in-region, and cross-region configurations.
+      direct-classification: []
+      # - region: "us-east1"
+      #   zone: "us-east1-c"
+      #   ips: 
+      #     - "10.0.0.0/24"
+
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
