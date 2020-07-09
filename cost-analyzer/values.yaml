@@ -327,8 +327,8 @@ grafana:
       label: grafana_dashboard
     datasources:
       enabled: true
-      defaultDatasourceEnabled: true
-      dataSourceName: Prometheus
+      defaultDatasourceEnabled: false
+      dataSourceName: default-kubecost
       # label that the configmaps with datasources are marked with
       label: kubecost_grafana_datasource
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
