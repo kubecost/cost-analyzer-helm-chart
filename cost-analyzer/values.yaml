@@ -381,6 +381,7 @@ serviceAccount:
 #  gpuLabel: gpu
 #  gpuLabelValue: true
 #  awsServiceKeyName: ACCESSKEYID
+#  awsServiceKeyPassword:  fakepassword # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
@@ -419,10 +420,13 @@ serviceAccount:
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
+#  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
-#  serviceKeySecretName: ""
+#  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml 
+#  createServiceKey: true # Creates a service key 
+#  createdServiceKeyType: AZURE # AWS or AZURE
 #  sharedNamespaces: ""
 #  productKey: # apply business or enterprise product license
 #    key: ""

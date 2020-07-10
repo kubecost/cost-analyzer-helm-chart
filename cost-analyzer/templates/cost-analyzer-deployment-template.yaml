@@ -79,6 +79,10 @@ spec:
         - name: service-key-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.serviceKeySecretName }}
+        {{- else if .Values.kubecostProductConfigs.createServiceKey }}
+        - name: service-key-secret
+          secret:
+            secretName: cloud-service-key
         {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
@@ -188,7 +192,7 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
+            {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKey }}
             - name: service-key-secret
               mountPath: /var/secrets
             {{- end }}
