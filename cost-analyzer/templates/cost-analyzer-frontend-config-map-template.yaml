@@ -53,7 +53,6 @@ data:
         server_name _;
         root /var/www;
         index index.html;
-        add_header Cache-Control "max-age=300";
         add_header Cache-Control "must-revalidate";
 {{- if .Values.imageVersion }}
         add_header ETag "{{ $.Values.imageVersion }}";
@@ -71,7 +70,9 @@ data:
 {{- else }}
         listen {{ $nginxPort }};
 {{- end }}
+
         location /api/ {
+            expires 5m;
             {{- if .Values.saml.enabled }}
             auth_request /auth;
             {{- end }}
@@ -83,6 +84,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
+            expires 5m;
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
@@ -93,9 +95,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        
         location ~ ^/(turndown|cluster)/ {
-
+            expires 5m;
             add_header 'Access-Control-Allow-Origin' '*' always;
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
@@ -147,12 +148,11 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
-    {{- if .Values.global.grafana.proxy }}
+{{- if .Values.global.grafana.proxy }}
         location /grafana/ {
-        {{- if .Values.saml.enabled }}
+{{- if .Values.saml.enabled }}
             auth_request /auth;
-        {{- end }}
+{{- end }}
             proxy_pass http://grafana/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -160,15 +160,19 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-    {{ end }}
-    {{- if .Values.saml.enabled }}
+{{ end }}
+{{- if .Values.saml.enabled }}
         location /auth {
             proxy_pass http://model/isAuthenticated;
         }
-        {{- end }}
-        {{- if .Values.saml.rbac.enabled }}
+{{- end }}
+{{- if .Values.saml.rbac.enabled }}
         location /authrbac {
             proxy_pass http://model/isAdminAuthenticated;
         }
-    {{- end }}
+{{- end }}
+        location / {
+            expires max;
+            try_files $uri $uri/ =404;
+        }
     }
