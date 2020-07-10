@@ -171,4 +171,9 @@ data:
             proxy_pass http://model/isAdminAuthenticated;
         }
     {{- end }}
+
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+            add_header Cache-Control "max-age=2592000";
+            expires max;
+        }
     }
