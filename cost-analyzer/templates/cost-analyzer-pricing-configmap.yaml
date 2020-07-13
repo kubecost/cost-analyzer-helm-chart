@@ -12,25 +12,25 @@ data:
     customPricesEnabled: "{{ .Values.kubecostProductConfigs.customPricesEnabled }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.CPU }}
-    CPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.CPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.CPU 100)  730) 100 | toString }}"
+    CPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.CPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotCPU }}
-    spotCPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 100)  730) 100 | toString }}"
+    spotCPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotCPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.RAM }}
-    RAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.RAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.RAM 100)  730) 100 | toString }}"
+    RAM: "{{ .Values.kubecostProductConfigs.defaultModelPricing.RAM | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotRAM }}
-    spotRAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 100)  730) 100 | toString }}"
+    spotRAM: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotRAM | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.GPU }}
-    GPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.GPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.GPU 100)  730) 100 | toString }}"
+    GPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.GPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotGPU }}
-    spotGPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 100)  730) 100 | toString }}"
+    spotGPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotGPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.storage }}
-    storage: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.storage 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.storage 100)  730) 100 | toString }}"
+    storage: "{{ .Values.kubecostProductConfigs.defaultModelPricing.storage | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress }}
     zoneNetworkEgress: "{{ .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress | toString }}"
