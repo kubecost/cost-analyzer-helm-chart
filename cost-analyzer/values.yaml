@@ -316,6 +316,7 @@ reporting:
   logCollection: true 
   productAnalytics: true 
   errorReporting: true
+  valuesReporting: true
 
 serviceMonitor:
   enabled: false
