@@ -148,6 +148,8 @@ spec:
         {{- else }}
           image: busybox
         {{- end }}
+          resources:
+{{ toYaml .Values.initChownData.resources | indent 12 }}
           command: ["/bin/chmod", "-R", "777", "/var/configs"]
           volumeMounts:
             - name: persistent-configs
