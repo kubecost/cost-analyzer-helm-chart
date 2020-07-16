@@ -424,9 +424,8 @@ serviceAccount:
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
-#  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml 
-#  createServiceKey: true # Creates a service key 
-#  createdServiceKeyType: AZURE # AWS or AZURE
+#  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret 
+#  createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
 #  sharedNamespaces: ""
 #  productKey: # apply business or enterprise product license
 #    key: ""
