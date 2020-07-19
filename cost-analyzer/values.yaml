@@ -322,8 +322,7 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest. TODO: migrate to block below.
-initChownData:
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
   resources: {}
     #requests:
     #  cpu: "50m"
