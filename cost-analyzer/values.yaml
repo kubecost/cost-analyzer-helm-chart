@@ -299,6 +299,11 @@ networkCosts:
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
+  ## PodMonitor
+  ## Allows scraping of network metrics from a dedicated prometheus operator setup
+  podMonitor:
+    enabled: false
+    additionalLabels: {}
 
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
