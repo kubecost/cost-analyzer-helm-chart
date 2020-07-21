@@ -334,6 +334,7 @@ prometheusRule:
 
 supportNFS: true
 initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+initChownData:
   resources: {}
     #requests:
     #  cpu: "50m"
