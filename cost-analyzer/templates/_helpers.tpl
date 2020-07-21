@@ -24,6 +24,44 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+{{/*
+Create the fully qualified name for Prometheus server service.
+*/}}
+{{- define "cost-analyzer.prometheus.server.name" -}}
+{{- if .Values.prometheus -}}
+{{- if .Values.prometheus.server -}}
+{{- if .Values.prometheus.server.fullnameOverride -}}
+{{- .Values.prometheus.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-prometheus-server" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- else -}}
+{{- printf "%s-prometheus-server" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- else -}}
+{{- printf "%s-prometheus-server" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the fully qualified name for Prometheus alertmanager service.
+*/}}
+{{- define "cost-analyzer.prometheus.alertmanager.name" -}}
+{{- if .Values.prometheus -}}
+{{- if .Values.prometheus.alertmanager -}}
+{{- if .Values.prometheus.alertmanager.fullnameOverride -}}
+{{- .Values.prometheus.alertmanager.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-prometheus-alertmanager" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- else -}}
+{{- printf "%s-prometheus-alertmanager" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- else -}}
+{{- printf "%s-prometheus-alertmanager" .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "cost-analyzer.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -35,8 +73,8 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- printf "%s-%s" .Release.Name "network-costs" -}}
 {{- end -}}
 
-{{- define "kubecost.turndownName" -}}
-{{- printf "%s-%s" .Release.Name "turndown" -}}
+{{- define "kubecost.clusterControllerName" -}}
+{{- printf "%s-%s" .Release.Name "cluster-controller" -}}
 {{- end -}}
 
 {{/*
@@ -75,4 +113,44 @@ Create the selector labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
+{{- end -}}
+
+{{/*
+Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
+will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map 
+is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the 
+map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the 
+enabled only version to the output .r
+*/}}
+{{- define "cost-analyzer.filter" -}}
+{{- $v := .v }}
+{{- $r := .r }}
+{{- range $key, $value := .v }}
+    {{- $tp := kindOf $value -}}
+    {{- if eq $tp "map" -}}
+        {{- $isEnabled := true -}}
+        {{- if (hasKey $value "enabled") -}}
+            {{- $isEnabled = $value.enabled -}}
+        {{- end -}}
+        {{- if $isEnabled -}}
+            {{- $rr := "{}" | fromYaml }}
+            {{- template "cost-analyzer.filter" (dict "v" $value "r" $rr) }}
+            {{- $_ := set $r $key $rr -}}
+        {{- end -}}
+    {{- else -}}
+        {{- $_ := set $r $key $value -}}
+    {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+This template accepts a map and returns a base64 encoded json version of the map where all disabled
+leaf nodes are omitted.
+
+The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
+*/}}
+{{- define "cost-analyzer.filterEnabled" -}}
+{{- $result := "{}" | fromYaml }}
+{{- template "cost-analyzer.filter" (dict "v" . "r" $result) }}
+{{- $result | toJson | b64enc }}
 {{- end -}}

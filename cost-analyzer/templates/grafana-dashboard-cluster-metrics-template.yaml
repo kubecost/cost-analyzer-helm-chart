@@ -6,9 +6,16 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cluster-metrics-dashboard
+  {{- if $.Values.grafana.namespace_dashboards }}
+  namespace: {{ $.Values.grafana.namespace_dashboards }}
+  {{- end }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- if $.Values.grafana.sidecar.dashboards.label }}
+    {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
+    {{- else }}
     grafana_dashboard: "1"
+    {{- end }}
 data:
     cluster-metrics.json: |-
 {{ .Files.Get "cluster-metrics.json" | indent 8 }}

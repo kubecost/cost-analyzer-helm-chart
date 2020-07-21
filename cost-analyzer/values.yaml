@@ -2,14 +2,16 @@ global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
-    fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if enabled: true
+    fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
 
+  # Durable storage option, product key required
   thanos:
     enabled: false
+    # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
 
   grafana:
     enabled: true # If false, Grafana will not be installed
-    domainName: cost-analyzer-grafana.default.svc.cluster.local #example grafana domain Ignored if enabled: true
+    domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
@@ -19,15 +21,26 @@ global:
       webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # Example Webhook
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
-      fqdn: http://cost-analyzer-prometheus-server.default.svc.cluster.local #example fqdn. Ignored if prometheus.enabled: true
+      fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+
+pricingCsv:
+  enabled: false
+  location:
+    provider: "AWS"
+    region: "us-east-1" 
+    URI: s3://kc-csv-test/pricing_schema.csv # a valid file URI
+    csvAccessCredentials: pricing-schema-access-secret
+
 saml: # enterprise key required to use
   enabled: false
   secretName: "kubecost-authzero"
+  #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
-  appRootURL: "http://localhost:9090" #sample URL
+  appRootURL: "http://localhost:9090" # sample URL
+  # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   rbac:
     enabled: false
     groups:
@@ -37,15 +50,15 @@ saml: # enterprise key required to use
         assertionValues:
           - "admin"
           - "superusers"
-      - name: readonly 
+      - name: readonly
         enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+
 kubecostChecks:
   enabled: true
-  debug: false
-  image: "ajaytripathy/kubecost-checks"
+  image: "gcr.io/kubecost1/checks"
   resources:
     requests:
       cpu: "20m"
@@ -55,7 +68,7 @@ kubecostChecks:
       memory: "200Mi"
 
 kubecostFrontend:
-  image: "ajaytripathy/kubecost-frontend"
+  image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   resources:
     requests:
@@ -66,7 +79,7 @@ kubecostFrontend:
     #  memory: "256Mi"
 
 kubecost:
-  image: "ajaytripathy/kubecost"
+  image: "gcr.io/kubecost1/server"
   resources:
     requests:
       cpu: "100m"
@@ -76,8 +89,17 @@ kubecost:
     #  memory: "256Mi"
 
 kubecostModel:
-  image: "ajaytripathy/kubecost-cost-model"
+  image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  warmCache: true
+  warmSavingsCache: true
+  etl: true
+  maxQueryConcurrency: 5
+  # utcOffset represents a timezone in hours and minutes east (+) or west (-)
+  # of UTC, itself, which is defined as +00:00.
+  # See the tz database of timezones to look up your local UTC offset:
+  # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  utcOffset: "+00:00"
   resources:
     requests:
       cpu: "200m"
@@ -85,10 +107,6 @@ kubecostModel:
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
-
-kubecostInit:
-  image: "ajaytripathy/kubecost-init"
-  imagePullPolicy: Always
 
 ingress:
   enabled: false
@@ -105,24 +123,41 @@ ingress:
 
 nodeSelector: {}
 
+tolerations: []
+
+affinity: {}
+
+# If true, creates a PriorityClass to be used by the cost-analyzer pod
+priority:
+  enabled: true
+  # value: 1000000
+
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
-#
+
+podSecurityPolicy:
+  enabled: false
+
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
-  # storageClass: "-" # 
+  # storageClass: "-" #
+  # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
 
 service:
   type: ClusterIP
+  port: 9090
+  targetPort: 9090
+  labels: {}
+  annotations: {}
 
-# enabling long-term storage with Postgres requires an enterprise license
+# enabling long-term durable storage with Postgres requires an enterprise license
 remoteWrite:
   postgres:
     enabled: false
-    initImage: "ajaytripathy/kubecost-sql-init"
+    initImage: "gcr.io/kubecost1/sql-init"
     initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally
@@ -153,6 +188,11 @@ prometheus:
           action: keep
           regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
+    # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
+    # to use as unique cluster ID in kubecost cost-analyzer deployment.
+    # This overrides the cluster_id set in prometheus.server.global.external_labels.
+    # NOTE: This does not affect the external_labels set in prometheus config.
+    # clusterIDConfigmap: cluster-id-configmap
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
@@ -162,22 +202,28 @@ prometheus:
     persistentVolume:
       size: 32Gi
       enabled: true
+    extraArgs:
+      query.max-concurrency: 1
   alertmanager:
+    # enabled: false
     persistentVolume:
       enabled: true
+  nodeExporter:
+    enabled: true
   pushgateway:
+    enabled: false
     persistentVolume:
       enabled: true
-  serverFiles:
-    prometheus.yml:
-        remote_write:
-          - url: "http://pgprometheus-adapter:9201/write"
-            write_relabel_configs:
-              - source_labels: [__name__]
-                regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
-                action: keep
-            queue_config:
-              max_samples_per_send: 1000
+  serverFiles: 
+  #  prometheus.yml: # Sample block -- enable if using an in cluster durable store.
+  #      remote_write:
+  #        - url: "http://pgprometheus-adapter:9201/write"
+  #          write_relabel_configs:
+  #            - source_labels: [__name__]
+  #              regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
+  #              action: keep
+  #          queue_config:
+  #            max_samples_per_send: 1000
         #remote_read:
         #  - url: "http://pgprometheus-adapter:9201/read"
     rules:
@@ -197,23 +243,50 @@ prometheus:
 
 networkCosts:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v10
+  podSecurityPolicy:
+    enabled: false
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.3
   imagePullPolicy: Always
   resources: {}
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
   config:
-    # White Listed from Egress Reporting
-    # Accepts both static IPs and CIDR block
-    whiteList:
-      - "127.0.0.1"
-      # IPv4 Link Local Address Space
-      - "169.254.0.0/16"
-      # Private Address Ranges in RFC-1918
-      - "10.0.0.0/8"
-      - "172.16.0.0/12"
-      - "192.168.0.0/16"
+    # Configuration for traffic destinations, including specific classification 
+    # for IPs and CIDR blocks. This configuration will act as an override to the
+    # automatic classification provided by network-costs.
+    destinations:
+      # In Zone contains a list of address/range that will be
+      # classified as in zone. 
+      in-zone:
+        # Loopback
+        - "127.0.0.1"
+        # IPv4 Link Local Address Space
+        - "169.254.0.0/16"
+        # Private Address Ranges in RFC-1918
+        - "10.0.0.0/8"
+        - "172.16.0.0/12"
+        - "192.168.0.0/16"
+        
+      # In Region contains a list of address/range that will be
+      # classified as in region. This is synonymous with cross 
+      # zone traffic, where the regions between source and destinations 
+      # are the same, but the zone is different.
+      in-region: []
+        
+      # Cross Region contains a list of address/range that will be
+      # classified as non-internet egress from one region to another. 
+      cross-region: []
+
+      # Direct Classification specifically maps an ip address or range
+      # to a region (required) and/or zone (optional). This classification
+      # takes priority over in-zone, in-region, and cross-region configurations.
+      direct-classification: []
+      # - region: "us-east1"
+      #   zone: "us-east1-c"
+      #   ips: 
+      #     - "10.0.0.0/24"
+
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -226,16 +299,30 @@ networkCosts:
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
-
+  ## PodMonitor
   ## Allows scraping of network metrics from a dedicated prometheus operator setup
   podMonitor:
     enabled: false
     additionalLabels: {}
 
-turndown:
+# Kubecost Deployment Configuration
+# Used for HA mode in Business & Enterprise tier
+kubecostDeployment:
+  replicas: 1
+
+# Kubecost Cluster Controller for Right Sizing and Cluster Turndown
+clusterController:
   enabled: false
-  image: gcr.io/kubecost1/kubecost-turndown:v2
+  image: gcr.io/kubecost1/cluster-controller:v0.0.2
   imagePullPolicy: Always
+
+reporting:
+  # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
+  # Ref: http://docs.kubecost.com/bug-report
+  logCollection: true 
+  productAnalytics: true 
+  errorReporting: true
+  valuesReporting: true
 
 serviceMonitor:
   enabled: false
@@ -246,22 +333,60 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+  resources: {}
+    #requests:
+    #  cpu: "50m"
+    #  memory: "20Mi"
+
 
 grafana:
+  # namespace_datasources: kubecost # override the default namespace here
+  # namespace_dashboards: kubecost # override the default namespace here
   sidecar:
     dashboards:
       enabled: true
+      # label that the configmaps with dashboards are marked with
+      label: grafana_dashboard
     datasources:
       enabled: true
-      defaultDatasourceEnabled: true
-
+      defaultDatasourceEnabled: false
+      dataSourceName: default-kubecost
+      # label that the configmaps with datasources are marked with
+      label: kubecost_grafana_datasource
+#  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
+#  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
-  create: true
+  create: true # Set this to false if you're bringing your own service account.
+  annotations: {}
+  # name: kc-test
 
-# These configs are settable from either the /settings.html page or values.yaml
-# This block overrides configs set on /settings.html on pod restart
-#kubecostProductConfigs:
-#  defaultModelPricing: # default (monthly) model prices are used predominately for on-prem clusters
+# These configs can also be set from the Settings page in the Kubecost product UI
+# Values in this block override config changes in the Settings UI on pod restart
+#
+# kubecostProductConfigs:
+# An optional list of cluster definitions that can be added for frontend access. The local
+# cluster is *always* included by default, so this list is for non-local clusters.
+# Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
+#  clusters:
+#   - name: "Cluster A"
+#     address: http://cluster-a.kubecost.com:9090
+#     # Optional authentication credentials - only basic auth is currently supported.
+#     auth:
+#       type: basic
+#       # Secret name should be a secret formatted based on: https://github.com/kubecost/docs/blob/master/ingress-examples.md
+#       secretName: cluster-a-auth
+#       # Or pass auth directly as base64 encoded user:pass
+#       data: YWRtaW46YWRtaW4=
+#       # Or user and pass directly
+#       user: admin
+#       pass: admin
+#   - name: "Cluster B"
+#     address: http://cluster-b.kubecost.com:9090
+#  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters
 #    CPU: 28.0
 #    spotCPU: 4.86
 #    RAM: 3.09
@@ -273,9 +398,58 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
-#  clusterName: ""
-#  currencyCode: "USD"
-#  discount: ""
-#  negotiatedDiscount: ""
+#  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
+#  spotLabel: lifecycle
+#  spotLabelValue: Ec2Spot
+#  gpuLabel: gpu
+#  gpuLabelValue: true
+#  awsServiceKeyName: ACCESSKEYID
+#  awsServiceKeyPassword:  fakepassword # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
+#  awsSpotDataRegion: us-east-1
+#  awsSpotDataBucket: spot-data-feed-s3-bucket
+#  awsSpotDataPrefix: dev
+#  athenaProjectID: "530337586277"
+#  athenaBucketName: "s3://aws-athena-query-results-530337586277-us-east-1"
+#  athenaRegion: us-east-1
+#  athenaDatabase: athenacurcfn_athena_test1
+#  athenaTable: "athena_test1"
+#  masterPayerARN: ""
+#  projectID: "123456789"
+#  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
+#  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
+#  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
+#    enabled: true
+#    owner_label: "owner"
+#    team_label: "team"
+#    department_label: "dept"
+#    product_label: "product"
+#    environment_label: "env"
+#    namespace_external_label: "kubernetes_namespace" # external labels are used to map external cloud costs to kubernetes concepts
+#    cluster_external_label: "kubernetes_cluster"
+#    controller_external_label: "kubernetes_controller"
+#    product_external_label: "kubernetes_label_app"
+#    service_external_label: "kubernetes_service"
+#    deployment_external_label: "kubernetes_deployment"
+#    team_external_label: "kubernetes_label_team"
+#    environment_external_label: "kubernetes_label_env"
+#    department_external_label: "kubernetes_label_department"
+#    statefulset_external_label: "kubernetes_statefulset"
+#    daemonset_external_label: "kubernetes_daemonset"
+#    pod_external_label: "kubernetes_pod"
+#  grafanaURL: ""
+#  clusterName: "" # used for display in Kubecost UI
+#  currencyCode: "USD" # offical support for USD, EUR, and CHF
+#  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
+#  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
+#  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
+#  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
+#  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
+#  discount: "" # percentage discount applied to compute
+#  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
+#  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret 
+#  createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
 #  sharedNamespaces: ""
+#  productKey: # apply business or enterprise product license
+#    key: ""
+#    enabled: false

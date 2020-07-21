@@ -1,7 +1,24 @@
+{{- if and .Values.reporting .Values.reporting.logCollection -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
+rules:
+- apiGroups: 
+    - ''
+  resources:
+    - "pods/log"
+  verbs:
+    - get
+    - list
+    - watch
+---
+{{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "cost-analyzer.fullname" . }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 rules:

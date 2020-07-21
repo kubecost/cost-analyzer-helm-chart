@@ -1,4 +1,4 @@
-appVersion: 5.3.1
+appVersion: 6.0.0
 description: The leading tool for querying and visualizing time series and metrics.
 engine: gotpl
 home: https://grafana.net

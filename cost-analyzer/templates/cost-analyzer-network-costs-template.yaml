@@ -18,7 +18,7 @@ spec:
         app: {{ template "cost-analyzer.networkCostsName" . }}
     spec:
       hostNetwork: true
-      serviceAccountName: {{ template "cost-analyzer.fullname" . }}
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
         image: {{ .Values.networkCosts.image }}
@@ -32,15 +32,24 @@ spec:
 {{ toYaml .Values.networkCosts.resources | indent 10 }}
 {{- end }}
         env:
+        {{- if .Values.networkCosts.hostProc }}
+        - name: HOST_PROC
+          value: {{ .Values.networkCosts.hostProc.mountPath }}
+        {{- end }}
         - name: NODE_NAME
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
         volumeMounts:
+        {{- if .Values.networkCosts.hostProc }}
+        - mountPath: {{ .Values.networkCosts.hostProc.mountPath }}
+          name: host-proc
+        {{- else }}
         - mountPath: /net
           name: nf-conntrack
         - mountPath: /netfilter
           name: netfilter
+        {{- end }}
         {{- if .Values.networkCosts.config }}
         - mountPath: /network-costs/config
           name: network-costs-config
@@ -64,11 +73,17 @@ spec:
         configMap:
           name: network-costs-config
       {{- end }}
+      {{- if .Values.networkCosts.hostProc }}
+      - name: host-proc
+        hostPath:
+          path: {{ default "/proc" .Values.networkCosts.hostProc.hostPath }}
+      {{- else }}
       - name: nf-conntrack
         hostPath:
           path: /proc/net
       - name: netfilter
         hostPath:
           path: /proc/sys/net/netfilter
+      {{- end }}
 {{- end }}
 {{- end }}

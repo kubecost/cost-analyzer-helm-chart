@@ -1,3 +1,5 @@
+{{- if .Values.networkCosts }}
+{{- if .Values.networkCosts.enabled }}
 {{- if .Values.networkCosts.podMonitor }}
 {{- if .Values.networkCosts.podMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
@@ -7,7 +9,7 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if .Values.networkCosts.podMonitor.additionalLabels }}
-    {{ toYaml .Values.networkCosts.e.additionalLabels | nindent 4 }}
+    {{ toYaml .Values.networkCosts.podMonitor.additionalLabels | nindent 4 }}
     {{- end }}
 spec:
   podMetricsEndpoints:
@@ -23,5 +25,7 @@ spec:
   selector:
     matchLabels:
       app: {{ template "cost-analyzer.networkCostsName" . }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

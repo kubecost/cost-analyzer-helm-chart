@@ -8,26 +8,29 @@ metadata:
 data:
   {{- if .Values.kubecostProductConfigs.defaultModelPricing }}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.enabled }}
+  {{- if .Values.kubecostProductConfigs.customPricesEnabled }}
+    customPricesEnabled: "{{ .Values.kubecostProductConfigs.customPricesEnabled }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.CPU }}
-    CPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.CPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.CPU 100)  730) 100 | toString }}"
+    CPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.CPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotCPU }}
-    spotCPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotCPU 100)  730) 100 | toString }}"
+    spotCPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotCPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.RAM }}
-    RAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.RAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.RAM 100)  730) 100 | toString }}"
+    RAM: "{{ .Values.kubecostProductConfigs.defaultModelPricing.RAM | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotRAM }}
-    spotRAM: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotRAM 100)  730) 100 | toString }}"
+    spotRAM: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotRAM | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.GPU }}
-    GPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.GPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.GPU 100)  730) 100 | toString }}"
+    GPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.GPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.spotGPU }}
-    spotGPU: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.spotGPU 100)  730) 100 | toString }}"
+    spotGPU: "{{ .Values.kubecostProductConfigs.defaultModelPricing.spotGPU | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.storage }}
-    storage: "{{ div .Values.kubecostProductConfigs.defaultModelPricing.storage 730 | toString }}.{{ mod (div  (mul .Values.kubecostProductConfigs.defaultModelPricing.storage 100)  730) 100 | toString }}"
+    storage: "{{ .Values.kubecostProductConfigs.defaultModelPricing.storage | toString }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress }}
     zoneNetworkEgress: "{{ .Values.kubecostProductConfigs.defaultModelPricing.zoneNetworkEgress | toString }}"
@@ -46,6 +49,18 @@ data:
   {{- if .Values.kubecostProductConfigs.currencyCode }}
     currencyCode: "{{ .Values.kubecostProductConfigs.currencyCode }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureBillingRegion }}
+    azureBillingRegion: "{{ .Values.kubecostProductConfigs.azureBillingRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureSubscriptionID }}
+    azureSubscriptionID: "{{ .Values.kubecostProductConfigs.azureSubscriptionID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureClientID }}
+    azureClientID: "{{ .Values.kubecostProductConfigs.azureClientID }}"
+  {{- end -}}
+    {{- if .Values.kubecostProductConfigs.azureTenantID }}
+    azureTenantID: "{{ .Values.kubecostProductConfigs.azureTenantID }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.discount }}
     discount: "{{ .Values.kubecostProductConfigs.discount }}"
   {{- end -}}
@@ -57,5 +72,53 @@ data:
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
     sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.spotLabel }}
+    spotLabel: "{{ .Values.kubecostProductConfigs.spotLabel }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.spotLabelValue }}
+    spotLabelValue: "{{ .Values.kubecostProductConfigs.spotLabelValue }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsServiceKeyName }}
+    awsServiceKeyName: "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataRegion }}
+    spotDataRegion: "{{ .Values.kubecostProductConfigs.awsSpotDataRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataBucket }}
+    spotDataBucket: "{{ .Values.kubecostProductConfigs.awsSpotDataBucket }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.awsSpotDataPrefix }}
+    spotDataPrefix: "{{ .Values.kubecostProductConfigs.awsSpotDataPrefix }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.projectID }}
+    projectID: "{{ .Values.kubecostProductConfigs.projectID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}
+    billingDataDataset: "{{ .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaProjectID }}
+    athenaProjectID: "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaBucketName }}
+    athenaBucketName: "{{ .Values.kubecostProductConfigs.athenaBucketName }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaRegion }}
+    athenaRegion: "{{ .Values.kubecostProductConfigs.athenaRegion }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaDatabase }}
+    athenaDatabase: "{{ .Values.kubecostProductConfigs.athenaDatabase }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaTable }}
+    athenaTable: "{{ .Values.kubecostProductConfigs.athenaTable }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.masterPayerARN}}
+    masterPayerARN: "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
+  {{- end }}
+  {{- if .Values.kubecostProductConfigs.gpuLabel }}
+    gpuLabel: "{{ .Values.kubecostProductConfigs.gpuLabel }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.gpuLabelValue }}
+    gpuLabelValue: "{{ .Values.kubecostProductConfigs.gpuLabelValue }}"
   {{- end -}}
 {{- end -}}

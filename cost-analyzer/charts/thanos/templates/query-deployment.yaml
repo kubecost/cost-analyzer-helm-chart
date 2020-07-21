@@ -23,6 +23,7 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query
+{{ with .Values.query.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
   template:
     metadata:
       labels:
@@ -49,6 +50,9 @@ spec:
         - "--http-address=0.0.0.0:{{ .Values.query.http.port }}"
         - "--query.timeout={{ .Values.query.timeout }}"
         - "--query.max-concurrent={{ .Values.query.maxConcurrent }}"
+        {{- if .Values.query.autoDownsampling }}
+        - "--query.auto-downsampling"
+        {{- end }}
         {{- if .Values.query.replicaLabel }}
         - "--query.replica-label={{ .Values.query.replicaLabel }}"
         {{- end }}
@@ -65,14 +69,26 @@ spec:
         - "--store.sd-dns-resolver={{ .Values.query.storeDNSResolver }}"
         {{- end }}
         {{- if .Values.query.storeDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Release.Namespace }}.svc.cluster.local"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- if .Values.query.sidecarDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc.cluster.local"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- range .Values.query.stores }}
         - "--store={{ . }}"
         {{- end }}
+        {{- range .Values.query.serviceDiscoveryFiles }}
+        - "--store.sd-files={{ . }}"
+        {{- end }}
+        {{- range .Values.query.serviceDiscoveryFileConfigMaps }}
+        - "--store.sd-files=/etc/query/{{ . }}/*.yaml"
+        - "--store.sd-files=/etc/query/{{ . }}/*.yml"
+        - "--store.sd-files=/etc/query/{{ . }}/*.json"
+        {{- end }}
+        {{- if .Values.query.serviceDiscoveryInterval }}
+        - "--store.sd-interval={{ .Values.query.serviceDiscoveryInterval }}"
+        {{- end }}
+
         {{- if .Values.query.extraArgs }}
         {{ toYaml .Values.query.extraArgs | nindent 8 }}
         {{- end }}
@@ -83,8 +99,14 @@ spec:
           containerPort: {{ .Values.query.grpc.port }}
         resources:
           {{ toYaml .Values.query.resources | nindent 10 }}
-        {{- if .Values.query.certSecretName }}
+        env:
+          {{- toYaml .Values.query.extraEnv | nindent 10 }}
         volumeMounts:
+        {{- range .Values.query.serviceDiscoveryFileConfigMaps }}
+        - mountPath: /etc/query/{{ . }}
+          name: {{ . }}
+        {{- end }}
+        {{- if .Values.query.certSecretName }}
         - mountPath: /etc/certs
           name: {{ .Values.query.certSecretName }}
           readOnly: true
@@ -93,8 +115,14 @@ spec:
           httpGet:
             path: /-/healthy
             port: http
-      {{- if .Values.query.certSecretName }}
       volumes:
+      {{- range .Values.query.serviceDiscoveryFileConfigMaps }}
+      - name: {{ . }}
+        configMap:
+          defaultMode: 420
+          name: {{ . }}
+      {{- end }}
+      {{- if .Values.query.certSecretName }}
       - name: {{ .Values.query.certSecretName }}
         secret:
           defaultMode: 420

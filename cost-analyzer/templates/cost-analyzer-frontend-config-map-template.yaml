@@ -1,4 +1,5 @@
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
+{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,6 +10,19 @@ data:
   nginx.conf: |
     gzip_static  on;
 
+    # Enable gzip encoding for content of the provided types of 50kb and higher.
+    gzip on;
+    gzip_min_length 50000; 
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types 
+        text/plain 
+        text/css 
+        text/xml 
+        text/javascript 
+        application/x-javascript 
+        application/xml 
+        application/json;
+
     upstream api {
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
     }
@@ -17,10 +31,12 @@ data:
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
     }
 
-{{- if and .Values.turndown .Values.turndown.enabled }}
-    upstream turndown {
-        server {{ template "kubecost.turndownName" . }}-service.{{ .Release.Namespace }}:9731;
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
+    upstream clustercontroller {
+        server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
     }
+{{- end }}
 {{- end }}
 
 {{- if .Values.global.grafana.proxy }}
@@ -34,14 +50,31 @@ data:
 {{ end }}
 
     server {
-        listen 9090;
         server_name _;
         root /var/www;
         index index.html;
         add_header Cache-Control "max-age=300";
         add_header Cache-Control "must-revalidate";
+{{- if .Values.imageVersion }}
+        add_header ETag "{{ $.Values.imageVersion }}";
+{{- else }}
         add_header ETag "{{ $.Chart.Version }}";
+{{- end }}
+{{- if .Values.kubecostFrontend.tls }}
+{{- if .Values.kubecostFrontend.tls.enabled }}
+        ssl_certificate     /etc/ssl/certs/kc.crt;
+        ssl_certificate_key /etc/ssl/certs/kc.key;
+        listen 443 ssl;
+{{- else }}
+        listen {{ $nginxPort }};
+{{- end }}
+{{- else }}
+        listen {{ $nginxPort }};
+{{- end }}
         location /api/ {
+            {{- if .Values.saml.enabled }}
+            auth_request /auth;
+            {{- end }}
             proxy_pass http://api/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -60,19 +93,38 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{- if and .Values.turndown .Values.turndown.enabled }}
-        location /turndown/ {
+        
+        location ~ ^/(turndown|cluster)/ {
+
+            add_header 'Access-Control-Allow-Origin' '*' always;
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
+            {{- if .Values.saml }}
+            {{- if .Values.saml.enabled }}
+            auth_request /auth;
+            {{- else if .Values.saml.rbac.enabled}}
+            auth_request /authrbac;
+            {{- end }}
+            {{- end }}
+            
+            rewrite ^/(?:turndown|cluster)/(.*)$ /$1 break;
+            proxy_pass http://clustercontroller;
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
-            proxy_pass http://turndown/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
             proxy_set_header X-Real-IP  $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
+        
+{{- else }}
+            return 404;
 {{- end }}
+{{- else }}
+            return 404;
+{{- end }}
+        }
         location /saml/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -96,8 +148,11 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-{{- if .Values.global.grafana.proxy }}
+    {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
+        {{- if .Values.saml.enabled }}
+            auth_request /auth;
+        {{- end }}
             proxy_pass http://grafana/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -105,5 +160,15 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{ end }}
+    {{ end }}
+    {{- if .Values.saml.enabled }}
+        location /auth {
+            proxy_pass http://model/isAuthenticated;
+        }
+        {{- end }}
+        {{- if .Values.saml.rbac.enabled }}
+        location /authrbac {
+            proxy_pass http://model/isAdminAuthenticated;
+        }
+    {{- end }}
     }

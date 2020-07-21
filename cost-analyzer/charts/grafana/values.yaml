@@ -24,7 +24,7 @@ livenessProbe:
 
 image:
   repository: grafana/grafana
-  tag: 5.3.1
+  tag: 6.0.0
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -110,7 +110,7 @@ persistence:
   # existingClaim:
 
 adminUser: admin
-# adminPassword: strongpassword
+adminPassword: strongpassword
 
 ## Use an alternate scheduler, e.g. "stork".
 ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -147,7 +147,7 @@ datasources: {}
 #    datasources:
 #    - name: Prometheus2
 #      type: prometheus
-#      url: http://prometheus-server.default.svc.cluster.local
+#      url: http://prometheus-server.default.svc
 #      access: proxy
 #      isDefault: false
 
@@ -213,8 +213,6 @@ grafana.ini:
     enabled: true
     org_role:  Admin
     org_name: Main Org.
-  server:
-    root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 
 ## LDAP Authentication can be enabled with the following values on grafana.ini
 ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid

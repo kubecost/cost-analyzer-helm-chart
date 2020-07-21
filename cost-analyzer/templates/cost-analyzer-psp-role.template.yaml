@@ -1,0 +1,18 @@
+{{- if .Values.podSecurityPolicy }}
+{{- if .Values.podSecurityPolicy.enabled }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubecost-cost-analyzer-psp
+  annotations:
+{{- if .Values.podSecurityPolicy.annotations }}
+{{ toYaml .Values.podSecurityPolicy.annotations | indent 4 }}
+{{- end }}
+rules:
+- apiGroups: ['extensions']
+  resources: ['podsecuritypolicies']
+  verbs: ['use']
+  resourceNames:
+  - kubecost-cost-analyzer-psp
+{{- end }}
+{{- end }}
