@@ -293,6 +293,8 @@ spec:
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: MAX_QUERY_CONCURRENCY
               value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 5) }}
+            - name: UTC_OFFSET
+              value: {{ (quote .Values.kubecostModel.utcOffset) | default (quote ) }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled

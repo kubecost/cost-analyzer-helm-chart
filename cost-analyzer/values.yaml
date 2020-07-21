@@ -95,6 +95,11 @@ kubecostModel:
   warmSavingsCache: true
   etl: true
   maxQueryConcurrency: 5
+  # utcOffset represents a timezone in hours and minutes east (+) or west (-)
+  # of UTC, itself, which is defined as +00:00.
+  # See the tz database of timezones to look up your local UTC offset:
+  # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  utcOffset: "+00:00"
   resources:
     requests:
       cpu: "200m"
