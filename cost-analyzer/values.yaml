@@ -103,10 +103,6 @@ kubecostModel:
     #  cpu: "800m"
     #  memory: "256Mi"
 
-kubecostInit:
-  image: "gcr.io/kubecost1/init"
-  imagePullPolicy: Always
-
 ingress:
   enabled: false
   annotations:
@@ -326,7 +322,12 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+  resources: {}
+    #requests:
+    #  cpu: "50m"
+    #  memory: "20Mi"
+
 
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
