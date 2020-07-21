@@ -108,10 +108,6 @@ kubecostModel:
     #  cpu: "800m"
     #  memory: "256Mi"
 
-kubecostInit:
-  image: "gcr.io/kubecost1/init"
-  imagePullPolicy: Always
-
 ingress:
   enabled: false
   annotations:
@@ -249,7 +245,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.2
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.3
   imagePullPolicy: Always
   resources: {}
     #requests:
@@ -281,6 +277,16 @@ networkCosts:
       # Cross Region contains a list of address/range that will be
       # classified as non-internet egress from one region to another. 
       cross-region: []
+
+      # Direct Classification specifically maps an ip address or range
+      # to a region (required) and/or zone (optional). This classification
+      # takes priority over in-zone, in-region, and cross-region configurations.
+      direct-classification: []
+      # - region: "us-east1"
+      #   zone: "us-east1-c"
+      #   ips: 
+      #     - "10.0.0.0/24"
+
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -321,7 +327,12 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+  resources: {}
+    #requests:
+    #  cpu: "50m"
+    #  memory: "20Mi"
+
 
 grafana:
   # namespace_datasources: kubecost # override the default namespace here

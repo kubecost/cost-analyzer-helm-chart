@@ -21,6 +21,6 @@ spec:
         app: awsstore
     spec:
         containers:
-            - image: gcr.io/kubecost1/awsstore:latest
+            - image: {{ .Values.awsstore.imageNameAndVersion }}
               name: awsstore
 {{- end }}
