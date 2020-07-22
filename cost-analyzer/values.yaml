@@ -95,6 +95,11 @@ kubecostModel:
   warmSavingsCache: true
   etl: true
   maxQueryConcurrency: 5
+  # utcOffset represents a timezone in hours and minutes east (+) or west (-)
+  # of UTC, itself, which is defined as +00:00.
+  # See the tz database of timezones to look up your local UTC offset:
+  # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  utcOffset: "+00:00"
   resources:
     requests:
       cpu: "200m"
@@ -102,10 +107,6 @@ kubecostModel:
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
-
-kubecostInit:
-  image: "gcr.io/kubecost1/init"
-  imagePullPolicy: Always
 
 ingress:
   enabled: false
@@ -244,7 +245,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.2
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.3
   imagePullPolicy: Always
   resources: {}
     #requests:
@@ -276,6 +277,16 @@ networkCosts:
       # Cross Region contains a list of address/range that will be
       # classified as non-internet egress from one region to another. 
       cross-region: []
+
+      # Direct Classification specifically maps an ip address or range
+      # to a region (required) and/or zone (optional). This classification
+      # takes priority over in-zone, in-region, and cross-region configurations.
+      direct-classification: []
+      # - region: "us-east1"
+      #   zone: "us-east1-c"
+      #   ips: 
+      #     - "10.0.0.0/24"
+
   ## Node tolerations for server scheduling to nodes with taints
   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
   ##
@@ -288,6 +299,11 @@ networkCosts:
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
+  ## PodMonitor
+  ## Allows scraping of network metrics from a dedicated prometheus operator setup
+  podMonitor:
+    enabled: false
+    additionalLabels: {}
 
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
@@ -306,6 +322,7 @@ reporting:
   logCollection: true 
   productAnalytics: true 
   errorReporting: true
+  valuesReporting: true
 
 serviceMonitor:
   enabled: false
@@ -316,7 +333,13 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest
+initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+initChownData:
+  resources: {}
+    #requests:
+    #  cpu: "50m"
+    #  memory: "20Mi"
+
 
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
@@ -382,6 +405,7 @@ serviceAccount:
 #  gpuLabel: gpu
 #  gpuLabelValue: true
 #  awsServiceKeyName: ACCESSKEYID
+#  awsServiceKeyPassword:  fakepassword # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
@@ -420,10 +444,12 @@ serviceAccount:
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
+#  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
-#  serviceKeySecretName: ""
+#  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret 
+#  createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
 #  sharedNamespaces: ""
 #  productKey: # apply business or enterprise product license
 #    key: ""

@@ -79,6 +79,10 @@ spec:
         - name: service-key-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.serviceKeySecretName }}
+        {{- else if .Values.kubecostProductConfigs.createServiceKey }}
+        - name: service-key-secret
+          secret:
+            secretName: cloud-service-key
         {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
@@ -148,6 +152,8 @@ spec:
         {{- else }}
           image: busybox
         {{- end }}
+          resources:
+{{ toYaml .Values.initChownData.resources | indent 12 }}
           command: ["/bin/chmod", "-R", "777", "/var/configs"]
           volumeMounts:
             - name: persistent-configs
@@ -188,7 +194,7 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
+            {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKey }}
             - name: service-key-secret
               mountPath: /var/secrets
             {{- end }}
@@ -270,6 +276,8 @@ spec:
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
+            - name: VALUES_REPORTING_ENABLED
+              value: {{ (quote .Values.reporting.valuesReporting) | default (quote true) }}
             {{- if .Values.reporting.errorReporting }}
             - name: SENTRY_DSN
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
@@ -287,6 +295,8 @@ spec:
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: MAX_QUERY_CONCURRENCY
               value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 5) }}
+            - name: UTC_OFFSET
+              value: {{ (quote .Values.kubecostModel.utcOffset) | default (quote ) }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
@@ -423,6 +433,12 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            {{- if .Values.reporting }}
+            {{- if .Values.reporting.valuesReporting }}
+            - name: HELM_VALUES
+              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            {{- end }}
+            {{- end }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
