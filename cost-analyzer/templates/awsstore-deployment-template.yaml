@@ -6,7 +6,6 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
-  serviceAccountName: awsstore-serviceaccount
   selector:
     matchLabels:
       app: awsstore
@@ -20,6 +19,7 @@ spec:
       labels:
         app: awsstore
     spec:
+        serviceAccountName: awsstore-serviceaccount
         containers:
             - image: {{ .Values.awsstore.imageNameAndVersion }}
               name: awsstore
