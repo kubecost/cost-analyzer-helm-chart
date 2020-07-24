@@ -8,6 +8,7 @@ global:
   thanos:
     enabled: false
     # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
+    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
 
   grafana:
     enabled: true # If false, Grafana will not be installed
