@@ -251,6 +251,18 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
+            - name: MC_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: USERNAME
+            - name: MC_BASIC_AUTH_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: PASSWORD
+            {{- end }}
             {{- if .Values.pricingCsv }}
             {{- if .Values.pricingCsv.enabled }}
             - name: USE_CSV_PROVIDER
@@ -472,6 +484,18 @@ spec:
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
             {{- end }}
             {{- end }}
+            {{- end }}
+            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
+            - name: MC_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: USERNAME
+            - name: MC_BASIC_AUTH_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: PASSWORD
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
