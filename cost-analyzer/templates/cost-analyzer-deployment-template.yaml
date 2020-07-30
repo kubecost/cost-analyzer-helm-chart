@@ -237,6 +237,12 @@ spec:
               value: /var/configs/key.json
             - name: CONFIG_PATH
               value: /var/configs/
+            - name: CLUSTER_PROFILE
+            {{- if .Values.kubecostProductConfigs }}
+              value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
+            {{- else }}
+              value: production
+            {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
             {{- if .Values.remoteWrite.postgres.enabled }}
