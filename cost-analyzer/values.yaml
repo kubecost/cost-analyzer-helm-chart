@@ -206,6 +206,7 @@ prometheus:
       enabled: true
     extraArgs:
       query.max-concurrency: 1
+      query.max-samples: 100000000
   alertmanager:
     # enabled: false
     persistentVolume:
