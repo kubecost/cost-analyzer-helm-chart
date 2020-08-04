@@ -8,6 +8,8 @@ global:
   thanos:
     enabled: false
     # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
+    # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
+    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
 
   grafana:
     enabled: true # If false, Grafana will not be installed
@@ -204,6 +206,7 @@ prometheus:
       enabled: true
     extraArgs:
       query.max-concurrency: 1
+      query.max-samples: 100000000
   alertmanager:
     # enabled: false
     persistentVolume:
@@ -399,6 +402,9 @@ serviceAccount:
 #    regionNetworkEgress: 0.01
 #    internetNetworkEgress: 0.12
 #    enabled: true
+#  # The cluster profile represents a predefined set of parameters to use when calculating savings.
+#  # Possible values are: [ development, production, high-availability ]
+#  clusterProfile: production 
 #  customPricesEnabled: false # This makes the default view custom prices-- generally used for on-premises clusters
 #  spotLabel: lifecycle
 #  spotLabelValue: Ec2Spot
