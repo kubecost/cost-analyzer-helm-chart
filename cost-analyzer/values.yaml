@@ -250,6 +250,9 @@ networkCosts:
     enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v13.3
   imagePullPolicy: Always
+  # Port will set both the containerPort and hostPort to this value. 
+  # These must be identical due to network-costs being run on hostNetwork
+  port: 3001
   resources: {}
     #requests:
     #  cpu: "50m"
