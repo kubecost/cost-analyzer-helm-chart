@@ -79,7 +79,7 @@ spec:
         - name: service-key-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.serviceKeySecretName }}
-        {{- else if .Values.kubecostProductConfigs.createServiceKey }}
+        {{- else if .Values.kubecostProductConfigs.createServiceKeySecret }}
         - name: service-key-secret
           secret:
             secretName: cloud-service-key
@@ -194,7 +194,7 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKey }}
+            {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
               mountPath: /var/secrets
             {{- end }}
