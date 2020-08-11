@@ -79,9 +79,6 @@ data:
   {{- if .Values.kubecostProductConfigs.spotLabelValue }}
     spotLabelValue: "{{ .Values.kubecostProductConfigs.spotLabelValue }}"
   {{- end -}}
-  {{- if .Values.kubecostProductConfigs.awsServiceKeyName }}
-    awsServiceKeyName: "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}"
-  {{- end -}}
   {{- if .Values.kubecostProductConfigs.awsSpotDataRegion }}
     spotDataRegion: "{{ .Values.kubecostProductConfigs.awsSpotDataRegion }}"
   {{- end -}}
