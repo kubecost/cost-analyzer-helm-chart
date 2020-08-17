@@ -315,6 +315,12 @@ spec:
               value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 5) }}
             - name: UTC_OFFSET
               value: {{ (quote .Values.kubecostModel.utcOffset) | default (quote ) }}
+            {{- if .Values.networkCosts }}
+            {{- if .Values.networkCosts.enabled }}
+            - name: NETWORK_COSTS_PORT
+              value: {{ quote .Values.networkCosts.port | default (quote 3001) }}
+            {{- end }}
+            {{- end }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
               to ensure that the custom query service target is used. The global.thanos.enabled
