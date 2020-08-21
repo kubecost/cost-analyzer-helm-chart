@@ -90,9 +90,11 @@ spec:
             name: kubecost-clusters
         {{- range .Values.kubecostProductConfigs.clusters }}
         {{- if .auth }}
+        {{- if .auth.secretName }}
         - name: {{ .auth.secretName }}
           secret:
             secretName: {{ .auth.secretName }}
+        {{- end }}
         {{- end }}
         {{- end }}
         {{- end }}
@@ -203,8 +205,10 @@ spec:
               mountPath: /var/configs/clusters
             {{- range .Values.kubecostProductConfigs.clusters }}
             {{- if .auth }}
+            {{- if .auth.secretName }}
             - name: {{ .auth.secretName }}
               mountPath: /var/secrets/{{ .auth.secretName }}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- end }}
