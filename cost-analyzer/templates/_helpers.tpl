@@ -115,11 +115,25 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
 
+{{/*
+Return the appropriate apiVersion for daemonset.
+*/}}
 {{- define "cost-analyzer.daemonset.apiVersion" -}}
 {{- if semverCompare "<1.9-0" .Capabilities.KubeVersion.GitVersion -}}
 {{- print "extensions/v1beta1" -}}
 {{- else if semverCompare "^1.9-0" .Capabilities.KubeVersion.GitVersion -}}
 {{- print "apps/v1" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the appropriate apiVersion for priorityClass.
+*/}}
+{{- define "cost-analyzer.priorityClass.apiVersion" -}}
+{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- print "scheduling.k8s.io/v1beta1" -}}
+{{- else if semverCompare "^1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- print "scheduling.k8s.io/v1" -}}
 {{- end -}}
 {{- end -}}
 
