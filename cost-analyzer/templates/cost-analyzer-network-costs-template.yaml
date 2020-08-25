@@ -40,6 +40,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: HOST_PORT
+          value: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
         volumeMounts:
         {{- if .Values.networkCosts.hostProc }}
         - mountPath: {{ .Values.networkCosts.hostProc.mountPath }}
@@ -58,8 +60,8 @@ spec:
           privileged: true
         ports:
         - name: http-server
-          containerPort: 3001
-          hostPort: 3001
+          containerPort: {{ .Values.networkCosts.port | default 3001 }}
+          hostPort: {{ .Values.networkCosts.port | default 3001 }}
 {{- if .Values.networkCosts.priorityClassName }}
       priorityClassName: "{{ .Values.networkCosts.priorityClassName }}"
 {{- end }}
