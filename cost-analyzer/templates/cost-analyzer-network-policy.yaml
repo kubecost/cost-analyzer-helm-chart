@@ -1,6 +1,6 @@
 {{- if .Values.networkPolicy -}}
 {{- if .Values.networkPolicy.enabled -}}
-apiVersion: {{ include "cost-analyzer.networkPolicy.apiVersion" }}
+apiVersion: {{ include "cost-analyzer.networkPolicy.apiVersion" . }}
 kind: NetworkPolicy
 metadata:
   name: deny-egress
