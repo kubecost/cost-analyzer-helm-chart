@@ -2,7 +2,7 @@
 {{- if .Values.networkCosts.enabled }}
 {{- if .Values.networkCosts.podSecurityPolicy }}
 {{- if .Values.networkCosts.podSecurityPolicy.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" }}
 kind: PodSecurityPolicy
 metadata:
     name: kubecost-network-costs
