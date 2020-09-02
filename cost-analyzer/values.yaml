@@ -447,13 +447,13 @@ serviceAccount:
 #  awsSpotDataRegion: us-east-1
 #  awsSpotDataBucket: spot-data-feed-s3-bucket
 #  awsSpotDataPrefix: dev
-#  athenaProjectID: "530337586277"
+#  athenaProjectID: "530337586277" # The AWS AccountID where the Athena CUR is. Generally your masterpayer account
 #  athenaBucketName: "s3://aws-athena-query-results-530337586277-us-east-1"
 #  athenaRegion: us-east-1
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
 #  masterPayerARN: ""
-#  projectID: "123456789"
+#  projectID: "123456789"  # Also known as AccountID on AWS-- the current account/project that this instance of ubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
 #  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
