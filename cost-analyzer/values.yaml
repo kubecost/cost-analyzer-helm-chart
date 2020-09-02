@@ -244,6 +244,7 @@ prometheus:
             - expr: sum(container_memory_working_set_bytes{container_name!="POD",container_name!=""})
               record: kubecost_cluster_memory_working_set_bytes
         - name: Savings
+          interval: 5m
           rules:
             - expr: sum(avg(kube_pod_owner{owner_kind!="DaemonSet"}) by (pod) * sum(container_cpu_allocation) by (pod))
               record: kubecost_savings_cpu_allocation
