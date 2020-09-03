@@ -60,7 +60,7 @@ saml: # enterprise key required to use
 
 kubecostChecks:
   enabled: true
-  image: "gcr.io/kubecost1/checks"
+  image: "quay.io/kubecost1/checks"
   resources:
     requests:
       cpu: "20m"
