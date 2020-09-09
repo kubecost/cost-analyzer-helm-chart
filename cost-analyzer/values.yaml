@@ -3,6 +3,7 @@ global:
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
+    # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus 
 
   # Durable storage option, product key required
   thanos:

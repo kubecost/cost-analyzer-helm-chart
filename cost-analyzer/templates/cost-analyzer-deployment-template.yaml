@@ -267,6 +267,10 @@ spec:
                   name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
             {{- end }}
+            {{- if .Values.global.prometheus.insecureSkipVerify }}
+            - name: INSECURE_SKIP_VERIFY
+              value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
+            {{- end }}
             {{- if .Values.pricingCsv }}
             {{- if .Values.pricingCsv.enabled }}
             - name: USE_CSV_PROVIDER
@@ -470,6 +474,10 @@ spec:
             - name: HELM_VALUES
               value: {{ template "cost-analyzer.filterEnabled" .Values }}
             {{- end }}
+            {{- end }}
+            {{- if .Values.global.prometheus.insecureSkipVerify }}
+            - name: INSECURE_SKIP_VERIFY
+              value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
             {{- /*
               If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
