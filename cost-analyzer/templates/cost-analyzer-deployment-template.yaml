@@ -267,6 +267,18 @@ spec:
                   name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
             {{- end }}
+            {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
+            - name: DB_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
+                  key: USERNAME
+            - name: DB_BASIC_AUTH_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
+                  key: PASSWORD
+            {{- end }}
             {{- if .Values.global.prometheus.insecureSkipVerify }}
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
@@ -513,6 +525,18 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: PASSWORD
+            {{- end }}
+            {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
+            - name: DB_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
+                  key: USERNAME
+            - name: DB_BASIC_AUTH_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
             {{- end }}
             - name: KUBECOST_NAMESPACE
