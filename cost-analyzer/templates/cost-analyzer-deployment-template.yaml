@@ -279,6 +279,20 @@ spec:
                   name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
             {{- end }}
+            {{- if .Values.global.prometheus.queryServiceBearerTokenSecretName }}
+            - name: DB_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBearerTokenSecretName }}
+                  key: TOKEN
+            {{- end }}
+            {{- if .Values.global.thanos.queryServiceBearerTokenSecretName }}
+            - name: MC_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBearerTokenSecretName }}
+                  key: TOKEN
+            {{- end }}
             {{- if .Values.global.prometheus.insecureSkipVerify }}
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
@@ -538,6 +552,20 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
+            {{- end }}
+            {{- if .Values.global.prometheus.queryServiceBearerTokenSecretName }}
+            - name: DB_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.prometheus.queryServiceBearerTokenSecretName }}
+                  key: TOKEN
+            {{- end }}
+            {{- if .Values.global.thanos.queryServiceBearerTokenSecretName }}
+            - name: MC_BEARER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBearerTokenSecretName }}
+                  key: TOKEN
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
