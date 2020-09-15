@@ -278,8 +278,11 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.4
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.5
   imagePullPolicy: Always
+  # Traffic Logging will enable logging the top 5 destinations for each source
+  # every 30 minutes. 
+  trafficLogging: true
   # Port will set both the containerPort and hostPort to this value. 
   # These must be identical due to network-costs being run on hostNetwork
   port: 3001
