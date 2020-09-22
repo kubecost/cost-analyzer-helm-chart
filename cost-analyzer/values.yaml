@@ -137,7 +137,7 @@ affinity: {}
 
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
-  enabled: true
+  enabled: false
   # value: 1000000
 
 # If true, enable creation of NetworkPolicy resources.
