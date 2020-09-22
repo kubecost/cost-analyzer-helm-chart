@@ -1,6 +1,6 @@
 {{- if .Values.podSecurityPolicy }}
 {{- if .Values.podSecurityPolicy.enabled }}
-apiVersion: extensions/v1beta1
+apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
     name: kubecost-cost-analyzer-psp
