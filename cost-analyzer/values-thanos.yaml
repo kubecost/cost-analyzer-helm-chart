@@ -77,6 +77,10 @@ thanos:
     enabled: true
   compact:
     enabled: true
+    dataVolume:
+      persistentVolumeClaim:
+        claimName: compact-data-volume
+        storage: 100Gi
   # This secret name should match the sidecar configured secret name volume
   # in the prometheus.server.extraVolumes entry
   storeSecretName: kubecost-thanos

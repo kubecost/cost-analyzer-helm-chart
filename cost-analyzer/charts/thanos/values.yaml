@@ -362,6 +362,7 @@ compact:
     backend: {}
     #  persistentVolumeClaim:
     #    claimName: compact-data-volume
+    #    storage: 100Gi
   # Extra labels for compact pod template
   labels: {}
   #  cluster: example
