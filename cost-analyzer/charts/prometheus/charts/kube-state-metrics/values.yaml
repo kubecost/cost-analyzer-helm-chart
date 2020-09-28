@@ -110,7 +110,7 @@ collectors:
   replicasets: true
   replicationcontrollers: true
   resourcequotas: true
-  secrets: true
+  secrets: false
   services: true
   statefulsets: true
   storageclasses: true
