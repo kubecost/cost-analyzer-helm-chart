@@ -6,7 +6,7 @@ global:
 # Still may require tweaking for some installs, but the thanos-query-frontend
 # will greatly assist in reduction memory bloat in query.
 kubecostModel:
-  maxQueryConcurrency: 10
+  maxQueryConcurrency: 5
 
 prometheus:
   server:
@@ -69,9 +69,9 @@ thanos:
     enabled: true
     timeout: 3m
     # Maximum number of queries processed concurrently by query node.
-    maxConcurrent: 16
+    maxConcurrent: 8
     # Maximum number of select requests made concurrently per a query.
-    maxConcurrentSelect: 4
+    maxConcurrentSelect: 2
     resources:
       requests:
         memory: "2.5Gi"
