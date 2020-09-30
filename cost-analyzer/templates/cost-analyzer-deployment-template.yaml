@@ -146,6 +146,22 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
+        - name: persistent-db
+{{- if .Values.persistentVolume }}
+{{- if .Values.persistentVolume.enabled }}
+          persistentVolumeClaim:
+{{- if .Values.persistentVolume.existingClaim }}
+            claimName: {{ .Values.persistentVolume.existingClaim }}
+{{- else }}
+            claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end -}}
+{{- else }}
+          emptyDir: {}
+{{- end -}}
+{{- else }}
+          persistentVolumeClaim:
+            claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end }}
       initContainers:
 {{- if .Values.supportNFS }}
         - name: config-perms-fix
@@ -160,6 +176,22 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+          securityContext:
+            runAsUser: 0
+{{ end }}
+{{- if .Values.supportNFS }}
+        - name: db-perms-fix
+        {{- if .Values.initChownDataImage }}
+          image: {{ .Values.initChownDataImage }}
+        {{- else }}
+          image: busybox
+        {{- end }}
+          resources:
+{{ toYaml .Values.initChownData.resources | indent 12 }}
+          command: ["/bin/chmod", "-R", "777", "/var/db"]
+          volumeMounts:
+            - name: persistent-db
+              mountPath: /var/db
           securityContext:
             runAsUser: 0
 {{ end }}
@@ -191,6 +223,8 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            - name: persistent-db
+              mountPath: /var/db
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
@@ -241,6 +275,8 @@ spec:
               value: /var/configs/key.json
             - name: CONFIG_PATH
               value: /var/configs/
+            - name: DB_PATH
+              value: /var/db/
             - name: CLUSTER_PROFILE
             {{- if .Values.kubecostProductConfigs }}
               value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
