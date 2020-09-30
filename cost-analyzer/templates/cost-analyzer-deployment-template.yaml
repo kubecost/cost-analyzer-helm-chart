@@ -343,6 +343,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.useEtlCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            - name: ETL_STORE_DURATION_DAYS
+              value: {{ (quote .Values.kubecostModel.etlStoreDurationDays | default (quote 120) }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: MAX_QUERY_CONCURRENCY
