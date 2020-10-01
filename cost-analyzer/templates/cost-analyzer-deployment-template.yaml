@@ -164,7 +164,7 @@ spec:
 {{- end }}
       initContainers:
 {{- if .Values.supportNFS }}
-        - name: config-perms-fix
+        - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
         {{- else }}
@@ -172,24 +172,10 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          command: ["/bin/chmod", "-R", "777", "/var/configs"]
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 var/db"]
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-          securityContext:
-            runAsUser: 0
-{{ end }}
-{{- if .Values.supportNFS }}
-        - name: db-perms-fix
-        {{- if .Values.initChownDataImage }}
-          image: {{ .Values.initChownDataImage }}
-        {{- else }}
-          image: busybox
-        {{- end }}
-          resources:
-{{ toYaml .Values.initChownData.resources | indent 12 }}
-          command: ["/bin/chmod", "-R", "777", "/var/db"]
-          volumeMounts:
             - name: persistent-db
               mountPath: /var/db
           securityContext:
