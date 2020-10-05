@@ -203,6 +203,14 @@ prometheus:
     # This overrides the cluster_id set in prometheus.server.global.external_labels.
     # NOTE: This does not affect the external_labels set in prometheus config.
     # clusterIDConfigmap: cluster-id-configmap
+    
+    resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
