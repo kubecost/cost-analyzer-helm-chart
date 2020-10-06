@@ -41,7 +41,7 @@ spec:
             - --path.procfs=/host/proc
             - --path.sysfs=/host/sys
             {{- if .Values.nodeExporter.hostNetwork }}
-            - --web.listen-address=localhost:{{ .Values.nodeExporter.service.hostPort }}
+            - --web.listen-address=:{{ .Values.nodeExporter.service.hostPort }}
             {{- end }}
           {{- range $key, $value := .Values.nodeExporter.extraArgs }}
           {{- if $value }}
