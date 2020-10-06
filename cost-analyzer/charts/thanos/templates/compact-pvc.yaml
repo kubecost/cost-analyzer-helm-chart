@@ -11,14 +11,14 @@ spec:
     - ReadWriteOnce
   {{- if .Values.compact.dataVolume.persistentVolumeClaim.storageClass }}
   storageClassName: {{ .Values.compact.dataVolume.persistentVolumeClaim.storageClass }}
-  {{ end }}
+  {{- end }}
   resources:
     requests:
     {{- if .Values.compact.dataVolume.persistentVolumeClaim.storage }}
       storage: {{ .Values.compact.dataVolume.persistentVolumeClaim.storage }}
     {{- else }}
       storage: 100Gi
-    {{ end }}
+    {{- end }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

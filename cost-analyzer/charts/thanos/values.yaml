@@ -509,8 +509,7 @@ compact:
   # - "--extraargs=extravalue"
   #
   # Data volume for the compactor to store temporary data defaults to emptyDir
-  dataVolume:
-    backend: {}
+  # dataVolume:
     #  persistentVolumeClaim:
     #    claimName: compact-data-volume
     #    storage: 100Gi
