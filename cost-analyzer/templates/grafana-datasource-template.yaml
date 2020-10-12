@@ -21,7 +21,7 @@ metadata:
     {{- end }}
     {{- end }}
 data:
-  datasource.yaml: |-
+  {{ default "datasource.yaml" .Values.grafana.sidecar.datasources.dataSourceFilename }}: |-
     apiVersion: 1
     datasources:
     - access: proxy
