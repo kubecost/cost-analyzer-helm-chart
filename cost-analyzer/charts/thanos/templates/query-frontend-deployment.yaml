@@ -47,7 +47,7 @@ spec:
         - "query-frontend"
         - "--log.level={{ .Values.queryFrontend.logLevel }}"
         - "--http-address=0.0.0.0:{{ .Values.queryFrontend.http.port }}"
-        - "--query-frontend.downstream-url=http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.query.http.port }}"
+        - "--query-frontend.downstream-url=http://{{ include "thanos.componentname" (list $ "query") }}-http.{{ .Release.Namespace }}:{{ .Values.query.http.port }}"
         - "--query-range.split-interval={{ .Values.queryFrontend.splitInterval }}"
         - "--query-range.max-retries-per-request={{ .Values.queryFrontend.maxRetriesPerRequest }}"
         - "--query-range.max-query-length={{ .Values.queryFrontend.maxQueryLength }}"
