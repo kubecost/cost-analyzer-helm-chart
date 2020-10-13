@@ -146,8 +146,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-        - name: persistent-db
 {{- if .Values.kubecostModel.etlToDisk }}
+        - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
@@ -174,7 +174,11 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
+          {{- if .Values.kubecostModel.etlToDisk }}          
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 var/db"]
+          {{- else }}
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
+          {{- end}}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
