@@ -1,6 +1,6 @@
 {{- if .Values.kubecostModel.etlToDisk -}}
 {{- if .Values.persistentVolume -}}
-{{- if not .Values.persistentVolume.existingClaim -}}
+{{- if not .Values.persistentVolume.dbExistingClaim -}}
 {{- if .Values.persistentVolume.enabled -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -11,8 +11,8 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
-  {{- if .Values.persistentVolume.storageClass }}
-  storageClassName: {{ .Values.persistentVolume.storageClass }}
+  {{- if .Values.persistentVolume.dbStorageClass }}
+  storageClassName: {{ .Values.persistentVolume.dbStorageClass }}
   {{ end }}
   resources:
     requests:

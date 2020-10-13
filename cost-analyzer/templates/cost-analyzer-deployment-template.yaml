@@ -151,7 +151,11 @@ spec:
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
+{{- if .Values.persistentVolume.dbExistingClaim }}
+            claimName: {{ .Values.persistentVolume.dbExistingClaim }}
+{{- else }}
             claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end -}}
 {{- else }}
           emptyDir: {}
 {{- end -}}
