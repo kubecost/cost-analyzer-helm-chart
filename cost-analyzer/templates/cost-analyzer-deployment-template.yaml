@@ -149,11 +149,15 @@ spec:
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
+{{- if .Values.kubecostModel.etlToDisk }}
           persistentVolumeClaim:
 {{- if .Values.persistentVolume.existingClaim }}
             claimName: {{ .Values.persistentVolume.existingClaim }}
 {{- else }}
             claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end -}}
+{{- else }}
+          emptyDir: {}
 {{- end -}}
 {{- else }}
           emptyDir: {}
