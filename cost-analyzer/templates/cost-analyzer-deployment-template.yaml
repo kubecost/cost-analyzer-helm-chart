@@ -146,8 +146,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-{{- if .Values.kubecostModel.etlToDisk }}
         - name: persistent-db
+{{- if .Values.kubecostModel.etlToDisk }}
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
