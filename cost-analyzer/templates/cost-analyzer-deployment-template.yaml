@@ -146,8 +146,8 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-        - name: persistent-db
 {{- if .Values.kubecostModel.etlToDisk }}
+        - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
@@ -178,8 +178,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.kubecostModel.etlToDisk }}
             - name: persistent-db
               mountPath: /var/db
+            {{- end }}
           securityContext:
             runAsUser: 0
 {{ end }}
