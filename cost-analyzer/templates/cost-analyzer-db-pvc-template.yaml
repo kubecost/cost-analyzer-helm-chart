@@ -1,3 +1,4 @@
+{{- if .Values.kubecostModel.etlToDisk -}}
 {{- if .Values.persistentVolume -}}
 {{- if not .Values.persistentVolume.existingClaim -}}
 {{- if .Values.persistentVolume.enabled -}}
@@ -20,6 +21,7 @@ spec:
     {{- else }}
       storage: 32.0Gi
     {{ end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
