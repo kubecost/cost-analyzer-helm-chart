@@ -147,24 +147,18 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
         - name: persistent-db
+{{- if .Values.kubecostModel.etlToDisk }}
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
-{{- if .Values.kubecostModel.etlToDisk }}
           persistentVolumeClaim:
-{{- if .Values.persistentVolume.existingClaim }}
-            claimName: {{ .Values.persistentVolume.existingClaim }}
-{{- else }}
             claimName: {{ template "cost-analyzer.fullname" . }}-db
-{{- end -}}
-{{- else }}
-          emptyDir: {}
-{{- end -}}
 {{- else }}
           emptyDir: {}
 {{- end -}}
 {{- else }}
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end }}
 {{- end }}
       initContainers:
 {{- if .Values.supportNFS }}
@@ -213,8 +207,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.kubecostModel.etlToDisk }}
             - name: persistent-db
               mountPath: /var/db
+            {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
