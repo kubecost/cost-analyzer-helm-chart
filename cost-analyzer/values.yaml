@@ -100,7 +100,7 @@ kubecostModel:
   warmCache: true
   warmSavingsCache: true
   etl: true
-  etlToDisk: true
+  etlToDisk: false
   # The total number of days the ETL storage will build
   etlStoreDurationDays: 120
   maxQueryConcurrency: 5
