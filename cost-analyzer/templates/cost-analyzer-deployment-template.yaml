@@ -146,7 +146,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-{{- if .Values.kubecostModel.etlToDisk }}
+{{- if and .Values.kubecostModel.etlToDisk .Values.persistentVolume.dbPVEnabled }}
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -174,7 +174,7 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          {{- if .Values.kubecostModel.etlToDisk }}          
+          {{- if and .Values.kubecostModel.etlToDisk .Values.persistentVolume.dbPVEnabled }}          
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
@@ -182,7 +182,7 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if .Values.kubecostModel.etlToDisk }}
+            {{- if and .Values.kubecostModel.etlToDisk .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -217,7 +217,7 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if .Values.kubecostModel.etlToDisk }}
+            {{- if and .Values.kubecostModel.etlToDisk .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -375,6 +375,10 @@ spec:
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
+            - name: ETL_PATH_PREFIX
+              value: "/var/db"
+            {{- end }}
             {{- if .Values.kubecostModel.etlStoreDurationDays }}
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
