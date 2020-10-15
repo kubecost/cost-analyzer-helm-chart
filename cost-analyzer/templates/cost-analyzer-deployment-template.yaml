@@ -146,12 +146,13 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
+{{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
           persistentVolumeClaim:
-{{- if .Values.persistentVolume.existingClaim }}
-            claimName: {{ .Values.persistentVolume.existingClaim }}
+{{- if .Values.persistentVolume.dbExistingClaim }}
+            claimName: {{ .Values.persistentVolume.dbExistingClaim }}
 {{- else }}
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end -}}
@@ -161,6 +162,7 @@ spec:
 {{- else }}
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
+{{- end }}
 {{- end }}
       initContainers:
 {{- if .Values.supportNFS }}
@@ -172,12 +174,18 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 var/db"]
+          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}          
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
+          {{- else }}
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
+          {{- end}}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
+            {{- end }}
           securityContext:
             runAsUser: 0
 {{ end }}
@@ -209,8 +217,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
+            {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
@@ -361,10 +371,14 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
-            - name: USE_ETL_CACHE
-              value: {{ (quote .Values.kubecostModel.useEtlCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            - name: ETL_TO_DISK_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
+            - name: ETL_PATH_PREFIX
+              value: "/var/db"
+            {{- end }}
             {{- if .Values.kubecostModel.etlStoreDurationDays }}
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
