@@ -226,6 +226,11 @@ prometheus:
     extraArgs:
       query.max-concurrency: 1
       query.max-samples: 100000000
+    tolerations: []
+    #  - key: "key"
+    #    operator: "Equal|Exists"
+    #    value: "value"
+    #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
   alertmanager:
     # enabled: false
     persistentVolume:
