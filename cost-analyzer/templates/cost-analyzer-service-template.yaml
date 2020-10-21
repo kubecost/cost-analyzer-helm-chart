@@ -37,13 +37,28 @@ spec:
       {{- if .Values.kubecostFrontend.tls.enabled }}
       port: 443
       targetPort: 443
+      {{- if (eq .Values.service.type "NodePort") }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      {{- end }}
       {{- else }}
       port: {{ $servicePort }}
       targetPort: {{ $nginxPort }}
+      {{- if (eq .Values.service.type "NodePort") }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      {{- end }}
       {{- end}}
       {{- else }}
       port: {{ $servicePort }}
       targetPort: {{ $nginxPort }}
+      {{- if (eq .Values.service.type "NodePort") }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
+      {{- end }}
       {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
