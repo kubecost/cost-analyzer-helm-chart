@@ -273,6 +273,8 @@ spec:
               value: /var/configs/
             - name: DB_PATH
               value: /var/db/
+            - name: APP_VERSION
+              value: "{{ $.Chart.AppVersion }}"
             - name: CLUSTER_PROFILE
             {{- if .Values.kubecostProductConfigs }}
               value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
