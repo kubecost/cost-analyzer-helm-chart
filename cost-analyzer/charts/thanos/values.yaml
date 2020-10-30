@@ -482,18 +482,18 @@ compact:
   # Minimum age of fresh (non-compacted) blocks before they are being processed.
   # Malformed blocks older than the maximum of consistency-delay and 30m0s will be removed.
   consistencyDelay: 30m
-  # How long to retain raw samples in bucket. 0d - disables this retention
-  retentionResolutionRaw: 0d
-  # How long to retain samples of resolution 1 (5 minutes) in bucket. 0d - disables this retention
-  retentionResolution5m: 0d
-  # How long to retain samples of resolution 2 (1 hour) in bucket. 0d - disables this retention
-  retentionResolution1h: 0d
+  # How long to retain raw samples in bucket. Setting this to 0d will retain samples of this resolution forever
+  retentionResolutionRaw: 1825d
+  # How long to retain samples of resolution 1 (5 minutes) in bucket. Setting this to 0d will retain samples of this resolution forever
+  retentionResolution5m: 1825d
+  # How long to retain samples of resolution 2 (1 hour) in bucket. Setting this to 0d will retain samples of this resolution forever
+  retentionResolution1h: 1825d
   # Number of goroutines to use when compacting groups.
   compactConcurrency: 1
   # Number of goroutines to use when syncing block metadata from object storage.
   blockSyncConcurrency: 20
   # Disables Downsampling data
-  disableDownsampling: true
+  disableDownsampling: false
   # Log filtering level.
   logLevel: info
   # Compact service listening http port
