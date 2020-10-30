@@ -7,6 +7,9 @@ global:
 # will greatly assist in reduction memory bloat in query.
 kubecostModel:
   maxQueryConcurrency: 5
+  # This configuration is applied to thanos only. Expresses the resolution to 
+  # use for longer query ranges. Options: raw, 5m, 1h - Default: raw
+  maxSourceResolution: 5m
 
 prometheus:
   server:

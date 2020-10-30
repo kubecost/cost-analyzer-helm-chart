@@ -273,8 +273,6 @@ spec:
               value: /var/configs/
             - name: DB_PATH
               value: /var/db/
-            - name: APP_VERSION
-              value: "{{ $.Chart.AppVersion }}"
             - name: CLUSTER_PROFILE
             {{- if .Values.kubecostProductConfigs }}
               value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
@@ -409,6 +407,8 @@ spec:
               value: {{ .Values.global.thanos.queryService }}
             - name: THANOS_QUERY_OFFSET
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
+            - name: THANOS_MAX_SOURCE_RESOLUTION
+              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
@@ -418,6 +418,8 @@ spec:
               value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
             - name: THANOS_QUERY_OFFSET
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
+            - name: THANOS_MAX_SOURCE_RESOLUTION
+              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- end }}
             {{- end }}
             {{- end }}
@@ -559,6 +561,8 @@ spec:
               value: {{ .Values.global.thanos.queryService }}
             - name: THANOS_QUERY_OFFSET
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
+            - name: THANOS_MAX_SOURCE_RESOLUTION
+              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- else if .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
@@ -568,6 +572,8 @@ spec:
               value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
             - name: THANOS_QUERY_OFFSET
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
+            - name: THANOS_MAX_SOURCE_RESOLUTION
+              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- end }}
             {{- end }}
             {{- end }}
