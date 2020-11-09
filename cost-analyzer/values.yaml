@@ -383,7 +383,7 @@ reporting:
   # Ref: http://docs.kubecost.com/bug-report
   logCollection: true 
   productAnalytics: true 
-  errorReporting: false
+  errorReporting: true
   valuesReporting: true
 
 serviceMonitor:
