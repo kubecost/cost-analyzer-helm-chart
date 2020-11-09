@@ -359,7 +359,7 @@ spec:
             - name: PRODUCT_ANALYTICS_ENABLED
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
-              value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.errorReporting ) | default (quote true) }}
             - name: VALUES_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.valuesReporting) | default (quote true) }}
             {{- if .Values.reporting.errorReporting }}
