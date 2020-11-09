@@ -383,7 +383,7 @@ reporting:
   # Ref: http://docs.kubecost.com/bug-report
   logCollection: true 
   productAnalytics: true 
-  errorReporting: true
+  errorReporting: false
   valuesReporting: true
 
 serviceMonitor:
@@ -520,15 +520,14 @@ kubecostProductConfigs:
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
-alertConfigs:
-  enabled: true
-  global_alert_emails:
-  - calvin@kubecost.com
-  - calvin+1@kubecost.com
-  - calvin+2@kubecost.com
-  alerts:
-  - type: budget
-    threshold: 100
-    window: daily
-    aggregation: namespace
-    value: kubecost
+  alertConfigs:
+    enabled: true
+    globalAlertEmails:
+    - calvin@kubecost.com
+    # - additionalRecipient@example.com
+    alerts:
+    - type: budget # supported: budget, weeklyUpdate
+      threshold: 100
+      window: daily # supported: daily, weekly
+      aggregation: namespace # supported: namespace, cluster
+      value: kubecost # aggregation value to alert on. i.e., namespace <name> or cluster <name>

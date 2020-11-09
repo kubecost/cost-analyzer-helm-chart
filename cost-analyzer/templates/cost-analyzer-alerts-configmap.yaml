@@ -1,5 +1,5 @@
 {{- if .Values.kubecostProductConfigs }}
-{{- if .Values.kubecostProductConfigs.alertConfigs }}
+{{- if .Values.kubecostProductConfigs.alertConfigs.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,18 +7,6 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
-{{- if .Values.kubecostProductConfigs.alertConfigs }}
-{{- if .Values.kubecostProductConfigs.alertConfigs.enabled }}
-#   {{- if .Values.kubecostProductConfigs.alertConfigs.global_alert_emails }}
-#     global_alert_emails:
-#       {{ toYaml .Values.kubecostProductConfigs.alertConfigs.global_alert_emails }}
-#   {{- end -}}
-#   {{- if .Values.kubecostProductConfigs.alertConfigs.alerts }}
-#     alerts:
-#       {{ toYaml .Values.kubecostProductConfigs.alertConfigs.alerts }}
-#   {{- end -}}
-# {{- end -}}
   alerts.json: '{{ toJson .Values.kubecostProductConfigs.alertConfigs }}'
-{{- end -}}
 {{- end -}}
 {{- end -}}
