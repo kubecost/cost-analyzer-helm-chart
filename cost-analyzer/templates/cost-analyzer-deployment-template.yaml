@@ -67,6 +67,16 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- if .Values.kubecostProductConfigs }}
+        {{- if .Values.kubecostProductConfigs.productKey }}
+        {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+        - name: productkey-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
+            items:
+            - key: productkey.json
+              path: productkey.json
+        {{- end }}
+        {{- end -}}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
           secret:
@@ -222,6 +232,12 @@ spec:
               mountPath: /var/db
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+            - name: productkey-secret
+              mountPath: /var/configs/productkey
+            {{- end }}
+            {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
               mountPath: /models
