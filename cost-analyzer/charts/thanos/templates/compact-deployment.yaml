@@ -54,6 +54,9 @@ spec:
         - "--retention.resolution-1h={{ .Values.compact.retentionResolution1h }}"
         - "--block-sync-concurrency={{ .Values.compact.blockSyncConcurrency }}"
         - "--compact.concurrency={{ .Values.compact.compactConcurrency }}"
+{{- if .Values.compact.disableDownsampling }}
+        - "--downsampling.disable"
+{{- end }}
         - "--wait"
 {{ with .Values.compact.extraArgs }}{{ toYaml . | indent 8 }}{{- end }}
         ports:
@@ -68,8 +71,17 @@ spec:
         resources: {{ toYaml .Values.compact.resources | nindent 10 }}
       volumes:
       - name: data-volume
-      {{- if .Values.compact.dataVolume.backend }}
-        {{ toYaml .Values.compact.dataVolume.backend | nindent 8 }}
+      {{- if .Values.compact.dataVolume }}
+      {{- if .Values.compact.dataVolume.persistentVolumeClaim }}
+      {{- if .Values.compact.dataVolume.persistentVolumeClaim.claimName }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.compact.dataVolume.persistentVolumeClaim.claimName }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
       {{- else }}
         emptyDir: {}
       {{- end }}

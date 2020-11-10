@@ -3,13 +3,16 @@ global:
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
-    # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus 
+    # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
+    # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
+    # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN 
 
   # Durable storage option, product key required
   thanos:
     enabled: false
-    # queryService: http://kubecost-thanos-query-http.kubecost:{{ .Values.thanos.query.http.port }} # an address of the thanos query endpoint, if different from installed thanos
+    # queryService: http://thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
     # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
+    # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
     # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
 
   grafana:
@@ -97,6 +100,8 @@ kubecostModel:
   warmCache: true
   warmSavingsCache: true
   etl: true
+  # The total number of days the ETL storage will build
+  etlStoreDurationDays: 120
   maxQueryConcurrency: 5
   # utcOffset represents a timezone in hours and minutes east (+) or west (-)
   # of UTC, itself, which is defined as +00:00.
@@ -127,12 +132,16 @@ ingress:
 nodeSelector: {}
 
 tolerations: []
+#  - key: "key"
+#    operator: "Equal|Exists"
+#    value: "value"
+#    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
 affinity: {}
 
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
-  enabled: true
+  enabled: false
   # value: 1000000
 
 # If true, enable creation of NetworkPolicy resources.
@@ -145,6 +154,7 @@ podSecurityPolicy:
 # Define persistence volume for cost-analyzer
 persistentVolume:
   size: 0.2Gi
+  dbSize: 32.0Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
   # storageClass: "-" #
   # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
@@ -153,6 +163,7 @@ service:
   type: ClusterIP
   port: 9090
   targetPort: 9090
+  # nodePort:
   labels: {}
   annotations: {}
 
@@ -196,6 +207,14 @@ prometheus:
     # This overrides the cluster_id set in prometheus.server.global.external_labels.
     # NOTE: This does not affect the external_labels set in prometheus config.
     # clusterIDConfigmap: cluster-id-configmap
+    
+    resources: {}
+    # limits:
+    #   cpu: 500m
+    #   memory: 512Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 512Mi
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
@@ -208,6 +227,11 @@ prometheus:
     extraArgs:
       query.max-concurrency: 1
       query.max-samples: 100000000
+    tolerations: []
+    #  - key: "key"
+    #    operator: "Equal|Exists"
+    #    value: "value"
+    #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
   alertmanager:
     # enabled: false
     persistentVolume:
@@ -277,8 +301,11 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.4
+  image: gcr.io/kubecost1/kubecost-network-costs:v13.6
   imagePullPolicy: Always
+  # Traffic Logging will enable logging the top 5 destinations for each source
+  # every 30 minutes. 
+  trafficLogging: true
   # Port will set both the containerPort and hostPort to this value. 
   # These must be identical due to network-costs being run on hostNetwork
   port: 3001
@@ -453,7 +480,7 @@ kubecostProductConfigs:
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
 #  masterPayerARN: ""
-#  projectID: "123456789"  # Also known as AccountID on AWS-- the current account/project that this instance of ubecost is deployed on.
+#  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
 #  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
@@ -488,8 +515,8 @@ kubecostProductConfigs:
 #  defaultIdle: false
 #  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret 
 #  createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
-#  sharedNamespaces: ""
-#  productKey: # apply business or enterprise product license. Supply as plaintext (this is never used to access your data) or as an existing secret
+#  sharedNamespaces: "" # namespaces with shared workloads, example value: "kube-system\,ingress-nginx\,kubecost\,monitoring"
+#  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
 #    secretname: productkeysecret # create a secret of format 
