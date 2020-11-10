@@ -520,4 +520,4 @@ serviceAccount:
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
-#    secretname: productkeysecret # create a secret of format 
+#    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
