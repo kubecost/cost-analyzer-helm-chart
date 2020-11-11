@@ -67,6 +67,16 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- if .Values.kubecostProductConfigs }}
+        {{- if .Values.kubecostProductConfigs.productKey }}
+        {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+        - name: productkey-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
+            items:
+            - key: productkey.json
+              path: productkey.json
+        {{- end }}
+        {{- end -}}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
           secret:
@@ -222,6 +232,12 @@ spec:
               mountPath: /var/db
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+            - name: productkey-secret
+              mountPath: /var/configs/productkey
+            {{- end }}
+            {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
               mountPath: /models
@@ -359,7 +375,7 @@ spec:
             - name: PRODUCT_ANALYTICS_ENABLED
               value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
-              value: {{ (quote .Values.reporting.errorReprting ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.errorReporting ) | default (quote true) }}
             - name: VALUES_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.valuesReporting) | default (quote true) }}
             {{- if .Values.reporting.errorReporting }}
@@ -375,6 +391,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            - name : ETL_CLOUD_ASSETS_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
