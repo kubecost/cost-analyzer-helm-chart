@@ -1,5 +1,5 @@
-{{- if .Values.kubecostProductConfigs }}
-{{- if .Values.kubecostProductConfigs.alertConfigs.enabled }}
+{{- if .Values.alertConfigs }}
+{{- if .Values.alertConfigs.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,6 +7,6 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
-  alerts.json: '{{ toJson .Values.kubecostProductConfigs.alertConfigs }}'
+  alerts.json: '{{ toJson .Values.alertConfigs }}'
 {{- end -}}
 {{- end -}}
