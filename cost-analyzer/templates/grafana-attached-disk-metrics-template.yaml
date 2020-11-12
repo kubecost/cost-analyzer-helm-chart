@@ -18,7 +18,7 @@ metadata:
     {{- end }}
 data:
     attached-disks.json: |-
-{{ .Files.Get "attached-disks.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/attached-disks.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
