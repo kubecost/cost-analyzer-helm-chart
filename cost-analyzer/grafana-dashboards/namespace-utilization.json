@@ -1150,7 +1150,7 @@
 		]
 	},
 	"timezone":"browser",
-	"title":"Namespace utilization metrics",
-	"uid":"at-cost-analysis-namespace2",
+	"title": "Kubecost Namespace Utilization Metrics",
+	"uid": "kubecost-namespace-utilization",
 	"version":1
 }

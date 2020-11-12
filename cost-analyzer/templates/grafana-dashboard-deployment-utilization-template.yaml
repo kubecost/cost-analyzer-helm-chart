@@ -18,7 +18,7 @@ metadata:
     {{- end }}
 data:
     deployment-utilization.json: |-
-{{ .Files.Get "deployment-utilization.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/deployment-utilization.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

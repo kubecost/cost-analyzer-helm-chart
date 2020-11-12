@@ -1187,7 +1187,7 @@
     ]
   },
   "timezone": "",
-  "title": "Label costs & utilization",
-  "uid": "lWMhIA-ik",
+  "title": "Kubecost Label Cost & Utilization Metrics",
+  "uid": "kubecost-label-cost-utilization",
   "version": 2
 }

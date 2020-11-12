@@ -792,7 +792,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Pod cost & utilization metrics",
-  "uid": "at-cost-analysis-pod",
+  "title": "Kubecost Pod Cost & Utilization Metrics",
+  "uid": "kubecost-pod-utilization",
   "version": 1
 }

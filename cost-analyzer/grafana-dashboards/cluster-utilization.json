@@ -3467,7 +3467,7 @@
         ]
     },
     "timezone":"browser",
-    "title":"Cluster cost & utilization metrics",
-    "uid":"cluster-costs",
+    "title": "Kubecost Cluster Cost & Utilization Metrics",
+    "uid": "kubecost-cluster-utilization",
     "version":1
 }
