@@ -161,9 +161,9 @@ Return the appropriate apiVersion for podsecuritypolicy.
 
 {{/*
 Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
-will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map 
-is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the 
-map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the 
+will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map
+is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the
+map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the
 enabled only version to the output .r
 */}}
 {{- define "cost-analyzer.filter" -}}
