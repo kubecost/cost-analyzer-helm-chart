@@ -22,9 +22,38 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
   notifications:
-    slack: # Write to a webhook.
-      enabled: false # Allow kubecost to write to your slackbot.
-      webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # Example Webhook
+    alertConfigs:
+      enabled: true
+      frontendUrl: http://35.239.230.16:9090 # optional, used for linkbacks
+      slackWebhookUrl: https://hooks.slack.com/services/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 # optional, used for Slack alerts
+      globalAlertEmails:
+      - calvin@kubecost.com
+      - calvin+1@kubecost.com
+      alerts:
+        # Daily namespace budget alert on namespace `kubecost`
+      - type: budget # supported: budget, recurringUpdate
+        threshold: 0.1 # optional, required for budget alerts
+        window: daily # or 1d
+        aggregation: namespace
+        filter: kubecost
+        ownerContact: calvin+2@kubecost.com # optional, overrides globalAlertEmails default
+        # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
+      - type: budget
+        threshold: 0.1 # optional, required for budget alerts
+        window: daily # or 1d
+        aggregation: cluster
+        filter: cluster-one
+        # Recurring weekly update (weeklyUpdate alert)
+      - type: recurringUpdate
+        window: weekly # or 7d
+        aggregation: namespace
+        filter: '*'
+        # Recurring weekly namespace update on kubecost namespace
+      - type: recurringUpdate
+        window: weekly # or 7d
+        aggregation: namespace
+        filter: kubecost
+        ownerContact: calvin+2@kubecost.com # optional, overrides globalAlertEmails default
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
@@ -520,36 +549,3 @@ kubecostProductConfigs:
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
-
-alertConfigs:
-  enabled: true
-  frontendUrl: http://35.239.230.16:9090 # optional, used for linkbacks
-  slackWebhookUrl: https://hooks.slack.com/services/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 # optional, used for Slack alerts
-  globalAlertEmails:
-  - recipient@example.com
-  - additionalRecipient@example.com
-  alerts:
-    # Daily namespace budget alert on namespace `kubecost`
-  - type: budget # supported: budget, recurringUpdate
-    threshold: 100 # optional, required for budget alerts
-    window: daily # or 1d
-    aggregation: namespace
-    filter: kubecost
-    ownerContact: calvin@kubecost.com # optional, overrides globalAlertEmails default
-    # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
-  - type: budget
-    threshold: 999 # optional, required for budget alerts
-    window: daily # or 1d
-    aggregation: cluster
-    filter: cluster-one
-    # Recurring weekly update (weeklyUpdate alert)
-  - type: recurringUpdate
-    window: weekly # or 7d
-    aggregation: namespace
-    filter: '*'
-    # Recurring weekly namespace update on kubecost namespace
-  - type: recurringUpdate
-    window: weekly # or 7d
-    aggregation: namespace
-    filter: kubecost
-    ownerContact: calvin@kubecost.com # optional, overrides globalAlertEmails default
