@@ -534,7 +534,7 @@ kubecostProductConfigs:
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
-#  currencyCode: "USD" # offical support for USD, EUR, and CHF
+#  currencyCode: "USD" # offical support for USD, CAD, EUR, and CHF
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
