@@ -55,7 +55,7 @@ global:
         window: weekly # or 7d
         aggregation: namespace
         filter: kubecost
-        ownerContact:
+        ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
         - owner@example.com
         - owner2@example.com
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
