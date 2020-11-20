@@ -36,7 +36,9 @@ global:
         window: daily # or 1d
         aggregation: namespace
         filter: kubecost
-        ownerContact: thirdRecipient@example.com # optional, overrides globalAlertEmails default
+        ownerContact: # optional, overrides globalAlertEmails default
+        - owner@example.com
+        - owner2@example.com
         # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
       - type: budget
         threshold: 200.8 # optional, required for budget alerts
@@ -53,7 +55,9 @@ global:
         window: weekly # or 7d
         aggregation: namespace
         filter: kubecost
-        ownerContact: thisOverwritesThirdRecipient@example.com # ownerContact should be the same for the same namespace, otherwise last alert overwrites
+        ownerContact:
+        - owner@example.com
+        - owner2@example.com
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
