@@ -62,7 +62,7 @@ saml: # enterprise key required to use
         assertionvalues:
           - "readonly"
 
-imagePullSecrets:
+# imagePullSecrets:
 # - name: "image-pull-secret"
 
 kubecostChecks:
