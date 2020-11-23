@@ -63,7 +63,7 @@ saml: # enterprise key required to use
           - "readonly"
 
 imagePullSecrets:
-- name: "image-pull-secret"
+# - name: "image-pull-secret"
 
 kubecostChecks:
   enabled: true
