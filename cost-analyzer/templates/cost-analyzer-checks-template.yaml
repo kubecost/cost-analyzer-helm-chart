@@ -54,6 +54,10 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-alertmanager-endpoint
+        {{- if .Values.imagePullSecrets }}
+          imagePullSecrets:
+          {{ toYaml .Values.imagePullSecrets | indent 2 }}
+        {{- end }}
           restartPolicy: OnFailure
 {{- end -}}
 {{- end -}}

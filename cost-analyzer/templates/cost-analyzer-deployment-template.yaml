@@ -649,6 +649,10 @@ spec:
                   name: external-grafana-config-map
                   key: grafanaURL
             {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }} 
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
