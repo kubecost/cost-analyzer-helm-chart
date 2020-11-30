@@ -184,7 +184,7 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}          
+          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]

@@ -8,9 +8,9 @@ metadata:
     app: {{ template "kubecost.clusterControllerName" . }}
 ---
 #
-# NOTE: 
-# The following ClusterRole permissions are only created and assigned for the 
-# cluster controller feature. They will not be added to any clusters by default. 
+# NOTE:
+# The following ClusterRole permissions are only created and assigned for the
+# cluster controller feature. They will not be added to any clusters by default.
 #
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -70,7 +70,7 @@ rules:
       - events
       - services
     verbs:
-      - get 
+      - get
       - list
       - watch
   - apiGroups:
@@ -95,7 +95,7 @@ rules:
       - daemonsets
       - replicasets
     verbs:
-      - get 
+      - get
       - list
       - watch
       - create
@@ -131,9 +131,9 @@ rules:
       - get
       - list
       - watch
-  - apiGroups: 
+  - apiGroups:
       - storage.k8s.io
-    resources: 
+    resources:
       - storageclasses
     verbs:
       - get
@@ -256,19 +256,19 @@ spec:
         spec:
           type: object
           properties:
-            start: 
+            start:
               type: string
               format: date-time
             end:
               type: string
               format: date-time
-            repeat: 
+            repeat:
               type: string
               enum: [none, daily, weekly]
   additionalPrinterColumns:
   - name: State
     type: string
-    description: The state of the turndownschedule 
+    description: The state of the turndownschedule
     JSONPath: .status.state
   - name: Next Turndown
     type: string
