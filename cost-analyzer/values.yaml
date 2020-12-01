@@ -23,7 +23,7 @@ global:
 
   notifications:
     # Kubecost alerting configuration
-    # Ref: https://github.com/kubecost/docs/blob/master/alerts.md
+    # Ref: http://docs.kubecost.com/alerts
     alertConfigs:
       enabled: false # the example values below are never read unless enabled is set to true
       frontendUrl: http://localhost:9090 # optional, used for linkbacks
