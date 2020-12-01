@@ -22,6 +22,8 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
   notifications:
+    # Kubecost alerting configuration
+    # Ref: https://github.com/kubecost/docs/blob/master/alerts.md
     alertConfigs:
       enabled: false # the example values below are never read unless enabled is set to true
       frontendUrl: http://localhost:9090 # optional, used for linkbacks
