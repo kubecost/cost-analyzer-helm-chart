@@ -62,6 +62,9 @@ saml: # enterprise key required to use
         assertionvalues:
           - "readonly"
 
+# imagePullSecrets:
+# - name: "image-pull-secret"
+
 kubecostChecks:
   enabled: true
   image: "quay.io/kubecost1/checks"
