@@ -14,6 +14,7 @@ metadata:
     {{- if .Values.rbac.pspUseAppArmor }}
     apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
     apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
+    {{- end}}
     
 spec:
   privileged: false
