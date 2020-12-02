@@ -1,0 +1,12 @@
+{{- if .Values.global.notifications.alertConfigs }}
+{{- if .Values.global.notifications.alertConfigs.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alert-configs
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  alerts.json: '{{ toJson .Values.global.notifications.alertConfigs }}'
+{{- end -}}
+{{- end -}}

@@ -22,9 +22,44 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
   notifications:
-    slack: # Write to a webhook.
-      enabled: false # Allow kubecost to write to your slackbot.
-      webhook: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # Example Webhook
+    # Kubecost alerting configuration
+    # Ref: http://docs.kubecost.com/alerts
+    alertConfigs:
+      enabled: false # the example values below are never read unless enabled is set to true
+      frontendUrl: http://localhost:9090 # optional, used for linkbacks
+      slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
+      globalAlertEmails:
+      - recipient@example.com
+      - additionalRecipient@example.com
+      alerts:
+        # Daily namespace budget alert on namespace `kubecost`
+      - type: budget # supported: budget, recurringUpdate
+        threshold: 50 # optional, required for budget alerts
+        window: daily # or 1d
+        aggregation: namespace
+        filter: kubecost
+        ownerContact: # optional, overrides globalAlertEmails default
+        - owner@example.com
+        - owner2@example.com
+        # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
+      - type: budget
+        threshold: 200.8 # optional, required for budget alerts
+        window: daily # or 1d
+        aggregation: cluster
+        filter: cluster-one
+        # Recurring weekly update (weeklyUpdate alert)
+      - type: recurringUpdate
+        window: weekly # or 7d
+        aggregation: namespace
+        filter: '*'
+        # Recurring weekly namespace update on kubecost namespace
+      - type: recurringUpdate
+        window: weekly # or 7d
+        aggregation: namespace
+        filter: kubecost
+        ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
+        - owner@example.com
+        - owner2@example.com
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
@@ -508,7 +543,7 @@ serviceAccount:
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
-#  currencyCode: "USD" # offical support for USD, EUR, and CHF
+#  currencyCode: "USD" # offical support for USD, CAD, EUR, and CHF
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
