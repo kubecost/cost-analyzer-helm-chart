@@ -1360,7 +1360,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Deployment/Statefulset/Daemonset utilization metrics",
-  "uid": "deployment-metrics",
+  "title": "Kubecost Deployment/Statefulset/Daemonset Utilization Metrics",
+  "uid": "kubecost-deployment-utilization",
   "version": 1
 }

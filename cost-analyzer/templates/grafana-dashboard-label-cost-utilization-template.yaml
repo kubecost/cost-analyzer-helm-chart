@@ -18,7 +18,7 @@ metadata:
     {{- end }}
 data:
     label-cost-utilization.json: |-
-{{ .Files.Get "label-cost-utilization.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/label-cost-utilization.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

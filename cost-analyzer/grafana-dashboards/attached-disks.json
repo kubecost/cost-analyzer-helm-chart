@@ -419,7 +419,7 @@
     ]
   },
   "timezone": "",
-  "title": "Attached disk metrics",
-  "uid": "nBH7qBgMk",
+  "title": "Kubecost Attached Disks Metrics",
+  "uid": "kubecost-attached-disks",
   "version": 2
 }

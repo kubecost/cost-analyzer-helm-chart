@@ -1364,7 +1364,7 @@
 		]
 	},
 	"timezone":"",
-	"title":"Node utilization metrics",
-	"uid":"NUQW37Lmk",
+	"title": "Kubecost Node Utilization Metrics",
+	"uid": "kubecost-node-utilization",
 	"version":1
 }

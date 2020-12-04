@@ -1657,7 +1657,7 @@
     ]
   },
   "timezone": "",
-  "title": "Kubecost cluster metrics",
-  "uid": "JOUdHGZZz",
+  "title": "Kubecost Cluster Metrics",
+  "uid": "kubecost-cluster-metrics",
   "version": 20
 }
