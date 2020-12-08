@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.compact.enabled }}
 apiVersion: v1
 kind: Service
@@ -26,3 +27,4 @@ spec:
     app.kubernetes.io/component: compact
 {{ with .Values.compact.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{ end}}
+{{ end }}

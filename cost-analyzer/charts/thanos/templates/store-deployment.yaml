@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.store.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -117,3 +118,4 @@ spec:
       serviceAccountName: "{{ . }}"
       {{- end }}
 {{- end }}
+{{ end }}

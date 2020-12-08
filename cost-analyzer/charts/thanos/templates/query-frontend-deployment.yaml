@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.queryFrontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -117,4 +118,5 @@ spec:
       {{- with  .Values.queryFrontend.serviceAccount }}
       serviceAccountName: "{{ . }}"
       {{- end }}
+{{ end }}
 {{ end }}

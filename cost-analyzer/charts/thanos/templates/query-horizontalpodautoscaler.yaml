@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if .Values.query.enabled }}
 {{- if .Values.query.autoscaling.enabled }}
 apiVersion: autoscaling/v2beta1
@@ -33,3 +34,4 @@ spec:
 {{- end }}
 {{- end }}
 {{- end }}
+{{ end }}

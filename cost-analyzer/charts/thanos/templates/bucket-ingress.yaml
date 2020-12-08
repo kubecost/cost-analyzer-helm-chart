@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if and .Values.bucket.enabled .Values.bucket.http.ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -37,4 +38,5 @@ spec:
             serviceName: {{ include "thanos.componentname" (list $ "bucket") }}
             servicePort: {{ $.Values.bucket.http.port }}
   {{- end }}
+{{ end }}
 {{ end }}
