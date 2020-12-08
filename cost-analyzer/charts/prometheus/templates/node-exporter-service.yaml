@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.nodeExporter.enabled -}}
 apiVersion: v1
 kind: Service
@@ -42,3 +43,4 @@ spec:
     {{- include "prometheus.nodeExporter.matchLabels" . | nindent 4 }}
   type: "{{ .Values.nodeExporter.service.type }}"
 {{- end -}}
+{{ end }}

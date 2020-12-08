@@ -1,3 +1,4 @@
+{{ if .Values.global.grafana.enabled }}
 {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -22,3 +23,4 @@ spec:
       storage: {{ .Values.persistence.size | quote }}
   storageClassName: {{ .Values.persistence.storageClassName }}
 {{- end -}}
+{{ end }}

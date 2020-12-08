@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if not .Values.alertmanager.statefulSet.enabled -}}
 {{- if and .Values.alertmanager.enabled .Values.alertmanager.persistentVolume.enabled -}}
 {{- if not .Values.alertmanager.persistentVolume.existingClaim -}}
@@ -30,3 +31,4 @@ spec:
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{ end }}

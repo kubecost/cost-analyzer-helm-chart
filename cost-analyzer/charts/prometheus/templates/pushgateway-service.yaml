@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.pushgateway.enabled -}}
 apiVersion: v1
 kind: Service
@@ -38,3 +39,4 @@ spec:
     {{- include "prometheus.pushgateway.matchLabels" . | nindent 4 }}
   type: "{{ .Values.pushgateway.service.type }}"
 {{- end }}
+{{ end }}

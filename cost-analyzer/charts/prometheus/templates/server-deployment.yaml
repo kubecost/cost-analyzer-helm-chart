@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 {{- if not .Values.server.statefulSet.enabled -}}
 apiVersion: {{ template "prometheus.deployment.apiVersion" . }}
@@ -212,3 +213,4 @@ spec:
       {{- end }}
 {{- end -}}
 {{- end -}}
+{{ end }}
