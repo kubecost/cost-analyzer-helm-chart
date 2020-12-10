@@ -60,9 +60,31 @@ global:
         ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
         - owner@example.com
         - owner2@example.com
+
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
+
+  # TODO: Documentation
+  savedReports: # Set saved report(s) in reports.html
+    enabled: true # If true, overwrites UI to save a report
+    reports:
+      - title: "Saved Report"
+        window: "6d" # supported: TODO (figure out custom dates), document options
+        aggregateBy: "namespace" # aka breakdown in the UI
+        idle: "separate" # aka idle costs in UI
+        accumulate: false # aka resolution in UI
+        filters:
+          - property: "namespace" # supported filter options: TODO
+            value: "kube*" # supports wildcard and multiple comma separated values
+          - property: "cluster"
+            value: "cluster-one"
+      - title: "Saved Report 2"
+        window: "daily" # supported: TODO (figure out custom dates), document options
+        aggregateBy: "namespace" # aka breakdown in the UI
+        idle: "separate" # aka idle costs in UI
+        accumulate: false # aka resolution in UI
+        filters: [] # if no filters, need to specify empty array
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
