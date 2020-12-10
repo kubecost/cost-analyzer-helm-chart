@@ -67,7 +67,7 @@ global:
 
   # TODO: Documentation
   savedReports: # Set saved report(s) in reports.html
-    enabled: true # If true, overwrites UI to save a report
+    enabled: false # If true, overwrites UI to save a report
     reports:
       - title: "Saved Report"
         window: "6d" # supported: TODO (figure out custom dates), document options
