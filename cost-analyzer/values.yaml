@@ -29,62 +29,73 @@ global:
       frontendUrl: http://localhost:9090 # optional, used for linkbacks
       slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
       globalAlertEmails:
-      - recipient@example.com
-      - additionalRecipient@example.com
+        - recipient@example.com
+        - additionalRecipient@example.com
       alerts:
-        # Daily namespace budget alert on namespace `kubecost`
-      - type: budget # supported: budget, recurringUpdate
-        threshold: 50 # optional, required for budget alerts
-        window: daily # or 1d
-        aggregation: namespace
-        filter: kubecost
-        ownerContact: # optional, overrides globalAlertEmails default
-        - owner@example.com
-        - owner2@example.com
-        # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
-      - type: budget
-        threshold: 200.8 # optional, required for budget alerts
-        window: daily # or 1d
-        aggregation: cluster
-        filter: cluster-one
-        # Recurring weekly update (weeklyUpdate alert)
-      - type: recurringUpdate
-        window: weekly # or 7d
-        aggregation: namespace
-        filter: '*'
-        # Recurring weekly namespace update on kubecost namespace
-      - type: recurringUpdate
-        window: weekly # or 7d
-        aggregation: namespace
-        filter: kubecost
-        ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
-        - owner@example.com
-        - owner2@example.com
+          # Daily namespace budget alert on namespace `kubecost`
+        - type: budget # supported: budget, recurringUpdate
+          threshold: 50 # optional, required for budget alerts
+          window: daily # or 1d
+          aggregation: namespace
+          filter: kubecost
+          ownerContact: # optional, overrides globalAlertEmails default
+            - owner@example.com
+            - owner2@example.com
+          # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
+        - type: budget
+          threshold: 200.8 # optional, required for budget alerts
+          window: daily # or 1d
+          aggregation: cluster
+          filter: cluster-one
+          # Recurring weekly update (weeklyUpdate alert)
+        - type: recurringUpdate
+          window: weekly # or 7d
+          aggregation: namespace
+          filter: '*'
+          # Recurring weekly namespace update on kubecost namespace
+        - type: recurringUpdate
+          window: weekly # or 7d
+          aggregation: namespace
+          filter: kubecost
+          ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
+            - owner@example.com
+            - owner2@example.com
 
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
 
-  # TODO: Documentation
-  savedReports: # Set saved report(s) in reports.html
-    enabled: false # If true, overwrites UI to save a report
+   # Set saved report(s) accessible from reports.html
+   # Ref: http://docs.kubecost.com/saved-reports
+  savedReports:
+    enabled: false # If true, overwrites report parameters set through UI
     reports:
-      - title: "Saved Report"
-        window: "6d" # supported: TODO (figure out custom dates), document options
-        aggregateBy: "namespace" # aka breakdown in the UI
-        idle: "separate" # aka idle costs in UI
-        accumulate: false # aka resolution in UI
+      - title: "Example Saved Report 0"
+        window: "today"
+        aggregateBy: "namespace"
+        idle: "separate"
+        accumulate: false # daily resolution
         filters:
-          - property: "namespace" # supported filter options: TODO
-            value: "kube*" # supports wildcard and multiple comma separated values
           - property: "cluster"
-            value: "cluster-one"
-      - title: "Saved Report 2"
-        window: "daily" # supported: TODO (figure out custom dates), document options
-        aggregateBy: "namespace" # aka breakdown in the UI
-        idle: "separate" # aka idle costs in UI
-        accumulate: false # aka resolution in UI
-        filters: [] # if no filters, need to specify empty array
+            value: "cluster-one,cluster*" # supports wildcard filtering and multiple comma separated values
+          - property: "namespace"
+            value: "kubecost"
+      - title: "Example Saved Report 1"
+        window: "month"
+        aggregateBy: "controllerKind"
+        idle: "share"
+        accumulate: false
+        filters:
+          - property: "label"
+            value: "app:cost*,environment:kube*"
+          - property: "namespace"
+            value: "kubecost"
+      - title: "Example Saved Report 2"
+        window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
+        aggregateBy: "service"
+        idle: "hide"
+        accumulate: true # entire window resolution
+        filters: [] # if no filters, specify empty array
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
