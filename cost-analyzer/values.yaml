@@ -27,39 +27,41 @@ global:
     alertConfigs:
       enabled: false # the example values below are never read unless enabled is set to true
       frontendUrl: http://localhost:9090 # optional, used for linkbacks
-      slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
+      globalSlackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
       globalAlertEmails:
-      - recipient@example.com
-      - additionalRecipient@example.com
+        - recipient@example.com
+        - additionalRecipient@example.com
       alerts:
-        # Daily namespace budget alert on namespace `kubecost`
-      - type: budget # supported: budget, recurringUpdate
-        threshold: 50 # optional, required for budget alerts
-        window: daily # or 1d
-        aggregation: namespace
-        filter: kubecost
-        ownerContact: # optional, overrides globalAlertEmails default
-        - owner@example.com
-        - owner2@example.com
-        # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
-      - type: budget
-        threshold: 200.8 # optional, required for budget alerts
-        window: daily # or 1d
-        aggregation: cluster
-        filter: cluster-one
-        # Recurring weekly update (weeklyUpdate alert)
-      - type: recurringUpdate
-        window: weekly # or 7d
-        aggregation: namespace
-        filter: '*'
-        # Recurring weekly namespace update on kubecost namespace
-      - type: recurringUpdate
-        window: weekly # or 7d
-        aggregation: namespace
-        filter: kubecost
-        ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
-        - owner@example.com
-        - owner2@example.com
+          # Daily namespace budget alert on namespace `kubecost`
+        - type: budget # supported: budget, recurringUpdate
+          threshold: 50 # optional, required for budget alerts
+          window: daily # or 1d
+          aggregation: namespace
+          filter: kubecost
+          ownerContact: # optional, overrides globalAlertEmails default
+            - owner@example.com
+            - owner2@example.com
+          slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for alert-specific Slack alerts
+          # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
+        - type: budget
+          threshold: 200.8 # optional, required for budget alerts
+          window: daily # or 1d
+          aggregation: cluster
+          filter: cluster-one
+          # Recurring weekly update (weeklyUpdate alert)
+        - type: recurringUpdate
+          window: weekly # or 7d
+          aggregation: namespace
+          filter: '*'
+          # Recurring weekly namespace update on kubecost namespace
+        - type: recurringUpdate
+          window: weekly # or 7d
+          aggregation: namespace
+          filter: kubecost
+          ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
+            - owner@example.com
+            - owner2@example.com
+            
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
