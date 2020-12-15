@@ -466,6 +466,9 @@ serviceAccount:
   annotations: {}
   # name: kc-test
 
+
+readonly: true # disable updates to kubecost from the frontend UI and via POST request
+
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
