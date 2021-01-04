@@ -305,6 +305,8 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            - name: GODEBUG
+              value: "madvdontneed=1"
             {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
             - name: MC_BASIC_AUTH_USERNAME
               valueFrom:
