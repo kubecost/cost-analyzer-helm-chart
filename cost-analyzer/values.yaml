@@ -130,6 +130,12 @@ saml: # enterprise key required to use
         assertionvalues:
           - "readonly"
 
+systemProxy:
+  enabled: true
+  useHttps: true
+  proxyIP: "127.0.0.1"
+  proxyPort: "8888"
+
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
