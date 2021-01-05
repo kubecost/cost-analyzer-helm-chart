@@ -131,8 +131,8 @@ saml: # enterprise key required to use
           - "readonly"
 
 systemProxy:
-  enabled: true
-  useHttps: true
+  enabled: false
+  useHttps: false
   proxyIP: "127.0.0.1"
   proxyPort: "8888"
 
