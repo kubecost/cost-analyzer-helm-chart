@@ -44,6 +44,8 @@ spec:
           value: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
         - name: TRAFFIC_LOGGING_ENABLED
           value: {{ (quote .Values.networkCosts.trafficLogging) | default (quote true) }}
+        - name: GODEBUG
+          value: "madvdontneed=1"
         volumeMounts:
         {{- if .Values.networkCosts.hostProc }}
         - mountPath: {{ .Values.networkCosts.hostProc.mountPath }}

@@ -135,6 +135,14 @@ saml: # enterprise key required to use
         assertionvalues:
           - "readonly"
 
+# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true` for `useHttps` to have any effect.
+# Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+systemProxy:
+  enabled: false
+  useHttps: false
+  proxyIP: "127.0.0.1"
+  proxyPort: "8888"
+
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
@@ -377,7 +385,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.7
+  image: gcr.io/kubecost1/kubecost-network-costs:v14.0
   imagePullPolicy: Always
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes. 
@@ -471,7 +479,8 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+# initChownDataImage ensures all Kubecost filepath permissions on PV or local storage are set up correctly.
+initChownDataImage: "busybox" # Supports a fully qualified Docker image, e.g. registry.hub.docker.com/library/busybox:latest
 initChownData:
   resources: {}
     #requests:

@@ -305,6 +305,8 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            - name: GODEBUG
+              value: "madvdontneed=1"
             {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
             - name: MC_BASIC_AUTH_USERNAME
               valueFrom:
@@ -402,6 +404,13 @@ spec:
             {{- if .Values.kubecostModel.etlStoreDurationDays }}
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
+            {{- end }}
+            {{- if and .Values.systemProxy.enabled (not .Values.systemProxy.useHttps) }}
+            - name: HTTP_PROXY
+              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
+            {{- else if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
+            - name: HTTPS_PROXY
+              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
             {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}

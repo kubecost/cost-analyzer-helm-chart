@@ -65,6 +65,8 @@ thanos:
     extraEnv:
       - name: GOGC
         value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
     resources: 
       requests:
         memory: "2.5Gi"
@@ -82,6 +84,8 @@ thanos:
     extraEnv:
       - name: GOGC
         value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
 
   # Thanos Query Frontend
   queryFrontend:
@@ -97,6 +101,11 @@ thanos:
       maxSizeItems: 0
       # The expiry duration for the cache.
       validity: 2m
+    extraEnv:
+      - name: GOGC
+        value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
     resources:
       requests:
         memory: "1.5Gi"
