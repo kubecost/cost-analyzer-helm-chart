@@ -58,8 +58,8 @@ global:
           window: weekly # or 7d
           aggregation: namespace
           filter: kubecost
-          # Cost Change Alert
-        - type: costChange  # change relative to moving avg
+          # Spend Change Alert
+        - type: spendChange  # change relative to moving avg
           relativeThreshold: 0.20  # Proportional change relative to baseline. Must be greater than -1 (can be negative)
           window: 1d                # accepts ‘d’, ‘h’
           baselineWindow: 30d       # previous window, offset by window
