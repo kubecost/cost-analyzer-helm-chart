@@ -33,7 +33,7 @@ global:
         - additionalRecipient@example.com
       alerts:
           # Daily namespace budget alert on namespace `kubecost`
-        - type: foo # supported: budget, recurringUpdate
+        - type: budget # supported: budget, recurringUpdate
           threshold: 50 # optional, required for budget alerts
           window: daily # or 1d
           aggregation: namespace
@@ -45,7 +45,7 @@ global:
           # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
         - type: budget
           threshold: 200.8 # optional, required for budget alerts
-          window: bar # or 1d
+          window: daily # or 1d
           aggregation: cluster
           filter: cluster-one # does not accept csv
           # Recurring weekly update (weeklyUpdate alert)
