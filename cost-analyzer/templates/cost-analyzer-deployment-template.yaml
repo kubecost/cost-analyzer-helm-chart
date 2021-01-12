@@ -373,11 +373,17 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_POD_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
+            - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
-              value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
             - name: PRODUCT_ANALYTICS_ENABLED
-              value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.productAnalytics) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReporting ) | default (quote true) }}
             - name: VALUES_REPORTING_ENABLED
