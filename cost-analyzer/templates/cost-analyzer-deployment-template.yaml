@@ -488,6 +488,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+            - name: CUSTOM_ALERTS_ENABLED
+              value: {{ .Values.global.notifications.alertConfigs.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.imageVersion}}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
