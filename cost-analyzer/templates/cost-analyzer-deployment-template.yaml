@@ -305,6 +305,8 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            - name: GODEBUG
+              value: "madvdontneed=1"
             {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
             - name: MC_BASIC_AUTH_USERNAME
               valueFrom:
@@ -371,11 +373,17 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_POD_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
+            - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
-              value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
             - name: PRODUCT_ANALYTICS_ENABLED
-              value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.productAnalytics) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReporting ) | default (quote true) }}
             - name: VALUES_REPORTING_ENABLED
@@ -402,6 +410,13 @@ spec:
             {{- if .Values.kubecostModel.etlStoreDurationDays }}
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
+            {{- end }}
+            {{- if and .Values.systemProxy.enabled (not .Values.systemProxy.useHttps) }}
+            - name: HTTP_PROXY
+              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
+            {{- else if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
+            - name: HTTPS_PROXY
+              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
             {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
@@ -488,6 +503,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+            - name: CUSTOM_ALERTS_ENABLED
+              value: {{ (quote .Values.global.notifications.alertConfigs.enabled) | default (quote false) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.imageVersion}}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
