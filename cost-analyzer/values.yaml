@@ -25,24 +25,26 @@ global:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
     # alertConfigs:
-    #   enabled: true # the example values below are never read unless enabled is set to true
-    #   frontendUrl: http://35.239.230.16:9090/ # optional, used for linkbacks
-    #   globalSlackWebhookUrl: https://hooks.slack.com/services/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 # optional, used for Slack alerts
+    #   enabled: false # the example values below are never read unless enabled is set to true
+    #   frontendUrl: http://localhost:9090 # optional, used for linkbacks
+    #   globalSlackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
     #   globalAlertEmails:
-    #     - calvin@kubecost.com
+    #     - recipient@example.com
+    #     - additionalRecipient@example.com
     #   alerts:
     #       # Daily namespace budget alert on namespace `kubecost`
     #     - type: budget # supported: budget, recurringUpdate
-    #       threshold: 0.1 # optional, required for budget alerts
+    #       threshold: 50 # optional, required for budget alerts
     #       window: daily # or 1d
     #       aggregation: namespace
     #       filter: kubecost
     #       ownerContact: # optional, overrides globalAlertEmails default
-    #         - calvin+1@kubecost.com
-    #       slackWebhookUrl: https://hooks.slack.com/services/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 # optional, used for alert-specific Slack alerts
+    #         - owner@example.com
+    #         - owner2@example.com
+    #       slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for alert-specific Slack alerts
     #       # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
     #     - type: budget
-    #       threshold: 0.1 # optional, required for budget alerts
+    #       threshold: 200.8 # optional, required for budget alerts
     #       window: daily # or 1d
     #       aggregation: cluster
     #       filter: cluster-one # does not accept csv
@@ -58,7 +60,7 @@ global:
     #       filter: kubecost
     #       # Spend Change Alert
     #     - type: spendChange  # change relative to moving avg
-    #       relativeThreshold: -0.20  # Proportional change relative to baseline. Must be greater than -1 (can be negative)
+    #       relativeThreshold: 0.20  # Proportional change relative to baseline. Must be greater than -1 (can be negative)
     #       window: 1d                # accepts ‘d’, ‘h’
     #       baselineWindow: 30d       # previous window, offset by window
     #       aggregation: namespace
