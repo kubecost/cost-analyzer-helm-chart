@@ -17,6 +17,10 @@ prometheus:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
       storage.tsdb.retention: 2w
+    securityContext:
+      fsGroup: 2000
+      runAsNonRoot: true
+      runAsUser: 1000
     extraVolumes:
     - name: object-store-volume
       secret:
@@ -26,6 +30,10 @@ prometheus:
     sidecarContainers:
     - name: thanos-sidecar
       image: thanosio/thanos:v0.15.0
+      securityContext:
+        fsGroup: 2000
+        runAsNonRoot: true
+        runAsUser: 1000
       args:
       - sidecar
       - --log.level=debug
