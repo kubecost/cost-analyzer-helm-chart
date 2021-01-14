@@ -80,6 +80,12 @@ spec:
         - name: config-volume
           mountPath: /etc/config
           readOnly: true
+        {{- if .Values.store.selfsignedCACertConfigMap }}
+        - name: {{ .Values.store.selfsignedCertConfigMapName }}
+          mountPath: /etc/ssl/certs/my-cert.pem
+          subPath: my-cert.pem
+          readOnly: false
+        {{- end }}
         - name: data
           mountPath: /var/thanos/store
         {{- if .Values.store.certSecretName }}
@@ -95,6 +101,11 @@ spec:
       - name: config-volume
         secret:
           secretName: {{ include "thanos.secretname" . }}
+      {{- if .Values.store.selfsignedCertConfigMapName }}
+      - name: ca-pemstore
+        configMap:
+          name: {{ .Values.store.selfsignedCertConfigMapName }}
+      {{- end }}
       {{- if .Values.store.certSecretName }}
       - name: {{ .Values.store.certSecretName }}
         secret:
