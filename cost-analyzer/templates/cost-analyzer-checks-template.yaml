@@ -60,7 +60,6 @@ spec:
         {{- end }}
           restartPolicy: OnFailure
           securityContext:
-            fsGroup: 2000
             runAsNonRoot: true
             runAsUser: 1000
 {{- end -}}
