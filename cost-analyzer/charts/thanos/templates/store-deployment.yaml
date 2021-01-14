@@ -102,7 +102,7 @@ spec:
         secret:
           secretName: {{ include "thanos.secretname" . }}
       {{- if .Values.store.selfsignedCertConfigMapName }}
-      - name: ca-pemstore
+      - name: {{ .Values.store.selfsignedCertConfigMapName }}
         configMap:
           name: {{ .Values.store.selfsignedCertConfigMapName }}
       {{- end }}
