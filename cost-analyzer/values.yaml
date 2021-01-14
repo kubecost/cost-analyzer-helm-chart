@@ -479,7 +479,7 @@ prometheusRule:
   enabled: false
   additionalLabels: {}
 
-supportNFS: true
+supportNFS: false
 # initChownDataImage ensures all Kubecost filepath permissions on PV or local storage are set up correctly.
 initChownDataImage: "busybox" # Supports a fully qualified Docker image, e.g. registry.hub.docker.com/library/busybox:latest
 initChownData:
