@@ -19,7 +19,7 @@ prometheus:
       storage.tsdb.retention: 2w
     securityContext:
       runAsNonRoot: true
-      runAsUser: 1000
+      runAsUser: 1001
     extraVolumes:
     - name: object-store-volume
       secret:
@@ -31,7 +31,7 @@ prometheus:
       image: thanosio/thanos:v0.15.0
       securityContext:
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
       args:
       - sidecar
       - --log.level=debug

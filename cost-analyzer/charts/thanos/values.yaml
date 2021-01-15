@@ -114,9 +114,9 @@ store:
       #      - chart-example.local
   # Optional securityContext
   securityContext:
-    fsGroup: 2000
+    fsGroup: 1001
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 1001
 
   resources: {}
   #  limits:
@@ -270,9 +270,9 @@ queryFrontend:
 
   # Optional securityContext
   securityContext:
-    fsGroup: 2000
+    fsGroup: 1001
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 1001
 
   resources: {}
   #  limits:
@@ -433,9 +433,9 @@ query:
 
   # Optional securityContext
   securityContext:
-    fsGroup: 2000
+    fsGroup: 1001
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 1001
 
   resources: {}
   #  limits:
@@ -560,9 +560,9 @@ compact:
 
   # Optional securityContext
   securityContext:
-    fsGroup: 2000
+    fsGroup: 1001
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 1001
 
   resources: {}
   #  limits:
@@ -663,9 +663,9 @@ bucket:
 
   # Optional securityContext
   securityContext:
-    fsGroup: 2000
+    fsGroup: 1001
     runAsNonRoot: true
-    runAsUser: 1000
+    runAsUser: 1001
 
   resources: {}
   #  limits:
