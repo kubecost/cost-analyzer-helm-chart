@@ -1,3 +1,4 @@
+{{- if .Values.pushgateway.enabled -}}
 {{- if .Values.pushgateway.persistentVolume.enabled -}}
 {{- if not .Values.pushgateway.persistentVolume.existingClaim -}}
 apiVersion: v1
@@ -26,5 +27,6 @@ spec:
   resources:
     requests:
       storage: "{{ .Values.pushgateway.persistentVolume.size }}"
+{{- end -}}
 {{- end -}}
 {{- end -}}

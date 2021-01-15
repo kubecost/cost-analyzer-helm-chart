@@ -15,13 +15,34 @@ data:
     gzip_min_length 50000; 
     gzip_proxied expired no-cache no-store private auth;
     gzip_types 
-        text/plain 
-        text/css 
-        text/xml 
-        text/javascript 
-        application/x-javascript 
-        application/xml 
-        application/json;
+        application/atom+xml
+        application/geo+json
+        application/javascript
+        application/x-javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rdf+xml
+        application/rss+xml
+        application/vnd.ms-fontobject
+        application/wasm
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/eot
+        font/otf
+        font/ttf
+        image/bmp
+        image/svg+xml
+        text/cache-manifest
+        text/calendar
+        text/css
+        text/javascript
+        text/markdown
+        text/plain
+        text/xml
+        text/x-component
+        text/x-cross-domain-policy;
 
     upstream api {
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;

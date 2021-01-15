@@ -27,7 +27,7 @@ global:
     alertConfigs:
       enabled: false # the example values below are never read unless enabled is set to true
       frontendUrl: http://localhost:9090 # optional, used for linkbacks
-      slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
+      globalSlackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
       globalAlertEmails:
         - recipient@example.com
         - additionalRecipient@example.com
@@ -41,12 +41,13 @@ global:
           ownerContact: # optional, overrides globalAlertEmails default
             - owner@example.com
             - owner2@example.com
+          slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for alert-specific Slack alerts
           # Daily cluster budget alert (clusterCosts alert) on cluster `cluster-one`
         - type: budget
           threshold: 200.8 # optional, required for budget alerts
           window: daily # or 1d
           aggregation: cluster
-          filter: cluster-one
+          filter: cluster-one # does not accept csv
           # Recurring weekly update (weeklyUpdate alert)
         - type: recurringUpdate
           window: weekly # or 7d
@@ -57,10 +58,14 @@ global:
           window: weekly # or 7d
           aggregation: namespace
           filter: kubecost
-          ownerContact: # ownerContact(s) should be the same for the same namespace, otherwise the last namespace alert overwrites
-            - owner@example.com
-            - owner2@example.com
-
+          # Spend Change Alert
+        - type: spendChange  # change relative to moving avg
+          relativeThreshold: 0.20  # Proportional change relative to baseline. Must be greater than -1 (can be negative)
+          window: 1d                # accepts ‘d’, ‘h’
+          baselineWindow: 30d       # previous window, offset by window
+          aggregation: namespace
+          filter: kubecost, default # accepts csv
+            
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
@@ -129,6 +134,14 @@ saml: # enterprise key required to use
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+
+# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true` for `useHttps` to have any effect.
+# Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+systemProxy:
+  enabled: false
+  useHttps: false
+  proxyIP: "127.0.0.1"
+  proxyPort: "8888"
 
 # imagePullSecrets:
 # - name: "image-pull-secret"
@@ -224,7 +237,7 @@ podSecurityPolicy:
 
 # Define persistence volume for cost-analyzer
 persistentVolume:
-  size: 0.2Gi
+  size: 32Gi
   dbSize: 32.0Gi
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
   # storageClass: "-" #
@@ -363,7 +376,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v13.7
+  image: gcr.io/kubecost1/kubecost-network-costs:v14.0
   imagePullPolicy: Always
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes. 
@@ -457,7 +470,8 @@ prometheusRule:
   additionalLabels: {}
 
 supportNFS: true
-initChownDataImage: "busybox" # Supports a fully qualified Docker image eg: registry.hub.docker.com/library/busybox:latest.
+# initChownDataImage ensures all Kubecost filepath permissions on PV or local storage are set up correctly.
+initChownDataImage: "busybox" # Supports a fully qualified Docker image, e.g. registry.hub.docker.com/library/busybox:latest
 initChownData:
   resources: {}
     #requests:
