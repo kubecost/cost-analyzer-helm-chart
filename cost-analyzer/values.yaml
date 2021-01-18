@@ -194,8 +194,8 @@ kubecostModel:
   utcOffset: "+00:00"
   resources:
     requests:
-      cpu: "200m"
-      memory: "55Mi"
+      cpu: "1000m"
+      memory: "2Gi"
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
@@ -281,13 +281,13 @@ prometheus:
     # NOTE: This does not affect the external_labels set in prometheus config.
     # clusterIDConfigmap: cluster-id-configmap
     
-    resources: {}
+    resources:
     # limits:
     #   cpu: 500m
     #   memory: 512Mi
-    # requests:
-    #   cpu: 500m
-    #   memory: 512Mi
+      requests:
+        cpu: 2000m
+        memory: 12Gi
     global:
       scrape_interval: 1m
       scrape_timeout: 10s
