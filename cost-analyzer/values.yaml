@@ -181,6 +181,7 @@ kubecost:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  outOfClusterEnabled: false
   warmCache: true
   warmSavingsCache: true
   etl: true
