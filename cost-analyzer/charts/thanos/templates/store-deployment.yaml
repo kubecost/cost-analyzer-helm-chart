@@ -80,7 +80,7 @@ spec:
         - name: config-volume
           mountPath: /etc/config
           readOnly: true
-        {{- if .Values.store.selfsignedCACertConfigMap }}
+        {{- if .Values.store.selfsignedCertConfigMapName }}
         - name: {{ .Values.store.selfsignedCertConfigMapName }}
           mountPath: /etc/ssl/certs/my-cert.pem
           subPath: my-cert.pem
