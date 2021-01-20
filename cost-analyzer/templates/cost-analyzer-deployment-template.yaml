@@ -393,8 +393,8 @@ spec:
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
             {{- end }}
             {{- end }}
-            - name: OUT_OF_CLUSTER_ENABLED
-              value: {{ (quote .Values.kubecostModel.outOfClusterEnabled) | default (quote false) }}
+            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
+              value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
