@@ -181,6 +181,9 @@ kubecost:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # Enables the emission of the kubecost_cloud_credit_total and
+  # kubecost_cloud_expense_total metrics
+  outOfClusterPromMetricsEnabled: false
   warmCache: true
   warmSavingsCache: true
   etl: true
