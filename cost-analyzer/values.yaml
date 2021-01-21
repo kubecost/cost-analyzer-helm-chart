@@ -188,7 +188,7 @@ kubecostModel:
   warmSavingsCache: true
   etl: true
   # The total number of days the ETL storage will build
-  etlStoreDurationDays: 120
+  etlStoreDurationDays: 90
   maxQueryConcurrency: 5
   # utcOffset represents a timezone in hours and minutes east (+) or west (-)
   # of UTC, itself, which is defined as +00:00.
