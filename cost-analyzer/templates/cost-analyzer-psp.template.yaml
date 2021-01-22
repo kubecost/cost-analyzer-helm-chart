@@ -1,11 +1,9 @@
-{{- if .Values.podSecurityPolicy }}
-{{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
     name: kubecost-cost-analyzer-psp
 spec:
-    privileged: true
+    privileged: false
     seLinux:
         rule: RunAsAny
     supplementalGroups:
@@ -16,5 +14,3 @@ spec:
         rule: RunAsAny
     volumes:
         - '*'
-{{- end }}
-{{- end }}

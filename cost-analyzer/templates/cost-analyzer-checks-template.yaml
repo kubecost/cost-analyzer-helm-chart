@@ -59,5 +59,8 @@ spec:
           {{ toYaml .Values.imagePullSecrets | indent 2 }}
         {{- end }}
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
 {{- end -}}
 {{- end -}}
