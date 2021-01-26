@@ -212,7 +212,7 @@ grafana.ini:
     url: https://grafana.net
   auth.anonymous:
     enabled: true
-    org_role:  Admin
+    org_role:  Editor
     org_name: Main Org.
 
 ## LDAP Authentication can be enabled with the following values on grafana.ini
