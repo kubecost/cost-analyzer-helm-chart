@@ -120,7 +120,7 @@ thanos:
   # Disabling removes the prometheus sidecar from querier store discovery. This ensures
   # that all clusters read from the same data in remote store. 
   sidecar:
-    enabled: false
+    enabled: true
   bucket:
     enabled: false
   compact:
