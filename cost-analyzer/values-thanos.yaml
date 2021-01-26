@@ -117,6 +117,8 @@ thanos:
         memory: "1.5Gi"
 
   # Thanos Sidecar Service Discovery
+  # Disabling removes the prometheus sidecar from querier store discovery. This ensures
+  # that all clusters read from the same data in remote store. 
   sidecar:
     enabled: true
   bucket:
