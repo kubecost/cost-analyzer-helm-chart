@@ -69,6 +69,10 @@ spec:
 {{- if .Values.networkCosts.priorityClassName }}
       priorityClassName: "{{ .Values.networkCosts.priorityClassName }}"
 {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
 {{- if .Values.networkCosts.tolerations }}
       tolerations:
 {{ toYaml .Values.networkCosts.tolerations | indent 8 }}

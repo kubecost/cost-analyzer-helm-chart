@@ -393,6 +393,8 @@ spec:
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
             {{- end }}
             {{- end }}
+            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
+              value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
@@ -403,6 +405,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
+            - name: DIAGNOSTIC_ALERT_ENABLED
+              value: {{ (quote .Values.global.notifications.alertConfigs.kubecostHealth) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
@@ -470,6 +474,10 @@ spec:
             - name: AUDIENCE_URI
               value: {{ .Values.saml.audienceURI }}
             {{- end }}
+            {{- if .Values.saml.nameIDFormat }}
+            - name: NAME_ID_FORMAT
+              value: {{ .Values.saml.nameIDFormat }}
+            {{- end}}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"

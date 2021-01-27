@@ -58,6 +58,13 @@ spec:
           imagePullSecrets:
           {{ toYaml .Values.imagePullSecrets | indent 2 }}
         {{- end }}
+        {{- with .Values.nodeSelector }}
+          nodeSelector:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
           restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1001
 {{- end -}}
 {{- end -}}
