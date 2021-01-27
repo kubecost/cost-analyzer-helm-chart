@@ -185,11 +185,15 @@ kubecostModel:
   # Enables the emission of the kubecost_cloud_credit_total and
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
+  # Build local cost allocation cache
   warmCache: true
+  # Build local savings cache
   warmSavingsCache: true
+  # Run allocation ETL pipelines
   etl: true
   # The total number of days the ETL storage will build
   etlStoreDurationDays: 90
+  # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   # utcOffset represents a timezone in hours and minutes east (+) or west (-)
   # of UTC, itself, which is defined as +00:00.
@@ -204,6 +208,7 @@ kubecostModel:
     #  cpu: "800m"
     #  memory: "256Mi"
 
+# Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
   enabled: false
   annotations:
@@ -239,7 +244,7 @@ networkPolicy:
 podSecurityPolicy:
   enabled: false
 
-# Define persistence volume for cost-analyzer
+# Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
 persistentVolume:
   size: 32Gi
   dbSize: 32.0Gi
@@ -255,7 +260,7 @@ service:
   labels: {}
   annotations: {}
 
-# enabling long-term durable storage with Postgres requires an enterprise license
+# Enabling long-term durable storage with Postgres requires an enterprise license
 remoteWrite:
   postgres:
     enabled: false
@@ -385,6 +390,8 @@ prometheus:
             - expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
               record: kubecost_savings_pod_requests_memory_bytes
 
+## Module for measuring network costs
+## Ref: https://github.com/kubecost/docs/blob/master/network-allocation.md
 networkCosts:
   enabled: false
   podSecurityPolicy:
@@ -469,8 +476,10 @@ clusterController:
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
   # Ref: http://docs.kubecost.com/bug-report
-  logCollection: true 
-  productAnalytics: true 
+  logCollection: true
+  # Basic frontend analytics 
+  productAnalytics: true
+  # Report Javascript errors
   errorReporting: true
   valuesReporting: true
 
