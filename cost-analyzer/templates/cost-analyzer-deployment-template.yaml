@@ -417,10 +417,15 @@ spec:
             {{- end }}
             {{- if and .Values.systemProxy.enabled (not .Values.systemProxy.useHttps) }}
             - name: HTTP_PROXY
-              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
-            {{- else if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            {{- end }}
+            {{- if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
             - name: HTTPS_PROXY
-              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            {{- end }}
+            {{- if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
