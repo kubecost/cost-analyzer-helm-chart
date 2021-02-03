@@ -415,15 +415,11 @@ spec:
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
             {{- end }}
-            {{- if and .Values.systemProxy.enabled (not .Values.systemProxy.useHttps) }}
+            {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}
-            {{- end }}
-            {{- if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
             - name: HTTPS_PROXY
               value:  {{ .Values.systemProxy.httpsProxyUrl }}
-            {{- end }}
-            {{- if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
             - name: NO_PROXY
               value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
