@@ -8,6 +8,7 @@ metadata:
     name: kubecost-network-costs
 spec:
     privileged: true
+    hostNetwork: true
     seLinux:
         rule: RunAsAny
     supplementalGroups:
