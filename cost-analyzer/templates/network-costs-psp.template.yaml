@@ -9,9 +9,17 @@ metadata:
 spec:
     privileged: true
     hostNetwork: true
+    allowedHostPaths:
+    {{- if .Values.networkCosts.hostProc }}
+    - pathPrefix: {{ default "/proc" .Values.networkCosts.hostProc.hostPath }}
+      readOnly: false
+    {{- else }}
+    - pathPrefix: /proc
+      readOnly: false
+    {{- end }}    
     hostPorts:
-    - min: {{ .Values.networkCosts.port | default 3001 }}
-      max: {{ .Values.networkCosts.port | default 3001 }}
+    - min: 1
+      max: 65535
     seLinux:
         rule: RunAsAny
     supplementalGroups:
