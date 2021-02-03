@@ -9,6 +9,9 @@ metadata:
 spec:
     privileged: true
     hostNetwork: true
+    hostPorts:
+    - min: {{ .Values.networkCosts.port | default 3001 }}
+      max: {{ .Values.networkCosts.port | default 3001 }}
     seLinux:
         rule: RunAsAny
     supplementalGroups:
