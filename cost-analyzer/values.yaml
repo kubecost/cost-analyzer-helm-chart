@@ -137,7 +137,7 @@ saml: # enterprise key required to use
         assertionvalues:
           - "readonly"
 
-# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true` for `useHttps` to have any effect.
+# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
 systemProxy:
   enabled: false
