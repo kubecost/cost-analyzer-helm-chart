@@ -101,6 +101,10 @@ spec:
             items:
               - key: azure-storage-config.json
                 path: azure-storage-config.json
+        {{ - else if .Values.kubecostProductConfigs.azureStorageCreateSecret } }
+        - name: azure-storage-config
+          secret:
+            secretName: azure-storage-config
         {{ - end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters

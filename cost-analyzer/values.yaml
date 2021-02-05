@@ -617,6 +617,7 @@ serviceAccount:
 #  azureStorageAccessKey: ""
 #  azureStorageContainer: "test"
 #  azureStorageSecretName: "azure-storage-config" # store azure Storage variables in secret
+#  azureStorageCreateSecret: true
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
