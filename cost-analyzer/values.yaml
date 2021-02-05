@@ -613,6 +613,10 @@ serviceAccount:
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
 #  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
+#  azureStorageAccount: "kubecostazurestore"
+#  azureStorageAccessKey: ""
+#  azureStorageContainer: "test"
+#  azureStorageSecretName: "azure-storage-config" # store azure Storage variables in secret
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
