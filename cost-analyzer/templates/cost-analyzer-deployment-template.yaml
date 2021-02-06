@@ -94,18 +94,18 @@ spec:
           secret:
             secretName: cloud-service-key
         {{- end }}
-        {{ - if .Values.kubecostProductConfigs.azureStorageSecretName }}
+        {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
         - name: azure-storage-config
           secret:
             secretName: {{ .Values.kubecostProductConfigs.azureStorageSecretName }}
             items:
               - key: azure-storage-config.json
                 path: azure-storage-config.json
-        {{ - else if .Values.kubecostProductConfigs.azureStorageCreateSecret } }
+        {{- else if .Values.kubecostProductConfigs.azureStorageCreateSecret }}
         - name: azure-storage-config
           secret:
             secretName: azure-storage-config
-        {{ - end }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
           configMap:
@@ -254,10 +254,10 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{ - if .Values.kubecostProductConfigs.azureStorageSecretName }}
+            {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
             - name: azure-storage-config
               mountPath: /var/secrets
-            {{ - end }}
+            {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
               mountPath: /var/secrets
