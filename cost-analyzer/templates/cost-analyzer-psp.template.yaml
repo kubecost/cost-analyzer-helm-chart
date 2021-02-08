@@ -1,3 +1,5 @@
+{{- if .Values.podSecurityPolicy }}
+{{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
@@ -14,3 +16,5 @@ spec:
         rule: RunAsAny
     volumes:
         - '*'
+{{- end }}
+{{- end }}
