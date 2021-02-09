@@ -106,6 +106,7 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
+# Advanced pipeline for custom prices, enterprise key required
 pricingCsv:
   enabled: false
   location:
@@ -114,7 +115,9 @@ pricingCsv:
     URI: s3://kc-csv-test/pricing_schema.csv # a valid file URI
     csvAccessCredentials: pricing-schema-access-secret
 
-saml: # enterprise key required to use
+# SAML integration for user management and RBAC, enterprise key required
+# Ref: https://github.com/kubecost/docs/blob/master/user-management.md
+saml: 
   enabled: false
   secretName: "kubecost-authzero"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
@@ -148,6 +151,7 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
+# Manages Kubecost alerts
 kubecostChecks:
   enabled: true
   image: "quay.io/kubecost1/checks"
