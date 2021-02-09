@@ -431,12 +431,19 @@ spec:
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
             {{- end }}
-            {{- if and .Values.systemProxy.enabled (not .Values.systemProxy.useHttps) }}
+            {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
-              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
-            {{- else if and .Values.systemProxy.enabled .Values.systemProxy.useHttps }}
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
             - name: HTTPS_PROXY
-              value: "{{ required "missing proxy IP" .Values.systemProxy.proxyIP }}:{{ required "missing proxy port" .Values.systemProxy.proxyPort}}"
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
