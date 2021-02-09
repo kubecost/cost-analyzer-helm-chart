@@ -533,7 +533,7 @@ serviceAccount:
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-# kubecostProductConfigs:
+#kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
@@ -613,6 +613,11 @@ serviceAccount:
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
 #  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
+#  azureStorageAccount: "kubecoststore" # Name of Azure Storage account where cost report is being saved
+#  azureStorageAccessKey: "" # Azure Storage account access key found in Azure Storage portal for account where cost report is being saved
+#  azureStorageContainer: "test" # Name of daily month-to-date cost report for Azure
+#  azureStorageSecretName: "azure-storage-config" # Name of Kubernetes Secret where Azure Storage Configuration is stored
+#  azureStorageCreateSecret: true # Create secret for Azure Storage config from values in this file
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
