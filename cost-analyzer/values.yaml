@@ -10,7 +10,7 @@ global:
   # Durable storage option, product key required
   thanos:
     enabled: false
-    # queryService: http://thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
+    # queryService: http://kubecost-thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
     # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
     # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
     # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
