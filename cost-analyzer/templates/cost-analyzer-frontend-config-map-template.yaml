@@ -192,4 +192,8 @@ data:
             proxy_pass http://model/isAdminAuthenticated;
         }
     {{- end }}
+        location ~ ^/beta(/|/overview)?(/.*)?$ {
+            root /var/www;
+            try_files $2 /new_index.html;
+        }
     }
