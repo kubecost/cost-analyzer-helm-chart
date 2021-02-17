@@ -3,7 +3,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: kubecost-cost-analyzer-psp
+  name: {{ template "cost-analyzer.fullname" . }}-psp
   annotations:
 {{- if .Values.podSecurityPolicy.annotations }}
 {{ toYaml .Values.podSecurityPolicy.annotations | indent 4 }}
@@ -13,6 +13,6 @@ rules:
   resources: ['podsecuritypolicies']
   verbs: ['use']
   resourceNames:
-  - kubecost-cost-analyzer-psp
+  - {{ template "cost-analyzer.fullname" . }}-psp
 {{- end }}
 {{- end }}

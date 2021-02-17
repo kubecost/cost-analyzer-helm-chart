@@ -3,7 +3,7 @@
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
-    name: kubecost-cost-analyzer-psp
+    name: {{ template "cost-analyzer.fullname" . }}-psp
 spec:
     privileged: false
     seLinux:
