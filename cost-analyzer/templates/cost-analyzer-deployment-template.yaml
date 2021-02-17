@@ -26,6 +26,7 @@ spec:
     metadata:
       labels:
         {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
+        {{ toYaml .Values.global.additionalLabels | nindent 8 }}
 {{- if .Values.kubecostDeployment }}
 {{- with .Values.kubecostDeployment.labels }}
 {{ toYaml . | indent 8 }}
