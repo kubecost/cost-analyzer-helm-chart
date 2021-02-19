@@ -62,6 +62,10 @@ spec:
           nodeSelector:
           {{- toYaml . | nindent 12 }}
         {{- end }}
+        {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+        {{- end }}
           restartPolicy: OnFailure
           securityContext:
             runAsNonRoot: true
