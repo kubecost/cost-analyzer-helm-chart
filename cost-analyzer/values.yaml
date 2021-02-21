@@ -183,6 +183,8 @@ kubecost:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # Disable the legacy out of cluster costs API. Set enabled for very large cost and usage reports to see cached data on reports.html
+  legacyOutOfClusterAPIDisabled: false
   # Enables the emission of the kubecost_cloud_credit_total and
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
