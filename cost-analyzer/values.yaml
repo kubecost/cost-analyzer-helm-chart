@@ -106,6 +106,9 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
+# generated at http://kubecost.com/install, used for alerts tracking and free trials
+kubecostToken: # ""
+
 # Advanced pipeline for custom prices, enterprise key required
 pricingCsv:
   enabled: false
