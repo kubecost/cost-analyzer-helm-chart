@@ -6,6 +6,7 @@ metadata:
   name: cost-analyzer-checks
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{ toYaml .Values.kubecostChecks.additionalLabels | nindent 4 }}
 spec:
   {{- if .Values.kubecostChecks.debug }}
   schedule: "*/1 * * * *"
