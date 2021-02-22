@@ -256,7 +256,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
             - name: azure-storage-config
-              mountPath: /var/secrets
+              mountPath: /var/azure-storage-config
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
