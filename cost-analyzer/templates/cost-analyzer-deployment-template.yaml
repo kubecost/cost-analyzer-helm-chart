@@ -26,6 +26,9 @@ spec:
     metadata:
       labels:
         {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
+        {{- if .Values.global.additionalLabels }}
+        {{ toYaml .Values.global.additionalLabels | nindent 8 }}
+        {{- end }}
 {{- if .Values.kubecostDeployment }}
 {{- with .Values.kubecostDeployment.labels }}
 {{ toYaml . | indent 8 }}
@@ -256,7 +259,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
             - name: azure-storage-config
-              mountPath: /var/secrets
+              mountPath: /var/azure-storage-config
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
@@ -346,7 +349,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
-            {{- end }}
+            {{- end }}              
             {{- if .Values.global.prometheus.queryServiceBearerTokenSecretName }}
             - name: DB_BEARER_TOKEN
               valueFrom:
@@ -409,6 +412,8 @@ spec:
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
             {{- end }}
             {{- end }}
+            - name: LEGACY_EXTERNAL_API_DISABLED
+              value: {{ (quote .Values.kubecostModel.legacyOutOfClusterAPIDisabled) | default (quote false) }}
             - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
               value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED

@@ -16,6 +16,7 @@ spec:
     metadata:
       labels:
         app: {{ template "cost-analyzer.networkCostsName" . }}
+        {{ toYaml .Values.networkCosts.additionalLabels | indent 8 }}
     spec:
       hostNetwork: true
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}

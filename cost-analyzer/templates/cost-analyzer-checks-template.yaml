@@ -6,6 +6,9 @@ metadata:
   name: cost-analyzer-checks
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- if .Values.kubecostChecks.additionalLabels }}
+    {{ toYaml .Values.kubecostChecks.additionalLabels | nindent 4 }}
+    {{- end }}
 spec:
   {{- if .Values.kubecostChecks.debug }}
   schedule: "*/1 * * * *"
@@ -61,6 +64,10 @@ spec:
         {{- with .Values.nodeSelector }}
           nodeSelector:
           {{- toYaml . | nindent 12 }}
+        {{- end }}
+        {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
         {{- end }}
           restartPolicy: OnFailure
           securityContext:

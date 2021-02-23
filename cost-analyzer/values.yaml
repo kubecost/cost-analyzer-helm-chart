@@ -105,6 +105,7 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+  additionalLabels: {}
 
 # Advanced pipeline for custom prices, enterprise key required
 pricingCsv:
@@ -162,7 +163,7 @@ kubecostChecks:
     limits:
       cpu: "100m"
       memory: "200Mi"
-
+  additionalLabels: {}
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
@@ -466,7 +467,7 @@ networkCosts:
   podMonitor:
     enabled: false
     additionalLabels: {}
-
+  additionalLabels: {}
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
