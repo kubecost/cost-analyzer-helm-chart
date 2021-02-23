@@ -6,7 +6,7 @@ metadata:
   name: cost-analyzer-checks
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-    {{- if .Values.global.podAnnotations}}
+    {{- if .Values.kubecostChecks.additionalLabels }}
     {{ toYaml .Values.kubecostChecks.additionalLabels | nindent 4 }}
     {{- end }}
 spec:
