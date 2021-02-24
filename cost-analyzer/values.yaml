@@ -400,6 +400,8 @@ networkCosts:
     enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v15.0
   imagePullPolicy: Always
+  # For existing Prometheus Installs, enable the scrape annotation for network-cost metrics discovery 
+  prometheusScrape: false 
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes.
   trafficLogging: true
