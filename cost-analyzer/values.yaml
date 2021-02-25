@@ -242,6 +242,9 @@ priority:
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
+  denyEgress: true # create a network policy that denies egress from kubecost
+  sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
+#  namespace: kubecost # Namespace where prometheus is installed
 
 podSecurityPolicy:
   enabled: true
