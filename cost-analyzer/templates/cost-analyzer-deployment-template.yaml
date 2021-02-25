@@ -257,7 +257,7 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
