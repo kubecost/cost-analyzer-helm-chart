@@ -513,7 +513,7 @@ grafana:
       label: grafana_dashboard
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: true
+      enabled: false
       dataSourceName: prometheus-kubecost
       # label that the configmaps with datasources are marked with
       label: kubecost_grafana_datasource
