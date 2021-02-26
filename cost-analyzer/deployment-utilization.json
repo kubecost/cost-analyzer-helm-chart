@@ -29,7 +29,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "percent",
@@ -115,7 +115,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -201,7 +201,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(245, 54, 54, 0.9)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "percent",
@@ -285,7 +285,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "bytes",
@@ -369,7 +369,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "bytes",
@@ -453,7 +453,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "none",
@@ -537,7 +537,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "none",
@@ -620,7 +620,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "none",
@@ -704,7 +704,7 @@
         "rgba(237, 129, 40, 0.89)",
         "rgba(50, 172, 45, 0.97)"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "format": "none",
@@ -785,7 +785,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 3,
       "editable": true,
       "error": false,
@@ -909,7 +909,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -1029,7 +1029,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -1118,7 +1118,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -1238,7 +1238,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -1262,7 +1262,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -1286,7 +1286,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -1310,7 +1310,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -1327,6 +1327,25 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "default-kubecost",
+          "value": "default-kubecost"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
       }
     ]
   },
