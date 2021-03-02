@@ -213,7 +213,9 @@ spec:
 {{ end }}
       containers:
         {{- if .Values.kubecostModel }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostModel.fullImageName }}
+        - image: {{ .Values.kubecostModel.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
