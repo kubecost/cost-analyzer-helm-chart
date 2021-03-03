@@ -584,7 +584,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         {{- if .Values.kubecost }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecost.fullImageName }}
+        - image: {{ .Values.kubecost.fullImageName }}
+        {{- else if .Values.imageVersion}}
         - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
