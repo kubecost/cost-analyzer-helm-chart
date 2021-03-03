@@ -24,7 +24,11 @@ spec:
           containers:
           - name: cost-analyzer-checks
           {{- if .Values.kubecostChecks }}
+          {{- if .Values.kubecostChecks.fullImageName }}
+            image: {{ .Values.kubecostChecks.fullImageName }}
+          {{- else }}
             image: {{ .Values.kubecostChecks.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
           {{- else }}
             image: gcr.io/kubecost1/checks:prod-{{ $.Chart.AppVersion }}
           {{ end }}
