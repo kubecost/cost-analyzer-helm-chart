@@ -539,7 +539,9 @@ spec:
             - name: CUSTOM_ALERTS_ENABLED
               value: {{ (quote .Values.global.notifications.alertConfigs.enabled) | default (quote false) }}
         {{- if .Values.kubecostFrontend }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostFrontend.fullImageName }}
+        - image: {{ .Values.kubecostFrontend.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
