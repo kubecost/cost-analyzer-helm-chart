@@ -331,7 +331,7 @@ prometheus:
     #    value: "value"
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
   alertmanager:
-    # enabled: false
+    enabled: false
     persistentVolume:
       enabled: true
   nodeExporter:
