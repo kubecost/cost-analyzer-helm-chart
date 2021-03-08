@@ -249,6 +249,9 @@ priority:
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
   enabled: false
+  denyEgress: true # create a network policy that denies egress from kubecost
+  sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
+#  namespace: kubecost # Namespace where prometheus is installed
 
 podSecurityPolicy:
   enabled: true
@@ -335,7 +338,7 @@ prometheus:
     #    value: "value"
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
   alertmanager:
-    # enabled: false
+    enabled: false
     persistentVolume:
       enabled: true
   nodeExporter:
@@ -471,6 +474,8 @@ networkCosts:
     enabled: false
     additionalLabels: {}
   additionalLabels: {}
+  nodeSelector: {}
+
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
@@ -522,7 +527,7 @@ grafana:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: true
       defaultDatasourceEnabled: false
-      dataSourceName: default-kubecost
+      dataSourceName: prometheus-kubecost
       # label that the configmaps with datasources are marked with
       label: kubecost_grafana_datasource
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost

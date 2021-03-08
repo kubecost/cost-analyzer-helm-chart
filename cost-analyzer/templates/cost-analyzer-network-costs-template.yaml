@@ -72,7 +72,7 @@ spec:
 {{- if .Values.networkCosts.priorityClassName }}
       priorityClassName: "{{ .Values.networkCosts.priorityClassName }}"
 {{- end }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.networkCosts.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 10 }}
       {{- end }}

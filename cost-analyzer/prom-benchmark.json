@@ -22,7 +22,7 @@
   "panels": [
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -39,7 +39,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -135,7 +135,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -230,7 +230,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -322,7 +322,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -345,7 +345,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -450,7 +450,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -552,7 +552,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -659,7 +659,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -769,7 +769,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -886,7 +886,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -984,7 +984,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1009,7 +1009,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1138,7 +1138,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1244,7 +1244,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1356,7 +1356,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1463,7 +1463,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1581,7 +1581,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1748,7 +1748,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1854,7 +1854,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -1961,7 +1961,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2075,7 +2075,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2181,7 +2181,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2287,7 +2287,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2385,7 +2385,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -2413,7 +2413,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": null,
       "editable": true,
       "error": false,
@@ -2549,7 +2549,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -2649,7 +2649,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -2762,7 +2762,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -2868,7 +2868,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "editable": true,
       "error": false,
@@ -2977,7 +2977,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3076,7 +3076,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3093,7 +3093,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3189,7 +3189,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3285,7 +3285,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3378,7 +3378,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3395,7 +3395,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3491,7 +3491,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3611,7 +3611,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fieldConfig": {
         "defaults": {
           "custom": {},
@@ -3704,7 +3704,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -3726,7 +3726,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Time spent in each mode, per second",
       "editable": true,
       "error": false,
@@ -3833,7 +3833,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -3948,7 +3948,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -4046,7 +4046,7 @@
     },
     {
       "collapsed": true,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4065,7 +4065,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4171,7 +4171,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4277,7 +4277,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4383,7 +4383,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4489,7 +4489,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4595,7 +4595,7 @@
           "bars": false,
           "dashLength": 10,
           "dashes": false,
-          "datasource": "default-kubecost",
+          "datasource": "${datasource}",
           "editable": true,
           "error": false,
           "fieldConfig": {
@@ -4707,7 +4707,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -4729,7 +4729,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "",
       "editable": true,
       "error": false,
@@ -4836,7 +4836,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "",
       "editable": true,
       "error": false,
@@ -4943,7 +4943,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "",
       "editable": true,
       "error": false,
@@ -5042,7 +5042,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5074,7 +5074,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -5199,7 +5199,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -5305,7 +5305,7 @@
     },
     {
       "collapsed": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -5339,7 +5339,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -5467,7 +5467,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "editable": true,
       "error": false,
       "fieldConfig": {
@@ -5588,7 +5588,7 @@
           "text": "localhost",
           "value": "localhost"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "definition": "",
         "hide": 0,
         "includeAll": false,
@@ -5614,7 +5614,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "definition": "",
         "hide": 2,
         "includeAll": true,
@@ -5632,6 +5632,25 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "default-kubecost",
+          "value": "default-kubecost"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
       }
     ]
   },
