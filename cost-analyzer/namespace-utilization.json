@@ -236,7 +236,7 @@
 					"value":"avg"
 				}
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"fontSize":"100%",
 			"gridPos":{
 				"h":9,
@@ -375,7 +375,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"description":"CPU requests by pod divided by the rate of CPU usage over the last hour",
 			"fill":1,
 			"gridPos":{
@@ -469,7 +469,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":3,
 			"description":"This panel shows historical utilization as an average across all pods in this namespace. It only accounts for currently deployed pods",
 			"editable":true,
@@ -586,7 +586,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"This panel shows historical utilization as an average across all pods in this namespace. It only accounts for currently deployed pods",
 			"editable":true,
@@ -696,7 +696,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"Traffic in and out of this namespace, as a sum of the pods within it",
 			"editable":true,
@@ -822,7 +822,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"Disk reads and writes for the namespace, as a sum of the pods within it",
 			"editable":true,
@@ -1084,7 +1084,7 @@
 					"text":"kube-system",
 					"value":"kube-system"
 				},
-				"datasource":"default-kubecost",
+				"datasource":"${datasource}",
 				"hide":0,
 				"includeAll":false,
 				"label":"NS",
@@ -1107,7 +1107,7 @@
 				"useTags":false
 			},
 			{
-				"datasource":"default-kubecost",
+				"datasource":"${datasource}",
 				"filters":[
 
 				],
@@ -1116,6 +1116,25 @@
 				"name":"Filters",
 				"skipUrlSync":false,
 				"type":"adhoc"
+			},
+			{
+				"current": {
+					"selected": true,
+					"text": "default-kubecost",
+					"value": "default-kubecost"
+				},
+				"error": null,
+				"hide": 0,
+				"includeAll": false,
+				"label": null,
+				"multi": false,
+				"name": "datasource",
+				"options": [],
+				"query": "prometheus",
+				"refresh": 1,
+				"regex": "",
+				"skipUrlSync": false,
+				"type": "datasource"
 			}
 		]
 	},
