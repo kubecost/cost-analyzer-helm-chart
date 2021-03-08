@@ -439,7 +439,7 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
             {{- end }}
             - name: ETL_RESOLUTION_SECONDS
-              value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 60) }}
+              value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 300) }}
             - name: ETL_MAX_BATCH_HOURS
               value: {{ (quote .Values.kubecostModel.etlMaxBatchHours) | default (quote 6) }}
             {{- if .Values.systemProxy.enabled }}
