@@ -518,7 +518,7 @@ grafana:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: true
       defaultDatasourceEnabled: false
-      dataSourceName: default-kubecost
+      dataSourceName: prometheus-kubecost
       # label that the configmaps with datasources are marked with
       label: kubecost_grafana_datasource
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
