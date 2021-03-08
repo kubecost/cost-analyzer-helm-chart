@@ -199,7 +199,7 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}          
+          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
@@ -216,7 +216,9 @@ spec:
 {{ end }}
       containers:
         {{- if .Values.kubecostModel }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostModel.fullImageName }}
+        - image: {{ .Values.kubecostModel.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
@@ -257,7 +259,7 @@ spec:
             - name: gcp-key-secret
               mountPath: /models
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
@@ -349,7 +351,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
                   key: PASSWORD
-            {{- end }}              
+            {{- end }}
             {{- if .Values.global.prometheus.queryServiceBearerTokenSecretName }}
             - name: DB_BEARER_TOKEN
               valueFrom:
@@ -436,6 +438,10 @@ spec:
             - name: ETL_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
             {{- end }}
+            - name: ETL_RESOLUTION_SECONDS
+              value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 60) }}
+            - name: ETL_MAX_BATCH_HOURS
+              value: {{ (quote .Values.kubecostModel.etlMaxBatchHours) | default (quote 6) }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}
@@ -542,7 +548,9 @@ spec:
             - name: CUSTOM_ALERTS_ENABLED
               value: {{ (quote .Values.global.notifications.alertConfigs.enabled) | default (quote false) }}
         {{- if .Values.kubecostFrontend }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostFrontend.fullImageName }}
+        - image: {{ .Values.kubecostFrontend.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
@@ -585,7 +593,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         {{- if .Values.kubecost }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecost.fullImageName }}
+        - image: {{ .Values.kubecost.fullImageName }}
+        {{- else if .Values.imageVersion}}
         - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
@@ -707,7 +717,7 @@ spec:
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }} 
+    {{- end }}
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
