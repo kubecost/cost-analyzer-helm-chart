@@ -467,6 +467,8 @@ networkCosts:
     enabled: false
     additionalLabels: {}
   additionalLabels: {}
+  nodeSelector: {}
+
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
