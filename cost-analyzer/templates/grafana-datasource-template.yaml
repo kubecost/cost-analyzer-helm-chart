@@ -10,7 +10,7 @@ metadata:
   namespace: {{ $.Values.grafana.namespace_datasources }}
   {{- end }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if $.Values.grafana.sidecar.datasources.label }}
     {{ $.Values.grafana.sidecar.datasources.label }}: "1"
     {{- else }}
@@ -25,45 +25,29 @@ data:
     apiVersion: 1
     datasources:
     - access: proxy
+      name: default-kubecost
+      type: prometheus
+{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
+      isDefault: true
+{{- else }}
+      isDefault: false
+{{- end }}
 {{- if .Values.global.thanos }}
 {{- if .Values.global.thanos.enabled }}
-      name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName }}
+{{- if .Values.global.prometheus.enabled }}
+      url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
+{{- else }}
+      url: {{ .Values.global.thanos.queryService }}
+{{- end }}
+    - access: proxy
+      name: {{ default "Prometheus" .Values.grafana.sidecar.datasources.dataSourceName}}
       isDefault: false
-{{- else }}
-      name: "default-kubecost"
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
-      isDefault: true
-{{- else }}
-      isDefault: false
-{{- end }}
-{{- end }}
-{{- else }}
-      name: "default-kubecost"
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
-      isDefault: true
-{{- else }}
-      isDefault: false
-{{- end }}
-{{- end }}
       type: prometheus
+{{- end }}
 {{- if .Values.global.prometheus.enabled }}
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace  }}
 {{- else }}
       url: {{ .Values.global.prometheus.fqdn }}
-{{- end }}
-{{- if .Values.global.thanos.enabled }}
-    - access: proxy
-      name: "default-kubecost"
-      type: prometheus
-{{- if .Values.grafana.sidecar.datasources.defaultDatasourceEnabled }}
-      isDefault: true
-{{- else }}
-      isDefault: false
-{{- end }}
-{{- if .Values.global.prometheus.enabled }}
-      url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}:{{ .Values.thanos.query.http.port }}
-{{ else }}
-      url: {{ .Values.global.thanos.queryService }}
 {{- end }}
 {{- end }}
 {{- end -}}
