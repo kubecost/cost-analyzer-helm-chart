@@ -44,7 +44,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Monthly run rate of CPU + GPU costs based on currently provisioned resources.",
       "format": "currencyUSD",
@@ -132,7 +132,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Monthly run rate of memory costs based on currently provisioned expenses.",
       "format": "currencyUSD",
@@ -220,7 +220,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Monthly run rate of attached storage and PV costs based on currently provisioned resources.",
       "format": "currencyUSD",
@@ -308,7 +308,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Sum of compute, memory, storage and network costs.",
       "format": "currencyUSD",
@@ -396,7 +396,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Current CPU use from applications divided by allocatable CPUs",
       "editable": true,
@@ -486,7 +486,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Current CPU reservation requests from applications vs allocatable CPU",
       "editable": true,
@@ -574,7 +574,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Current RAM use vs RAM available",
       "editable": true,
       "error": false,
@@ -670,7 +670,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Current RAM requests vs RAM available",
       "editable": true,
       "error": false,
@@ -758,7 +758,7 @@
         "rgba(50, 172, 45, 0.97)",
         "#c15c17"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "This gauge shows the current standard storage use, including cluster storage, vs storage available",
       "editable": true,
@@ -844,7 +844,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Monthly run rate of CPU + GPU costs",
       "fill": 1,
       "gridPos": {
@@ -930,7 +930,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Monthly run rate of memory costs",
       "fill": 1,
       "gridPos": {
@@ -1016,7 +1016,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Monthly run rate of attached disk + PV storage costs",
       "fill": 1,
       "gridPos": {
@@ -1102,7 +1102,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Sum of compute, memory, and storage costs",
       "fill": 1,
       "gridPos": {
@@ -1185,7 +1185,7 @@
     },
     {
       "columns": [],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Cost of by resource class of currently provisioned nodes",
       "fontSize": "100%",
       "gridPos": {
@@ -1372,7 +1372,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "description": "Monthly run rate of attached disk + PV storage costs based on currently provisioned resources.",
       "fill": 1,
       "gridPos": {
@@ -1624,6 +1624,25 @@
         "query": ".12",
         "skipUrlSync": false,
         "type": "constant"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "default-kubecost",
+          "value": "default-kubecost"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
       }
     ]
   },

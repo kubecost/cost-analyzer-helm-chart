@@ -48,7 +48,7 @@
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "format":"currencyUSD",
             "gauge":{
@@ -137,7 +137,7 @@
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "format":"currencyUSD",
             "gauge":{
@@ -226,7 +226,7 @@
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "format":"currencyUSD",
             "gauge":{
@@ -315,7 +315,7 @@
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"Represents a near worst-case approximation of network costs.",
             "format":"currencyUSD",
@@ -405,7 +405,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"Current CPU use from applications divided by allocatable CPUs",
             "editable":true,
@@ -497,7 +497,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"Current CPU reservation requests from applications vs allocatable CPU",
             "editable":true,
@@ -587,7 +587,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Current RAM use vs RAM available",
             "editable":true,
             "error":false,
@@ -685,7 +685,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Current RAM requests vs RAM available",
             "editable":true,
             "error":false,
@@ -775,7 +775,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"This gauge shows the current standard storage use, including cluster storage, vs storage available",
             "editable":true,
@@ -867,7 +867,7 @@
                 "rgba(50, 172, 45, 0.97)",
                 "#c15c17"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"This gauge shows the current SSD use vs SSD available",
             "editable":true,
@@ -959,7 +959,7 @@
                 "rgba(237, 129, 40, 0.89)",
                 "#d44a3a"
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "decimals":2,
             "description":"Expected monthly cost given current CPU, memory storage, and network resource consumption",
             "format":"currencyUSD",
@@ -1047,7 +1047,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Expected monthly CPU, memory and storage costs given provisioned resources",
             "fill":1,
             "gridPos":{
@@ -1142,7 +1142,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Resources allocated to namespace based on container requests",
             "fontSize":"100%",
             "gridPos":{
@@ -1380,7 +1380,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":8,
@@ -1498,7 +1498,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":8,
@@ -1592,7 +1592,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"This table shows the comparison of CPU requests and usage by namespace",
             "fontSize":"100%",
             "gridPos":{
@@ -1761,7 +1761,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"This table shows the comparison of application CPU usage vs the capacity of the node (measured over last 60 minutes)",
             "fontSize":"100%",
             "gridPos":{
@@ -1922,7 +1922,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":8,
@@ -2037,7 +2037,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":8,
@@ -2131,7 +2131,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Comparison of memory requests and current usage by namespace",
             "fontSize":"100%",
             "gridPos":{
@@ -2301,7 +2301,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "description":"Container RAM usage vs node capacity",
             "fontSize":"100%",
             "gridPos":{
@@ -2462,7 +2462,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fontSize":"100%",
             "gridPos":{
                 "h":9,
@@ -2669,7 +2669,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":9,
@@ -2763,7 +2763,7 @@
                     "value":"avg"
                 }
             ],
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fontSize":"100%",
             "gridPos":{
                 "h":10,
@@ -2973,7 +2973,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":10,
@@ -3074,7 +3074,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":9,
@@ -3183,7 +3183,7 @@
             "bars":false,
             "dashLength":10,
             "dashes":false,
-            "datasource":"default-kubecost",
+            "datasource":"${datasource}",
             "fill":1,
             "gridPos":{
                 "h":9,
@@ -3433,6 +3433,25 @@
                 "query":"30",
                 "skipUrlSync":false,
                 "type":"constant"
+            },
+            {
+                "current": {
+                    "selected": true,
+                    "text": "default-kubecost",
+                    "value": "default-kubecost"
+                },
+                "error": null,
+                "hide": 0,
+                "includeAll": false,
+                "label": null,
+                "multi": false,
+                "name": "datasource",
+                "options": [],
+                "query": "prometheus",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
             }
         ]
     },
