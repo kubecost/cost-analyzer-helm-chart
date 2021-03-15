@@ -17,6 +17,9 @@ spec:
   {{- else }}
   schedule: "*/10 * * * *"
   {{- end }}
+  {{- if .Values.kubecostChecks.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ .Values.kubecostChecks.startingDeadlineSeconds }}
+  {{- end }}
   jobTemplate:
     metadata:
       labels:
