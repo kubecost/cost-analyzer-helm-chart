@@ -14,13 +14,10 @@ spec:
       app: {{ template "cost-analyzer.networkCostsName" . }}
   template:
     metadata:
+      {{- with .Values.networkCosts.annotations }}
       annotations:
-{{- if .Values.networkCosts.prometheusScrape }}
-        prometheus.io/scrape: "{{ .Values.networkCosts.prometheusScrape }}"
-        prometheus.io/port: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
-{{- else }}
-        {}
-{{- end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         app: {{ template "cost-analyzer.networkCostsName" . }}
         {{- if .Values.networkCosts.additionalLabels }}
