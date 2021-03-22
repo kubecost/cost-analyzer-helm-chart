@@ -917,8 +917,8 @@
     ]
   },
   "time": {
-    "from": "2021-03-22T01:33:44.520Z",
-    "to": "2021-03-22T03:01:10.235Z"
+    "from": "now-24h",
+    "to": "now"
   },
   "timepicker": {
     "hidden": false,
