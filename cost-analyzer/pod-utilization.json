@@ -16,8 +16,7 @@
   "editable": true,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": 4,
-  "iteration": 1560100821196,
+  "iteration": 1616382275479,
   "links": [],
   "panels": [
     {
@@ -28,6 +27,12 @@
         }
       ],
       "datasource": "${datasource}",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "100%",
       "gridPos": {
         "h": 5,
@@ -49,6 +54,7 @@
       "styles": [
         {
           "alias": "Container",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -68,6 +74,7 @@
         },
         {
           "alias": "Memory Allocation",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -83,6 +90,7 @@
         },
         {
           "alias": "CPU Allocation",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -99,6 +107,7 @@
         },
         {
           "alias": "",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -115,6 +124,7 @@
         },
         {
           "alias": "Memory ($/hour)",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -131,6 +141,7 @@
         },
         {
           "alias": "Spot/PE RAM",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "rgba(245, 54, 54, 0.9)",
@@ -147,6 +158,7 @@
         },
         {
           "alias": "Total",
+          "align": "auto",
           "colorMode": null,
           "colors": [
             "#bf1b00",
@@ -187,8 +199,7 @@
       "timeShift": null,
       "title": "Container cost  & allocation analysis",
       "transform": "table",
-      "transparent": false,
-      "type": "table"
+      "type": "table-old"
     },
     {
       "aliasColors": {},
@@ -200,7 +211,14 @@
       "description": "This graph attempts to show you CPU use of your application vs its requests",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 0,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -209,6 +227,7 @@
         "y": 5
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 94,
       "isNew": true,
       "legend": {
@@ -232,6 +251,7 @@
       "links": [],
       "nullPointMode": "connected",
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -263,6 +283,7 @@
       ],
       "thresholds": [],
       "timeFrom": "",
+      "timeRegions": [],
       "timeShift": null,
       "title": "CPU Usage vs Requested",
       "tooltip": {
@@ -312,7 +333,14 @@
       "description": "This graph attempts to show you RAM use of your application vs its requests",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 0,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -321,6 +349,7 @@
         "y": 5
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 96,
       "isNew": true,
       "legend": {
@@ -344,6 +373,7 @@
       "links": [],
       "nullPointMode": "connected",
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -376,6 +406,7 @@
       ],
       "thresholds": [],
       "timeFrom": "",
+      "timeRegions": [],
       "timeShift": null,
       "title": "RAM Usage vs Requested",
       "tooltip": {
@@ -425,7 +456,14 @@
       "description": "Traffic in and out of this pod, as a sum of its containers",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -434,6 +472,7 @@
         "y": 12
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 95,
       "isNew": true,
       "legend": {
@@ -457,6 +496,7 @@
       "links": [],
       "nullPointMode": "connected",
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -490,6 +530,7 @@
       ],
       "thresholds": [],
       "timeFrom": "",
+      "timeRegions": [],
       "timeShift": null,
       "title": "Network IO",
       "tooltip": {
@@ -539,7 +580,14 @@
       "description": "Disk read writes",
       "editable": true,
       "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
+      "fillGradient": 0,
       "grid": {},
       "gridPos": {
         "h": 7,
@@ -548,6 +596,7 @@
         "y": 12
       },
       "height": "",
+      "hiddenSeries": false,
       "id": 97,
       "isNew": true,
       "legend": {
@@ -571,6 +620,7 @@
       "links": [],
       "nullPointMode": "connected",
       "percentage": false,
+      "pluginVersion": "7.1.1",
       "pointradius": 5,
       "points": false,
       "renderer": "flot",
@@ -604,6 +654,7 @@
       ],
       "thresholds": [],
       "timeFrom": "",
+      "timeRegions": [],
       "timeShift": null,
       "title": "Disk IO",
       "tooltip": {
@@ -642,10 +693,121 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${datasource}",
+      "decimals": 3,
+      "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
+      "editable": true,
+      "error": false,
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 0,
+      "fillGradient": 0,
+      "grid": {},
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "height": "",
+      "hiddenSeries": false,
+      "id": 99,
+      "isNew": true,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": false,
+        "hideZero": false,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": null,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": true
+      },
+      "lines": true,
+      "linewidth": 2,
+      "links": [],
+      "nullPointMode": "connected",
+      "percentage": false,
+      "pluginVersion": "7.1.1",
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": true,
+      "targets": [
+        {
+          "expr": "100\n  * sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))\n  / sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))",
+          "format": "time_series",
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "{{container_name}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": "",
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "CPU throttle percent",
+      "tooltip": {
+        "msResolution": true,
+        "shared": true,
+        "sort": 2,
+        "value_type": "cumulative"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "none",
+          "label": "",
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [
     "cost",
@@ -655,70 +817,17 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "0.044",
-          "value": "0.044"
-        },
-        "hide": 0,
-        "label": "Storage",
-        "name": "costStorageStandard",
-        "options": [
-          {
-            "text": "0.044",
-            "value": "0.044"
-          }
-        ],
-        "query": "0.044",
-        "skipUrlSync": false,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "0.187",
-          "value": "0.187"
-        },
-        "hide": 0,
-        "label": "SSD",
-        "name": "costStorageSSD",
-        "options": [
-          {
-            "text": "0.187",
-            "value": "0.187"
-          }
-        ],
-        "query": "0.187",
-        "skipUrlSync": false,
-        "type": "constant"
-      },
-      {
-        "current": {
-          "text": "30",
-          "value": "30"
-        },
-        "hide": 0,
-        "label": "Disc.",
-        "name": "costDiscount",
-        "options": [
-          {
-            "text": "30",
-            "value": "30"
-          }
-        ],
-        "query": "30",
-        "skipUrlSync": false,
-        "type": "constant"
-      },
-      {
         "allValue": null,
         "current": {
-          "selected": false,
-          "text": "kubecost",
-          "value": "kubecost"
+          "selected": true,
+          "text": "kube-system",
+          "value": "kube-system"
         },
         "datasource": "${datasource}",
+        "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
         "hide": 0,
         "includeAll": false,
-        "label": "NS",
+        "label": "ns",
         "multi": false,
         "name": "namespace",
         "options": [],
@@ -736,21 +845,48 @@
       {
         "allValue": null,
         "current": {
-          "selected": false,
-          "tags": [],
-          "text": "kubecost-grafana-5cc9f5bf6-7kmgl",
-          "value": "kubecost-grafana-5cc9f5bf6-7kmgl"
+          "selected": true,
+          "text": "heapster-gke-5759dc947d-ctckh",
+          "value": "heapster-gke-5759dc947d-ctckh"
         },
         "datasource": "${datasource}",
+        "definition": "",
         "hide": 0,
         "includeAll": false,
-        "label": "Pod",
+        "label": "pod",
         "multi": false,
         "name": "pod",
         "options": [],
         "query": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (pod_name))",
         "refresh": 1,
         "regex": "/pod_name=\\\"(.*?)(\\\")/",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "isNone": true,
+          "selected": false,
+          "text": "None",
+          "value": ""
+        },
+        "datasource": "-- Dashboard --",
+        "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+        "hide": 0,
+        "includeAll": false,
+        "label": "",
+        "multi": false,
+        "name": "cluster",
+        "options": [],
+        "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+        "refresh": 1,
+        "regex": "/cluster_id=\\\"(.*?)(\\\")/",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
@@ -761,7 +897,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "default-kubecost",
           "value": "default-kubecost"
         },
@@ -787,7 +923,6 @@
   "timepicker": {
     "hidden": false,
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
