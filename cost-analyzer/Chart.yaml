@@ -4,3 +4,7 @@ description: A Helm chart that sets up Kubecost, Prometheus, and Grafana to moni
   cloud costs.
 name: cost-analyzer
 version: 1.76.0
+annotations:
+  "artifacthub.io/links": |
+    - name: Homepage
+      url: https://www.kubecost.com
