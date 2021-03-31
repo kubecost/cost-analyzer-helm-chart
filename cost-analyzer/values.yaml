@@ -408,8 +408,13 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v15.0
+  image: gcr.io/kubecost1/kubecost-network-costs:v15.2
   imagePullPolicy: Always
+  # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
+  # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
+  # NOTE: Setting this option to true and leaving the above extraScrapeConfig "job_name: kubecost-networking" configured will cause the 
+  # NOTE: pods to be scraped twice. 
+  prometheusScrape: false 
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes.
   trafficLogging: true
@@ -475,7 +480,8 @@ networkCosts:
     additionalLabels: {}
   additionalLabels: {}
   nodeSelector: {}
-
+  annotations: {}
+  
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
