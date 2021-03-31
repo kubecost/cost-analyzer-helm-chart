@@ -29,7 +29,7 @@
 					"value":"avg"
 				}
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"fontSize":"100%",
 			"gridPos":{
 				"h":9,
