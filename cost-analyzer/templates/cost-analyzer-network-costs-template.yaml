@@ -36,7 +36,7 @@ spec:
 {{- end }}
 {{- if .Values.networkCosts.resources }}
         resources:
-          {{ toYaml .Values.networkCosts.resources | indent 10 }}
+{{ toYaml .Values.networkCosts.resources | indent 10 }}
 {{- end }}
         env:
         {{- if .Values.networkCosts.hostProc }}
