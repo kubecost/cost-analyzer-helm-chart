@@ -157,7 +157,7 @@ systemProxy:
 
 # Manages Kubecost alerts
 kubecostChecks:
-  enabled: true
+  enabled: false
   image: "quay.io/kubecost1/checks"
   resources:
     requests:
