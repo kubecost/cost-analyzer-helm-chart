@@ -1,5 +1,4 @@
 {{- if .Values.groupFilters }}
-{{- if .Values.groupFilters.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,5 +8,4 @@ metadata:
 data:
   allocationFilters: '{{ toJson .Values.groupFilters.allocationFilters }}'
   assetFilters: '{{ toJson .Values.groupFilters.assetFilters }}'
-{{- end -}}
 {{- end -}}

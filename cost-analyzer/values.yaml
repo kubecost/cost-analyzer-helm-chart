@@ -144,6 +144,14 @@ saml:
         assertionvalues:
           - "readonly"
 
+# Define global data filters for specific user groups
+# No filters defined by default
+# BETA: This implementation is to collect user feedback and may change dramatically.
+# Do not rely on this configuration format remaining consistent.
+groupFilters:
+  allocationFilters: {} # allocation data filters per-group
+  assetFilters: {} # asset data filters per-group
+
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
 systemProxy:
@@ -545,13 +553,6 @@ serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
-
-# Define global data filters for specific user groups
-# Disabled by default
-groupFilters:
-  enabled: false
-  allocationFilters: {} # allocation data filters per-group
-  assetFilters: {} # asset data filters per-group
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
