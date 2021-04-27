@@ -438,8 +438,6 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
-            - name: DIAGNOSTIC_ALERT_ENABLED
-              value: {{ (quote .Values.global.notifications.alertConfigs.kubecostHealth) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
@@ -555,8 +553,6 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-            - name: CUSTOM_ALERTS_ENABLED
-              value: {{ (quote .Values.global.notifications.alertConfigs.enabled) | default (quote false) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
