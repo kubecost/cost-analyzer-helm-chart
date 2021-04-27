@@ -208,7 +208,7 @@ kubecostModel:
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
   # Build local cost allocation cache
-  warmCache: true
+  warmCache: false
   # Build local savings cache
   warmSavingsCache: true
   # Run allocation ETL pipelines
