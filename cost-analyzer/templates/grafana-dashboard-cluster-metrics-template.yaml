@@ -16,6 +16,9 @@ metadata:
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
+    {{- if and $.Values.grafana.sidecar.dashboards.folderAnnotation $.Values.grafana.sidecar.dashboards.folder }}
+    {{ $.Values.grafana.sidecar.dashboards.folderAnnotation }}: {{ $.Values.grafana.sidecar.dashboards.folder }}
+    {{- end -}}
 data:
     cluster-metrics.json: |-
 {{ .Files.Get "cluster-metrics.json" | indent 8 }}
@@ -23,5 +26,3 @@ data:
 {{- end -}}
 {{- end -}}
 {{- end -}}
-
-
