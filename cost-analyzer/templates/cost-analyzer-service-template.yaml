@@ -26,13 +26,13 @@ spec:
   type: ClusterIP
 {{- end }}
   ports:
-    - name: server
+    - name: tcp-server
       port: 9001
       targetPort: 9001
-    - name: model
+    - name: tcp-model
       port: 9003
       targetPort: 9003
-    - name: frontend
+    - name: tcp-frontend
       {{- if .Values.kubecostFrontend.tls }}
       {{- if .Values.kubecostFrontend.tls.enabled }}
       port: 443
