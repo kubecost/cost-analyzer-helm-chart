@@ -11,7 +11,7 @@ metadata:
     {{- end }}
 spec:
   endpoints:
-    - port: model
+    - port: cost-model
       honorLabels: true
       interval: 1m
       scrapeTimeout: 10s
