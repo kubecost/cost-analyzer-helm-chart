@@ -33,7 +33,7 @@ spec:
           - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
-              servicePort: frontend
+              servicePort: tcp-frontend
 	{{- end }}
   {{- end }}
 {{- end }}
