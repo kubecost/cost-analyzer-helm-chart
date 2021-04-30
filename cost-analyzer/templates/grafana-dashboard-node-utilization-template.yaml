@@ -16,6 +16,10 @@ metadata:
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
+  {{- if and $.Values.grafana.sidecar.dashboards.folderAnnotation $.Values.grafana.sidecar.dashboards.folder }}
+  annotations:
+    {{ $.Values.grafana.sidecar.dashboards.folderAnnotation | quote }}: {{ $.Values.grafana.sidecar.dashboards.folder | quote }}
+  {{- end }}
 data:
     node-utilization.json: |-
 {{ .Files.Get "node-utilization.json" | indent 8 }}

@@ -544,6 +544,8 @@ grafana:
       enabled: true
       # label that the configmaps with dashboards are marked with
       label: grafana_dashboard
+      # folderAnnotation: grafana_dashboard_folder
+      # folder: /tmp/grafana/Kubecost
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: true
