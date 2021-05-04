@@ -8,7 +8,7 @@ store:
   # Maximum size of items held in the index cache.
   indexCacheSize: 250MB
   # Maximum size of concurrently allocatable bytes for chunks.
-  chunkPoolSize: 2GB
+  chunkPoolSize: 8GB
   # Maximum amount of samples returned via a single series call. 0 means no limit.
   # NOTE: for efficiency we take 120 as the number of samples in chunk (it cannot be bigger than that),
   # so the actual number of samples might be lower, even though the maximum could be hit.
@@ -118,13 +118,13 @@ store:
     runAsNonRoot: true
     runAsUser: 1001
 
-  resources: {}
-  #  limits:
-  #    cpu: 2000m
-  #    memory: 16Gi
-  #  requests:
-  #    cpu: 1000m
-  #    memory: 4Gi
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 32Gi
+    requests:
+      cpu: 2000m
+      memory: 32Gi
   #
   # Node tolerations for server scheduling to nodes with taints
   # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
@@ -321,9 +321,9 @@ query:
   # stripped prefix value in X-Forwarded-Prefix header. This allows thanos UI to be served on a sub-path
   webPrefixHeader: ""
   # Maximum time to process query by query node.
-  timeout: 2m
+  timeout: 10m
   # Maximum number of queries processed concurrently by query node.
-  maxConcurrent: 16
+  maxConcurrent: 8
   # Maximum number of select requests made concurrently per a query.
   maxConcurrentSelect: 4
   # Enable automatic adjustment (step / 5) to what source of data should be used in store gateways 
@@ -437,13 +437,13 @@ query:
     runAsNonRoot: true
     runAsUser: 1001
 
-  resources: {}
-  #  limits:
-  #    cpu: 2000m
-  #    memory: 16Gi
-  #  requests:
-  #    cpu: 1000m
-  #    memory: 4Gi
+  resources:
+    limits:
+      cpu: 2000m
+      memory: 16Gi
+    requests:
+      cpu: 1000m
+      memory: 16Gi
   #
   # Node tolerations for server scheduling to nodes with taints
   # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
