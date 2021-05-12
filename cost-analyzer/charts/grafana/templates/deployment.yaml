@@ -75,6 +75,8 @@ spec:
               value: "{{ .Values.sidecar.dashboards.label }}"
             - name: FOLDER
               value: "{{ .Values.sidecar.dashboards.folder }}"
+            - name: ERROR_THROTTLE_SLEEP
+              value: "{{ .Values.sidecar.dashboards.error_throttle_sleep }}"
           resources:
 {{ toYaml .Values.sidecar.resources | indent 12 }}
           volumeMounts:
@@ -90,6 +92,8 @@ spec:
               value: "{{ .Values.sidecar.datasources.label }}"
             - name: FOLDER
               value: "/etc/grafana/provisioning/datasources"
+            - name: ERROR_THROTTLE_SLEEP
+              value: "{{ .Values.sidecar.datasources.error_throttle_sleep }}"
           resources:
 {{ toYaml .Values.sidecar.resources | indent 12 }}
           volumeMounts:
