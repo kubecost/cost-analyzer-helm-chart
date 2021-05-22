@@ -24,8 +24,17 @@ spec:
     metadata:
       labels:
         {{ include "cost-analyzer.commonLabels" . | nindent 8 }}
+        {{- if .Values.kubecostChecks.additionalLabels }}
+        {{ toYaml .Values.kubecostChecks.additionalLabels | nindent 8 }}
+        {{- end }}
     spec:
       template:
+        metadata:
+          labels:
+          {{ include "cost-analyzer.commonLabels" . | nindent 14 }}
+          {{- if .Values.kubecostChecks.additionalLabels }}
+          {{ toYaml .Values.kubecostChecks.additionalLabels | nindent 14 }}
+          {{- end }}
         spec:
           containers:
           - name: cost-analyzer-checks
