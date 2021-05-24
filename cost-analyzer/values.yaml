@@ -168,18 +168,6 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
-# Manages Kubecost alerts
-kubecostChecks:
-  enabled: false
-  image: "quay.io/kubecost1/checks"
-  resources:
-    requests:
-      cpu: "20m"
-      memory: "100Mi"
-    limits:
-      cpu: "100m"
-      memory: "200Mi"
-  additionalLabels: {}
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
