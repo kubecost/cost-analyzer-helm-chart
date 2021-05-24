@@ -544,6 +544,10 @@ spec:
             - name: SQL_ADDRESS
               value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
+            {{- if .Values.kubecostModel.promClusterIDLabel }}
+            - name: PROM_CLUSTER_ID_LABEL
+              value: {{ .Values.kubecostModel.promClusterIDLabel }}
+            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
