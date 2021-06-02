@@ -69,6 +69,12 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.productKey }}
         {{- if .Values.kubecostProductConfigs.productKey.secretname }}
@@ -246,7 +252,11 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+              readOnly: true
+            {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -434,8 +444,15 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: ETL_TO_DISK_ENABLED
+              value: "false"
+            - name: ETL_BUCKET_CONFIG
+              value: "/var/configs/etl/object-store.yaml"
+            {{- else }}
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            {{- end }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
