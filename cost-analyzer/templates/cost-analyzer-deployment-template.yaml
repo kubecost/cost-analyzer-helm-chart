@@ -442,14 +442,18 @@ spec:
             - name: ETL_PATH_PREFIX
               value: "/var/db"
             {{- end }}
-            {{- if .Values.kubecostModel.etlStoreDurationDays }}
-            - name: ETL_STORE_DURATION_DAYS
-              value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
-            {{- end }}
             - name: ETL_RESOLUTION_SECONDS
               value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 300) }}
             - name: ETL_MAX_BATCH_HOURS
               value: {{ (quote .Values.kubecostModel.etlMaxBatchHours) | default (quote 6) }}
+            - name: ETL_DAILY_STORE_DURATION_DAYS
+              value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+            - name: ETL_HOURLY_STORE_DURATION_HOURS
+              value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
+            - name: ETL_FILE_STORE_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote false) }}
+            - name: ETL_ASSET_RECONCILIATION_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}
