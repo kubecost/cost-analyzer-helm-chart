@@ -37,6 +37,10 @@ spec:
         prometheus.io/port: "{{ .Values.compact.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-compact
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
