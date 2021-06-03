@@ -845,7 +845,7 @@
           "step": 60
         },
         {
-          "expr": "sum (kube_pod_container_resource_requests{resource="cpu", unit="core", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
+          "expr": "sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -966,7 +966,7 @@
           "step": 60
         },
         {
-          "expr": "sum ((kube_pod_container_resource_requests{resource="memory", unit="byte", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
+          "expr": "sum ((kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "rqst: {{ node }} | {{ pod }}",
