@@ -166,7 +166,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
+					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -711,7 +711,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"kube_node_status_capacity_cpu_cores{node=\"$node\"}",
+					"expr":"kube_node_status_capacity{resource=\"cpu\", unit=\"core\", node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -793,7 +793,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"kube_node_status_capacity_memory_bytes{node=\"$node\"}",
+					"expr":"kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -985,7 +985,7 @@
 			"steppedLine":true,
 			"targets":[
 				{
-					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
+					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
 					"format":"time_series",
 					"instant":false,
 					"interval":"10s",

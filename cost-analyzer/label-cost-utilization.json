@@ -813,7 +813,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
@@ -911,7 +911,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
