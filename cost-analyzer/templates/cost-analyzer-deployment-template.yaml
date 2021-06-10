@@ -437,6 +437,20 @@ spec:
             - name: EMIT_KUBE_NODE_STATUS_CAPACITY_CPU_CORES_METRIC
               value: "true"
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KUBE_POD_LABELS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitKubePodLabels) | default (quote true) }}
+            {{- else }}
+            - name: EMIT_KUBE_POD_LABELS_METRIC
+              value: "true"
+            {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KUBE_NODE_LABELS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitKubeNodeLabels) | default (quote true) }}
+            {{- else }}
+            - name: EMIT_KUBE_NODE_LABELS_METRIC
+              value: "true"
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
