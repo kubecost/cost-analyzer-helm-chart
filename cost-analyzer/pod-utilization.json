@@ -273,12 +273,29 @@
           "step": 10
         },
         {
+<<<<<<< HEAD
           "expr": "avg(kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
+=======
+          "exemplar": true,
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+>>>>>>> e543e231e4cf708742c796bf0907acca2100b97c
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
+<<<<<<< HEAD
           "legendFormat": "{{ container}} (request)",
           "refId": "B"
+=======
+          "legendFormat": "pod_filter=$pod | container_name={{ container }} | Requests",
+          "refId": "Requests"
+        },
+        {
+          "exemplar": true,
+          "expr": "avg(kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+          "interval": "",
+          "legendFormat": "pod_filter=$pod | container_name={{ container }} | Limits",
+          "refId": "Limits"
+>>>>>>> e543e231e4cf708742c796bf0907acca2100b97c
         }
       ],
       "thresholds": [],
@@ -399,9 +416,36 @@
           "format": "time_series",
           "hide": false,
           "instant": false,
+<<<<<<< HEAD
           "intervalFactor": 1,
           "legendFormat": "{{ container }} (requested)",
           "refId": "B"
+=======
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "pod_filter=$pod | container_name={{ container_name }} | Usage MAX",
+          "metric": "container_cpu",
+          "refId": "MEM usage max",
+          "step": 10
+        },
+        {
+          "exemplar": true,
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "intervalFactor": 1,
+          "legendFormat": "pod_filter=$pod | container_name={{ container }} | Requests",
+          "refId": "Requests"
+        },
+        {
+          "exemplar": true,
+          "expr": "avg(kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+          "interval": "",
+          "legendFormat": "pod_filter=$pod | container_name={{ container }} | Limits",
+          "refId": "Limits"
+>>>>>>> e543e231e4cf708742c796bf0907acca2100b97c
         }
       ],
       "thresholds": [],
