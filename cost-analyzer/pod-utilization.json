@@ -275,6 +275,7 @@
         {
           "exemplar": true,
           "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+<<<<<<< HEAD
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -287,6 +288,10 @@
           "interval": "",
           "legendFormat": "pod_filter=$pod | container_name={{ container }} | Limits",
           "refId": "Limits"
+=======
+          "legendFormat": "{{ container}} (request)",
+          "refId": "B"
+>>>>>>> d4cdc9d8e122283eb07dad3fb5a7a46f5cd9fce0
         }
       ],
       "thresholds": [],
@@ -407,6 +412,7 @@
           "format": "time_series",
           "hide": false,
           "instant": false,
+<<<<<<< HEAD
           "interval": "",
           "intervalFactor": 1,
           "legendFormat": "pod_filter=$pod | container_name={{ container_name }} | Usage MAX",
@@ -431,6 +437,11 @@
           "interval": "",
           "legendFormat": "pod_filter=$pod | container_name={{ container }} | Limits",
           "refId": "Limits"
+=======
+          "intervalFactor": 1,
+          "legendFormat": "{{ container }} (requested)",
+          "refId": "B"
+>>>>>>> d4cdc9d8e122283eb07dad3fb5a7a46f5cd9fce0
         }
       ],
       "thresholds": [],
