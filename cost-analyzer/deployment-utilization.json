@@ -84,7 +84,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum (container_memory_working_set_bytes{container!=\"\",pod_name=~\"^$Deployment$Statefulset$Daemonset.*$\", kubernetes_io_hostname=~\"^$Node$\", pod_name!=\"\"}) / sum (kube_node_status_allocatable_memory_bytes{node=~\"^$Node.*$\"}) * 100",
+          "expr": "sum (container_memory_working_set_bytes{container!=\"\",pod_name=~\"^$Deployment$Statefulset$Daemonset.*$\", kubernetes_io_hostname=~\"^$Node$\", pod_name!=\"\"}) / sum (kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node.*$\"}) * 100",
           "format": "time_series",
           "interval": "10s",
           "intervalFactor": 1,
@@ -424,7 +424,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum (kube_node_status_allocatable_memory_bytes{node=~\"^$Node.*$\"})",
+          "expr": "sum (kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node.*$\"})",
           "format": "time_series",
           "intervalFactor": 2,
           "refId": "A",
@@ -845,7 +845,7 @@
           "step": 60
         },
         {
-          "expr": "sum (kube_pod_container_resource_requests_cpu_cores{pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
+          "expr": "sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
           "format": "time_series",
           "hide": false,
           "intervalFactor": 2,
@@ -854,7 +854,7 @@
           "step": 120
         },
         {
-          "expr": "sum ((kube_node_status_allocatable_cpu_cores{node=~\"^$Node$\"})) by (node)",
+          "expr": "sum ((kube_node_status_allocatable{resource=\"cpu\", unit=\"core\", node=~\"^$Node$\"})) by (node)",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
@@ -966,7 +966,7 @@
           "step": 60
         },
         {
-          "expr": "sum ((kube_pod_container_resource_requests_memory_bytes{pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
+          "expr": "sum ((kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
           "format": "time_series",
           "intervalFactor": 2,
           "legendFormat": "rqst: {{ node }} | {{ pod }}",
@@ -974,7 +974,7 @@
           "step": 120
         },
         {
-          "expr": "sum ((kube_node_status_allocatable_memory_bytes{node=~\"^$Node$\"})) by (node)",
+          "expr": "sum ((kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node$\"})) by (node)",
           "format": "time_series",
           "hide": true,
           "intervalFactor": 2,
