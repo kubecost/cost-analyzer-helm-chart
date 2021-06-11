@@ -273,10 +273,8 @@
           "step": 10
         },
         {
-          "expr": "avg(kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
+          "exemplar": true,
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
           "legendFormat": "{{ container}} (request)",
           "refId": "B"
         }
