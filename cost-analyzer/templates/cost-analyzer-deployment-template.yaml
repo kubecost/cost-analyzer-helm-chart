@@ -420,36 +420,9 @@ spec:
             - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
               value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
             {{- end }}
-
-            # A little ugly, see https://github.com/helm/helm/issues/8026 for why it
-            # isn't cleaner.
             {{- if .Values.kubecostMetrics }}
-            - name: EMIT_KUBE_NODE_STATUS_CAPACITY_MEMORY_BYTES_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitKubeNodeStatusCapacityMemoryBytes) | default (quote true) }}
-            {{- else }}
-            - name: EMIT_KUBE_NODE_STATUS_CAPACITY_MEMORY_BYTES_METRIC
-              value: "true"
-            {{- end }}
-            {{- if .Values.kubecostMetrics }}
-            - name: EMIT_KUBE_NODE_STATUS_CAPACITY_CPU_CORES_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitKubeNodeStatusCapacityCPUCores) | default (quote true) }}
-            {{- else }}
-            - name: EMIT_KUBE_NODE_STATUS_CAPACITY_CPU_CORES_METRIC
-              value: "true"
-            {{- end }}
-            {{- if .Values.kubecostMetrics }}
-            - name: EMIT_KUBE_POD_LABELS_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitKubePodLabels) | default (quote true) }}
-            {{- else }}
-            - name: EMIT_KUBE_POD_LABELS_METRIC
-              value: "true"
-            {{- end }}
-            {{- if .Values.kubecostMetrics }}
-            - name: EMIT_KUBE_NODE_LABELS_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitKubeNodeLabels) | default (quote true) }}
-            {{- else }}
-            - name: EMIT_KUBE_NODE_LABELS_METRIC
-              value: "true"
+            - name: EMIT_KSM_V1_METRICS
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
             {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
