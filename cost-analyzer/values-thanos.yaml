@@ -66,6 +66,7 @@ prometheus:
 thanos:
   store:
     enabled: true
+    chunkPoolSize: 8GB
     grpcSeriesMaxConcurrency: 20
     blockSyncConcurrency: 20
     extraEnv:
