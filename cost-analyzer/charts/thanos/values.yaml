@@ -323,7 +323,7 @@ query:
   # Maximum time to process query by query node.
   timeout: 10m
   # Maximum number of queries processed concurrently by query node.
-  maxConcurrent: 8
+  maxConcurrent: 2
   # Maximum number of select requests made concurrently per a query.
   maxConcurrentSelect: 4
   # Enable automatic adjustment (step / 5) to what source of data should be used in store gateways 
