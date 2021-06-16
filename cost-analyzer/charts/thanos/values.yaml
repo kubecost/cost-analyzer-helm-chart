@@ -8,7 +8,7 @@ store:
   # Maximum size of items held in the index cache.
   indexCacheSize: 250MB
   # Maximum size of concurrently allocatable bytes for chunks.
-  chunkPoolSize: 8GB
+  chunkPoolSize: 16GB
   # Maximum amount of samples returned via a single series call. 0 means no limit.
   # NOTE: for efficiency we take 120 as the number of samples in chunk (it cannot be bigger than that),
   # so the actual number of samples might be lower, even though the maximum could be hit.
