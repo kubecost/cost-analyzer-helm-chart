@@ -115,7 +115,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -264,7 +264,7 @@ data:
       - role: endpoints
       metric_relabel_configs:
       - action: keep
-        regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|deployment_match_labels|kube_deployment_spec_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_capacity|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_persistentvolumeclaim_resource_requests_storage_bytes|container_memory_allocation_bytes|kube_pod_container_resource_limits|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_cpu_cores|container_cpu_usage_seconds_total|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kubecost_cluster_memory_working_set_bytes|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|up|kube_node_status_allocatable|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|container_fs_writes_bytes_total|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_deployment_status_replicas_available|kube_statefulset_status_replicas|kube_daemonset_status_number_ready|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_replicaset_owner|kube_pod_container_info)
+        regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|deployment_match_labels|kube_deployment_spec_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_persistentvolumeclaim_resource_requests_storage_bytes|container_memory_allocation_bytes|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_cpu_cores|container_cpu_usage_seconds_total|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_resource_requests_memory_bytes|kube_node_status_capacity_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kubecost_cluster_memory_working_set_bytes|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|up|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|container_fs_writes_bytes_total|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_deployment_status_replicas_available|kube_statefulset_status_replicas|kube_daemonset_status_number_ready|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_replicaset_owner|kube_pod_container_info)
         source_labels:
         - __name__
       relabel_configs:
@@ -450,11 +450,11 @@ data:
       - expr: sum(container_memory_working_set_bytes{container_name!="",container_name!="POD",instance!=""})
           by (namespace, pod_name, container_name, instance)
         record: kubecost_savings_container_memory_usage_bytes
-      - expr: avg(sum(kube_pod_container_resource_requests{resource="cpu", unit="core",
-          namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
+      - expr: avg(sum(kube_pod_container_resource_requests_cpu_cores{namespace!="kube-system"})
+          by (pod, namespace, instance)) by (pod, namespace)
         record: kubecost_savings_pod_requests_cpu_cores
-      - expr: avg(sum(kube_pod_container_resource_requests{resource="memory", unit="byte",
-          namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
+      - expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"})
+          by (pod, namespace, instance)) by (pod, namespace)
         record: kubecost_savings_pod_requests_memory_bytes
 ---
 # Source: cost-analyzer/templates/cost-analyzer-config-map-template.yaml
@@ -465,7 +465,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -482,7 +482,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -543,7 +543,7 @@ data:
         index index.html;
         add_header Cache-Control "max-age=300";
         add_header Cache-Control "must-revalidate";
-        add_header ETag "1.82.0";
+        add_header ETag "1.81.0";
         listen 9090;
         location /api/ {
             proxy_pass http://api/;
@@ -611,7 +611,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -1071,7 +1071,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -1179,7 +1179,7 @@ data:
               "tableColumn": "label_cloud_google_com_gke_preemptible",
               "targets": [
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
                   "format": "time_series",
                   "instant": true,
                   "interval": "",
@@ -1267,7 +1267,7 @@ data:
               "tableColumn": "label_cloud_google_com_gke_preemptible",
               "targets": [
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n)",
                   "format": "time_series",
                   "instant": true,
                   "interval": "",
@@ -1443,7 +1443,7 @@ data:
               "tableColumn": "label_cloud_google_com_gke_preemptible",
               "targets": [
                 {
-                  "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+                  "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
                   "format": "time_series",
                   "instant": true,
                   "interval": "",
@@ -1535,7 +1535,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "(\n sum(\n   count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n   * on (instance) \n   sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}))\n) * 100",
+                  "expr": "(\n sum(\n   count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n   * on (instance) \n   sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable_cpu_cores))\n) * 100",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -1624,7 +1624,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) / SUM(kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}) * 100",
+                  "expr": "SUM(kube_pod_container_resource_requests_cpu_cores) / SUM(kube_node_status_allocatable_cpu_cores) * 100",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -1712,7 +1712,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
+                  "expr": "SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable_memory_bytes) * 100",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -1807,7 +1807,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"})\n /\n sum(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"})\n) * 100",
+                  "expr": "(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"})\n /\n sum(kube_node_status_allocatable_memory_bytes)\n) * 100",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -1958,7 +1958,7 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "compute cost",
@@ -2044,7 +2044,7 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "memory cost",
@@ -2216,7 +2216,7 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
+                  "expr": "# Compute\nsum(\n  avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n  avg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n\n# Memory\nsum(\n  avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n) +\n\n# Storage \n\nsum(avg(pv_hourly_cost) by (persistentvolume) * 730 * avg(kube_persistentvolume_capacity_bytes) by (persistentvolume) / 1024 / 1024 / 1024) \n+\nsum(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance) / 1024 / 1024 / 1024) * $localStorageGBCost",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "total cost",
@@ -2413,7 +2413,7 @@ data:
               ],
               "targets": [
                 {
-                  "expr": "avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100)",
+                  "expr": "avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100)",
                   "format": "table",
                   "instant": true,
                   "intervalFactor": 1,
@@ -2421,7 +2421,7 @@ data:
                   "refId": "A"
                 },
                 {
-                  "expr": "avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)",
+                  "expr": "avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)",
                   "format": "table",
                   "instant": true,
                   "intervalFactor": 1,
@@ -2436,7 +2436,7 @@ data:
                   "refId": "D"
                 },
                 {
-                  "expr": "# CPU  \navg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100) +\n# GPU\navg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n# Memory\navg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n",
+                  "expr": "# CPU  \navg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost or up * 0) by (node) * 730 * (1-$useDiscount/100) +\n# GPU\navg(node_gpu_hourly_cost) by (node) * 730 * (1-$useDiscount/100) +\n# Memory\navg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730 * (1-$useDiscount/100)\n",
                   "format": "table",
                   "instant": true,
                   "intervalFactor": 1,
@@ -2486,14 +2486,14 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_cpu_cores) by (node) * avg(node_cpu_hourly_cost) by (node) * 730 +\n  avg(node_gpu_hourly_cost) by (node) * 730\n)",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "cpu",
                   "refId": "B"
                 },
                 {
-                  "expr": "sum(\n  avg(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
+                  "expr": "sum(\n  avg(kube_node_status_capacity_memory_bytes) by (node) / 1024 / 1024 / 1024 * avg(node_ram_hourly_cost) by (node) * 730\n)",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "memory",
@@ -2769,7 +2769,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -2882,7 +2882,7 @@ data:
                     "tableColumn":"label_cloud_google_com_gke_preemptible",
                     "targets":[
                         {
-                            "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) ",
+                            "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) ",
                             "format":"time_series",
                             "instant":true,
                             "interval":"",
@@ -2971,7 +2971,7 @@ data:
                     "tableColumn":"label_cloud_google_com_gke_preemptible",
                     "targets":[
                         {
-                            "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) ",
+                            "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) ",
                             "format":"time_series",
                             "instant":true,
                             "interval":"",
@@ -3244,7 +3244,7 @@ data:
                     "tableColumn":"",
                     "targets":[
                         {
-                            "expr":"(\n sum(\n count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n * on (instance) \n sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}))\n) * 100",
+                            "expr":"(\n sum(\n count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n * on (instance) \n sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable_cpu_cores))\n) * 100",
                             "format":"time_series",
                             "interval":"",
                             "intervalFactor":1,
@@ -3335,7 +3335,7 @@ data:
                     "tableColumn":"",
                     "targets":[
                         {
-                            "expr":"SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) / SUM(kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}) * 100",
+                            "expr":"SUM(kube_pod_container_resource_requests_cpu_cores) / SUM(kube_node_status_allocatable_cpu_cores) * 100",
                             "format":"time_series",
                             "interval":"",
                             "intervalFactor":1,
@@ -3425,7 +3425,7 @@ data:
                     "tableColumn":"",
                     "targets":[
                         {
-                            "expr":"SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
+                            "expr":"SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable_memory_bytes) * 100",
                             "format":"time_series",
                             "interval":"",
                             "intervalFactor":1,
@@ -3522,7 +3522,7 @@ data:
                     "tableColumn":"",
                     "targets":[
                         {
-                            "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"})\n /\n sum(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"})\n) * 100",
+                            "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"})\n /\n sum(kube_node_status_allocatable_memory_bytes)\n) * 100",
                             "format":"time_series",
                             "interval":"",
                             "intervalFactor":1,
@@ -3794,7 +3794,7 @@ data:
                     "tableColumn":"label_cloud_google_com_gke_preemptible",
                     "targets":[
                         {
-                            "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n)\n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
+                            "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n)\n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                             "format":"time_series",
                             "instant":true,
                             "interval":"",
@@ -3862,7 +3862,7 @@ data:
                     "steppedLine":false,
                     "targets":[
                         {
-                            "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) \n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
+                            "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) \n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"cluster cost",
@@ -4095,7 +4095,7 @@ data:
                     ],
                     "targets":[
                         {
-                            "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
+                            "expr":"(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                             "format":"table",
                             "hide":false,
                             "instant":true,
@@ -4105,7 +4105,7 @@ data:
                             "refId":"A"
                         },
                         {
-                            "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
+                            "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
@@ -4121,7 +4121,7 @@ data:
                             "refId":"C"
                         },
                         {
-                            "expr":"# CPU \n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n#END CPU \n# Memory \n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n# PV storage\n\n(\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard \n)",
+                            "expr":"# CPU \n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n#END CPU \n# Memory \n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n# PV storage\n\n(\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard \n)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
@@ -4196,14 +4196,14 @@ data:
                     "steppedLine":false,
                     "targets":[
                         {
-                            "expr":"SUM(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"})",
+                            "expr":"SUM(kube_node_status_capacity_cpu_cores)",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"capacity",
                             "refId":"A"
                         },
                         {
-                            "expr":"SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"})",
+                            "expr":"SUM(kube_pod_container_resource_requests_cpu_cores)",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"requests",
@@ -4217,7 +4217,7 @@ data:
                             "refId":"B"
                         },
                         {
-                            "expr":"SUM(kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) ",
+                            "expr":"SUM(kube_pod_container_resource_limits_cpu_cores) ",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"limits",
@@ -4507,7 +4507,7 @@ data:
                     ],
                     "targets":[
                         {
-                            "expr":"sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\"}) by (namespace) ",
+                            "expr":"sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\"}) by (namespace) ",
                             "format":"table",
                             "hide":false,
                             "instant":true,
@@ -4657,14 +4657,14 @@ data:
                     ],
                     "targets":[
                         {
-                            "expr":"SUM(\nSUM(rate(container_cpu_usage_seconds_total[24h])) by (pod_name)\n* on (pod_name) group_left (node) \nlabel_replace(\n avg(kube_pod_info{}),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n)\n) by (node) \n/ \nsum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)",
+                            "expr":"SUM(\nSUM(rate(container_cpu_usage_seconds_total[24h])) by (pod_name)\n* on (pod_name) group_left (node) \nlabel_replace(\n avg(kube_pod_info{}),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n)\n) by (node) \n/ \nsum(kube_node_status_capacity_cpu_cores) by (node)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
                             "refId":"B"
                         },
                         {
-                            "expr":"sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (node) / sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)",
+                            "expr":"sum(kube_pod_container_resource_requests_cpu_cores) by (node) / sum(kube_node_status_capacity_cpu_cores) by (node)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
@@ -4736,14 +4736,14 @@ data:
                     "steppedLine":false,
                     "targets":[
                         {
-                            "expr":"SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"} / 1024 / 1024 / 1024)",
+                            "expr":"SUM(kube_node_status_capacity_memory_bytes / 1024 / 1024 / 1024)",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"capacity",
                             "refId":"A"
                         },
                         {
-                            "expr":"SUM(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024)",
+                            "expr":"SUM(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024)",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"requests",
@@ -4757,7 +4757,7 @@ data:
                             "refId":"B"
                         },
                         {
-                            "expr":"SUM(kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024)",
+                            "expr":"SUM(kube_pod_container_resource_limits_memory_bytes {namespace!=\"\"} / 1024 / 1024 / 1024)",
                             "format":"time_series",
                             "intervalFactor":1,
                             "legendFormat":"limits",
@@ -5047,7 +5047,7 @@ data:
                     ],
                     "targets":[
                         {
-                            "expr":"sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace) ",
+                            "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace) ",
                             "format":"table",
                             "hide":false,
                             "instant":true,
@@ -5197,14 +5197,14 @@ data:
                     ],
                     "targets":[
                         {
-                            "expr":"SUM(label_replace(container_memory_usage_bytes{namespace!=\"\"}, \"node\", \"$1\", \"instance\",\"(.+)\")) by (node) * 100\n/\nSUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)",
+                            "expr":"SUM(label_replace(container_memory_usage_bytes{namespace!=\"\"}, \"node\", \"$1\", \"instance\",\"(.+)\")) by (node) * 100\n/\nSUM(kube_node_status_capacity_memory_bytes) by (node)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
                             "refId":"B"
                         },
                         {
-                            "expr":"sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"}) by (node) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)",
+                            "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"}) by (node) / SUM(kube_node_status_capacity_memory_bytes) by (node)",
                             "format":"table",
                             "instant":true,
                             "intervalFactor":1,
@@ -6277,7 +6277,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -6370,7 +6370,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "sum (container_memory_working_set_bytes{container!=\"\",pod_name=~\"^$Deployment$Statefulset$Daemonset.*$\", kubernetes_io_hostname=~\"^$Node$\", pod_name!=\"\"}) / sum (kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node.*$\"}) * 100",
+                  "expr": "sum (container_memory_working_set_bytes{container!=\"\",pod_name=~\"^$Deployment$Statefulset$Daemonset.*$\", kubernetes_io_hostname=~\"^$Node$\", pod_name!=\"\"}) / sum (kube_node_status_allocatable_memory_bytes{node=~\"^$Node.*$\"}) * 100",
                   "format": "time_series",
                   "interval": "10s",
                   "intervalFactor": 1,
@@ -6710,7 +6710,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "sum (kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node.*$\"})",
+                  "expr": "sum (kube_node_status_allocatable_memory_bytes{node=~\"^$Node.*$\"})",
                   "format": "time_series",
                   "intervalFactor": 2,
                   "refId": "A",
@@ -7131,7 +7131,7 @@ data:
                   "step": 60
                 },
                 {
-                  "expr": "sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
+                  "expr": "sum (kube_pod_container_resource_requests_cpu_cores{pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"}) by (pod,node)",
                   "format": "time_series",
                   "hide": false,
                   "intervalFactor": 2,
@@ -7140,7 +7140,7 @@ data:
                   "step": 120
                 },
                 {
-                  "expr": "sum ((kube_node_status_allocatable{resource=\"cpu\", unit=\"core\", node=~\"^$Node$\"})) by (node)",
+                  "expr": "sum ((kube_node_status_allocatable_cpu_cores{node=~\"^$Node$\"})) by (node)",
                   "format": "time_series",
                   "hide": true,
                   "intervalFactor": 2,
@@ -7252,7 +7252,7 @@ data:
                   "step": 60
                 },
                 {
-                  "expr": "sum ((kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
+                  "expr": "sum ((kube_pod_container_resource_requests_memory_bytes{pod=~\"^$Deployment$Statefulset$Daemonset.*$\",node=~\"^$Node$\"})) by (pod,node)",
                   "format": "time_series",
                   "intervalFactor": 2,
                   "legendFormat": "rqst: {{ node }} | {{ pod }}",
@@ -7260,7 +7260,7 @@ data:
                   "step": 120
                 },
                 {
-                  "expr": "sum ((kube_node_status_allocatable{resource=\"memory\", unit=\"byte\", node=~\"^$Node$\"})) by (node)",
+                  "expr": "sum ((kube_node_status_allocatable_memory_bytes{node=~\"^$Node$\"})) by (node)",
                   "format": "time_series",
                   "hide": true,
                   "intervalFactor": 2,
@@ -7678,7 +7678,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -8119,7 +8119,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+                  "expr": "sum(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "refId": "A"
@@ -8281,7 +8281,7 @@ data:
               "tableColumn": "",
               "targets": [
                 {
-                  "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+                  "expr": "sum(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "refId": "A"
@@ -8500,14 +8500,14 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "limit",
                   "refId": "C"
                 },
                 {
-                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "request",
@@ -8598,14 +8598,14 @@ data:
               "steppedLine": false,
               "targets": [
                 {
-                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "limit",
                   "refId": "C"
                 },
                 {
-                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+                  "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
                   "format": "time_series",
                   "intervalFactor": 1,
                   "legendFormat": "request",
@@ -8906,7 +8906,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -9327,7 +9327,7 @@ data:
         			"steppedLine":false,
         			"targets":[
         				{
-        					"expr":"topk(10,\n label_replace(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=\"$namespace\"}) by (pod),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n ) \n/ on (pod_name) sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod_name=~\".+\"}[1h])) by (pod_name))",
+        					"expr":"topk(10,\n label_replace(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$namespace\"}) by (pod),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n ) \n/ on (pod_name) sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod_name=~\".+\"}[1h])) by (pod_name))",
         					"format":"time_series",
         					"intervalFactor":1,
         					"refId":"A"
@@ -10097,7 +10097,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -10272,7 +10272,7 @@ data:
         			"tableColumn":"",
         			"targets":[
         				{
-        					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
+        					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
         					"format":"time_series",
         					"intervalFactor":1,
         					"refId":"A"
@@ -10560,7 +10560,7 @@ data:
         					"refId":"C"
         				},
         				{
-        					"expr":"sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
+        					"expr":"sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
         					"format":"table",
         					"instant":true,
         					"intervalFactor":1,
@@ -10574,7 +10574,7 @@ data:
         					"refId":"D"
         				},
         				{
-        					"expr":"sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
+        					"expr":"sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
         					"format":"table",
         					"instant":true,
         					"intervalFactor":1,
@@ -10652,7 +10652,7 @@ data:
         			"tableColumn":"",
         			"targets":[
         				{
-        					"expr":"sum(\n count(avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod)\n * on (pod) group_right()\n sum(kube_pod_container_status_running) by (pod)\n)",
+        					"expr":"sum(\n count(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod)\n * on (pod) group_right()\n sum(kube_pod_container_status_running) by (pod)\n)",
         					"format":"time_series",
         					"instant":true,
         					"intervalFactor":1,
@@ -10817,7 +10817,7 @@ data:
         			"tableColumn":"",
         			"targets":[
         				{
-        					"expr":"kube_node_status_capacity{resource=\"cpu\", unit=\"core\", node=\"$node\"}",
+        					"expr":"kube_node_status_capacity_cpu_cores{node=\"$node\"}",
         					"format":"time_series",
         					"intervalFactor":1,
         					"refId":"A"
@@ -10899,7 +10899,7 @@ data:
         			"tableColumn":"",
         			"targets":[
         				{
-        					"expr":"kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"}",
+        					"expr":"kube_node_status_capacity_memory_bytes{node=\"$node\"}",
         					"format":"time_series",
         					"intervalFactor":1,
         					"refId":"A"
@@ -11091,7 +11091,7 @@ data:
         			"steppedLine":true,
         			"targets":[
         				{
-        					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
+        					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
         					"format":"time_series",
         					"instant":false,
         					"interval":"10s",
@@ -11502,7 +11502,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -11608,9 +11608,46 @@ data:
                 },
                 {
                   "exemplar": true,
-                  "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
-                  "legendFormat": "{{ container}} (request)",
-                  "refId": "B"
+                  "expr": "min (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[3m])) by (container_name)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "pod_filter=$pod | container_name={{ container_name }} | Usage MIN",
+                  "metric": "container_cpu",
+                  "refId": "CPU usage min",
+                  "step": 10
+                },
+                {
+                  "exemplar": true,
+                  "expr": "max (rate(container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod_name=~\"$pod\", container_name=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[3m])) by (container_name)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "pod_filter=$pod | container_name={{ container_name }} | Usage MAX",
+                  "metric": "container_cpu",
+                  "refId": "CPU usage max",
+                  "step": 10
+                },
+                {
+                  "exemplar": true,
+                  "expr": "avg(kube_pod_container_resource_requests_cpu_cores{namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+                  "format": "time_series",
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "pod_filter=$pod | container_name={{ container }} | Requests",
+                  "refId": "Requests"
+                },
+                {
+                  "exemplar": true,
+                  "expr": "avg(kube_pod_container_resource_limits_cpu_cores{namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+                  "interval": "",
+                  "legendFormat": "pod_filter=$pod | container_name={{ container }} | Limits",
+                  "refId": "Limits"
                 }
               ],
               "thresholds": [],
@@ -12507,7 +12544,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18211,7 +18248,7 @@ metadata:
   name: grafana-datasource
   labels:
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18252,7 +18289,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18449,7 +18486,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18602,7 +18639,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18686,7 +18723,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18817,7 +18854,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19254,7 +19291,7 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.82.0
+    helm.sh/chart: cost-analyzer-1.81.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19297,7 +19334,8 @@ spec:
             claimName: kubecost-cost-analyzer
       initContainers:
       containers:
-        - image: gcr.io/kubecost1/cost-model:prod-1.82.0
+        - image: gcr.io/kubecost1/cost-model:prod-1.81.0
+        
           name: cost-model
           imagePullPolicy: Always
           resources:
@@ -19362,18 +19400,12 @@ spec:
               value: "true"
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: "true"
+            - name: ETL_STORE_DURATION_DAYS
+              value: "90"
             - name: ETL_RESOLUTION_SECONDS
               value: "300"
             - name: ETL_MAX_BATCH_HOURS
               value: "6"
-            - name: ETL_DAILY_STORE_DURATION_DAYS
-              value: "91"
-            - name: ETL_HOURLY_STORE_DURATION_HOURS
-              value: "49"
-            - name: ETL_FILE_STORE_ENABLED
-              value: "false"
-            - name: ETL_ASSET_RECONCILIATION_ENABLED
-              value: "true"
             - name: PV_ENABLED
               value: "true"
             - name: MAX_QUERY_CONCURRENCY
@@ -19393,7 +19425,7 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.82.0
+        - image: gcr.io/kubecost1/frontend:prod-1.81.0
         
           env:
             - name: GET_HOSTS_FROM
@@ -19414,7 +19446,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
-        - image: gcr.io/kubecost1/server:prod-1.82.0
+        - image: gcr.io/kubecost1/server:prod-1.81.0
         
           resources:
             requests:
@@ -19438,7 +19470,7 @@ spec:
                   name: kubecost-cost-analyzer
                   key: prometheus-server-endpoint
             - name: HELM_VALUES
-              value: eyJhZmZpbml0eSI6e30sImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImdyYWZhbmEiOnsiYWRtaW5QYXNzd29yZCI6InN0cm9uZ3Bhc3N3b3JkIiwiYWRtaW5Vc2VyIjoiYWRtaW4iLCJhZmZpbml0eSI6e30sImRhc2hib2FyZFByb3ZpZGVycyI6e30sImRhc2hib2FyZHMiOnt9LCJkYXNoYm9hcmRzQ29uZmlnTWFwcyI6e30sImRhdGFzb3VyY2VzIjp7fSwiZGVwbG95bWVudFN0cmF0ZWd5IjoiUm9sbGluZ1VwZGF0ZSIsImRvd25sb2FkRGFzaGJvYXJkc0ltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoiYXBwcm9wcmlhdGUvY3VybCIsInRhZyI6ImxhdGVzdCJ9LCJlbnYiOnt9LCJlbnZGcm9tU2VjcmV0IjoiIiwiZXh0cmFTZWNyZXRNb3VudHMiOltdLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJncmFmYW5hLmluaSI6eyJhbmFseXRpY3MiOnsiY2hlY2tfZm9yX3VwZGF0ZXMiOnRydWV9LCJhdXRoLmFub255bW91cyI6eyJlbmFibGVkIjp0cnVlLCJvcmdfbmFtZSI6Ik1haW4gT3JnLiIsIm9yZ19yb2xlIjoiRWRpdG9yIn0sImdyYWZhbmFfbmV0Ijp7InVybCI6Imh0dHBzOi8vZ3JhZmFuYS5uZXQifSwibG9nIjp7Im1vZGUiOiJjb25zb2xlIn0sInBhdGhzIjp7ImRhdGEiOiIvdmFyL2xpYi9ncmFmYW5hL2RhdGEiLCJsb2dzIjoiL3Zhci9sb2cvZ3JhZmFuYSIsInBsdWdpbnMiOiIvdmFyL2xpYi9ncmFmYW5hL3BsdWdpbnMiLCJwcm92aXNpb25pbmciOiIvZXRjL2dyYWZhbmEvcHJvdmlzaW9uaW5nIn0sInNlcnZlciI6eyJyb290X3VybCI6IiUocHJvdG9jb2wpczovLyUoZG9tYWluKXM6JShodHRwX3BvcnQpcy9ncmFmYW5hIn19LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImdyYWZhbmEvZ3JhZmFuYSIsInRhZyI6IjcuNS42In0sImxkYXAiOnsiY29uZmlnIjoiIiwiZXhpc3RpbmdTZWNyZXQiOiIifSwibGl2ZW5lc3NQcm9iZSI6eyJmYWlsdXJlVGhyZXNob2xkIjoxMCwiaHR0cEdldCI6eyJwYXRoIjoiL2FwaS9oZWFsdGgiLCJwb3J0IjozMDAwfSwiaW5pdGlhbERlbGF5U2Vjb25kcyI6NjAsInRpbWVvdXRTZWNvbmRzIjozMH0sIm5vZGVTZWxlY3RvciI6e30sInBsdWdpbnMiOltdLCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZSwicHNwRW5hYmxlZCI6dHJ1ZSwicHNwVXNlQXBwQXJtb3IiOnRydWV9LCJyZWFkaW5lc3NQcm9iZSI6eyJodHRwR2V0Ijp7InBhdGgiOiIvYXBpL2hlYWx0aCIsInBvcnQiOjMwMDB9fSwicmVwbGljYXMiOjEsInJlc291cmNlcyI6e30sInNlY3VyaXR5Q29udGV4dCI6eyJmc0dyb3VwIjo0NzIsInJ1bkFzVXNlciI6NDcyfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxhYmVscyI6e30sInBvcnQiOjgwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImNyZWF0ZSI6dHJ1ZX0sInNpZGVjYXIiOnsiZGFzaGJvYXJkcyI6eyJlbmFibGVkIjp0cnVlLCJlcnJvcl90aHJvdHRsZV9zbGVlcCI6MCwiZm9sZGVyIjoiL3RtcC9kYXNoYm9hcmRzIiwibGFiZWwiOiJncmFmYW5hX2Rhc2hib2FyZCJ9LCJkYXRhc291cmNlcyI6eyJkYXRhU291cmNlTmFtZSI6InByb21ldGhldXMta3ViZWNvc3QiLCJkZWZhdWx0RGF0YXNvdXJjZUVuYWJsZWQiOmZhbHNlLCJlbmFibGVkIjp0cnVlLCJlcnJvcl90aHJvdHRsZV9zbGVlcCI6MCwibGFiZWwiOiJrdWJlY29zdF9ncmFmYW5hX2RhdGFzb3VyY2UifSwiaW1hZ2UiOiJraXdpZ3JpZC9rOHMtc2lkZWNhcjoxLjEyLjAiLCJpbWFnZVB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXNvdXJjZXMiOm51bGx9LCJzbXRwIjp7ImV4aXN0aW5nU2VjcmV0IjoiIn0sInRvbGVyYXRpb25zIjpbXX0sImluaXRDaG93bkRhdGEiOnsicmVzb3VyY2VzIjp7fX0sImluaXRDaG93bkRhdGFJbWFnZSI6ImJ1c3lib3giLCJrdWJlY29zdCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvc2VydmVyIiwicmVzb3VyY2VzIjp7InJlcXVlc3RzIjp7ImNwdSI6IjEwMG0iLCJtZW1vcnkiOiI1NU1pIn19fSwia3ViZWNvc3REZXBsb3ltZW50Ijp7InJlcGxpY2FzIjoxfSwia3ViZWNvc3RGcm9udGVuZCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvZnJvbnRlbmQiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMTBtIiwibWVtb3J5IjoiNTVNaSJ9fX0sImt1YmVjb3N0TW9kZWwiOnsiZXRsIjp0cnVlLCJldGxEYWlseVN0b3JlRHVyYXRpb25EYXlzIjo5MSwiZXRsSG91cmx5U3RvcmVEdXJhdGlvbkhvdXJzIjo0OSwiaW1hZ2UiOiJnY3IuaW8va3ViZWNvc3QxL2Nvc3QtbW9kZWwiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJtYXhRdWVyeUNvbmN1cnJlbmN5Ijo1LCJvdXRPZkNsdXN0ZXJQcm9tTWV0cmljc0VuYWJsZWQiOmZhbHNlLCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMjAwbSIsIm1lbW9yeSI6IjU1TWkifX0sInV0Y09mZnNldCI6IiswMDowMCIsIndhcm1DYWNoZSI6ZmFsc2UsIndhcm1TYXZpbmdzQ2FjaGUiOnRydWV9LCJrdWJlY29zdFRva2VuIjpudWxsLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImRiU2l6ZSI6IjMyLjBHaSIsImVuYWJsZWQiOnRydWUsInNpemUiOiIzMkdpIn0sInBvZFNlY3VyaXR5UG9saWN5Ijp7ImVuYWJsZWQiOnRydWV9LCJwcm9tZXRoZXVzIjp7ImFsZXJ0UmVsYWJlbENvbmZpZ3MiOm51bGwsImFsZXJ0bWFuYWdlckZpbGVzIjp7ImFsZXJ0bWFuYWdlci55bWwiOnsiZ2xvYmFsIjp7fSwicmVjZWl2ZXJzIjpbeyJuYW1lIjoiZGVmYXVsdC1yZWNlaXZlciJ9XSwicm91dGUiOnsiZ3JvdXBfaW50ZXJ2YWwiOiI1bSIsImdyb3VwX3dhaXQiOiIxMHMiLCJyZWNlaXZlciI6ImRlZmF1bHQtcmVjZWl2ZXIiLCJyZXBlYXRfaW50ZXJ2YWwiOiIzaCJ9fX0sImNvbmZpZ21hcFJlbG9hZCI6eyJhbGVydG1hbmFnZXIiOnsiZW5hYmxlZCI6dHJ1ZSwiZXh0cmFBcmdzIjp7fSwiZXh0cmFDb25maWdtYXBNb3VudHMiOltdLCJleHRyYVZvbHVtZURpcnMiOltdLCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImppbW1pZHlzb24vY29uZmlnbWFwLXJlbG9hZCIsInRhZyI6InYwLjMuMCJ9LCJuYW1lIjoiY29uZmlnbWFwLXJlbG9hZCIsInJlc291cmNlcyI6e319LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImV4dHJhQXJncyI6e30sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVEaXJzIjpbXSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJqaW1taWR5c29uL2NvbmZpZ21hcC1yZWxvYWQiLCJ0YWciOiJ2MC4zLjAifSwibmFtZSI6ImNvbmZpZ21hcC1yZWxvYWQiLCJyZXNvdXJjZXMiOnt9fX0sImV4dHJhU2NyYXBlQ29uZmlncyI6Ii0gam9iX25hbWU6IGt1YmVjb3N0XG4gIGhvbm9yX2xhYmVsczogdHJ1ZVxuICBzY3JhcGVfaW50ZXJ2YWw6IDFtXG4gIHNjcmFwZV90aW1lb3V0OiAxMHNcbiAgbWV0cmljc19wYXRoOiAvbWV0cmljc1xuICBzY2hlbWU6IGh0dHBcbiAgZG5zX3NkX2NvbmZpZ3M6XG4gIC0gbmFtZXM6XG4gICAgLSB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIuc2VydmljZU5hbWVcIiAuIH19XG4gICAgdHlwZTogJ0EnXG4gICAgcG9ydDogOTAwM1xuLSBqb2JfbmFtZToga3ViZWNvc3QtbmV0d29ya2luZ1xuICBrdWJlcm5ldGVzX3NkX2NvbmZpZ3M6XG4gICAgLSByb2xlOiBwb2RcbiAgcmVsYWJlbF9jb25maWdzOlxuICAjIFNjcmFwZSBvbmx5IHRoZSB0aGUgdGFyZ2V0cyBtYXRjaGluZyB0aGUgZm9sbG93aW5nIG1ldGFkYXRhXG4gICAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfcG9kX2xhYmVsX2FwcF1cbiAgICAgIGFjdGlvbjoga2VlcFxuICAgICAgcmVnZXg6ICB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIubmV0d29ya0Nvc3RzTmFtZVwiIC4gfX1cbiIsImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImltYWdlUHVsbFNlY3JldHMiOm51bGwsImt1YmUtc3RhdGUtbWV0cmljcyI6eyJhZmZpbml0eSI6e30sImNvbGxlY3RvcnMiOnsiY2VydGlmaWNhdGVzaWduaW5ncmVxdWVzdHMiOnRydWUsImNvbmZpZ21hcHMiOnRydWUsImNyb25qb2JzIjp0cnVlLCJkYWVtb25zZXRzIjp0cnVlLCJkZXBsb3ltZW50cyI6dHJ1ZSwiZW5kcG9pbnRzIjp0cnVlLCJob3Jpem9udGFscG9kYXV0b3NjYWxlcnMiOnRydWUsImluZ3Jlc3NlcyI6dHJ1ZSwiam9icyI6dHJ1ZSwibGltaXRyYW5nZXMiOnRydWUsIm11dGF0aW5nd2ViaG9va2NvbmZpZ3VyYXRpb25zIjpmYWxzZSwibmFtZXNwYWNlcyI6dHJ1ZSwibmV0d29ya3BvbGljaWVzIjpmYWxzZSwibm9kZXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVjbGFpbXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVzIjp0cnVlLCJwb2RkaXNydXB0aW9uYnVkZ2V0cyI6dHJ1ZSwicG9kcyI6dHJ1ZSwicmVwbGljYXNldHMiOnRydWUsInJlcGxpY2F0aW9uY29udHJvbGxlcnMiOnRydWUsInJlc291cmNlcXVvdGFzIjp0cnVlLCJzZWNyZXRzIjpmYWxzZSwic2VydmljZXMiOnRydWUsInN0YXRlZnVsc2V0cyI6dHJ1ZSwic3RvcmFnZWNsYXNzZXMiOnRydWUsInZhbGlkYXRpbmd3ZWJob29rY29uZmlndXJhdGlvbnMiOmZhbHNlLCJ2ZXJ0aWNhbHBvZGF1dG9zY2FsZXJzIjpmYWxzZSwidm9sdW1lYXR0YWNobWVudHMiOmZhbHNlfSwiY3VzdG9tTGFiZWxzIjp7fSwiZ2xvYmFsIjp7ImFkZGl0aW9uYWxMYWJlbHMiOnt9LCJncmFmYW5hIjp7ImRvbWFpbk5hbWUiOiJjb3N0LWFuYWx5emVyLWdyYWZhbmEuZGVmYXVsdC5zdmMiLCJlbmFibGVkIjp0cnVlLCJwcm94eSI6dHJ1ZSwic2NoZW1lIjoiaHR0cCJ9LCJub3RpZmljYXRpb25zIjp7fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImZxZG4iOiJodHRwOi8vY29zdC1hbmFseXplci1wcm9tZXRoZXVzLXNlcnZlci5kZWZhdWx0LnN2YyJ9fSwiaG9zdE5ldHdvcmsiOmZhbHNlLCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6InF1YXkuaW8vY29yZW9zL2t1YmUtc3RhdGUtbWV0cmljcyIsInRhZyI6InYxLjkuOCJ9LCJuYW1lc3BhY2VPdmVycmlkZSI6IiIsIm5vZGVTZWxlY3RvciI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6e30sInByb21ldGhldXNTY3JhcGUiOnRydWUsInJiYWMiOnsiY3JlYXRlIjp0cnVlfSwicmVwbGljYXMiOjEsInNlY3VyaXR5Q29udGV4dCI6eyJlbmFibGVkIjp0cnVlLCJmc0dyb3VwIjo2NTUzNCwicnVuQXNVc2VyIjo2NTUzNH0sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnt9LCJsb2FkQmFsYW5jZXJJUCI6IiIsIm5vZGVQb3J0IjowLCJwb3J0Ijo4MDgwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImNyZWF0ZSI6dHJ1ZSwiaW1hZ2VQdWxsU2VjcmV0cyI6W119LCJ0b2xlcmF0aW9ucyI6W119LCJrdWJlU3RhdGVNZXRyaWNzIjp7ImVuYWJsZWQiOnRydWV9LCJub2RlRXhwb3J0ZXIiOnsiZW5hYmxlZCI6dHJ1ZSwiZXh0cmFBcmdzIjp7fSwiZXh0cmFDb25maWdtYXBNb3VudHMiOltdLCJleHRyYUhvc3RQYXRoTW91bnRzIjpbXSwiaG9zdE5ldHdvcmsiOnRydWUsImhvc3RQSUQiOnRydWUsImltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoicHJvbS9ub2RlLWV4cG9ydGVyIiwidGFnIjoidjAuMTguMSJ9LCJuYW1lIjoibm9kZS1leHBvcnRlciIsIm5vZGVTZWxlY3RvciI6e30sInBvZCI6eyJsYWJlbHMiOnt9fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwb2RTZWN1cml0eVBvbGljeSI6eyJhbm5vdGF0aW9ucyI6e319LCJwcmlvcml0eUNsYXNzTmFtZSI6IiIsInJlc291cmNlcyI6e30sInNlY3VyaXR5Q29udGV4dCI6e30sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnsicHJvbWV0aGV1cy5pby9zY3JhcGUiOiJ0cnVlIn0sImNsdXN0ZXJJUCI6Ik5vbmUiLCJleHRlcm5hbElQcyI6W10sImhvc3RQb3J0Ijo5MTAwLCJsYWJlbHMiOnt9LCJsb2FkQmFsYW5jZXJJUCI6IiIsImxvYWRCYWxhbmNlclNvdXJjZVJhbmdlcyI6W10sInNlcnZpY2VQb3J0Ijo5MTAwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInRvbGVyYXRpb25zIjpbXSwidXBkYXRlU3RyYXRlZ3kiOnsidHlwZSI6IlJvbGxpbmdVcGRhdGUifX0sInJiYWMiOnsiY3JlYXRlIjp0cnVlfSwic2VydmVyIjp7ImFmZmluaXR5Ijp7fSwiYWxlcnRtYW5hZ2VycyI6W10sImJhc2VVUkwiOiIiLCJjb25maWdNYXBPdmVycmlkZU5hbWUiOiIiLCJjb25maWdQYXRoIjoiL2V0Yy9jb25maWcvcHJvbWV0aGV1cy55bWwiLCJlbXB0eURpciI6eyJzaXplTGltaXQiOiIifSwiZW5hYmxlZCI6dHJ1ZSwiZW52IjpbXSwiZXh0cmFBcmdzIjp7InF1ZXJ5Lm1heC1jb25jdXJyZW5jeSI6MSwicXVlcnkubWF4LXNhbXBsZXMiOjEwMDAwMDAwMH0sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFGbGFncyI6WyJ3ZWIuZW5hYmxlLWxpZmVjeWNsZSJdLCJleHRyYUhvc3RQYXRoTW91bnRzIjpbXSwiZXh0cmFJbml0Q29udGFpbmVycyI6W10sImV4dHJhU2VjcmV0TW91bnRzIjpbXSwiZXh0cmFWb2x1bWVNb3VudHMiOltdLCJleHRyYVZvbHVtZXMiOltdLCJnbG9iYWwiOnsiZXZhbHVhdGlvbl9pbnRlcnZhbCI6IjFtIiwiZXh0ZXJuYWxfbGFiZWxzIjp7ImNsdXN0ZXJfaWQiOiJjbHVzdGVyLW9uZSJ9LCJzY3JhcGVfaW50ZXJ2YWwiOiIxbSIsInNjcmFwZV90aW1lb3V0IjoiMTBzIn0sImltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoicHJvbS9wcm9tZXRoZXVzIiwidGFnIjoidjIuMjIuMiJ9LCJsaXZlbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywibGl2ZW5lc3NQcm9iZUluaXRpYWxEZWxheSI6MzAsImxpdmVuZXNzUHJvYmVTdWNjZXNzVGhyZXNob2xkIjoxLCJsaXZlbmVzc1Byb2JlVGltZW91dCI6MzAsIm5hbWUiOiJzZXJ2ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImFjY2Vzc01vZGVzIjpbIlJlYWRXcml0ZU9uY2UiXSwiYW5ub3RhdGlvbnMiOnt9LCJlbmFibGVkIjp0cnVlLCJleGlzdGluZ0NsYWltIjoiIiwibW91bnRQYXRoIjoiL2RhdGEiLCJzaXplIjoiMzJHaSIsInN1YlBhdGgiOiIifSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwb2RMYWJlbHMiOnt9LCJwb2RTZWN1cml0eVBvbGljeSI6eyJhbm5vdGF0aW9ucyI6e319LCJwcmVmaXhVUkwiOiIiLCJwcmlvcml0eUNsYXNzTmFtZSI6IiIsInJlYWRpbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywicmVhZGluZXNzUHJvYmVJbml0aWFsRGVsYXkiOjMwLCJyZWFkaW5lc3NQcm9iZVN1Y2Nlc3NUaHJlc2hvbGQiOjEsInJlYWRpbmVzc1Byb2JlVGltZW91dCI6MzAsInJlbW90ZVJlYWQiOnt9LCJyZW1vdGVXcml0ZSI6e30sInJlcGxpY2FDb3VudCI6MSwicmVzb3VyY2VzIjp7fSwicmV0ZW50aW9uIjoiMTVkIiwic2VjdXJpdHlDb250ZXh0Ijp7ImZzR3JvdXAiOjEwMDEsInJ1bkFzR3JvdXAiOjEwMDEsInJ1bkFzTm9uUm9vdCI6dHJ1ZSwicnVuQXNVc2VyIjoxMDAxfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImNsdXN0ZXJJUCI6IiIsImV4dGVybmFsSVBzIjpbXSwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6ODAsInNlc3Npb25BZmZpbml0eSI6Ik5vbmUiLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNpZGVjYXJDb250YWluZXJzIjpudWxsLCJzdHJhdGVneSI6eyJ0eXBlIjoiUmVjcmVhdGUifSwidGVybWluYXRpb25HcmFjZVBlcmlvZFNlY29uZHMiOjMwMCwidG9sZXJhdGlvbnMiOltdfSwic2VydmVyRmlsZXMiOnsiYWxlcnRpbmdfcnVsZXMueW1sIjp7fSwiYWxlcnRzIjp7fSwicHJvbWV0aGV1cy55bWwiOnsicnVsZV9maWxlcyI6WyIvZXRjL2NvbmZpZy9yZWNvcmRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvYWxlcnRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvcnVsZXMiLCIvZXRjL2NvbmZpZy9hbGVydHMiXSwic2NyYXBlX2NvbmZpZ3MiOlt7ImpvYl9uYW1lIjoicHJvbWV0aGV1cyIsInN0YXRpY19jb25maWdzIjpbeyJ0YXJnZXRzIjpbImxvY2FsaG9zdDo5MDkwIl19XX0seyJiZWFyZXJfdG9rZW5fZmlsZSI6Ii92YXIvcnVuL3NlY3JldHMva3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC90b2tlbiIsImpvYl9uYW1lIjoia3ViZXJuZXRlcy1ub2Rlcy1jYWR2aXNvciIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6Im5vZGUifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx8Y29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2Vycm9yc190b3RhbHxjb250YWluZXJfbmV0d29ya190cmFuc21pdF9lcnJvcnNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9wYWNrZXRzX2Ryb3BwZWRfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfcGFja2V0c19kcm9wcGVkX3RvdGFsfGNvbnRhaW5lcl9tZW1vcnlfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2NwdV9jZnNfdGhyb3R0bGVkX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2NwdV9jZnNfcGVyaW9kc190b3RhbHxjb250YWluZXJfZnNfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2ZzX2xpbWl0X2J5dGVzfGNvbnRhaW5lcl9jcHVfY2ZzX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfY3B1X2Nmc190aHJvdHRsZWRfcGVyaW9kc190b3RhbHxjb250YWluZXJfY3B1X2Nmc19wZXJpb2RzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfc3BlY19jcHVfc2hhcmVzfGNvbnRhaW5lcl9zcGVjX21lbW9yeV9saW1pdF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc19yZWFkc19ieXRlc190b3RhbHxjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc193cml0ZXNfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX3JlYWRzX2J5dGVzX3RvdGFsfGNhZHZpc29yX3ZlcnNpb25faW5mbykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbmFtZV9fIl19LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKC4rKSIsInNvdXJjZV9sYWJlbHMiOlsiY29udGFpbmVyIl0sInRhcmdldF9sYWJlbCI6ImNvbnRhaW5lcl9uYW1lIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoLispIiwic291cmNlX2xhYmVscyI6WyJwb2QiXSwidGFyZ2V0X2xhYmVsIjoicG9kX25hbWUifV0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoibGFiZWxtYXAiLCJyZWdleCI6Il9fbWV0YV9rdWJlcm5ldGVzX25vZGVfbGFiZWxfKC4rKSJ9LHsicmVwbGFjZW1lbnQiOiJrdWJlcm5ldGVzLmRlZmF1bHQuc3ZjOjQ0MyIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJyZWdleCI6IiguKykiLCJyZXBsYWNlbWVudCI6Ii9hcGkvdjEvbm9kZXMvJDEvcHJveHkvbWV0cmljcy9jYWR2aXNvciIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfbm9kZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Il9fbWV0cmljc19wYXRoX18ifV0sInNjaGVtZSI6Imh0dHBzIiwidGxzX2NvbmZpZyI6eyJjYV9maWxlIjoiL3Zhci9ydW4vc2VjcmV0cy9rdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L2NhLmNydCIsImluc2VjdXJlX3NraXBfdmVyaWZ5Ijp0cnVlfX0seyJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtc2VydmljZS1lbmRwb2ludHMiLCJrdWJlcm5ldGVzX3NkX2NvbmZpZ3MiOlt7InJvbGUiOiJlbmRwb2ludHMifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X2FsbG9jYXRpb258Y29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFsfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXN8Y29udGFpbmVyX21lbW9yeV91c2FnZV9ieXRlc3xjb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8ZGVwbG95bWVudF9tYXRjaF9sYWJlbHN8a3ViZV9kZXBsb3ltZW50X3NwZWNfcmVwbGljYXN8a3ViZV9kZXBsb3ltZW50X3N0YXR1c19yZXBsaWNhc19hdmFpbGFibGV8a3ViZV9qb2Jfc3RhdHVzX2ZhaWxlZHxrdWJlX25hbWVzcGFjZV9hbm5vdGF0aW9uc3xrdWJlX25hbWVzcGFjZV9sYWJlbHN8a3ViZV9ub2RlX2luZm98a3ViZV9ub2RlX2xhYmVsc3xrdWJlX25vZGVfc3RhdHVzX2NhcGFjaXR5fGt1YmVfbm9kZV9zdGF0dXNfY2FwYWNpdHlfY3B1X2NvcmVzfGt1YmVfbm9kZV9zdGF0dXNfY2FwYWNpdHlfbWVtb3J5X2J5dGVzfGt1YmVfbm9kZV9zdGF0dXNfY29uZGl0aW9ufGt1YmVfcGVyc2lzdGVudHZvbHVtZV9jYXBhY2l0eV9ieXRlc3xrdWJlX3BlcnNpc3RlbnR2b2x1bWVfc3RhdHVzX3BoYXNlfGt1YmVfcGVyc2lzdGVudHZvbHVtZWNsYWltX2luZm98a3ViZV9wZXJzaXN0ZW50dm9sdW1lY2xhaW1fcmVzb3VyY2VfcmVxdWVzdHNfc3RvcmFnZV9ieXRlc3xrdWJlX3BlcnNpc3RlbnR2b2x1bWVjbGFpbV9yZXNvdXJjZV9yZXF1ZXN0c19zdG9yYWdlX2J5dGVzfGNvbnRhaW5lcl9tZW1vcnlfYWxsb2NhdGlvbl9ieXRlc3xrdWJlX3BvZF9jb250YWluZXJfcmVzb3VyY2VfbGltaXRzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHNfY3B1X2NvcmVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHNfbWVtb3J5X2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX2NwdV9jb3Jlc3xjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX21lbW9yeV9ieXRlc3xrdWJlX3BvZF9jb250YWluZXJfcmVzb3VyY2VfcmVxdWVzdHNfbWVtb3J5X2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Jlc3RhcnRzX3RvdGFsfGt1YmVfcG9kX2NvbnRhaW5lcl9zdGF0dXNfcnVubmluZ3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Rlcm1pbmF0ZWRfcmVhc29ufGt1YmVfcG9kX2xhYmVsc3xrdWJlX3BvZF9vd25lcnxrdWJlX3BvZF9zdGF0dXNfcGhhc2V8a3ViZWNvc3RfY2x1c3Rlcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN8a3ViZWNvc3RfcG9kX25ldHdvcmtfZWdyZXNzX2J5dGVzX3RvdGFsfG5vZGVfY3B1X2hvdXJseV9jb3N0fG5vZGVfY3B1X3NlY29uZHNfdG90YWx8bm9kZV9kaXNrX3JlYWRzX2NvbXBsZXRlZHxub2RlX2Rpc2tfcmVhZHNfY29tcGxldGVkX3RvdGFsfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkX3RvdGFsfG5vZGVfZmlsZXN5c3RlbV9kZXZpY2VfZXJyb3J8bm9kZV9ncHVfaG91cmx5X2Nvc3R8bm9kZV9tZW1vcnlfQnVmZmVyc19ieXRlc3xub2RlX21lbW9yeV9DYWNoZWRfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtQXZhaWxhYmxlX2J5dGVzfG5vZGVfbWVtb3J5X01lbUZyZWVfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtVG90YWxfYnl0ZXN8bm9kZV9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfG5vZGVfcmFtX2hvdXJseV9jb3N0fHBvZF9wdmNfYWxsb2NhdGlvbnxwdl9ob3VybHlfY29zdHxzZXJ2aWNlX3NlbGVjdG9yX2xhYmVsc3xzdGF0ZWZ1bFNldF9tYXRjaF9sYWJlbHN8dXB8a3ViZV9ub2RlX3N0YXR1c19hbGxvY2F0YWJsZXxrdWJlX25vZGVfc3RhdHVzX2FsbG9jYXRhYmxlX2NwdV9jb3Jlc3xrdWJlX25vZGVfc3RhdHVzX2FsbG9jYXRhYmxlX21lbW9yeV9ieXRlc3xjb250YWluZXJfZnNfd3JpdGVzX2J5dGVzX3RvdGFsfGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXN8a3ViZV9zdGF0ZWZ1bHNldF9yZXBsaWNhc3xrdWJlX2RhZW1vbnNldF9zdGF0dXNfZGVzaXJlZF9udW1iZXJfc2NoZWR1bGVkfGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXNfYXZhaWxhYmxlfGt1YmVfc3RhdGVmdWxzZXRfc3RhdHVzX3JlcGxpY2FzfGt1YmVfZGFlbW9uc2V0X3N0YXR1c19udW1iZXJfcmVhZHl8a3ViZV9kZXBsb3ltZW50X3N0YXR1c19yZXBsaWNhc3xrdWJlX3N0YXRlZnVsc2V0X3JlcGxpY2FzfGt1YmVfZGFlbW9uc2V0X3N0YXR1c19kZXNpcmVkX251bWJlcl9zY2hlZHVsZWR8a3ViZV9yZXBsaWNhc2V0X293bmVyfGt1YmVfcG9kX2NvbnRhaW5lcl9pbmZvKSIsInNvdXJjZV9sYWJlbHMiOlsiX19uYW1lX18iXX1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGUiXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoaHR0cHM/KSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NoZW1lIl0sInRhcmdldF9sYWJlbCI6Il9fc2NoZW1lX18ifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BhdGgiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKFteOl0rKSg/OjpcXGQrKT87KFxcZCspIiwicmVwbGFjZW1lbnQiOiIkMTokMiIsInNvdXJjZV9sYWJlbHMiOlsiX19hZGRyZXNzX18iLCJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wb3J0Il0sInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19uYW1lc3BhY2UiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lc3BhY2UifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3BvZF9ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19ub2RlIn1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlLWVuZHBvaW50cy1zbG93Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoiZW5kcG9pbnRzIn1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGVfc2xvdyJdfSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IihodHRwcz8pIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY2hlbWUiXSwidGFyZ2V0X2xhYmVsIjoiX19zY2hlbWVfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKC4rKSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcGF0aCJdLCJ0YXJnZXRfbGFiZWwiOiJfX21ldHJpY3NfcGF0aF9fIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoW146XSspKD86OlxcZCspPzsoXFxkKykiLCJyZXBsYWNlbWVudCI6IiQxOiQyIiwic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyIsIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BvcnQiXSwidGFyZ2V0X2xhYmVsIjoiX19hZGRyZXNzX18ifSx7ImFjdGlvbiI6ImxhYmVsbWFwIiwicmVnZXgiOiJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2xhYmVsXyguKykifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbmFtZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfcG9kX25vZGVfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25vZGUifV0sInNjcmFwZV9pbnRlcnZhbCI6IjVtIiwic2NyYXBlX3RpbWVvdXQiOiIzMHMifSx7Imhvbm9yX2xhYmVscyI6dHJ1ZSwiam9iX25hbWUiOiJwcm9tZXRoZXVzLXB1c2hnYXRld2F5Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoic2VydmljZSJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiJwdXNoZ2F0ZXdheSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcHJvYmUiXX1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlcyIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6InNlcnZpY2UifV0sIm1ldHJpY3NfcGF0aCI6Ii9wcm9iZSIsInBhcmFtcyI6eyJtb2R1bGUiOlsiaHR0cF8yeHgiXX0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4Ijp0cnVlLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3Byb2JlIl19LHsic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyJdLCJ0YXJnZXRfbGFiZWwiOiJfX3BhcmFtX3RhcmdldCJ9LHsicmVwbGFjZW1lbnQiOiJibGFja2JveCIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fcGFyYW1fdGFyZ2V0Il0sInRhcmdldF9sYWJlbCI6Imluc3RhbmNlIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lIn1dfV19LCJyZWNvcmRpbmdfcnVsZXMueW1sIjp7fSwicnVsZXMiOnsiZ3JvdXBzIjpbeyJuYW1lIjoiQ1BVIiwicnVsZXMiOlt7ImV4cHIiOiJzdW0ocmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkpIiwicmVjb3JkIjoiY2x1c3RlcjpjcHVfdXNhZ2U6cmF0ZTVtIn0seyJleHByIjoicmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkiLCJyZWNvcmQiOiJjbHVzdGVyOmNwdV91c2FnZV9ub3N1bTpyYXRlNW0ifSx7ImV4cHIiOiJhdmcoaXJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLCBjb250YWluZXJfbmFtZSE9XCJcIn1bNW1dKSkgYnkgKGNvbnRhaW5lcl9uYW1lLHBvZF9uYW1lLG5hbWVzcGFjZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9jb250YWluZXJfY3B1X3VzYWdlX2lyYXRlIn0seyJleHByIjoic3VtKGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN7Y29udGFpbmVyX25hbWUhPVwiUE9EXCIsY29udGFpbmVyX25hbWUhPVwiXCJ9KSBieSAoY29udGFpbmVyX25hbWUscG9kX25hbWUsbmFtZXNwYWNlKSIsInJlY29yZCI6Imt1YmVjb3N0X2NvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifSx7ImV4cHIiOiJzdW0oY29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3tjb250YWluZXJfbmFtZSE9XCJQT0RcIixjb250YWluZXJfbmFtZSE9XCJcIn0pIiwicmVjb3JkIjoia3ViZWNvc3RfY2x1c3Rlcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifV19LHsibmFtZSI6IlNhdmluZ3MiLCJydWxlcyI6W3siZXhwciI6InN1bShhdmcoa3ViZV9wb2Rfb3duZXJ7b3duZXJfa2luZCE9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIiwibGFiZWxzIjp7ImRhZW1vbnNldCI6ImZhbHNlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQ9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIC8gc3VtKGt1YmVfbm9kZV9pbmZvKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJ0cnVlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQhPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJmYWxzZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn0seyJleHByIjoic3VtKGF2ZyhrdWJlX3BvZF9vd25lcntvd25lcl9raW5kPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSAvIHN1bShrdWJlX25vZGVfaW5mbykiLCJsYWJlbHMiOnsiZGFlbW9uc2V0IjoidHJ1ZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn0seyJleHByIjoibGFiZWxfcmVwbGFjZShzdW0oa3ViZV9wb2Rfc3RhdHVzX3BoYXNle3BoYXNlPVwiUnVubmluZ1wiLG5hbWVzcGFjZSE9XCJrdWJlLXN5c3RlbVwifSBcdTAwM2UgMCkgYnkgKHBvZCwgbmFtZXNwYWNlKSwgXCJwb2RfbmFtZVwiLCBcIiQxXCIsIFwicG9kXCIsIFwiKC4rKVwiKSIsInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfcnVubmluZ19wb2RzIn0seyJleHByIjoic3VtKHJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlwiLGNvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLGluc3RhbmNlIT1cIlwifVs1bV0pKSBieSAobmFtZXNwYWNlLCBwb2RfbmFtZSwgY29udGFpbmVyX25hbWUsIGluc3RhbmNlKSIsInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzIn0seyJleHByIjoic3VtKGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN7Y29udGFpbmVyX25hbWUhPVwiXCIsY29udGFpbmVyX25hbWUhPVwiUE9EXCIsaW5zdGFuY2UhPVwiXCJ9KSBieSAobmFtZXNwYWNlLCBwb2RfbmFtZSwgY29udGFpbmVyX25hbWUsIGluc3RhbmNlKSIsInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY29udGFpbmVyX21lbW9yeV91c2FnZV9ieXRlcyJ9LHsiZXhwciI6ImF2ZyhzdW0oa3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3Rze3Jlc291cmNlPVwiY3B1XCIsIHVuaXQ9XCJjb3JlXCIsIG5hbWVzcGFjZSE9XCJrdWJlLXN5c3RlbVwifSkgYnkgKHBvZCwgbmFtZXNwYWNlLCBpbnN0YW5jZSkpIGJ5IChwb2QsIG5hbWVzcGFjZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX3BvZF9yZXF1ZXN0c19jcHVfY29yZXMifSx7ImV4cHIiOiJhdmcoc3VtKGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c3tyZXNvdXJjZT1cIm1lbW9yeVwiLCB1bml0PVwiYnl0ZVwiLCBuYW1lc3BhY2UhPVwia3ViZS1zeXN0ZW1cIn0pIGJ5IChwb2QsIG5hbWVzcGFjZSwgaW5zdGFuY2UpKSBieSAocG9kLCBuYW1lc3BhY2UpIiwicmVjb3JkIjoia3ViZWNvc3Rfc2F2aW5nc19wb2RfcmVxdWVzdHNfbWVtb3J5X2J5dGVzIn1dfV19fSwic2VydmljZUFjY291bnRzIjp7ImFsZXJ0bWFuYWdlciI6eyJjcmVhdGUiOnRydWV9LCJub2RlRXhwb3J0ZXIiOnsiY3JlYXRlIjp0cnVlfSwicHVzaGdhdGV3YXkiOnsiY3JlYXRlIjp0cnVlfSwic2VydmVyIjp7ImNyZWF0ZSI6dHJ1ZX19fSwicmVtb3RlV3JpdGUiOnt9LCJyZXBvcnRpbmciOnsiZXJyb3JSZXBvcnRpbmciOnRydWUsImxvZ0NvbGxlY3Rpb24iOnRydWUsInByb2R1Y3RBbmFseXRpY3MiOnRydWUsInZhbHVlc1JlcG9ydGluZyI6dHJ1ZX0sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnt9LCJsYWJlbHMiOnt9LCJwb3J0Ijo5MDkwLCJ0YXJnZXRQb3J0Ijo5MDkwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImFubm90YXRpb25zIjp7fSwiY3JlYXRlIjp0cnVlfSwic3VwcG9ydE5GUyI6ZmFsc2UsInRvbGVyYXRpb25zIjpbXX0=
+              value: eyJhZmZpbml0eSI6e30sImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImdyYWZhbmEiOnsiYWRtaW5QYXNzd29yZCI6InN0cm9uZ3Bhc3N3b3JkIiwiYWRtaW5Vc2VyIjoiYWRtaW4iLCJhZmZpbml0eSI6e30sImRhc2hib2FyZFByb3ZpZGVycyI6e30sImRhc2hib2FyZHMiOnt9LCJkYXNoYm9hcmRzQ29uZmlnTWFwcyI6e30sImRhdGFzb3VyY2VzIjp7fSwiZGVwbG95bWVudFN0cmF0ZWd5IjoiUm9sbGluZ1VwZGF0ZSIsImRvd25sb2FkRGFzaGJvYXJkc0ltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoiYXBwcm9wcmlhdGUvY3VybCIsInRhZyI6ImxhdGVzdCJ9LCJlbnYiOnt9LCJlbnZGcm9tU2VjcmV0IjoiIiwiZXh0cmFTZWNyZXRNb3VudHMiOltdLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJncmFmYW5hLmluaSI6eyJhbmFseXRpY3MiOnsiY2hlY2tfZm9yX3VwZGF0ZXMiOnRydWV9LCJhdXRoLmFub255bW91cyI6eyJlbmFibGVkIjp0cnVlLCJvcmdfbmFtZSI6Ik1haW4gT3JnLiIsIm9yZ19yb2xlIjoiRWRpdG9yIn0sImdyYWZhbmFfbmV0Ijp7InVybCI6Imh0dHBzOi8vZ3JhZmFuYS5uZXQifSwibG9nIjp7Im1vZGUiOiJjb25zb2xlIn0sInBhdGhzIjp7ImRhdGEiOiIvdmFyL2xpYi9ncmFmYW5hL2RhdGEiLCJsb2dzIjoiL3Zhci9sb2cvZ3JhZmFuYSIsInBsdWdpbnMiOiIvdmFyL2xpYi9ncmFmYW5hL3BsdWdpbnMiLCJwcm92aXNpb25pbmciOiIvZXRjL2dyYWZhbmEvcHJvdmlzaW9uaW5nIn0sInNlcnZlciI6eyJyb290X3VybCI6IiUocHJvdG9jb2wpczovLyUoZG9tYWluKXM6JShodHRwX3BvcnQpcy9ncmFmYW5hIn19LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImdyYWZhbmEvZ3JhZmFuYSIsInRhZyI6IjcuNS42In0sImxkYXAiOnsiY29uZmlnIjoiIiwiZXhpc3RpbmdTZWNyZXQiOiIifSwibGl2ZW5lc3NQcm9iZSI6eyJmYWlsdXJlVGhyZXNob2xkIjoxMCwiaHR0cEdldCI6eyJwYXRoIjoiL2FwaS9oZWFsdGgiLCJwb3J0IjozMDAwfSwiaW5pdGlhbERlbGF5U2Vjb25kcyI6NjAsInRpbWVvdXRTZWNvbmRzIjozMH0sIm5vZGVTZWxlY3RvciI6e30sInBsdWdpbnMiOltdLCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZSwicHNwRW5hYmxlZCI6dHJ1ZSwicHNwVXNlQXBwQXJtb3IiOnRydWV9LCJyZWFkaW5lc3NQcm9iZSI6eyJodHRwR2V0Ijp7InBhdGgiOiIvYXBpL2hlYWx0aCIsInBvcnQiOjMwMDB9fSwicmVwbGljYXMiOjEsInJlc291cmNlcyI6e30sInNlY3VyaXR5Q29udGV4dCI6eyJmc0dyb3VwIjo0NzIsInJ1bkFzVXNlciI6NDcyfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxhYmVscyI6e30sInBvcnQiOjgwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImNyZWF0ZSI6dHJ1ZX0sInNpZGVjYXIiOnsiZGFzaGJvYXJkcyI6eyJlbmFibGVkIjp0cnVlLCJlcnJvcl90aHJvdHRsZV9zbGVlcCI6MCwiZm9sZGVyIjoiL3RtcC9kYXNoYm9hcmRzIiwibGFiZWwiOiJncmFmYW5hX2Rhc2hib2FyZCJ9LCJkYXRhc291cmNlcyI6eyJkYXRhU291cmNlTmFtZSI6InByb21ldGhldXMta3ViZWNvc3QiLCJkZWZhdWx0RGF0YXNvdXJjZUVuYWJsZWQiOmZhbHNlLCJlbmFibGVkIjp0cnVlLCJlcnJvcl90aHJvdHRsZV9zbGVlcCI6MCwibGFiZWwiOiJrdWJlY29zdF9ncmFmYW5hX2RhdGFzb3VyY2UifSwiaW1hZ2UiOiJraXdpZ3JpZC9rOHMtc2lkZWNhcjoxLjEyLjAiLCJpbWFnZVB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXNvdXJjZXMiOm51bGx9LCJzbXRwIjp7ImV4aXN0aW5nU2VjcmV0IjoiIn0sInRvbGVyYXRpb25zIjpbXX0sImluaXRDaG93bkRhdGEiOnsicmVzb3VyY2VzIjp7fX0sImluaXRDaG93bkRhdGFJbWFnZSI6ImJ1c3lib3giLCJrdWJlY29zdCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvc2VydmVyIiwicmVzb3VyY2VzIjp7InJlcXVlc3RzIjp7ImNwdSI6IjEwMG0iLCJtZW1vcnkiOiI1NU1pIn19fSwia3ViZWNvc3REZXBsb3ltZW50Ijp7InJlcGxpY2FzIjoxfSwia3ViZWNvc3RGcm9udGVuZCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvZnJvbnRlbmQiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMTBtIiwibWVtb3J5IjoiNTVNaSJ9fX0sImt1YmVjb3N0TW9kZWwiOnsiZXRsIjp0cnVlLCJldGxTdG9yZUR1cmF0aW9uRGF5cyI6OTAsImltYWdlIjoiZ2NyLmlvL2t1YmVjb3N0MS9jb3N0LW1vZGVsIiwiaW1hZ2VQdWxsUG9saWN5IjoiQWx3YXlzIiwibWF4UXVlcnlDb25jdXJyZW5jeSI6NSwib3V0T2ZDbHVzdGVyUHJvbU1ldHJpY3NFbmFibGVkIjpmYWxzZSwicmVzb3VyY2VzIjp7InJlcXVlc3RzIjp7ImNwdSI6IjIwMG0iLCJtZW1vcnkiOiI1NU1pIn19LCJ1dGNPZmZzZXQiOiIrMDA6MDAiLCJ3YXJtQ2FjaGUiOmZhbHNlLCJ3YXJtU2F2aW5nc0NhY2hlIjp0cnVlfSwia3ViZWNvc3RUb2tlbiI6bnVsbCwibm9kZVNlbGVjdG9yIjp7fSwicGVyc2lzdGVudFZvbHVtZSI6eyJkYlNpemUiOiIzMi4wR2kiLCJlbmFibGVkIjp0cnVlLCJzaXplIjoiMzJHaSJ9LCJwb2RTZWN1cml0eVBvbGljeSI6eyJlbmFibGVkIjp0cnVlfSwicHJvbWV0aGV1cyI6eyJhbGVydFJlbGFiZWxDb25maWdzIjpudWxsLCJhbGVydG1hbmFnZXJGaWxlcyI6eyJhbGVydG1hbmFnZXIueW1sIjp7Imdsb2JhbCI6e30sInJlY2VpdmVycyI6W3sibmFtZSI6ImRlZmF1bHQtcmVjZWl2ZXIifV0sInJvdXRlIjp7Imdyb3VwX2ludGVydmFsIjoiNW0iLCJncm91cF93YWl0IjoiMTBzIiwicmVjZWl2ZXIiOiJkZWZhdWx0LXJlY2VpdmVyIiwicmVwZWF0X2ludGVydmFsIjoiM2gifX19LCJjb25maWdtYXBSZWxvYWQiOnsiYWxlcnRtYW5hZ2VyIjp7ImVuYWJsZWQiOnRydWUsImV4dHJhQXJncyI6e30sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVEaXJzIjpbXSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJqaW1taWR5c29uL2NvbmZpZ21hcC1yZWxvYWQiLCJ0YWciOiJ2MC4zLjAifSwibmFtZSI6ImNvbmZpZ21hcC1yZWxvYWQiLCJyZXNvdXJjZXMiOnt9fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJleHRyYUFyZ3MiOnt9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhVm9sdW1lRGlycyI6W10sImltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoiamltbWlkeXNvbi9jb25maWdtYXAtcmVsb2FkIiwidGFnIjoidjAuMy4wIn0sIm5hbWUiOiJjb25maWdtYXAtcmVsb2FkIiwicmVzb3VyY2VzIjp7fX19LCJleHRyYVNjcmFwZUNvbmZpZ3MiOiItIGpvYl9uYW1lOiBrdWJlY29zdFxuICBob25vcl9sYWJlbHM6IHRydWVcbiAgc2NyYXBlX2ludGVydmFsOiAxbVxuICBzY3JhcGVfdGltZW91dDogMTBzXG4gIG1ldHJpY3NfcGF0aDogL21ldHJpY3NcbiAgc2NoZW1lOiBodHRwXG4gIGRuc19zZF9jb25maWdzOlxuICAtIG5hbWVzOlxuICAgIC0ge3sgdGVtcGxhdGUgXCJjb3N0LWFuYWx5emVyLnNlcnZpY2VOYW1lXCIgLiB9fVxuICAgIHR5cGU6ICdBJ1xuICAgIHBvcnQ6IDkwMDNcbi0gam9iX25hbWU6IGt1YmVjb3N0LW5ldHdvcmtpbmdcbiAga3ViZXJuZXRlc19zZF9jb25maWdzOlxuICAgIC0gcm9sZTogcG9kXG4gIHJlbGFiZWxfY29uZmlnczpcbiAgIyBTY3JhcGUgb25seSB0aGUgdGhlIHRhcmdldHMgbWF0Y2hpbmcgdGhlIGZvbGxvd2luZyBtZXRhZGF0YVxuICAgIC0gc291cmNlX2xhYmVsczogW19fbWV0YV9rdWJlcm5ldGVzX3BvZF9sYWJlbF9hcHBdXG4gICAgICBhY3Rpb246IGtlZXBcbiAgICAgIHJlZ2V4OiAge3sgdGVtcGxhdGUgXCJjb3N0LWFuYWx5emVyLm5ldHdvcmtDb3N0c05hbWVcIiAuIH19XG4iLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJpbWFnZVB1bGxTZWNyZXRzIjpudWxsLCJrdWJlLXN0YXRlLW1ldHJpY3MiOnsiYWZmaW5pdHkiOnt9LCJjb2xsZWN0b3JzIjp7ImNlcnRpZmljYXRlc2lnbmluZ3JlcXVlc3RzIjp0cnVlLCJjb25maWdtYXBzIjp0cnVlLCJjcm9uam9icyI6dHJ1ZSwiZGFlbW9uc2V0cyI6dHJ1ZSwiZGVwbG95bWVudHMiOnRydWUsImVuZHBvaW50cyI6dHJ1ZSwiaG9yaXpvbnRhbHBvZGF1dG9zY2FsZXJzIjp0cnVlLCJpbmdyZXNzZXMiOnRydWUsImpvYnMiOnRydWUsImxpbWl0cmFuZ2VzIjp0cnVlLCJtdXRhdGluZ3dlYmhvb2tjb25maWd1cmF0aW9ucyI6ZmFsc2UsIm5hbWVzcGFjZXMiOnRydWUsIm5ldHdvcmtwb2xpY2llcyI6ZmFsc2UsIm5vZGVzIjp0cnVlLCJwZXJzaXN0ZW50dm9sdW1lY2xhaW1zIjp0cnVlLCJwZXJzaXN0ZW50dm9sdW1lcyI6dHJ1ZSwicG9kZGlzcnVwdGlvbmJ1ZGdldHMiOnRydWUsInBvZHMiOnRydWUsInJlcGxpY2FzZXRzIjp0cnVlLCJyZXBsaWNhdGlvbmNvbnRyb2xsZXJzIjp0cnVlLCJyZXNvdXJjZXF1b3RhcyI6dHJ1ZSwic2VjcmV0cyI6ZmFsc2UsInNlcnZpY2VzIjp0cnVlLCJzdGF0ZWZ1bHNldHMiOnRydWUsInN0b3JhZ2VjbGFzc2VzIjp0cnVlLCJ2YWxpZGF0aW5nd2ViaG9va2NvbmZpZ3VyYXRpb25zIjpmYWxzZSwidmVydGljYWxwb2RhdXRvc2NhbGVycyI6ZmFsc2UsInZvbHVtZWF0dGFjaG1lbnRzIjpmYWxzZX0sImN1c3RvbUxhYmVscyI6e30sImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImhvc3ROZXR3b3JrIjpmYWxzZSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJxdWF5LmlvL2NvcmVvcy9rdWJlLXN0YXRlLW1ldHJpY3MiLCJ0YWciOiJ2MS45LjgifSwibmFtZXNwYWNlT3ZlcnJpZGUiOiIiLCJub2RlU2VsZWN0b3IiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnt9LCJwcm9tZXRoZXVzU2NyYXBlIjp0cnVlLCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZX0sInJlcGxpY2FzIjoxLCJzZWN1cml0eUNvbnRleHQiOnsiZW5hYmxlZCI6dHJ1ZSwiZnNHcm91cCI6NjU1MzQsInJ1bkFzVXNlciI6NjU1MzR9LCJzZXJ2aWNlIjp7ImFubm90YXRpb25zIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJub2RlUG9ydCI6MCwicG9ydCI6ODA4MCwidHlwZSI6IkNsdXN0ZXJJUCJ9LCJzZXJ2aWNlQWNjb3VudCI6eyJjcmVhdGUiOnRydWUsImltYWdlUHVsbFNlY3JldHMiOltdfSwidG9sZXJhdGlvbnMiOltdfSwia3ViZVN0YXRlTWV0cmljcyI6eyJlbmFibGVkIjp0cnVlfSwibm9kZUV4cG9ydGVyIjp7ImVuYWJsZWQiOnRydWUsImV4dHJhQXJncyI6e30sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFIb3N0UGF0aE1vdW50cyI6W10sImhvc3ROZXR3b3JrIjp0cnVlLCJob3N0UElEIjp0cnVlLCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6InByb20vbm9kZS1leHBvcnRlciIsInRhZyI6InYwLjE4LjEifSwibmFtZSI6Im5vZGUtZXhwb3J0ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwb2QiOnsibGFiZWxzIjp7fX0sInBvZEFubm90YXRpb25zIjp7fSwicG9kU2VjdXJpdHlQb2xpY3kiOnsiYW5ub3RhdGlvbnMiOnt9fSwicHJpb3JpdHlDbGFzc05hbWUiOiIiLCJyZXNvdXJjZXMiOnt9LCJzZWN1cml0eUNvbnRleHQiOnt9LCJzZXJ2aWNlIjp7ImFubm90YXRpb25zIjp7InByb21ldGhldXMuaW8vc2NyYXBlIjoidHJ1ZSJ9LCJjbHVzdGVySVAiOiJOb25lIiwiZXh0ZXJuYWxJUHMiOltdLCJob3N0UG9ydCI6OTEwMCwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6OTEwMCwidHlwZSI6IkNsdXN0ZXJJUCJ9LCJ0b2xlcmF0aW9ucyI6W10sInVwZGF0ZVN0cmF0ZWd5Ijp7InR5cGUiOiJSb2xsaW5nVXBkYXRlIn19LCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZX0sInNlcnZlciI6eyJhZmZpbml0eSI6e30sImFsZXJ0bWFuYWdlcnMiOltdLCJiYXNlVVJMIjoiIiwiY29uZmlnTWFwT3ZlcnJpZGVOYW1lIjoiIiwiY29uZmlnUGF0aCI6Ii9ldGMvY29uZmlnL3Byb21ldGhldXMueW1sIiwiZW1wdHlEaXIiOnsic2l6ZUxpbWl0IjoiIn0sImVuYWJsZWQiOnRydWUsImVudiI6W10sImV4dHJhQXJncyI6eyJxdWVyeS5tYXgtY29uY3VycmVuY3kiOjEsInF1ZXJ5Lm1heC1zYW1wbGVzIjoxMDAwMDAwMDB9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhRmxhZ3MiOlsid2ViLmVuYWJsZS1saWZlY3ljbGUiXSwiZXh0cmFIb3N0UGF0aE1vdW50cyI6W10sImV4dHJhSW5pdENvbnRhaW5lcnMiOltdLCJleHRyYVNlY3JldE1vdW50cyI6W10sImV4dHJhVm9sdW1lTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVzIjpbXSwiZ2xvYmFsIjp7ImV2YWx1YXRpb25faW50ZXJ2YWwiOiIxbSIsImV4dGVybmFsX2xhYmVscyI6eyJjbHVzdGVyX2lkIjoiY2x1c3Rlci1vbmUifSwic2NyYXBlX2ludGVydmFsIjoiMW0iLCJzY3JhcGVfdGltZW91dCI6IjEwcyJ9LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6InByb20vcHJvbWV0aGV1cyIsInRhZyI6InYyLjIyLjIifSwibGl2ZW5lc3NQcm9iZUZhaWx1cmVUaHJlc2hvbGQiOjMsImxpdmVuZXNzUHJvYmVJbml0aWFsRGVsYXkiOjMwLCJsaXZlbmVzc1Byb2JlU3VjY2Vzc1RocmVzaG9sZCI6MSwibGl2ZW5lc3NQcm9iZVRpbWVvdXQiOjMwLCJuYW1lIjoic2VydmVyIiwibm9kZVNlbGVjdG9yIjp7fSwicGVyc2lzdGVudFZvbHVtZSI6eyJhY2Nlc3NNb2RlcyI6WyJSZWFkV3JpdGVPbmNlIl0sImFubm90YXRpb25zIjp7fSwiZW5hYmxlZCI6dHJ1ZSwiZXhpc3RpbmdDbGFpbSI6IiIsIm1vdW50UGF0aCI6Ii9kYXRhIiwic2l6ZSI6IjMyR2kiLCJzdWJQYXRoIjoiIn0sInBvZEFubm90YXRpb25zIjp7fSwicG9kTGFiZWxzIjp7fSwicG9kU2VjdXJpdHlQb2xpY3kiOnsiYW5ub3RhdGlvbnMiOnt9fSwicHJlZml4VVJMIjoiIiwicHJpb3JpdHlDbGFzc05hbWUiOiIiLCJyZWFkaW5lc3NQcm9iZUZhaWx1cmVUaHJlc2hvbGQiOjMsInJlYWRpbmVzc1Byb2JlSW5pdGlhbERlbGF5IjozMCwicmVhZGluZXNzUHJvYmVTdWNjZXNzVGhyZXNob2xkIjoxLCJyZWFkaW5lc3NQcm9iZVRpbWVvdXQiOjMwLCJyZW1vdGVSZWFkIjp7fSwicmVtb3RlV3JpdGUiOnt9LCJyZXBsaWNhQ291bnQiOjEsInJlc291cmNlcyI6e30sInJldGVudGlvbiI6IjE1ZCIsInNlY3VyaXR5Q29udGV4dCI6eyJmc0dyb3VwIjoxMDAxLCJydW5Bc0dyb3VwIjoxMDAxLCJydW5Bc05vblJvb3QiOnRydWUsInJ1bkFzVXNlciI6MTAwMX0sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnt9LCJjbHVzdGVySVAiOiIiLCJleHRlcm5hbElQcyI6W10sImxhYmVscyI6e30sImxvYWRCYWxhbmNlcklQIjoiIiwibG9hZEJhbGFuY2VyU291cmNlUmFuZ2VzIjpbXSwic2VydmljZVBvcnQiOjgwLCJzZXNzaW9uQWZmaW5pdHkiOiJOb25lIiwidHlwZSI6IkNsdXN0ZXJJUCJ9LCJzaWRlY2FyQ29udGFpbmVycyI6bnVsbCwic3RyYXRlZ3kiOnsidHlwZSI6IlJlY3JlYXRlIn0sInRlcm1pbmF0aW9uR3JhY2VQZXJpb2RTZWNvbmRzIjozMDAsInRvbGVyYXRpb25zIjpbXX0sInNlcnZlckZpbGVzIjp7ImFsZXJ0aW5nX3J1bGVzLnltbCI6e30sImFsZXJ0cyI6e30sInByb21ldGhldXMueW1sIjp7InJ1bGVfZmlsZXMiOlsiL2V0Yy9jb25maWcvcmVjb3JkaW5nX3J1bGVzLnltbCIsIi9ldGMvY29uZmlnL2FsZXJ0aW5nX3J1bGVzLnltbCIsIi9ldGMvY29uZmlnL3J1bGVzIiwiL2V0Yy9jb25maWcvYWxlcnRzIl0sInNjcmFwZV9jb25maWdzIjpbeyJqb2JfbmFtZSI6InByb21ldGhldXMiLCJzdGF0aWNfY29uZmlncyI6W3sidGFyZ2V0cyI6WyJsb2NhbGhvc3Q6OTA5MCJdfV19LHsiYmVhcmVyX3Rva2VuX2ZpbGUiOiIvdmFyL3J1bi9zZWNyZXRzL2t1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvdG9rZW4iLCJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtbm9kZXMtY2Fkdmlzb3IiLCJrdWJlcm5ldGVzX3NkX2NvbmZpZ3MiOlt7InJvbGUiOiJub2RlIn1dLCJtZXRyaWNfcmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiIoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFsfGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9lcnJvcnNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfZXJyb3JzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfcGFja2V0c19kcm9wcGVkX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X3BhY2tldHNfZHJvcHBlZF90b3RhbHxjb250YWluZXJfbWVtb3J5X3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9jcHVfY2ZzX3Rocm90dGxlZF9wZXJpb2RzX3RvdGFsfGNvbnRhaW5lcl9jcHVfY2ZzX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfY3B1X2Nmc19wZXJpb2RzX3RvdGFsfGNvbnRhaW5lcl9mc19pbm9kZXNfZnJlZXxjb250YWluZXJfZnNfaW5vZGVzX3RvdGFsfGNvbnRhaW5lcl9mc191c2FnZV9ieXRlc3xjb250YWluZXJfZnNfbGltaXRfYnl0ZXN8Y29udGFpbmVyX2NwdV9jZnNfdGhyb3R0bGVkX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2NwdV9jZnNfcGVyaW9kc190b3RhbHxjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc19pbm9kZXNfZnJlZXxjb250YWluZXJfZnNfaW5vZGVzX3RvdGFsfGNvbnRhaW5lcl9mc191c2FnZV9ieXRlc3xjb250YWluZXJfZnNfbGltaXRfYnl0ZXN8Y29udGFpbmVyX3NwZWNfY3B1X3NoYXJlc3xjb250YWluZXJfc3BlY19tZW1vcnlfbGltaXRfYnl0ZXN8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9ieXRlc190b3RhbHxjb250YWluZXJfbmV0d29ya190cmFuc21pdF9ieXRlc190b3RhbHxjb250YWluZXJfZnNfcmVhZHNfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9ieXRlc190b3RhbHxjb250YWluZXJfZnNfd3JpdGVzX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc19yZWFkc19ieXRlc190b3RhbHxjYWR2aXNvcl92ZXJzaW9uX2luZm8pIiwic291cmNlX2xhYmVscyI6WyJfX25hbWVfXyJdfSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbImNvbnRhaW5lciJdLCJ0YXJnZXRfbGFiZWwiOiJjb250YWluZXJfbmFtZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKC4rKSIsInNvdXJjZV9sYWJlbHMiOlsicG9kIl0sInRhcmdldF9sYWJlbCI6InBvZF9uYW1lIn1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImxhYmVsbWFwIiwicmVnZXgiOiJfX21ldGFfa3ViZXJuZXRlc19ub2RlX2xhYmVsXyguKykifSx7InJlcGxhY2VtZW50Ijoia3ViZXJuZXRlcy5kZWZhdWx0LnN2Yzo0NDMiLCJ0YXJnZXRfbGFiZWwiOiJfX2FkZHJlc3NfXyJ9LHsicmVnZXgiOiIoLispIiwicmVwbGFjZW1lbnQiOiIvYXBpL3YxL25vZGVzLyQxL3Byb3h5L21ldHJpY3MvY2Fkdmlzb3IiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25vZGVfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJfX21ldHJpY3NfcGF0aF9fIn1dLCJzY2hlbWUiOiJodHRwcyIsInRsc19jb25maWciOnsiY2FfZmlsZSI6Ii92YXIvcnVuL3NlY3JldHMva3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9jYS5jcnQiLCJpbnNlY3VyZV9za2lwX3ZlcmlmeSI6dHJ1ZX19LHsiam9iX25hbWUiOiJrdWJlcm5ldGVzLXNlcnZpY2UtZW5kcG9pbnRzIiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoiZW5kcG9pbnRzIn1dLCJtZXRyaWNfcmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiIoY29udGFpbmVyX2NwdV9hbGxvY2F0aW9ufGNvbnRhaW5lcl9jcHVfdXNhZ2Vfc2Vjb25kc190b3RhbHxjb250YWluZXJfZnNfbGltaXRfYnl0ZXN8Y29udGFpbmVyX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzfGNvbnRhaW5lcl9tZW1vcnlfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfGRlcGxveW1lbnRfbWF0Y2hfbGFiZWxzfGt1YmVfZGVwbG95bWVudF9zcGVjX3JlcGxpY2FzfGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXNfYXZhaWxhYmxlfGt1YmVfam9iX3N0YXR1c19mYWlsZWR8a3ViZV9uYW1lc3BhY2VfYW5ub3RhdGlvbnN8a3ViZV9uYW1lc3BhY2VfbGFiZWxzfGt1YmVfbm9kZV9pbmZvfGt1YmVfbm9kZV9sYWJlbHN8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9jcHVfY29yZXN8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9tZW1vcnlfYnl0ZXN8a3ViZV9ub2RlX3N0YXR1c19jb25kaXRpb258a3ViZV9wZXJzaXN0ZW50dm9sdW1lX2NhcGFjaXR5X2J5dGVzfGt1YmVfcGVyc2lzdGVudHZvbHVtZV9zdGF0dXNfcGhhc2V8a3ViZV9wZXJzaXN0ZW50dm9sdW1lY2xhaW1faW5mb3xrdWJlX3BlcnNpc3RlbnR2b2x1bWVjbGFpbV9yZXNvdXJjZV9yZXF1ZXN0c19zdG9yYWdlX2J5dGVzfGt1YmVfcGVyc2lzdGVudHZvbHVtZWNsYWltX3Jlc291cmNlX3JlcXVlc3RzX3N0b3JhZ2VfYnl0ZXN8Y29udGFpbmVyX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHNfY3B1X2NvcmVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHNfbWVtb3J5X2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX2NwdV9jb3Jlc3xjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX21lbW9yeV9ieXRlc3xrdWJlX3BvZF9jb250YWluZXJfcmVzb3VyY2VfcmVxdWVzdHNfbWVtb3J5X2J5dGVzfGt1YmVfbm9kZV9zdGF0dXNfY2FwYWNpdHlfbWVtb3J5X2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Jlc3RhcnRzX3RvdGFsfGt1YmVfcG9kX2NvbnRhaW5lcl9zdGF0dXNfcnVubmluZ3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Rlcm1pbmF0ZWRfcmVhc29ufGt1YmVfcG9kX2xhYmVsc3xrdWJlX3BvZF9vd25lcnxrdWJlX3BvZF9zdGF0dXNfcGhhc2V8a3ViZWNvc3RfY2x1c3Rlcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN8a3ViZWNvc3RfcG9kX25ldHdvcmtfZWdyZXNzX2J5dGVzX3RvdGFsfG5vZGVfY3B1X2hvdXJseV9jb3N0fG5vZGVfY3B1X3NlY29uZHNfdG90YWx8bm9kZV9kaXNrX3JlYWRzX2NvbXBsZXRlZHxub2RlX2Rpc2tfcmVhZHNfY29tcGxldGVkX3RvdGFsfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkX3RvdGFsfG5vZGVfZmlsZXN5c3RlbV9kZXZpY2VfZXJyb3J8bm9kZV9ncHVfaG91cmx5X2Nvc3R8bm9kZV9tZW1vcnlfQnVmZmVyc19ieXRlc3xub2RlX21lbW9yeV9DYWNoZWRfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtQXZhaWxhYmxlX2J5dGVzfG5vZGVfbWVtb3J5X01lbUZyZWVfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtVG90YWxfYnl0ZXN8bm9kZV9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfG5vZGVfcmFtX2hvdXJseV9jb3N0fHBvZF9wdmNfYWxsb2NhdGlvbnxwdl9ob3VybHlfY29zdHxzZXJ2aWNlX3NlbGVjdG9yX2xhYmVsc3xzdGF0ZWZ1bFNldF9tYXRjaF9sYWJlbHN8dXB8a3ViZV9ub2RlX3N0YXR1c19hbGxvY2F0YWJsZV9jcHVfY29yZXN8a3ViZV9ub2RlX3N0YXR1c19hbGxvY2F0YWJsZV9tZW1vcnlfYnl0ZXN8Y29udGFpbmVyX2ZzX3dyaXRlc19ieXRlc190b3RhbHxrdWJlX2RlcGxveW1lbnRfc3RhdHVzX3JlcGxpY2FzfGt1YmVfc3RhdGVmdWxzZXRfcmVwbGljYXN8a3ViZV9kYWVtb25zZXRfc3RhdHVzX2Rlc2lyZWRfbnVtYmVyX3NjaGVkdWxlZHxrdWJlX2RlcGxveW1lbnRfc3RhdHVzX3JlcGxpY2FzX2F2YWlsYWJsZXxrdWJlX3N0YXRlZnVsc2V0X3N0YXR1c19yZXBsaWNhc3xrdWJlX2RhZW1vbnNldF9zdGF0dXNfbnVtYmVyX3JlYWR5fGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXN8a3ViZV9zdGF0ZWZ1bHNldF9yZXBsaWNhc3xrdWJlX2RhZW1vbnNldF9zdGF0dXNfZGVzaXJlZF9udW1iZXJfc2NoZWR1bGVkfGt1YmVfcmVwbGljYXNldF9vd25lcnxrdWJlX3BvZF9jb250YWluZXJfaW5mbykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbmFtZV9fIl19XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOnRydWUsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NyYXBlIl19LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKGh0dHBzPykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3NjaGVtZSJdLCJ0YXJnZXRfbGFiZWwiOiJfX3NjaGVtZV9fIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoLispIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wYXRoIl0sInRhcmdldF9sYWJlbCI6Il9fbWV0cmljc19wYXRoX18ifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IihbXjpdKykoPzo6XFxkKyk/OyhcXGQrKSIsInJlcGxhY2VtZW50IjoiJDE6JDIiLCJzb3VyY2VfbGFiZWxzIjpbIl9fYWRkcmVzc19fIiwiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcG9ydCJdLCJ0YXJnZXRfbGFiZWwiOiJfX2FkZHJlc3NfXyJ9LHsiYWN0aW9uIjoibGFiZWxtYXAiLCJyZWdleCI6Il9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbGFiZWxfKC4rKSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfbmFtZXNwYWNlIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbmFtZXNwYWNlIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19wb2Rfbm9kZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbm9kZSJ9XX0seyJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtc2VydmljZS1lbmRwb2ludHMtc2xvdyIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6ImVuZHBvaW50cyJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOnRydWUsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NyYXBlX3Nsb3ciXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoaHR0cHM/KSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NoZW1lIl0sInRhcmdldF9sYWJlbCI6Il9fc2NoZW1lX18ifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BhdGgiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKFteOl0rKSg/OjpcXGQrKT87KFxcZCspIiwicmVwbGFjZW1lbnQiOiIkMTokMiIsInNvdXJjZV9sYWJlbHMiOlsiX19hZGRyZXNzX18iLCJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wb3J0Il0sInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19uYW1lc3BhY2UiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lc3BhY2UifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3BvZF9ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19ub2RlIn1dLCJzY3JhcGVfaW50ZXJ2YWwiOiI1bSIsInNjcmFwZV90aW1lb3V0IjoiMzBzIn0seyJob25vcl9sYWJlbHMiOnRydWUsImpvYl9uYW1lIjoicHJvbWV0aGV1cy1wdXNoZ2F0ZXdheSIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6InNlcnZpY2UifV0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4IjoicHVzaGdhdGV3YXkiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3Byb2JlIl19XX0seyJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtc2VydmljZXMiLCJrdWJlcm5ldGVzX3NkX2NvbmZpZ3MiOlt7InJvbGUiOiJzZXJ2aWNlIn1dLCJtZXRyaWNzX3BhdGgiOiIvcHJvYmUiLCJwYXJhbXMiOnsibW9kdWxlIjpbImh0dHBfMnh4Il19LCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wcm9iZSJdfSx7InNvdXJjZV9sYWJlbHMiOlsiX19hZGRyZXNzX18iXSwidGFyZ2V0X2xhYmVsIjoiX19wYXJhbV90YXJnZXQifSx7InJlcGxhY2VtZW50IjoiYmxhY2tib3giLCJ0YXJnZXRfbGFiZWwiOiJfX2FkZHJlc3NfXyJ9LHsic291cmNlX2xhYmVscyI6WyJfX3BhcmFtX3RhcmdldCJdLCJ0YXJnZXRfbGFiZWwiOiJpbnN0YW5jZSJ9LHsiYWN0aW9uIjoibGFiZWxtYXAiLCJyZWdleCI6Il9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbGFiZWxfKC4rKSJ9LHsic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19uYW1lc3BhY2UiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lc3BhY2UifSx7InNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbmFtZSJ9XX1dfSwicmVjb3JkaW5nX3J1bGVzLnltbCI6e30sInJ1bGVzIjp7Imdyb3VwcyI6W3sibmFtZSI6IkNQVSIsInJ1bGVzIjpbeyJleHByIjoic3VtKHJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlwifVs1bV0pKSIsInJlY29yZCI6ImNsdXN0ZXI6Y3B1X3VzYWdlOnJhdGU1bSJ9LHsiZXhwciI6InJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlwifVs1bV0pIiwicmVjb3JkIjoiY2x1c3RlcjpjcHVfdXNhZ2Vfbm9zdW06cmF0ZTVtIn0seyJleHByIjoiYXZnKGlyYXRlKGNvbnRhaW5lcl9jcHVfdXNhZ2Vfc2Vjb25kc190b3RhbHtjb250YWluZXJfbmFtZSE9XCJQT0RcIiwgY29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkpIGJ5IChjb250YWluZXJfbmFtZSxwb2RfbmFtZSxuYW1lc3BhY2UpIiwicmVjb3JkIjoia3ViZWNvc3RfY29udGFpbmVyX2NwdV91c2FnZV9pcmF0ZSJ9LHsiZXhwciI6InN1bShjb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVze2NvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLGNvbnRhaW5lcl9uYW1lIT1cIlwifSkgYnkgKGNvbnRhaW5lcl9uYW1lLHBvZF9uYW1lLG5hbWVzcGFjZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9jb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzIn0seyJleHByIjoic3VtKGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN7Y29udGFpbmVyX25hbWUhPVwiUE9EXCIsY29udGFpbmVyX25hbWUhPVwiXCJ9KSIsInJlY29yZCI6Imt1YmVjb3N0X2NsdXN0ZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzIn1dfSx7Im5hbWUiOiJTYXZpbmdzIiwicnVsZXMiOlt7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQhPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfY3B1X2FsbG9jYXRpb24pIGJ5IChwb2QpKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJmYWxzZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX2NwdV9hbGxvY2F0aW9uIn0seyJleHByIjoic3VtKGF2ZyhrdWJlX3BvZF9vd25lcntvd25lcl9raW5kPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfY3B1X2FsbG9jYXRpb24pIGJ5IChwb2QpKSAvIHN1bShrdWJlX25vZGVfaW5mbykiLCJsYWJlbHMiOnsiZGFlbW9uc2V0IjoidHJ1ZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX2NwdV9hbGxvY2F0aW9uIn0seyJleHByIjoic3VtKGF2ZyhrdWJlX3BvZF9vd25lcntvd25lcl9raW5kIT1cIkRhZW1vblNldFwifSkgYnkgKHBvZCkgKiBzdW0oY29udGFpbmVyX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzKSBieSAocG9kKSkiLCJsYWJlbHMiOnsiZGFlbW9uc2V0IjoiZmFsc2UifSwicmVjb3JkIjoia3ViZWNvc3Rfc2F2aW5nc19tZW1vcnlfYWxsb2NhdGlvbl9ieXRlcyJ9LHsiZXhwciI6InN1bShhdmcoa3ViZV9wb2Rfb3duZXJ7b3duZXJfa2luZD1cIkRhZW1vblNldFwifSkgYnkgKHBvZCkgKiBzdW0oY29udGFpbmVyX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzKSBieSAocG9kKSkgLyBzdW0oa3ViZV9ub2RlX2luZm8pIiwibGFiZWxzIjp7ImRhZW1vbnNldCI6InRydWUifSwicmVjb3JkIjoia3ViZWNvc3Rfc2F2aW5nc19tZW1vcnlfYWxsb2NhdGlvbl9ieXRlcyJ9LHsiZXhwciI6ImxhYmVsX3JlcGxhY2Uoc3VtKGt1YmVfcG9kX3N0YXR1c19waGFzZXtwaGFzZT1cIlJ1bm5pbmdcIixuYW1lc3BhY2UhPVwia3ViZS1zeXN0ZW1cIn0gXHUwMDNlIDApIGJ5IChwb2QsIG5hbWVzcGFjZSksIFwicG9kX25hbWVcIiwgXCIkMVwiLCBcInBvZFwiLCBcIiguKylcIikiLCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX3J1bm5pbmdfcG9kcyJ9LHsiZXhwciI6InN1bShyYXRlKGNvbnRhaW5lcl9jcHVfdXNhZ2Vfc2Vjb25kc190b3RhbHtjb250YWluZXJfbmFtZSE9XCJcIixjb250YWluZXJfbmFtZSE9XCJQT0RcIixpbnN0YW5jZSE9XCJcIn1bNW1dKSkgYnkgKG5hbWVzcGFjZSwgcG9kX25hbWUsIGNvbnRhaW5lcl9uYW1lLCBpbnN0YW5jZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX2NvbnRhaW5lcl9jcHVfdXNhZ2Vfc2Vjb25kcyJ9LHsiZXhwciI6InN1bShjb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVze2NvbnRhaW5lcl9uYW1lIT1cIlwiLGNvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLGluc3RhbmNlIT1cIlwifSkgYnkgKG5hbWVzcGFjZSwgcG9kX25hbWUsIGNvbnRhaW5lcl9uYW1lLCBpbnN0YW5jZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX2NvbnRhaW5lcl9tZW1vcnlfdXNhZ2VfYnl0ZXMifSx7ImV4cHIiOiJhdmcoc3VtKGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c19jcHVfY29yZXN7bmFtZXNwYWNlIT1cImt1YmUtc3lzdGVtXCJ9KSBieSAocG9kLCBuYW1lc3BhY2UsIGluc3RhbmNlKSkgYnkgKHBvZCwgbmFtZXNwYWNlKSIsInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfcG9kX3JlcXVlc3RzX2NwdV9jb3JlcyJ9LHsiZXhwciI6ImF2ZyhzdW0oa3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX21lbW9yeV9ieXRlc3tuYW1lc3BhY2UhPVwia3ViZS1zeXN0ZW1cIn0pIGJ5IChwb2QsIG5hbWVzcGFjZSwgaW5zdGFuY2UpKSBieSAocG9kLCBuYW1lc3BhY2UpIiwicmVjb3JkIjoia3ViZWNvc3Rfc2F2aW5nc19wb2RfcmVxdWVzdHNfbWVtb3J5X2J5dGVzIn1dfV19fSwic2VydmljZUFjY291bnRzIjp7ImFsZXJ0bWFuYWdlciI6eyJjcmVhdGUiOnRydWV9LCJub2RlRXhwb3J0ZXIiOnsiY3JlYXRlIjp0cnVlfSwicHVzaGdhdGV3YXkiOnsiY3JlYXRlIjp0cnVlfSwic2VydmVyIjp7ImNyZWF0ZSI6dHJ1ZX19fSwicmVtb3RlV3JpdGUiOnt9LCJyZXBvcnRpbmciOnsiZXJyb3JSZXBvcnRpbmciOnRydWUsImxvZ0NvbGxlY3Rpb24iOnRydWUsInByb2R1Y3RBbmFseXRpY3MiOnRydWUsInZhbHVlc1JlcG9ydGluZyI6dHJ1ZX0sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnt9LCJsYWJlbHMiOnt9LCJwb3J0Ijo5MDkwLCJ0YXJnZXRQb3J0Ijo5MDkwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImFubm90YXRpb25zIjp7fSwiY3JlYXRlIjp0cnVlfSwic3VwcG9ydE5GUyI6ZmFsc2UsInRvbGVyYXRpb25zIjpbXX0=
             - name: KUBECOST_NAMESPACE
               value: kubecost
             - name: GOOGLE_APPLICATION_CREDENTIALS
