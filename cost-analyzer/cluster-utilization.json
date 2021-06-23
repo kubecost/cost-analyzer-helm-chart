@@ -104,7 +104,7 @@
             "tableColumn":"label_cloud_google_com_gke_preemptible",
             "targets":[
                 {
-                    "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) ",
+                    "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) ",
                     "format":"time_series",
                     "instant":true,
                     "interval":"",
@@ -193,7 +193,7 @@
             "tableColumn":"label_cloud_google_com_gke_preemptible",
             "targets":[
                 {
-                    "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) ",
+                    "expr":"sum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) ",
                     "format":"time_series",
                     "instant":true,
                     "interval":"",
@@ -466,7 +466,7 @@
             "tableColumn":"",
             "targets":[
                 {
-                    "expr":"(\n sum(\n count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n * on (instance) \n sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable_cpu_cores))\n) * 100",
+                    "expr":"(\n sum(\n count(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n * on (instance) \n sum(irate(container_cpu_usage_seconds_total{id=\"/\"}[10m])) by (instance)\n ) \n / \n (sum (kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}))\n) * 100",
                     "format":"time_series",
                     "interval":"",
                     "intervalFactor":1,
@@ -557,7 +557,7 @@
             "tableColumn":"",
             "targets":[
                 {
-                    "expr":"SUM(kube_pod_container_resource_requests_cpu_cores) / SUM(kube_node_status_allocatable_cpu_cores) * 100",
+                    "expr":"SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) / SUM(kube_node_status_allocatable{resource=\"cpu\", unit=\"core\"}) * 100",
                     "format":"time_series",
                     "interval":"",
                     "intervalFactor":1,
@@ -647,7 +647,7 @@
             "tableColumn":"",
             "targets":[
                 {
-                    "expr":"SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable_memory_bytes) * 100",
+                    "expr":"SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
                     "format":"time_series",
                     "interval":"",
                     "intervalFactor":1,
@@ -744,7 +744,7 @@
             "tableColumn":"",
             "targets":[
                 {
-                    "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"})\n /\n sum(kube_node_status_allocatable_memory_bytes)\n) * 100",
+                    "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"})\n /\n sum(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"})\n) * 100",
                     "format":"time_series",
                     "interval":"",
                     "intervalFactor":1,
@@ -1016,7 +1016,7 @@
             "tableColumn":"label_cloud_google_com_gke_preemptible",
             "targets":[
                 {
-                    "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n)\n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
+                    "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n)\n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                     "format":"time_series",
                     "instant":true,
                     "interval":"",
@@ -1084,7 +1084,7 @@
             "steppedLine":false,
             "targets":[
                 {
-                    "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) \n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
+                    "expr":"# CPU\nsum(\n (\n (\n sum(kube_node_status_capacity_cpu_cores) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) * $costpcpu\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) * ($costcpu - ($costcpu / 100 * $costDiscount))\n )\n) \n\n+ \n\n# Storage\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageSSD\n\n+\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n) / 1024 / 1024 /1024 * $costStorageStandard\n\n+ \n\nsum(container_fs_limit_bytes{id=\"/\"}) / 1024 / 1024 / 1024 * 1.03 * $costStorageStandard \n\n+\n\n# END STORAGE\n# RAM \nsum(\n (\n (\n sum(kube_node_status_capacity_memory_bytes) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible=\"true\"}) by (node)\n ) /1024/1024/1024 * $costpram\n )\n or\n (\n (\n sum(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)\n * on (node) group_left (label_cloud_google_com_gke_preemptible)\n avg(kube_node_labels{label_cloud_google_com_gke_preemptible!=\"true\"}) by (node)\n ) /1024/1024/1024 * ($costram - ($costram / 100 * $costDiscount))\n)\n) \n\n+\n\n#Network \nSUM(rate(node_network_transmit_bytes_total{device=\"eth0\"}[60m]) / 1024 / 1024 / 1024 ) * (60 * 60 * 24 * 30) * $costEgress",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"cluster cost",
@@ -1317,7 +1317,7 @@
             ],
             "targets":[
                 {
-                    "expr":"(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
+                    "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                     "format":"table",
                     "hide":false,
                     "instant":true,
@@ -1327,7 +1327,7 @@
                     "refId":"A"
                 },
                 {
-                    "expr":"(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
+                    "expr":"(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
@@ -1343,7 +1343,7 @@
                     "refId":"C"
                 },
                 {
-                    "expr":"# CPU \n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n#END CPU \n# Memory \n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n# PV storage\n\n(\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard \n)",
+                    "expr":"# CPU \n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"}*($costcpu - ($costcpu / 100 * $costDiscount))) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"}*$costpcpu) by(namespace)\n or\n count(\n count(container_spec_cpu_shares{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n#END CPU \n# Memory \n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible!=\"true\"} / 1024 / 1024 / 1024*($costram- ($costram / 100 * $costDiscount))) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n(\n sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\",namespace!=\"kube-system\",cloud_google_com_gke_preemptible=\"true\"} / 1024 / 1024 / 1024 * $costpram ) by (namespace) \n or\n count(\n count(container_spec_memory_limit_bytes{namespace!=\"\",namespace!=\"kube-system\"}) by(namespace)\n ) by(namespace) -1\n)\n\n+\n\n# PV storage\n\n(\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageSSD \n\nor\n\nsum (\n sum(kube_persistentvolumeclaim_info{storageclass!~\".*ssd.*\"}) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) \n) by (namespace) / 1024 / 1024 /1024 * $costStorageStandard \n)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
@@ -1418,14 +1418,14 @@
             "steppedLine":false,
             "targets":[
                 {
-                    "expr":"SUM(kube_node_status_capacity_cpu_cores)",
+                    "expr":"SUM(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"})",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"capacity",
                     "refId":"A"
                 },
                 {
-                    "expr":"SUM(kube_pod_container_resource_requests_cpu_cores)",
+                    "expr":"SUM(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"})",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"requests",
@@ -1439,7 +1439,7 @@
                     "refId":"B"
                 },
                 {
-                    "expr":"SUM(kube_pod_container_resource_limits_cpu_cores) ",
+                    "expr":"SUM(kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) ",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"limits",
@@ -1729,7 +1729,7 @@
             ],
             "targets":[
                 {
-                    "expr":"sum(kube_pod_container_resource_requests_cpu_cores{namespace!=\"\"}) by (namespace) ",
+                    "expr":"sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace!=\"\"}) by (namespace) ",
                     "format":"table",
                     "hide":false,
                     "instant":true,
@@ -1879,14 +1879,14 @@
             ],
             "targets":[
                 {
-                    "expr":"SUM(\nSUM(rate(container_cpu_usage_seconds_total[24h])) by (pod_name)\n* on (pod_name) group_left (node) \nlabel_replace(\n avg(kube_pod_info{}),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n)\n) by (node) \n/ \nsum(kube_node_status_capacity_cpu_cores) by (node)",
+                    "expr":"SUM(\nSUM(rate(container_cpu_usage_seconds_total[24h])) by (pod_name)\n* on (pod_name) group_left (node) \nlabel_replace(\n avg(kube_pod_info{}),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n)\n) by (node) \n/ \nsum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"B"
                 },
                 {
-                    "expr":"sum(kube_pod_container_resource_requests_cpu_cores) by (node) / sum(kube_node_status_capacity_cpu_cores) by (node)",
+                    "expr":"sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (node) / sum(kube_node_status_capacity{resource=\"cpu\", unit=\"core\"}) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
@@ -1958,14 +1958,14 @@
             "steppedLine":false,
             "targets":[
                 {
-                    "expr":"SUM(kube_node_status_capacity_memory_bytes / 1024 / 1024 / 1024)",
+                    "expr":"SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"capacity",
                     "refId":"A"
                 },
                 {
-                    "expr":"SUM(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024)",
+                    "expr":"SUM(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"requests",
@@ -1979,7 +1979,7 @@
                     "refId":"B"
                 },
                 {
-                    "expr":"SUM(kube_pod_container_resource_limits_memory_bytes {namespace!=\"\"} / 1024 / 1024 / 1024)",
+                    "expr":"SUM(kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024)",
                     "format":"time_series",
                     "intervalFactor":1,
                     "legendFormat":"limits",
@@ -2269,7 +2269,7 @@
             ],
             "targets":[
                 {
-                    "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace) ",
+                    "expr":"sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"} / 1024 / 1024 / 1024) by (namespace) ",
                     "format":"table",
                     "hide":false,
                     "instant":true,
@@ -2419,14 +2419,14 @@
             ],
             "targets":[
                 {
-                    "expr":"SUM(label_replace(container_memory_usage_bytes{namespace!=\"\"}, \"node\", \"$1\", \"instance\",\"(.+)\")) by (node) * 100\n/\nSUM(kube_node_status_capacity_memory_bytes) by (node)",
+                    "expr":"SUM(label_replace(container_memory_usage_bytes{namespace!=\"\"}, \"node\", \"$1\", \"instance\",\"(.+)\")) by (node) * 100\n/\nSUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
                     "refId":"B"
                 },
                 {
-                    "expr":"sum(kube_pod_container_resource_requests_memory_bytes{namespace!=\"\"}) by (node) / SUM(kube_node_status_capacity_memory_bytes) by (node)",
+                    "expr":"sum(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace!=\"\"}) by (node) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\"}) by (node)",
                     "format":"table",
                     "instant":true,
                     "intervalFactor":1,
