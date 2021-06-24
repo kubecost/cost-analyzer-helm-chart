@@ -358,7 +358,7 @@ prometheus:
   #        - url: "http://pgprometheus-adapter:9201/write"
   #          write_relabel_configs:
   #            - source_labels: [__name__]
-  #              regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests_memory_bytes|container_memory_working_set_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
+  #              regex: 'container_.*_allocation|container_.*_allocation_bytes|.*_hourly_cost|kube_pod_container_resource_requests{resource="memory", unit="byte"}|container_memory_working_set_bytes|kube_pod_container_resource_requests{resource="cpu", unit="core"}|kube_pod_container_resource_requests|pod_pvc_allocation|kube_namespace_labels|kube_pod_labels'
   #              action: keep
   #          queue_config:
   #            max_samples_per_send: 1000
@@ -402,9 +402,9 @@ prometheus:
               record: kubecost_savings_container_cpu_usage_seconds
             - expr: sum(container_memory_working_set_bytes{container_name!="",container_name!="POD",instance!=""}) by (namespace, pod_name, container_name, instance)
               record: kubecost_savings_container_memory_usage_bytes
-            - expr: avg(sum(kube_pod_container_resource_requests_cpu_cores{namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
+            - expr: avg(sum(kube_pod_container_resource_requests{resource="cpu", unit="core", namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
               record: kubecost_savings_pod_requests_cpu_cores
-            - expr: avg(sum(kube_pod_container_resource_requests_memory_bytes{namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
+            - expr: avg(sum(kube_pod_container_resource_requests{resource="memory", unit="byte", namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
               record: kubecost_savings_pod_requests_memory_bytes
 
 ## Module for measuring network costs

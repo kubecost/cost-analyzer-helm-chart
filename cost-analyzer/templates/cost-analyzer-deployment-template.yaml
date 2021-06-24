@@ -420,6 +420,10 @@ spec:
             - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
               value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
