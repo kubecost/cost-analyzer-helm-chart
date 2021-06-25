@@ -16,6 +16,8 @@ metadata:
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
+  annotations:
+{{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     pod-utilization.json: |-
 {{ .Files.Get "pod-utilization.json" | indent 8 }}
