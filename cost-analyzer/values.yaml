@@ -120,6 +120,7 @@ global:
   # Ref: http://docs.kubecost.com/saved-reports
   assetReports:
     enabled: false # If true, overwrites report parameters set through UI
+    reports:
     - title: "Example Asset Report 0"
       window: "today"
       aggregateBy: "type"
