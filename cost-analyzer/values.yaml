@@ -116,17 +116,16 @@ global:
         accumulate: true # entire window resolution
         filters: [] # if no filters, specify empty array
 
-  # Set saved report(s) accessible from reports.html
-  # Ref: http://docs.kubecost.com/saved-reports
-  assetReports:
-    enabled: false # If true, overwrites report parameters set through UI
-    - title: "Example Asset Report 0"
-      window: "today"
-      aggregateBy: "type"
-      accumulate: false # daily resolution
-      filters:
-        - property: "cluster"
-          value: "cluster-one"
+    # Set saved report(s) accessible from reports.html
+    # Ref: http://docs.kubecost.com/saved-reports
+    assetReports:
+      - title: "Example Asset Report 0"
+        window: "today"
+        aggregateBy: "type"
+        accumulate: false # daily resolution
+        filters:
+          - property: "cluster"
+            value: "cluster-one"
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
