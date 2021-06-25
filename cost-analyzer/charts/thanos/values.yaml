@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.15.0
+  tag: v0.19.0
   pullPolicy: IfNotPresent
 
 store:
@@ -113,7 +113,11 @@ store:
       #    hosts:
       #      - chart-example.local
   # Optional securityContext
-  securityContext: {}
+  securityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+
   resources: {}
   #  limits:
   #    cpu: 2000m
@@ -265,7 +269,11 @@ queryFrontend:
       labels: {}
 
   # Optional securityContext
-  securityContext: {}
+  securityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+
   resources: {}
   #  limits:
   #    cpu: 2000m
@@ -424,7 +432,11 @@ query:
       labels: {}
 
   # Optional securityContext
-  securityContext: {}
+  securityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+
   resources: {}
   #  limits:
   #    cpu: 2000m
@@ -547,7 +559,11 @@ compact:
   serviceAccount: ""
 
   # Optional securityContext
-  securityContext: {}
+  securityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+
   resources: {}
   #  limits:
   #    cpu: 2000m
@@ -646,7 +662,11 @@ bucket:
     #  maxUnavailable: 50%
 
   # Optional securityContext
-  securityContext: {}
+  securityContext:
+    fsGroup: 1001
+    runAsNonRoot: true
+    runAsUser: 1001
+
   resources: {}
   #  limits:
   #    cpu: 2000m

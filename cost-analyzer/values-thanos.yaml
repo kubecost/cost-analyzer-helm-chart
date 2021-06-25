@@ -17,6 +17,9 @@ prometheus:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
       storage.tsdb.retention: 2w
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
     extraVolumes:
     - name: object-store-volume
       secret:
@@ -25,7 +28,10 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.15.0
+      image: thanosio/thanos:v0.19.0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
       args:
       - sidecar
       - --log.level=debug
@@ -65,6 +71,8 @@ thanos:
     extraEnv:
       - name: GOGC
         value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
     resources: 
       requests:
         memory: "2.5Gi"
@@ -82,6 +90,8 @@ thanos:
     extraEnv:
       - name: GOGC
         value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
 
   # Thanos Query Frontend
   queryFrontend:
@@ -97,11 +107,18 @@ thanos:
       maxSizeItems: 0
       # The expiry duration for the cache.
       validity: 2m
+    extraEnv:
+      - name: GOGC
+        value: "100"
+      - name: GODEBUG
+        value: "madvdontneed=1"
     resources:
       requests:
         memory: "1.5Gi"
 
   # Thanos Sidecar Service Discovery
+  # Disabling removes the prometheus sidecar from querier store discovery. This ensures
+  # that all clusters read from the same data in remote store. 
   sidecar:
     enabled: true
   bucket:

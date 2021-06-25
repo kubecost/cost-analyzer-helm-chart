@@ -48,6 +48,10 @@ spec:
             {{- end }}
               - "-pg-prometheus-log-samples=true"
               - "-pg-password={{ .Values.remoteWrite.postgres.auth.password }}"
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

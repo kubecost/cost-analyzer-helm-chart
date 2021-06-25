@@ -28,7 +28,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Monthly projected CPU cost given last 10m",
       "format": "currencyUSD",
@@ -116,7 +116,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Based on CPU usage over last 24 hours",
       "format": "currencyUSD",
@@ -204,7 +204,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "",
       "format": "currencyUSD",
@@ -292,7 +292,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "description": "Cost of memory + CPU usage",
       "format": "currencyUSD",
@@ -380,7 +380,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -432,7 +432,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+          "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -460,7 +460,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 2,
       "format": "none",
       "gauge": {
@@ -541,7 +541,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 0,
       "format": "bytes",
       "gauge": {
@@ -594,7 +594,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+          "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
@@ -622,7 +622,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "format": "bytes",
       "gauge": {
         "maxValue": 100,
@@ -703,7 +703,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "decimals": 0,
       "format": "bytes",
       "gauge": {
@@ -781,7 +781,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -813,14 +813,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
           "refId": "C"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "request",
@@ -879,7 +879,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 8,
@@ -911,14 +911,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
           "refId": "C"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "request",
@@ -984,7 +984,7 @@
   "templating": {
     "list": [
       {
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "filters": [],
         "hide": 0,
         "label": "",
@@ -1062,7 +1062,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": "Value",
@@ -1086,7 +1086,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": "",
@@ -1111,7 +1111,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -1154,6 +1154,25 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "default-kubecost",
+          "value": "default-kubecost"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
       }
     ]
   },

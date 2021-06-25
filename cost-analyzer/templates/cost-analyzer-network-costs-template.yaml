@@ -14,8 +14,15 @@ spec:
       app: {{ template "cost-analyzer.networkCostsName" . }}
   template:
     metadata:
+      {{- with .Values.networkCosts.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       labels:
         app: {{ template "cost-analyzer.networkCostsName" . }}
+        {{- if .Values.networkCosts.additionalLabels }}
+        {{ toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
+        {{- end }}
     spec:
       hostNetwork: true
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
@@ -44,6 +51,8 @@ spec:
           value: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
         - name: TRAFFIC_LOGGING_ENABLED
           value: {{ (quote .Values.networkCosts.trafficLogging) | default (quote true) }}
+        - name: GODEBUG
+          value: "madvdontneed=1"
         volumeMounts:
         {{- if .Values.networkCosts.hostProc }}
         - mountPath: {{ .Values.networkCosts.hostProc.mountPath }}
@@ -67,10 +76,18 @@ spec:
 {{- if .Values.networkCosts.priorityClassName }}
       priorityClassName: "{{ .Values.networkCosts.priorityClassName }}"
 {{- end }}
+      {{- with .Values.networkCosts.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 10 }}
+      {{- end }}
 {{- if .Values.networkCosts.tolerations }}
       tolerations:
 {{ toYaml .Values.networkCosts.tolerations | indent 8 }}
     {{- end }}
+      {{- with .Values.networkCosts.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       {{- if .Values.networkCosts.config }}
       - name: network-costs-config

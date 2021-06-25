@@ -30,7 +30,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"percentunit",
 			"gauge":{
 				"maxValue":100,
@@ -112,7 +112,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"percentunit",
 			"gauge":{
 				"maxValue":100,
@@ -166,7 +166,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
+					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -194,7 +194,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"percentunit",
 			"gauge":{
 				"maxValue":100,
@@ -274,7 +274,7 @@
 					"value":"avg"
 				}
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"fontSize":"100%",
 			"gridPos":{
 				"h":8,
@@ -454,7 +454,7 @@
 					"refId":"C"
 				},
 				{
-					"expr":"sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
+					"expr":"sum(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod), \n\"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)",
 					"format":"table",
 					"instant":true,
 					"intervalFactor":1,
@@ -468,7 +468,7 @@
 					"refId":"D"
 				},
 				{
-					"expr":"sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests_memory_bytes{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
+					"expr":"sum(label_replace(label_replace(\nsum(avg_over_time(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod),\n\"container_name\",\"$1\",\"container\",\"(.+)\"), \"pod_name\",\"$1\",\"pod\",\"(.+)\")\nor up * 0\n) by (pod_name)\n",
 					"format":"table",
 					"instant":true,
 					"intervalFactor":1,
@@ -491,7 +491,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":0,
 			"format":"none",
 			"gauge":{
@@ -546,7 +546,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"sum(\n count(avg_over_time(kube_pod_container_resource_requests_cpu_cores{container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod)\n * on (pod) group_right()\n sum(kube_pod_container_status_running) by (pod)\n)",
+					"expr":"sum(\n count(avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", container!=\"\",container!=\"POD\",node=\"$node\"}[24h])) by (pod)\n * on (pod) group_right()\n sum(kube_pod_container_status_running) by (pod)\n)",
 					"format":"time_series",
 					"instant":true,
 					"intervalFactor":1,
@@ -575,7 +575,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"bytes",
 			"gauge":{
 				"maxValue":100,
@@ -657,7 +657,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"none",
 			"gauge":{
 				"maxValue":100,
@@ -711,7 +711,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"kube_node_status_capacity_cpu_cores{node=\"$node\"}",
+					"expr":"kube_node_status_capacity{resource=\"cpu\", unit=\"core\", node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -739,7 +739,7 @@
 				"rgba(237, 129, 40, 0.89)",
 				"#d44a3a"
 			],
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"format":"bytes",
 			"gauge":{
 				"maxValue":100,
@@ -793,7 +793,7 @@
 			"tableColumn":"",
 			"targets":[
 				{
-					"expr":"kube_node_status_capacity_memory_bytes{node=\"$node\"}",
+					"expr":"kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"}",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"
@@ -819,7 +819,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":3,
 			"description":"This panel shows historical utilization for the node.",
 			"editable":true,
@@ -936,7 +936,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"This panel shows historical utilization for the node.",
 			"editable":true,
@@ -985,7 +985,7 @@
 			"steppedLine":true,
 			"targets":[
 				{
-					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity_memory_bytes{node=\"$node\"})",
+					"expr":"SUM(container_memory_usage_bytes{namespace!=\"\",instance=\"$node\"}) / SUM(kube_node_status_capacity{resource=\"memory\", unit=\"byte\", node=\"$node\"})",
 					"format":"time_series",
 					"instant":false,
 					"interval":"10s",
@@ -1049,7 +1049,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"Traffic in and out of this namespace, as a sum of the pods within it",
 			"editable":true,
@@ -1175,7 +1175,7 @@
 			"bars":false,
 			"dashLength":10,
 			"dashes":false,
-			"datasource":"default-kubecost",
+			"datasource":"${datasource}",
 			"decimals":2,
 			"description":"Disk reads and writes for the namespace, as a sum of the pods within it",
 			"editable":true,
@@ -1310,7 +1310,7 @@
 					"text":"ip-172-20-44-170.us-east-2.compute.internal",
 					"value":"ip-172-20-44-170.us-east-2.compute.internal"
 				},
-				"datasource":"default-kubecost",
+				"datasource":"${datasource}",
 				"hide":0,
 				"includeAll":false,
 				"label":null,
@@ -1331,6 +1331,25 @@
 				"tagsQuery":"",
 				"type":"query",
 				"useTags":false
+			},
+			{
+				"current": {
+					"selected": true,
+					"text": "default-kubecost",
+					"value": "default-kubecost"
+				},
+				"error": null,
+				"hide": 0,
+				"includeAll": false,
+				"label": null,
+				"multi": false,
+				"name": "datasource",
+				"options": [],
+				"query": "prometheus",
+				"refresh": 1,
+				"regex": "",
+				"skipUrlSync": false,
+				"type": "datasource"
 			}
 		]
 	},

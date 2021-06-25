@@ -3,7 +3,7 @@
 {{- $fullName := include "cost-analyzer.fullname" . -}}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
-apiVersion: extensions/v1beta1
+apiVersion: {{ include "cost-analyzer.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
@@ -33,7 +33,7 @@ spec:
           - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
-              servicePort: frontend
+              servicePort: tcp-frontend
 	{{- end }}
   {{- end }}
 {{- end }}

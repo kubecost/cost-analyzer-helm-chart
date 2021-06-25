@@ -15,6 +15,7 @@ Parameter | Description | Default
 `prometheus.kube-state-metrics.resources` | Set kube-state-metrics resource requests and limits. | `{}`
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
+`prometheus.server.persistentVolume.storageClass` | Define storage class for Prometheus persistent volume  | `-`
 `prometheus.server.retention` | Determines when to remove old data. | `15d`
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
@@ -24,6 +25,7 @@ Parameter | Description | Default
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
 `persistentVolume.size` | Define PVC size for cost-analyzer  | `0.2Gi`
 `persistentVolume.dbSize` | Define PVC size for cost-analyzer's flat file database  | `32.0Gi`
+`persistentVolume.storageClass` | Define storage class for cost-analyzer's persistent volume  | `-`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`
 `ingress.paths` | Ingress paths | `["/"]`

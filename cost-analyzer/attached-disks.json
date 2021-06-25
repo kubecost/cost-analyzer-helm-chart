@@ -24,7 +24,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -107,7 +107,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -191,7 +191,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -275,7 +275,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "default-kubecost",
+      "datasource": "${datasource}",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -369,7 +369,7 @@
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "default-kubecost",
+        "datasource": "${datasource}",
         "hide": 0,
         "includeAll": true,
         "label": null,
@@ -386,6 +386,25 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "default-kubecost",
+          "value": "default-kubecost"
+        },
+        "error": null,
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
       }
     ]
   },

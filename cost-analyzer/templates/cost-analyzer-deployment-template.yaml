@@ -26,6 +26,9 @@ spec:
     metadata:
       labels:
         {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
+        {{- if .Values.global.additionalLabels }}
+        {{ toYaml .Values.global.additionalLabels | nindent 8 }}
+        {{- end }}
 {{- if .Values.kubecostDeployment }}
 {{- with .Values.kubecostDeployment.labels }}
 {{ toYaml . | indent 8 }}
@@ -66,6 +69,12 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.productKey }}
         {{- if .Values.kubecostProductConfigs.productKey.secretname }}
@@ -77,6 +86,7 @@ spec:
               path: productkey.json
         {{- end }}
         {{- end -}}
+        {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
           secret:
@@ -85,6 +95,7 @@ spec:
             - key: compute-viewer-kubecost-key.json
               path: key.json
         {{- end }}
+        {{- end -}}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
         - name: service-key-secret
           secret:
@@ -93,6 +104,18 @@ spec:
         - name: service-key-secret
           secret:
             secretName: cloud-service-key
+        {{- end }}
+        {{- if .Values.kubecostProductConfigs.azureStorageSecretName }}
+        - name: azure-storage-config
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.azureStorageSecretName }}
+            items:
+              - key: azure-storage-config.json
+                path: azure-storage-config.json
+        {{- else if .Values.kubecostProductConfigs.azureStorageCreateSecret }}
+        - name: azure-storage-config
+          secret:
+            secretName: azure-storage-config
         {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
@@ -184,7 +207,7 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.initChownData.resources | indent 12 }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}          
+          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
@@ -201,7 +224,9 @@ spec:
 {{ end }}
       containers:
         {{- if .Values.kubecostModel }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostModel.fullImageName }}
+        - image: {{ .Values.kubecostModel.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
@@ -227,7 +252,11 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+              readOnly: true
+            {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -241,6 +270,10 @@ spec:
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
               mountPath: /models
+            {{- end }}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
+            - name: azure-storage-config
+              mountPath: /var/azure-storage-config
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
@@ -276,6 +309,8 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            - name: READ_ONLY
+              value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
@@ -284,7 +319,15 @@ spec:
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
+            {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+              value: /models/key.json
+            {{- else }}
               value: /var/configs/key.json
+            {{- end }}
+            {{- else }}
+              value: /var/configs/key.json
+            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
@@ -303,6 +346,8 @@ spec:
             {{- end }}
             - name: GOGC
               value: "60"
+            - name: GODEBUG
+              value: "madvdontneed=1"
             {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
             - name: MC_BASIC_AUTH_USERNAME
               valueFrom:
@@ -369,11 +414,21 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_POD_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
+            - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
+            {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
-              value: {{ (quote .Values.reporting.logCollection ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
             - name: PRODUCT_ANALYTICS_ENABLED
-              value: {{ (quote .Values.reporting.productAnalytics ) | default (quote true) }}
+              value: {{ (quote .Values.reporting.productAnalytics) | default (quote true) }}
             - name: ERROR_REPORTING_ENABLED
               value: {{ (quote .Values.reporting.errorReporting ) | default (quote true) }}
             - name: VALUES_REPORTING_ENABLED
@@ -383,23 +438,56 @@ spec:
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
             {{- end }}
             {{- end }}
+            - name: LEGACY_EXTERNAL_API_DISABLED
+              value: {{ (quote .Values.kubecostModel.legacyOutOfClusterAPIDisabled) | default (quote false) }}
+            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
+              value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: ETL_TO_DISK_ENABLED
+              value: "false"
+            - name: ETL_BUCKET_CONFIG
+              value: "/var/configs/etl/object-store.yaml"
+            {{- else }}
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            {{- end }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
             {{- end }}
-            {{- if .Values.kubecostModel.etlStoreDurationDays }}
-            - name: ETL_STORE_DURATION_DAYS
-              value: {{ (quote .Values.kubecostModel.etlStoreDurationDays) | default (quote 120) }}
+            - name: ETL_RESOLUTION_SECONDS
+              value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 300) }}
+            - name: ETL_MAX_BATCH_HOURS
+              value: {{ (quote .Values.kubecostModel.etlMaxBatchHours) | default (quote 6) }}
+            - name: ETL_DAILY_STORE_DURATION_DAYS
+              value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+            - name: ETL_HOURLY_STORE_DURATION_HOURS
+              value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
+            - name: ETL_FILE_STORE_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote false) }}
+            - name: ETL_ASSET_RECONCILIATION_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
+            {{- if .Values.systemProxy.enabled }}
+            - name: HTTP_PROXY
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: HTTPS_PROXY
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
@@ -453,6 +541,10 @@ spec:
             - name: AUDIENCE_URI
               value: {{ .Values.saml.audienceURI }}
             {{- end }}
+            {{- if .Values.saml.nameIDFormat }}
+            - name: NAME_ID_FORMAT
+              value: {{ .Values.saml.nameIDFormat }}
+            {{- end}}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"
@@ -477,6 +569,10 @@ spec:
             - name: SQL_ADDRESS
               value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
+            {{- if .Values.kubecostModel.promClusterIDLabel }}
+            - name: PROM_CLUSTER_ID_LABEL
+              value: {{ .Values.kubecostModel.promClusterIDLabel }}
+            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
@@ -487,7 +583,9 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
         {{- if .Values.kubecostFrontend }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecostFrontend.fullImageName }}
+        - image: {{ .Values.kubecostFrontend.fullImageName }}
+        {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
@@ -530,7 +628,9 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         {{- if .Values.kubecost }}
-        {{- if .Values.imageVersion}}
+        {{- if .Values.kubecost.fullImageName }}
+        - image: {{ .Values.kubecost.fullImageName }}
+        {{- else if .Values.imageVersion}}
         - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
@@ -652,7 +752,7 @@ spec:
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }} 
+    {{- end }}
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
