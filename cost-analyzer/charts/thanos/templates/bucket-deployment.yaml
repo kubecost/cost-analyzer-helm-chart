@@ -34,6 +34,10 @@ spec:
       annotations: {{ toYaml . | nindent 8 }}
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-bucket
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
