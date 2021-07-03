@@ -45,11 +45,11 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
-        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+        server localhost:9001;
     }
 
     upstream model {
-        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+        server localhost:9003;
     }
 
 {{- if .Values.clusterController }}
