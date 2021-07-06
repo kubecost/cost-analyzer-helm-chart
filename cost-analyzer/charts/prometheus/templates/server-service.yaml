@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 apiVersion: v1
 kind: Service
@@ -57,3 +58,4 @@ spec:
   {{- end }}
   type: "{{ .Values.server.service.type }}"
 {{- end -}}
+{{ end }}

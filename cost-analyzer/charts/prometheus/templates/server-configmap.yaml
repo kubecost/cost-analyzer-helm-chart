@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 {{- if (empty .Values.server.configMapOverrideName) -}}
 apiVersion: v1
@@ -79,3 +80,4 @@ data:
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{ end }}

@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 {{- if .Values.server.verticalAutoscaler.enabled -}}
 apiVersion: autoscaling.k8s.io/v1beta2
@@ -22,3 +23,4 @@ spec:
     containerPolicies: {{ .Values.server.verticalAutoscaler.containerPolicies | default list | toYaml | trim | nindent 4 }}
 {{- end -}} {{/* if .Values.server.verticalAutoscaler.enabled */}}
 {{- end -}} {{/* .Values.server.enabled */}}
+{{ end }}

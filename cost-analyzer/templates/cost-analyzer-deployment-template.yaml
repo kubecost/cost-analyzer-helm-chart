@@ -527,7 +527,7 @@ spec:
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
             - name: THANOS_MAX_SOURCE_RESOLUTION
               value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- else if .Values.thanos }}
+            {{- else if and .Values.global.thanos.enabled .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
@@ -693,7 +693,7 @@ spec:
               value: {{ .Values.global.thanos.queryOffset | default "3h" }}
             - name: THANOS_MAX_SOURCE_RESOLUTION
               value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- else if .Values.thanos }}
+            {{- else if and .Values.global.thanos.enabled .Values.thanos }}
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED

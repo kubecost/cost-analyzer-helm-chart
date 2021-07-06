@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if and .Values.pushgateway.enabled .Values.pushgateway.ingress.enabled -}}
 {{- $releaseName := .Release.Name -}}
 {{- $serviceName := include "prometheus.pushgateway.fullname" . }}
@@ -37,3 +38,4 @@ spec:
 {{ toYaml .Values.pushgateway.ingress.tls | indent 4 }}
   {{- end -}}
 {{- end -}}
+{{ end }}
