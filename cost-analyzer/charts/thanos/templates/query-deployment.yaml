@@ -39,6 +39,10 @@ spec:
         prometheus.io/port: "{{ .Values.query.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-query
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
