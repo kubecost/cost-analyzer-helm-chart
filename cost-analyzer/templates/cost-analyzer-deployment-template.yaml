@@ -117,13 +117,13 @@ spec:
           secret:
             secretName: azure-storage-config
         {{- end }}
-        {{- if .Values.kubecostProductConfigs.multiCloudSecret }}
-        - name: multi-cloud-config
+        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+        - name: cloud-integration
           secret:
-            secretName: {{ .Values.kubecostProductConfigs.multiCloudSecret }}
+            secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             items:
-              - key: multi-cloud-config.json
-                path: multi-cloud-config.json
+              - key: cloud-integration.json
+                path: cloud-integration.json
         {{- end }}
         {{- if .Values.kubecostProductConfigs.clusters }}
         - name: kubecost-clusters
@@ -283,9 +283,9 @@ spec:
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.multiCloudSecret}}
-            - name: multi-cloud-config
-              mountPath: /var/multi-cloud-config
+            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
+            - name: cloud-integration
+              mountPath: /var/cloud-integration
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
