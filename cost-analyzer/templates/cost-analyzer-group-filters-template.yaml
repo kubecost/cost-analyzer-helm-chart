@@ -1,0 +1,11 @@
+{{- if .Values.groupFilters }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: group-filters
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  allocationFilters: '{{ toJson .Values.groupFilters.allocationFilters }}'
+  assetFilters: '{{ toJson .Values.groupFilters.assetFilters }}'
+{{- end -}}
