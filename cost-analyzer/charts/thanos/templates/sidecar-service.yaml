@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if .Values.sidecar.enabled }}
 apiVersion: v1
 kind: Service
@@ -57,3 +58,4 @@ spec:
     app: prometheus
 {{ with .Values.sidecar.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end }}
+{{ end }}

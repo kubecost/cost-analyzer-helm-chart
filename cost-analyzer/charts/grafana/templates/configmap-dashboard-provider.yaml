@@ -1,3 +1,4 @@
+{{ if .Values.global.grafana.enabled }}
 {{- if .Values.sidecar.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
@@ -24,3 +25,4 @@ data:
       options:
         path: {{ .Values.sidecar.dashboards.folder }}
 {{- end}}
+{{ end }}

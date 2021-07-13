@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.alertmanager.podDisruptionBudget.enabled }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
@@ -11,3 +12,4 @@ spec:
     matchLabels:
       {{- include "prometheus.alertmanager.labels" . | nindent 6 }}
 {{- end }}
+{{ end }}

@@ -1,3 +1,4 @@
+{{ if .Values.global.grafana.enabled }}
 {{- if .Values.rbac.pspEnabled }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy
@@ -41,3 +42,4 @@ spec:
     rule: 'RunAsAny'
   readOnlyRootFilesystem: false
 {{- end }}
+{{ end }}

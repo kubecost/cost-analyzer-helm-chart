@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if and .Values.alertmanager.enabled (and (empty .Values.alertmanager.configMapOverrideName) (empty .Values.alertmanager.configFromSecret)) -}}
 apiVersion: v1
 kind: ConfigMap
@@ -16,3 +17,4 @@ data:
   {{- end }}
 {{- end -}}
 {{- end -}}
+{{ end }}

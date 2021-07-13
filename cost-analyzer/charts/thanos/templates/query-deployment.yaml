@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.query.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -39,6 +40,10 @@ spec:
         prometheus.io/port: "{{ .Values.query.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-query
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -143,4 +148,5 @@ spec:
       {{- with  .Values.query.serviceAccount }}
       serviceAccountName: "{{ . }}"
       {{- end }}
+{{ end }}
 {{ end }}

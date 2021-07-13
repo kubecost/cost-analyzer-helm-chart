@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if and .Values.bucket.enabled .Values.bucket.podDisruptionBudget.enabled }}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
@@ -23,3 +24,4 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/component: bucket
 {{- end }}
+{{ end }}

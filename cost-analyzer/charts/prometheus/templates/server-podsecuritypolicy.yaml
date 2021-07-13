@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.rbac.create }}
 {{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: {{ template "prometheus.podSecurityPolicy.apiVersion" . }}
@@ -51,3 +52,4 @@ spec:
   readOnlyRootFilesystem: false
 {{- end }}
 {{- end }}
+{{ end }}

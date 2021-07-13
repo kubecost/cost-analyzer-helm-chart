@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if and .Values.nodeExporter.enabled .Values.rbac.create }}
 {{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: {{ template "prometheus.podSecurityPolicy.apiVersion" . }}
@@ -53,3 +54,4 @@ spec:
       max: 65535
 {{- end }}
 {{- end }}
+{{ end }}

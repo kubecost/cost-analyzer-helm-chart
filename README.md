@@ -1,12 +1,22 @@
 # Kubecost helm chart
-Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes resource spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
+Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
-While Helm is the [recommended install path](http://kubecost.com/install), these resources can also be deployed with the following command:<a name="manifest"></a>
+To install via helm 3, run the following commands:
 
-`kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
+```
+helm repo add kubecost https://kubecost.github.io/cost-analyzer/
+helm upgrade -i --create-namespace kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
+```
 
-<a name="config-options"></a><br/>
-The following table lists the commonly used configurable parameters of the Kubecost Helm chart and their default values.
+While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed staticly with the following command:<a name="manifest"></a>
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
+```
+
+<br/><br/>
+<a name="config-options"></a>
+The following table lists commonly used configuration parameters for the Kubecost Helm chart and their default values.
 
 Parameter | Description | Default
 --------- | ----------- | -------

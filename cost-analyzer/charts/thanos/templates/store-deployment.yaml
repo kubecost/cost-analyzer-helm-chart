@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.store.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -37,6 +38,10 @@ spec:
       prometheus.io/port: "{{ .Values.store.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-store
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -117,3 +122,4 @@ spec:
       serviceAccountName: "{{ . }}"
       {{- end }}
 {{- end }}
+{{ end }}

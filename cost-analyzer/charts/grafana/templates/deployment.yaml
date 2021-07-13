@@ -1,3 +1,4 @@
+{{ if .Values.global.grafana.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -272,3 +273,4 @@ spec:
             secretName: {{ .secretName }}
             defaultMode: {{ .defaultMode }}
       {{- end }}
+{{ end }}
