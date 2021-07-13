@@ -73,6 +73,13 @@ data:
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
     sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
   {{- end -}}
+  {{- if gt (len (toString .Values.kubecostProductConfigs.shareTenancyCosts)) 0 }}
+  {{- if eq (toString .Values.kubecostProductConfigs.shareTenancyCosts) "false" }}
+    shareTenancyCosts: "false"
+  {{- else if eq (toString .Values.kubecostProductConfigs.shareTenancyCosts) "true" }}
+    shareTenancyCosts: "true"
+  {{- end -}}
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.spotLabel }}
     spotLabel: "{{ .Values.kubecostProductConfigs.spotLabel }}"
   {{- end -}}
