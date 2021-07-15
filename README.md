@@ -11,7 +11,7 @@ helm upgrade -i --create-namespace kubecost kubecost/cost-analyzer --namespace k
 While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed staticly with the following command:<a name="manifest"></a>
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
+kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost
 ```
 
 <br/><br/>
