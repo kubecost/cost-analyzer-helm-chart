@@ -8,3 +8,4 @@ Kubecost has been successfully installed. When pods are Ready, you can enable po
     
 Next, navigate to http://localhost:{{ $servicePort }} in a web browser.
 
+Having installation issues? View our Troubleshooting Guide at http://docs.kubecost.com/troubleshoot-install
