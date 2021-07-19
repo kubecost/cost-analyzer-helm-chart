@@ -16,6 +16,8 @@ metadata:
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
+  annotations:
+{{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     attached-disks.json: |-
 {{ .Files.Get "attached-disks.json" | indent 8 }}
