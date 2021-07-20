@@ -1,3 +1,4 @@
+{{ if .Values.prometheus.kubeStateMetrics.enabled }}
 {{- if .Values.rbac.create -}}
 apiVersion: rbac.authorization.k8s.io/v1beta1
 kind: ClusterRole
@@ -178,3 +179,4 @@ rules:
   verbs: ["list", "watch"]
 {{ end -}}
 {{- end -}}
+{{ end }}
