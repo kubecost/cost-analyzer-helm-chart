@@ -110,7 +110,6 @@ spec:
       {{- else }}
         emptyDir: {}
       {{- end }}          
-      {{- else }}
       - name: config-volume
         secret:
           secretName: {{ include "thanos.secretname" . }}

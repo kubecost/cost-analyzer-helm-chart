@@ -30,11 +30,11 @@ store:
   extraArgs: []
   # - "--extraargs=extravalue"
   #
-  # Data volume for the compactor to store temporary data defaults to emptyDir
+  # Data volume for the store to store temporary data defaults to emptyDir
   # dataVolume:
-    #  persistentVolumeClaim:
-    #    claimName: store-data-volume
-    #    storage: 100Gi
+  #  persistentVolumeClaim:
+  #    claimName: store-data-volume
+  #    storage: 100Gi
   # Number of replicas running from store component
   replicaCount: 1
   # Extra labels for store pod template
