@@ -384,7 +384,7 @@ configmapReload:
     ##
     resources: {}
 
-kubeStateMetrics:
+kube-state-metrics:
   ## If false, kube-state-metrics sub-chart will not be installed
   ## Please see https://github.com/helm/charts/tree/master/stable/kube-state-metrics for configurable values
   ##

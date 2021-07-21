@@ -1,4 +1,4 @@
-{{ if .Values.prometheus.kubeStateMetrics.enabled }}
+{{ if not .Values.disabled }}
 {{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: policy/v1beta1
 kind: PodSecurityPolicy

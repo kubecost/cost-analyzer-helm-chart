@@ -1,4 +1,4 @@
-{{ if .Values.prometheus.kubeStateMetrics.enabled }}
+{{ if not .Values.disabled }}
 apiVersion: apps/v1
 {{- if .Values.autosharding.enabled }}
 kind: StatefulSet
