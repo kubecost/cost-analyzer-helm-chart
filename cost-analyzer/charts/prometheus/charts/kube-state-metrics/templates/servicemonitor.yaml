@@ -1,3 +1,4 @@
+{{ if not .Values.disabled }}
 {{- if .Values.prometheus.monitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -23,3 +24,4 @@ spec:
       honorLabels: true
       {{- end }}
 {{- end }}
+{{ end }}
