@@ -96,7 +96,20 @@ spec:
           {{ toYaml .Values.store.resources | nindent 10 }}
       volumes:
       - name: data
+      {{- if .Values.store.dataVolume }}
+      {{- if .Values.store.dataVolume.persistentVolumeClaim }}
+      {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+      {{- else }}
         emptyDir: {}
+      {{- end }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}          
       - name: config-volume
         secret:
           secretName: {{ include "thanos.secretname" . }}
