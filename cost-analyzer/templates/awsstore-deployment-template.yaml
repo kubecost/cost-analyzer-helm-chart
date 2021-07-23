@@ -23,4 +23,7 @@ spec:
         containers:
             - image: {{ .Values.awsstore.imageNameAndVersion }}
               name: awsstore
+              # Just sleep forever
+              command: [ "sleep" ]
+              args: [ "infinity" ]
 {{- end }}
