@@ -570,6 +570,9 @@ serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
+awsstore:
+  useAwsStore: false
+  createServiceAccount: false
 
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request

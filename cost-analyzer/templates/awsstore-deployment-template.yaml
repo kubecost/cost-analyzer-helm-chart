@@ -1,4 +1,4 @@
-{{- if .Values.awsstore }}
+{{- if .Values.awsstore.useAwsStore }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -23,4 +23,7 @@ spec:
         containers:
             - image: {{ .Values.awsstore.imageNameAndVersion }}
               name: awsstore
+              # Just sleep forever
+              command: [ "sleep" ]
+              args: [ "infinity" ]
 {{- end }}
