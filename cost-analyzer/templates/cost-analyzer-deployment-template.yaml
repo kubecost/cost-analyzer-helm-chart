@@ -511,6 +511,12 @@ spec:
             - name: no_proxy
               value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            {{- if .Values.kubecostMetrics.emitter }}
+            - name: KUBECOST_METRICS_POD_ENABLED
+              value: {{ (quote .Values.kubecostMetrics.emitter.enabled) | default (quote false) }}
+            {{- end }}
+            {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: MAX_QUERY_CONCURRENCY
