@@ -205,6 +205,50 @@ kubecost:
     #  cpu: "100m"
     #  memory: "256Mi"
 
+# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required 
+# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself. 
+# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead. 
+kubecostMetrics: 
+  # emitPodAnnotations: false 
+  # emitNamespaceAnnotations: false 
+  # emitKsmV1Metrics: true
+  
+  # Optional
+  # The metrics emitter is a separate deployment and service (for prometheus scrape auto-discovery)
+  # which emits metrics cost-model relies on. Enabling this deployment also removes the KSM dependency
+  # from the cost-model. If the deployment is not enabled, the metrics will continue to be emitted from
+  # the cost-model.
+  emitter:
+    enabled: false
+    image: "gcr.io/kubecost1/kube-metrics:v0.0.1"
+    imagePullPolicy: Always 
+    port: 9005
+    resources: {}
+      # requests:
+      #  cpu: "200m"
+      #  memory: "55Mi"
+    ## Node tolerations for server scheduling to nodes with taints
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    tolerations: []
+
+    #  - key: "key"
+    #    operator: "Equal|Exists"
+    #    value: "value"
+    #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+    affinity: {}
+
+    # Service Monitor for Kubecost Metrics 
+    serviceMonitor:
+      enabled: false
+      additionalLabels: {}
+
+    ## PriorityClassName
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+    priorityClassName: []
+    additionalLabels: {}
+    nodeSelector: {}
+    annotations: {}
+
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
@@ -442,16 +486,6 @@ prometheus:
               record: kubecost_savings_memory_allocation_bytes
               labels:
                 daemonset: "true"
-            - expr: label_replace(sum(kube_pod_status_phase{phase="Running",namespace!="kube-system"} > 0) by (pod, namespace), "pod_name", "$1", "pod", "(.+)")
-              record: kubecost_savings_running_pods
-            - expr: sum(rate(container_cpu_usage_seconds_total{container_name!="",container_name!="POD",instance!=""}[5m])) by (namespace, pod_name, container_name, instance)
-              record: kubecost_savings_container_cpu_usage_seconds
-            - expr: sum(container_memory_working_set_bytes{container_name!="",container_name!="POD",instance!=""}) by (namespace, pod_name, container_name, instance)
-              record: kubecost_savings_container_memory_usage_bytes
-            - expr: avg(sum(kube_pod_container_resource_requests{resource="cpu", unit="core", namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
-              record: kubecost_savings_pod_requests_cpu_cores
-            - expr: avg(sum(kube_pod_container_resource_requests{resource="memory", unit="byte", namespace!="kube-system"}) by (pod, namespace, instance)) by (pod, namespace)
-              record: kubecost_savings_pod_requests_memory_bytes
 
 ## Module for measuring network costs
 ## Ref: https://github.com/kubecost/docs/blob/master/network-allocation.md

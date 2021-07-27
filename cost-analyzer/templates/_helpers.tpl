@@ -77,6 +77,21 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- printf "%s-%s" .Release.Name "cluster-controller" -}}
 {{- end -}}
 
+{{- define "kubecost.kubeMetricsName" -}}
+{{- printf "%s-%s" .Release.Name "metrics" -}}
+{{- end -}}
+
+{{/*
+Create the chart labels.
+*/}}
+{{- define "kubecost.chartLabels" -}}
+app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+
 {{/*
 Create chart name and version as used by the chart label.
 */}}

@@ -1,0 +1,88 @@
+{{- if .Values.kubecostMetrics }}
+{{- if .Values.kubecostMetrics.emitter }}
+{{- if .Values.kubecostMetrics.emitter.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "kubecost.kubeMetricsName" . }}
+  labels:
+    app: {{ template "kubecost.kubeMetricsName" . }}
+{{- with .Values.kubecostMetrics.emitter.labels }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+spec:
+  replicas: {{ .Values.kubecostMetrics.emitter.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ include "kubecost.kubeMetricsName" . }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: {{ template "kubecost.kubeMetricsName" . }}
+        {{- if .Values.global.additionalLabels }}
+        {{ toYaml .Values.global.additionalLabels | nindent 8 }}
+        {{- end }}
+{{- with .Values.kubecostMetrics.emitter.labels }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- if .Values.global.podAnnotations }}
+      annotations:
+{{- with .Values.global.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
+      containers:
+        - image: {{ .Values.kubecostMetrics.emitter.image }}
+          name: kubecost-metrics 
+        {{- if .Values.kubecostMetrics.emitter.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostMetrics.emitter.imagePullPolicy }}
+        {{- else }}
+          imagePullPolicy: Always
+        {{- end }}
+          resources:
+{{ toYaml .Values.kubecostMetrics.emitter.resources | indent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.kubecostMetrics.emitter.port | default 9005 }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          env:
+            - name: KUBECOST_METRICS_PORT
+              value: {{ (quote .Values.kubecostMetrics.emitter.port) | default (quote 9005) }}
+            - name: EMIT_POD_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
+            - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
+              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
+            - name: EMIT_KSM_V1_METRICS
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            - name: RELEASE_NAME
+              value: {{ .Release.Name }}
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
+      {{- if .Values.kubecostMetrics.emitter.priorityClassName }}
+      priorityClassName: {{ .Values.kubecostMetrics.emitter.priorityClassName }}
+      {{- end }}
+      {{- with .Values.kubecostMetrics.emitter.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostMetrics.emitter.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostMetrics.emitter.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}
