@@ -550,6 +550,7 @@ grafana:
       # label that the configmaps with dashboards are marked with
       label: grafana_dashboard
       # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
+      annotations: {}
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
@@ -569,6 +570,9 @@ serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
+awsstore:
+  useAwsStore: false
+  createServiceAccount: false
 
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
