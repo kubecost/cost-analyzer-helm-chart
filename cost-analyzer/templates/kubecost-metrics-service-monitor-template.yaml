@@ -1,16 +1,16 @@
 {{- if .Values.kubecostMetrics }}
-{{- if .Values.kubecostMetrics.metricsPod }}
-{{- if .Values.kubecostMetrics.metricsPod.enabled }}
-{{- if .Values.kubecostMetrics.metricsPod.serviceMonitor }}
-{{- if .Values.kubecostMetrics.metricsPod.serviceMonitor.enabled }}
+{{- if .Values.kubecostMetrics.emitter }}
+{{- if .Values.kubecostMetrics.emitter.enabled }}
+{{- if .Values.kubecostMetrics.emitter.serviceMonitor }}
+{{- if .Values.kubecostMetrics.emitter.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "kubecost.kubeMetricsName" . }}
   labels:
     {{ include "kubecost.chartLabels" . | nindent 4 }}
-    {{- if .Values.kubecostMetrics.metricsPod.serviceMonitor.additionalLabels }}
-    {{ toYaml .Values.kubecostMetrics.metricsPod.serviceMonitor.additionalLabels | nindent 4 }}
+    {{- if .Values.kubecostMetrics.emitter.serviceMonitor.additionalLabels }}
+    {{ toYaml .Values.kubecostMetrics.emitter.serviceMonitor.additionalLabels | nindent 4 }}
     {{- end }}
 spec:
   endpoints:
