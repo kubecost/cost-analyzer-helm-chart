@@ -1,3 +1,4 @@
+{{- if .Values.awsstore }}
 {{- if .Values.awsstore.useAwsStore }}
 apiVersion: apps/v1
 kind: Deployment
@@ -26,4 +27,5 @@ spec:
               # Just sleep forever
               command: [ "sleep" ]
               args: [ "infinity" ]
+{{- end }}
 {{- end }}
