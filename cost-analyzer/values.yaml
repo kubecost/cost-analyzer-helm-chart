@@ -274,6 +274,13 @@ networkPolicy:
 podSecurityPolicy:
   enabled: true
 
+## @param extraVolumes A list of volumes to be added to the pod
+##
+extraVolumes: []
+## @param extraVolumeMounts A list of volume mounts to be added to the pod
+##
+extraVolumeMounts: []
+
 # Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
 persistentVolume:
   size: 32Gi
