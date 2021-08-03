@@ -271,6 +271,31 @@ networkPolicy:
   sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
 #  namespace: kubecost # Namespace where prometheus is installed
 
+  # Cost-analyzer specific vars using the new template
+  costAnalyzer:
+    enabled: false # If true, create a newtork policy for cost-analzyer
+    annotations: {} # annotations to be added to the network policy
+    additionalLabels: {} # additional labels to be added to the network policy
+    # Examples rules:
+    # ingressRules:
+    #   - selectors: # allow ingress from self on all ports
+    #     - podSelector:
+    #         matchLabels:
+    #           app.kubernetes.io/name: cost-analyzer
+    #   - selectors: # allow egress access to prometheus
+    #     - namespaceSelector:
+    #         matchLabels:
+    #           name: prometheus
+    #       podSelector:
+    #         matchLabels:
+    #           app: prometheus
+    #     ports:
+    #       - protocol: TCP
+    #         port: 9090
+    # egressRules:
+    #   - selectors: # restrict egress to inside cluster
+    #     - namespaceSelector: {}
+
 podSecurityPolicy:
   enabled: true
 
