@@ -426,7 +426,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v15.4
+  image: gcr.io/kubecost1/kubecost-network-costs:v15.6
   imagePullPolicy: Always
   # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
   # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
@@ -550,6 +550,7 @@ grafana:
       # label that the configmaps with dashboards are marked with
       label: grafana_dashboard
       # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
+      annotations: {}
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
@@ -569,6 +570,9 @@ serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
+awsstore:
+  useAwsStore: false
+  createServiceAccount: false
 
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
@@ -642,6 +646,7 @@ serviceAccount:
 #    product_external_label: "kubernetes_label_app"
 #    service_external_label: "kubernetes_service"
 #    deployment_external_label: "kubernetes_deployment"
+#    owner_external_label: "kubernetes_label_owner"
 #    team_external_label: "kubernetes_label_team"
 #    environment_external_label: "kubernetes_label_env"
 #    department_external_label: "kubernetes_label_department"
