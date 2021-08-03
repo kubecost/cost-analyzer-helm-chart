@@ -646,6 +646,7 @@ awsstore:
 #    product_external_label: "kubernetes_label_app"
 #    service_external_label: "kubernetes_service"
 #    deployment_external_label: "kubernetes_deployment"
+#    owner_external_label: "kubernetes_label_owner"
 #    team_external_label: "kubernetes_label_team"
 #    environment_external_label: "kubernetes_label_env"
 #    department_external_label: "kubernetes_label_department"
