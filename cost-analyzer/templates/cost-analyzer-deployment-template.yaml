@@ -227,10 +227,6 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if .Values.extraVolumeMounts }}
-            # Extra volume mount(s)
-            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
-            {{- end }}
             {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
@@ -675,10 +671,6 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if .Values.extraVolumeMounts }}
-            # Extra volume mount(s)
-            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
-            {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
