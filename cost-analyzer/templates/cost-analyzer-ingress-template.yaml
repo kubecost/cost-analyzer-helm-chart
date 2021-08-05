@@ -7,8 +7,9 @@ apiVersion: {{ include "cost-analyzer.ingress.apiVersion" . }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}

@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "thanos.componentname" (list $ "query") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: query
-{{ with .Values.query.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.query.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
   {{- with .Values.query.deploymentAnnotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -24,14 +25,14 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query
-{{ with .Values.query.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{- with .Values.query.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
   template:
     metadata:
       labels:
         app.kubernetes.io/name: {{ include "thanos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: query
-{{ with  .Values.query.labels }}{{ toYaml . | indent 8 }}{{ end }}
+{{- with  .Values.query.labels }}{{ toYaml . | indent 8 }}{{ end }}
       {{- with  .Values.query.annotations }}
       annotations: {{ toYaml . | nindent 8 }}
       {{- end }}
@@ -74,10 +75,10 @@ spec:
         - "--store.sd-dns-resolver={{ .Values.query.storeDNSResolver }}"
         {{- end }}
         {{- if .Values.query.storeDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Release.Namespace }}.svc"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "store") }}-grpc.{{ .Values.namespace | default .Release.Namespace }}.svc"
         {{- end  }}
         {{- if .Values.query.sidecarDNSDiscovery }}
-        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc"
+        - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Values.namespace | default .Release.Namespace }}.svc"
         {{- end  }}
         {{- range .Values.query.stores }}
         - "--store={{ . }}"
@@ -103,7 +104,7 @@ spec:
         - name: grpc
           containerPort: {{ .Values.query.grpc.port }}
         resources:
-          {{ toYaml .Values.query.resources | nindent 10 }}
+          {{- toYaml .Values.query.resources | nindent 10 }}
         env:
           {{- toYaml .Values.query.extraEnv | nindent 10 }}
         volumeMounts:

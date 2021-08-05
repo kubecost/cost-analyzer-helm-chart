@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: store
-{{ with .Values.store.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.store.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
   {{- with .Values.store.deploymentAnnotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -22,11 +23,11 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: store
-{{ with .Values.store.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{- with .Values.store.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
   template:
     metadata:
       labels:
-{{ with .Values.store.labels }}{{ toYaml . | indent 8 }}{{ end }}
+{{- with .Values.store.labels }}{{ toYaml . | indent 8 }}{{ end }}
         app.kubernetes.io/name: {{ include "thanos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: store
@@ -93,7 +94,7 @@ spec:
           readOnly: true
         {{- end }}
         resources:
-          {{ toYaml .Values.store.resources | nindent 10 }}
+          {{- toYaml .Values.store.resources | nindent 10 }}
       volumes:
       - name: data
       {{- if .Values.store.dataVolume }}

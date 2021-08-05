@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "query") }}-grpc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   {{- with .Values.query.grpc.service.annotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -14,7 +15,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: query
-{{ with .Values.query.grpc.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.query.grpc.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   type: ClusterIP
   clusterIP: None
@@ -27,7 +28,7 @@ spec:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: query
-{{ with .Values.query.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.query.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 
 ---
 
@@ -35,6 +36,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "query") }}-http
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   {{- with .Values.query.http.service.annotations }}
   annotations: {{ toYaml .| nindent 4 }}
   {{- end }}
@@ -45,7 +47,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: query
-{{ with .Values.query.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.query.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   type: {{ .Values.query.http.service.type }}
   {{- if .Values.query.http.service.externalTrafficPolicy }}
@@ -60,6 +62,6 @@ spec:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: query
-{{ with .Values.query.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.query.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end -}}
 {{ end }}

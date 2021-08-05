@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "thanos.componentname" (list $ "query-frontend") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: query-frontend
-{{ with .Values.queryFrontend.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.queryFrontend.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
   {{- with .Values.queryFrontend.deploymentAnnotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -24,14 +25,14 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query-frontend
-{{ with .Values.queryFrontend.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{- with .Values.queryFrontend.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
   template:
     metadata:
       labels:
         app.kubernetes.io/name: {{ include "thanos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: query-frontend
-{{ with  .Values.queryFrontend.labels }}{{ toYaml . | indent 8 }}{{ end }}
+{{- with  .Values.queryFrontend.labels }}{{ toYaml . | indent 8 }}{{ end }}
       {{- with  .Values.queryFrontend.annotations }}
       annotations: {{ toYaml . | nindent 8 }}
       {{- end }}
@@ -52,7 +53,7 @@ spec:
         - "query-frontend"
         - "--log.level={{ .Values.queryFrontend.logLevel }}"
         - "--http-address=0.0.0.0:{{ .Values.queryFrontend.http.port }}"
-        - "--query-frontend.downstream-url=http://{{ include "thanos.componentname" (list $ "query") }}-http.{{ .Release.Namespace }}:{{ .Values.query.http.port }}"
+        - "--query-frontend.downstream-url=http://{{ include "thanos.componentname" (list $ "query") }}-http.{{ .Values.namespace | default .Release.Namespace }}:{{ .Values.query.http.port }}"
         - "--query-range.split-interval={{ .Values.queryFrontend.splitInterval }}"
         - "--query-range.max-retries-per-request={{ .Values.queryFrontend.maxRetriesPerRequest }}"
         - "--query-range.max-query-length={{ .Values.queryFrontend.maxQueryLength }}"
@@ -87,7 +88,7 @@ spec:
         - name: http
           containerPort: {{ .Values.queryFrontend.http.port }}
         resources:
-          {{ toYaml .Values.queryFrontend.resources | nindent 10 }}
+          {{- toYaml .Values.queryFrontend.resources | nindent 10 }}
         env:
           {{- toYaml .Values.queryFrontend.extraEnv | nindent 10 }}
         volumeMounts:

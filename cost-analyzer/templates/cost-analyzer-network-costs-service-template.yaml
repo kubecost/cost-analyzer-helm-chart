@@ -5,12 +5,13 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
+  namespace: {{ .Release.Namespace }}
   annotations:
     prometheus.io/scrape: "{{ .Values.networkCosts.prometheusScrape }}"
     prometheus.io/port: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
   labels:
     app: {{ template "cost-analyzer.networkCostsName" . -}}
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   clusterIP: None
   ports:

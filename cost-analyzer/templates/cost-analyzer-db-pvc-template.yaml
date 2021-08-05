@@ -7,8 +7,9 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}-db
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   accessModes:
     - ReadWriteOnce

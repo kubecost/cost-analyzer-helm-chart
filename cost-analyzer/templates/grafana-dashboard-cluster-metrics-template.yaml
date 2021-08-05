@@ -10,7 +10,7 @@ metadata:
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if $.Values.grafana.sidecar.dashboards.label }}
     {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
     {{- else }}

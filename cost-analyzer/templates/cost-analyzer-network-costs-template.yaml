@@ -4,6 +4,7 @@ apiVersion: {{ include "cost-analyzer.daemonset.apiVersion" . }}
 kind: DaemonSet
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:

@@ -5,8 +5,9 @@ kind: Service
 apiVersion: v1
 metadata:
   name: pgprometheus-adapter
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   selector:
     app: adapter

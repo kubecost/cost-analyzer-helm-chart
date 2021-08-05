@@ -5,6 +5,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "query-frontend") }}-http
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}

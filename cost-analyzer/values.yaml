@@ -574,6 +574,9 @@ awsstore:
   useAwsStore: false
   createServiceAccount: false
 
+# thanos:
+#   # To overwrite the namespace for Thanos resources
+#   namespace: monitoring
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 

@@ -11,7 +11,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: compact
-{{ with .Values.compact.metrics.serviceMonitor.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.compact.metrics.serviceMonitor.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   jobLabel: thanos-compact
   selector:
@@ -21,7 +21,7 @@ spec:
       app.kubernetes.io/component: compact
   namespaceSelector:
     matchNames:
-      - {{ .Release.Namespace }}
+      - {{ .Values.namespace | default .Release.Namespace }}
   endpoints:
     - port: http
       interval: {{ .Values.compact.metrics.serviceMonitor.interval | default "15s" }}

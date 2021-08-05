@@ -4,6 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "thanos.componentname" (list $ "sidecar") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: sidecar
-{{ with .Values.sidecar.metrics.serviceMonitor.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.sidecar.metrics.serviceMonitor.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   jobLabel: thanos-sidecar
   selector:
@@ -21,7 +22,7 @@ spec:
       app.kubernetes.io/component: sidecar
   namespaceSelector:
     matchNames:
-      - {{ .Release.Namespace }}
+      - {{ .Values.namespace | default .Release.Namespace }}
   endpoints:
     - port: http
       interval: {{ .Values.sidecar.metrics.serviceMonitor.interval | default "15s" }}

@@ -4,6 +4,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "thanos.componentname" (list $ "compact") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: compact
-{{ with .Values.compact.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end -}}
+{{- with .Values.compact.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end -}}
   {{- with .Values.compact.deploymentAnnotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -22,14 +23,14 @@ spec:
       app.kubernetes.io/name: {{ include "thanos.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: compact
-{{ with .Values.compact.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{- with .Values.compact.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
   template:
     metadata:
       labels:
         app.kubernetes.io/name: {{ include "thanos.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
         app.kubernetes.io/component: compact
-{{ with  .Values.compact.labels }}{{ toYaml . | indent 8 }}{{ end }}
+{{- with  .Values.compact.labels }}{{ toYaml . | indent 8 }}{{ end }}
       {{- with  .Values.compact.annotations }}
       annotations: {{ toYaml . | nindent 8 }}
       {{- end }}
@@ -63,7 +64,7 @@ spec:
         - "--downsampling.disable"
 {{- end }}
         - "--wait"
-{{ with .Values.compact.extraArgs }}{{ toYaml . | indent 8 }}{{- end }}
+{{- with .Values.compact.extraArgs }}{{ toYaml . | indent 8 }}{{- end }}
         ports:
         - name: http
           containerPort: {{ .Values.compact.http.port }}

@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "sidecar") }}-grpc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   {{- with .Values.sidecar.grpc.service.annotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -14,7 +15,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: sidecar
-{{ with .Values.sidecar.grpc.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.sidecar.grpc.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   type: ClusterIP
   clusterIP: None
@@ -25,7 +26,7 @@ spec:
       name: grpc
   selector:
     app: prometheus
-{{ with .Values.sidecar.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.sidecar.grpc.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 
 ---
 
@@ -33,6 +34,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "sidecar") }}-http
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   {{- with .Values.sidecar.http.service.annotations }}
   annotations: {{ toYaml .| nindent 4 }}
   {{- end }}
@@ -43,7 +45,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: sidecar
-{{ with .Values.store.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.store.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   type: {{ .Values.sidecar.http.service.type }}
   {{- if .Values.sidecar.http.service.externalTrafficPolicy }}
@@ -56,6 +58,6 @@ spec:
       name: http
   selector:
     app: prometheus
-{{ with .Values.sidecar.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.sidecar.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end }}
 {{ end }}

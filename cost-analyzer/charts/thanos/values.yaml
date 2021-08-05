@@ -3,6 +3,9 @@ image:
   tag: v0.19.0
   pullPolicy: IfNotPresent
 
+# namespace to deploy resources
+#namespace: monitoring
+
 store:
   enabled: true
   # Maximum size of items held in the index cache.

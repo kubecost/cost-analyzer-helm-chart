@@ -4,6 +4,7 @@ apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "thanos.componentname" (list $ "query-frontend") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -11,7 +12,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: query-frontend
-{{ with .Values.queryFrontend.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
+{{- with .Values.queryFrontend.deploymentLabels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   {{- if .Values.queryFrontend.podDisruptionBudget.minAvailable }}
   minAvailable: {{ .Values.queryFrontend.podDisruptionBudget.minAvailable }}

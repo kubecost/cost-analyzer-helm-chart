@@ -4,6 +4,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}-psp
+  namespace: {{ .Release.Namespace }}
   annotations:
 {{- if .Values.podSecurityPolicy.annotations }}
 {{ toYaml .Values.podSecurityPolicy.annotations | indent 4 }}

@@ -3,8 +3,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.kubecostDeployment }}
 {{- with .Values.kubecostDeployment.labels }}
 {{ toYaml . | indent 4 }}
@@ -16,7 +17,7 @@ spec:
 {{- end }}
   selector:
     matchLabels:
-{{ include "cost-analyzer.selectorLabels" . | nindent 8}}
+{{- include "cost-analyzer.selectorLabels" . | nindent 8}}
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -25,7 +26,7 @@ spec:
   template:
     metadata:
       labels:
-        {{ include "cost-analyzer.selectorLabels" . | nindent 8 }}
+        {{- include "cost-analyzer.selectorLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{ toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}
@@ -238,7 +239,7 @@ spec:
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
         {{- else }}
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}

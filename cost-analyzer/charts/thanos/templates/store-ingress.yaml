@@ -4,6 +4,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-http
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}
@@ -47,6 +48,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-grpc
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ include "thanos.name" . }}
     helm.sh/chart: {{ include "thanos.chart" . }}

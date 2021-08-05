@@ -5,6 +5,7 @@ kind: NetworkPolicy
 {{- if .Values.networkPolicy.denyEgress }}
 metadata:
   name: deny-egress
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:

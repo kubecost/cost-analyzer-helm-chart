@@ -4,6 +4,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "bucket") }}
+  namespace: {{ .Values.namespace | default .Release.Namespace }}
   {{- with .Values.bucket.http.ingress.annotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
