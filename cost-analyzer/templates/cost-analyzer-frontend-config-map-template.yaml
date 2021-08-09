@@ -74,6 +74,7 @@ data:
         server_name _;
         root /var/www;
         index index.html;
+        large_client_header_buffers 4 32k;
         add_header Cache-Control "must-revalidate";
 {{- if .Values.saml.enabled }}
         add_header Cache-Control "max-age=0";
