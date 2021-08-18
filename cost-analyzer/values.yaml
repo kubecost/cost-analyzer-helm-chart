@@ -274,6 +274,13 @@ networkPolicy:
 podSecurityPolicy:
   enabled: true
 
+## @param extraVolumes A list of volumes to be added to the pod
+##
+extraVolumes: []
+## @param extraVolumeMounts A list of volume mounts to be added to the pod
+##
+extraVolumeMounts: []
+
 # Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
 persistentVolume:
   size: 32Gi
@@ -456,7 +463,7 @@ networkCosts:
         # IPv4 Link Local Address Space
         - "169.254.0.0/16"
         # Private Address Ranges in RFC-1918
-        - "10.0.0.0/8"
+        - "10.0.0.0/8" # Remove this entry if using Multi-AZ Kubernetes
         - "172.16.0.0/12"
         - "192.168.0.0/16"
 

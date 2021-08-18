@@ -171,6 +171,10 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.extraVolumes }}
+        # Extra volume(s)
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
+        {{- end }}
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -260,6 +264,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.extraVolumeMounts }}
+            # Extra volume mount(s)
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{- end }}
             {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
@@ -487,6 +495,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote false) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
+            - name: RECONCILE_NETWORK
+              value: {{ (quote .Values.kubecostModel.reconcileNetwork) | default (quote true) }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}

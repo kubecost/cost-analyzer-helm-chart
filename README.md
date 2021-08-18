@@ -53,3 +53,5 @@ Parameter | Description | Default
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
 `affinity` | pod affinity | `{}`
+`extraVolumes` | A list of volumes to be added to the pod | `[]`|
+`extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
