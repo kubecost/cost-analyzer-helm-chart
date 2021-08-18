@@ -1,4 +1,5 @@
 {{- if .Values.networkPolicy -}}
+{{- if .Values.networkPolicy.costAnalyzer -}}
 {{- if .Values.networkPolicy.costAnalyzer.enabled -}}
 kind: NetworkPolicy
 apiVersion: {{ include "cost-analyzer.networkPolicy.apiVersion" . }}
@@ -43,5 +44,6 @@ spec:
 {{ toYaml $rule.ports | indent 9 }}  
 {{- end }}
 {{- end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
