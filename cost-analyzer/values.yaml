@@ -271,8 +271,40 @@ networkPolicy:
   sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
 #  namespace: kubecost # Namespace where prometheus is installed
 
+  # Cost-analyzer specific vars using the new template
+  costAnalyzer:
+    enabled: false # If true, create a newtork policy for cost-analzyer
+    annotations: {} # annotations to be added to the network policy
+    additionalLabels: {} # additional labels to be added to the network policy
+    # Examples rules:
+    # ingressRules:
+    #   - selectors: # allow ingress from self on all ports
+    #     - podSelector:
+    #         matchLabels:
+    #           app.kubernetes.io/name: cost-analyzer
+    #   - selectors: # allow egress access to prometheus
+    #     - namespaceSelector:
+    #         matchLabels:
+    #           name: prometheus
+    #       podSelector:
+    #         matchLabels:
+    #           app: prometheus
+    #     ports:
+    #       - protocol: TCP
+    #         port: 9090
+    # egressRules:
+    #   - selectors: # restrict egress to inside cluster
+    #     - namespaceSelector: {}
+
 podSecurityPolicy:
   enabled: true
+
+## @param extraVolumes A list of volumes to be added to the pod
+##
+extraVolumes: []
+## @param extraVolumeMounts A list of volume mounts to be added to the pod
+##
+extraVolumeMounts: []
 
 # Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
 persistentVolume:
@@ -456,7 +488,7 @@ networkCosts:
         # IPv4 Link Local Address Space
         - "169.254.0.0/16"
         # Private Address Ranges in RFC-1918
-        - "10.0.0.0/8"
+        - "10.0.0.0/8" # Remove this entry if using Multi-AZ Kubernetes
         - "172.16.0.0/12"
         - "192.168.0.0/16"
 
