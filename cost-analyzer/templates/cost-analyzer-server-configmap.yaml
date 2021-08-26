@@ -60,6 +60,9 @@ data:
   {{- if .Values.kubecostProductConfigs.labelMappingConfigs.pod_external_label }}
     pod_external_label: "{{  .Values.kubecostProductConfigs.labelMappingConfigs.pod_external_label }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.labelMappingConfigs.owner_external_label }}
+    owner_external_label: "{{  .Values.kubecostProductConfigs.labelMappingConfigs.owner_external_label }}"
+  {{- end -}}
 {{- end -}}
 {{- end -}}
   {{- if .Values.kubecostProductConfigs.grafanaURL }}

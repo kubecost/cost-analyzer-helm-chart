@@ -271,8 +271,40 @@ networkPolicy:
   sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
 #  namespace: kubecost # Namespace where prometheus is installed
 
+  # Cost-analyzer specific vars using the new template
+  costAnalyzer:
+    enabled: false # If true, create a newtork policy for cost-analzyer
+    annotations: {} # annotations to be added to the network policy
+    additionalLabels: {} # additional labels to be added to the network policy
+    # Examples rules:
+    # ingressRules:
+    #   - selectors: # allow ingress from self on all ports
+    #     - podSelector:
+    #         matchLabels:
+    #           app.kubernetes.io/name: cost-analyzer
+    #   - selectors: # allow egress access to prometheus
+    #     - namespaceSelector:
+    #         matchLabels:
+    #           name: prometheus
+    #       podSelector:
+    #         matchLabels:
+    #           app: prometheus
+    #     ports:
+    #       - protocol: TCP
+    #         port: 9090
+    # egressRules:
+    #   - selectors: # restrict egress to inside cluster
+    #     - namespaceSelector: {}
+
 podSecurityPolicy:
   enabled: true
+
+## @param extraVolumes A list of volumes to be added to the pod
+##
+extraVolumes: []
+## @param extraVolumeMounts A list of volume mounts to be added to the pod
+##
+extraVolumeMounts: []
 
 # Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
 persistentVolume:
@@ -426,7 +458,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v15.4
+  image: gcr.io/kubecost1/kubecost-network-costs:v15.6
   imagePullPolicy: Always
   # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
   # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
@@ -456,7 +488,7 @@ networkCosts:
         # IPv4 Link Local Address Space
         - "169.254.0.0/16"
         # Private Address Ranges in RFC-1918
-        - "10.0.0.0/8"
+        - "10.0.0.0/8" # Remove this entry if using Multi-AZ Kubernetes
         - "172.16.0.0/12"
         - "192.168.0.0/16"
 
@@ -646,6 +678,7 @@ awsstore:
 #    product_external_label: "kubernetes_label_app"
 #    service_external_label: "kubernetes_service"
 #    deployment_external_label: "kubernetes_deployment"
+#    owner_external_label: "kubernetes_label_owner"
 #    team_external_label: "kubernetes_label_team"
 #    environment_external_label: "kubernetes_label_env"
 #    department_external_label: "kubernetes_label_department"
@@ -671,6 +704,7 @@ awsstore:
 #  serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret
 #  createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
 #  sharedNamespaces: "" # namespaces with shared workloads, example value: "kube-system\,ingress-nginx\,kubecost\,monitoring"
+#  sharedOverhead: "" # value representing a fixed external cost per month to be distributed among aggregations.
 #  shareTenancyCosts: true # enable or disable sharing costs such as cluster management fees (defaults to "true" on Settings page)
 #  productKey: # apply business or enterprise product license
 #    key: ""
