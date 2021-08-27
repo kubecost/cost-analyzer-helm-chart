@@ -5,7 +5,9 @@
 {{- $serviceName := include "prometheus.server.fullname" . }}
 {{- $servicePort := .Values.server.service.servicePort -}}
 {{- $extraPaths := .Values.server.ingress.extraPaths -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
 apiVersion: networking.k8s.io/v1beta1
 {{ else }}
 apiVersion: extensions/v1beta1
