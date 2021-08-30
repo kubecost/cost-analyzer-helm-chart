@@ -329,6 +329,10 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.alertConfigmapName }}
+            - name: ALERT_CONFIGMAP_NAME
+              value: {{ .Values.alertConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
