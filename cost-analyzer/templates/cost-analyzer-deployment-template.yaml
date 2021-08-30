@@ -333,6 +333,30 @@ spec:
             - name: ALERT_CONFIGMAP_NAME
               value: {{ .Values.alertConfigmapName }}
             {{- end }}
+            {{- if .Values.productConfigmapName }}
+            - name: PRODUCT_CONFIGMAP_NAME
+              value: {{ .Values.productConfigmapName }}
+            {{- end }}
+            {{- if .Values.appConfigmapName }}
+            - name: APP_CONFIGMAP_NAME
+              value: {{ .Values.appConfigmapName }}
+            {{- end }}
+            {{- if .Values.assetReportConfigmapName }}
+            - name: ASSET_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.assetReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.savedReportConfigmapName }}
+            - name: SAVED_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.savedReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.groupFiltersConfigmapName }}
+            - name: GROUP_FILTERS_CONFIGMAP_NAME
+              value: {{ .Values.groupFiltersConfigmapName }}
+            {{- end }}
+            {{- if .Values.pricingConfigmapName }}
+            - name: PRICING_CONFIGMAP_NAME
+              value: {{ .Values.pricingConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
