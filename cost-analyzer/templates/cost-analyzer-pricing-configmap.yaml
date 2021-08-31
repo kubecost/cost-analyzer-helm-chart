@@ -74,6 +74,9 @@ data:
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
     sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.sharedOverhead }}
+    sharedOverhead: "{{ .Values.kubecostProductConfigs.sharedOverhead }}"
+  {{- end -}}
   {{- if gt (len (toString .Values.kubecostProductConfigs.shareTenancyCosts)) 0 }}
   {{- if eq (toString .Values.kubecostProductConfigs.shareTenancyCosts) "false" }}
     shareTenancyCosts: "false"

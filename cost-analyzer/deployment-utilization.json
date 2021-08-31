@@ -1225,8 +1225,9 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
-    "kubernetes",
-    "deployment"
+    "cost",
+    "utilization",
+    "metrics"
   ],
   "templating": {
     "list": [
