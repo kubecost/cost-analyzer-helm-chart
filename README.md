@@ -21,7 +21,7 @@ The following table lists commonly used configuration parameters for the Kubecos
 Parameter | Description | Default
 --------- | ----------- | -------
 `global.prometheus.enabled` | If false, use an existing Prometheus install. [More info](http://docs.kubecost.com/custom-prom). | `true`
-`prometheus.kubeStateMetrics.enabled` | If true, deploy [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) for Kubernetes metrics | `true`
+`prometheus.kube-state-metrics.disabled` | If false, deploy [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) for Kubernetes metrics | `false`
 `prometheus.kube-state-metrics.resources` | Set kube-state-metrics resource requests and limits. | `{}`
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
