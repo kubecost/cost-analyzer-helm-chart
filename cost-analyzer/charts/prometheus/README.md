@@ -63,8 +63,8 @@ Assuming you have an existing release of the prometheus chart, named `prometheus
 	  enabled: false
 	alertmanagerFiles:
 	  alertmanager.yml: ""
-	kubeStateMetrics:
-	  enabled: false
+	kube-state-metrics:
+	  disabled: true
 	nodeExporter:
 	  enabled: false
 	pushgateway:
@@ -204,7 +204,7 @@ Parameter | Description | Default
 `initChownData.image.tag` | init-chown-data container image tag | `latest`
 `initChownData.image.pullPolicy` | init-chown-data container image pull policy | `IfNotPresent`
 `initChownData.resources` | init-chown-data pod resource requests & limits | `{}`
-`kubeStateMetrics.enabled` | If true, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `true`
+`kube-state-metrics.disabled` | If false, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `false`
 `nodeExporter.enabled` | If true, create node-exporter | `true`
 `nodeExporter.name` | node-exporter container name | `node-exporter`
 `nodeExporter.image.repository` | node-exporter container image repository| `prom/node-exporter`
