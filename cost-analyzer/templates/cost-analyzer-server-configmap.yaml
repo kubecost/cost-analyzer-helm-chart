@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: app-configs
+  name: {{ default "app-configs" .Values.appConfigmapName }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
