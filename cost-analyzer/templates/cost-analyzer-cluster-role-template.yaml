@@ -5,23 +5,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
   name: {{ template "cost-analyzer.serviceAccountName" . }}
 rules:
-- apiGroups: 
-    - ''
-  resources:
-    - "pods/log"
-  verbs:
-    - get
-    - list
-    - watch
----
-{{- end }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: {{ template "cost-analyzer.serviceAccountName" . }}
-  labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-rules:
+  - apiGroups: 
+      - ''
+    resources:
+      - "pods/log"
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - ''
     resources:
@@ -103,3 +94,4 @@ rules:
       - get
       - list
       - watch
+{{- end -}}
