@@ -17,15 +17,11 @@ rules:
       - ''
     resources:
       - configmaps
-      - deployments
-      - nodes
       - pods
-      - events
       - services
       - resourcequotas
       - replicationcontrollers
       - limitranges
-      - persistentvolumeclaims
       - persistentvolumes
       - namespaces
       - endpoints
@@ -74,22 +70,6 @@ rules:
       - policy
     resources:
       - poddisruptionbudgets
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups: 
-      - storage.k8s.io
-    resources: 
-      - storageclasses
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - events.k8s.io
-    resources:
-      - events
     verbs:
       - get
       - list
