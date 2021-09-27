@@ -98,8 +98,7 @@ global:
           - property: "cluster"
             value: "cluster-one,cluster*" # supports wildcard filtering and multiple comma separated values
         sharedOverhead: 0
-        sharedNamespaces: 
-          - "kubecost"
+        sharedNamespaces: [] # if no sharedNamespaces, specify empty array
       - title: "Example Saved Report 1"
         window: "month"
         aggregateBy: "controllerKind"
@@ -111,7 +110,7 @@ global:
           - property: "namespace"
             value: "kubecost"
         sharedOverhead: 0
-        sharedNamespaces: [] # if no sharedNamespaces, specify empty array
+        sharedNamespaces: [] 
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
         aggregateBy: "service"
