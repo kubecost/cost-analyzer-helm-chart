@@ -97,6 +97,8 @@ global:
         filters:
           - property: "cluster"
             value: "cluster-one,cluster*" # supports wildcard filtering and multiple comma separated values
+          - property: "namespace"
+            value: "kubecost"
         sharedOverhead: 0
         sharedNamespaces: [] # if no sharedNamespaces, specify empty array
       - title: "Example Saved Report 1"
