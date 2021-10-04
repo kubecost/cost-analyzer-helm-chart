@@ -189,6 +189,12 @@ enabled only version to the output .r
         {{- if (hasKey $value "enabled") -}}
             {{- $isEnabled = $value.enabled -}}
         {{- end -}}
+        {{ if (hasKey $value "adminPassword") -}}
+            {{- $isEnabled = false -}}
+        {{- end -}}
+        {{ if (hasKey $value "productKey") -}}
+            {{- $isEnabled = false -}}
+        {{- end -}}
         {{- if $isEnabled -}}
             {{- $rr := "{}" | fromYaml }}
             {{- template "cost-analyzer.filter" (dict "v" $value "r" $rr) }}
