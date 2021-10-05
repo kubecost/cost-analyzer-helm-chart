@@ -817,7 +817,7 @@
       "tableColumn": "",
       "targets": [
         {
-          "expr": "sum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kubelet_volume_stats_used_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) /\nsum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace, storageclass)\n + on (persistentvolumeclaim, namespace) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) * 100",
+          "expr": "sum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace)\n + on (persistentvolumeclaim, namespace)\n sum(pod_pvc_allocation) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_usage_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) /\nsum (\n sum(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, namespace)\n + on (persistentvolumeclaim, namespace)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim, namespace) or up * 0\n + sum(container_fs_limit_bytes{device=~\"^/dev/[sv]d[a-z][1-9]$\",id=\"/\"})\n) * 100",
           "format": "time_series",
           "interval": "",
           "intervalFactor": 1,
