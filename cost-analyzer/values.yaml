@@ -222,6 +222,8 @@ kubecostModel:
   etlHourlyStoreDurationHours: 49
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
+  # If running kubecost from a PV, greatly reduce memory usage for a small increase in data loading times.
+  etlFileStoreEnabled: true
   # utcOffset represents a timezone in hours and minutes east (+) or west (-)
   # of UTC, itself, which is defined as +00:00.
   # See the tz database of timezones to look up your local UTC offset:
