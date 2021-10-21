@@ -474,7 +474,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_KSM_NODE_METRICS_ONLY
-              value: {{ (quote .Values.kubecostMetrics.emitKsmNodeMetricsOnly) | default (quote true) }}
+              value: {{ (quote .Values.kubecostMetrics.emitKsmNodeMetricsOnly) | default (quote false) }}
             {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
