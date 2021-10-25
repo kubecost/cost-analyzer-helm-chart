@@ -9,3 +9,10 @@ annotations:
   "artifacthub.io/links": |
     - name: Homepage
       url: https://www.kubecost.com
+dependencies:
+  - name: grafana
+    version: 1.17.2
+  - name: prometheus
+    version: 11.0.2
+  - name: thanos
+    version: 0.22.0

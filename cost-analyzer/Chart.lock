@@ -1,0 +1,12 @@
+dependencies:
+- name: grafana
+  repository: ""
+  version: 1.17.2
+- name: prometheus
+  repository: ""
+  version: 11.0.2
+- name: thanos
+  repository: ""
+  version: 0.22.0
+digest: sha256:cfbd975c4c846ab1c4cb79be70fa5981aa2bbf5f33c7ad4cec6ecad085334c9a
+generated: "2021-10-25T12:05:24.614775-07:00"
