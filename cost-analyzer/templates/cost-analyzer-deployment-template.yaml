@@ -472,6 +472,10 @@ spec:
             - name: EMIT_KSM_V1_METRICS
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}

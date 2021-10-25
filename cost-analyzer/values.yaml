@@ -601,6 +601,10 @@ awsstore:
   useAwsStore: false
   createServiceAccount: false
 
+#kubecostMetrics:
+#  emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
+#  emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
+
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
