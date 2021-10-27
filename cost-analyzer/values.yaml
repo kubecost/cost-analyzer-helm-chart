@@ -215,13 +215,13 @@ kubecostMetrics:
   # emitKsmV1Metrics: true
   
   # Optional
-  # The metrics emitter is a separate deployment and service (for prometheus scrape auto-discovery)
+  # The metrics exporter is a separate deployment and service (for prometheus scrape auto-discovery)
   # which emits metrics cost-model relies on. Enabling this deployment also removes the KSM dependency
   # from the cost-model. If the deployment is not enabled, the metrics will continue to be emitted from
   # the cost-model.
-  emitter:
+  exporter:
     enabled: false
-    image: "gcr.io/kubecost1/kube-metrics:v0.0.1"
+    image: "gcr.io/kubecost1/kube-metrics:v0.0.2-SNAPSHOT"
     imagePullPolicy: Always 
     port: 9005
     resources: {}

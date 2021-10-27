@@ -546,9 +546,9 @@ spec:
               value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
             {{- if .Values.kubecostMetrics }}
-            {{- if .Values.kubecostMetrics.emitter }}
+            {{- if .Values.kubecostMetrics.exporter }}
             - name: KUBECOST_METRICS_POD_ENABLED
-              value: {{ (quote .Values.kubecostMetrics.emitter.enabled) | default (quote false) }}
+              value: {{ (quote .Values.kubecostMetrics.exporter.enabled) | default (quote false) }}
             {{- end }}
             {{- end }}
             - name: PV_ENABLED
