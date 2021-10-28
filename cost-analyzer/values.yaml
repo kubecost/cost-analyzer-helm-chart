@@ -256,9 +256,8 @@ affinity: {}
 
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
-  enabled: false
-  createNew: true # If true, create new PriorityClass from chart. Else use existing one provided in 'name' property below.
-  name: # Name of existing priority class name. Used only if createNew is set to false ignored otherwise.
+  enabled: true
+  name: # Provide name of existing priority class only. If left blank, upstream chart will create one from default template.
   # value: 1000000
 
 # If true, enable creation of NetworkPolicy resources.

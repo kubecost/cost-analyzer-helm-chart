@@ -1,6 +1,6 @@
 {{- if .Values.priority }}
 {{- if .Values.priority.enabled }}
-{{- if .Values.priority.createNew }}
+{{- if len .Values.priority.name == 0 }}
 apiVersion: {{ include "cost-analyzer.priorityClass.apiVersion" . }}
 kind: PriorityClass
 metadata:
