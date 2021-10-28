@@ -256,7 +256,7 @@ affinity: {}
 
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
-  enabled: true
+  enabled: false
   name: # Provide name of existing priority class only. If left blank, upstream chart will create one from default template.
   # value: 1000000
 
