@@ -451,7 +451,7 @@ prometheus:
 ## Module for measuring network costs
 ## Ref: https://github.com/kubecost/docs/blob/master/network-allocation.md
 networkCosts:
-  enabled: false
+  enabled: true
   podSecurityPolicy:
     enabled: false
   image: gcr.io/kubecost1/kubecost-network-costs:v15.7
