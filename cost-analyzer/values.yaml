@@ -235,7 +235,7 @@ ingress:
   enabled: false
   className: nginx
   annotations:
-    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   paths: ["/"] # There's no need to route specifically to the pods-- we have an nginx deployed that handles routing
   hosts:
