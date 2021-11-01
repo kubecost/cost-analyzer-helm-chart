@@ -874,7 +874,7 @@
           "text": "None",
           "value": ""
         },
-        "datasource": "-- Dashboard --",
+        "datasource": "${datasource}",
         "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
         "hide": 0,
         "includeAll": false,
