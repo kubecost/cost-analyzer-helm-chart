@@ -329,6 +329,12 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.reporting }}
+            {{- if .Values.reporting.valuesReporting }}
+            - name: HELM_VALUES
+              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.alertConfigmapName }}
             - name: ALERT_CONFIGMAP_NAME
               value: {{ .Values.alertConfigmapName }}
@@ -471,6 +477,10 @@ spec:
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_KSM_V1_METRICS
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
             {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
@@ -677,6 +687,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+        {{- if .Values.kubecost.enableServer }}   
         {{- if .Values.kubecost }}
         {{- if .Values.kubecost.fullImageName }}
         - image: {{ .Values.kubecost.fullImageName }}
@@ -798,6 +809,7 @@ spec:
                 configMapKeyRef:
                   name: external-grafana-config-map
                   key: grafanaURL
+            {{- end }}
             {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
