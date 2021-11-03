@@ -517,6 +517,8 @@ spec:
             {{- end }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
+            - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
+              value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
