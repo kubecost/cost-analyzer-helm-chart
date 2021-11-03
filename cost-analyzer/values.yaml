@@ -195,7 +195,7 @@ kubecostFrontend:
 kubecost:
   # Enables the cost-analyzer-server container to spin up as part of kubecost
   # Setting this to false will mean all /api/ endpoints will be unavailable
-  enableServer: true
+  disableServer: false
   image: "gcr.io/kubecost1/server"
   resources:
     requests:
