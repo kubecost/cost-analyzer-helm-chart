@@ -236,7 +236,7 @@ kubecostModel:
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
   enabled: false
-  className: nginx
+  # className: nginx
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
