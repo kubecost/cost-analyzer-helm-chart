@@ -2,7 +2,7 @@ global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
-    fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if enabled: true
+    fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
@@ -193,6 +193,9 @@ kubecostFrontend:
     #  memory: "256Mi"
 
 kubecost:
+  # Enables the cost-analyzer-server container to spin up as part of kubecost
+  # Setting this to false will mean all /api/ endpoints will be unavailable
+  disableServer: false
   image: "gcr.io/kubecost1/server"
   resources:
     requests:
@@ -222,11 +225,6 @@ kubecostModel:
   etlHourlyStoreDurationHours: 49
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
-  # utcOffset represents a timezone in hours and minutes east (+) or west (-)
-  # of UTC, itself, which is defined as +00:00.
-  # See the tz database of timezones to look up your local UTC offset:
-  # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
-  utcOffset: "+00:00"
   resources:
     requests:
       cpu: "200m"
@@ -238,10 +236,12 @@ kubecostModel:
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
   enabled: false
+  # className: nginx
   annotations:
-    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   paths: ["/"] # There's no need to route specifically to the pods-- we have an nginx deployed that handles routing
+  pathType: ImplementationSpecific
   hosts:
     - cost-analyzer.local
   tls: []
@@ -458,7 +458,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v15.6
+  image: gcr.io/kubecost1/kubecost-network-costs:v15.7
   imagePullPolicy: Always
   # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
   # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
@@ -606,9 +606,10 @@ awsstore:
   useAwsStore: false
   createServiceAccount: false
 
-# thanos:
-#   # To overwrite the namespace for Thanos resources
-#   namespace: monitoring
+#kubecostMetrics:
+#  emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
+#  emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
+
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
