@@ -817,7 +817,11 @@ spec:
     {{- end }}
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
+      {{- if gt (len .Values.priority.name) 0 }}
+      priorityClassName: {{ .Values.priority.name }}
+      {{- else }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
