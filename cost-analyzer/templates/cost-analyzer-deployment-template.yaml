@@ -330,6 +330,40 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.reporting }}
+            {{- if .Values.reporting.valuesReporting }}
+            - name: HELM_VALUES
+              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.alertConfigmapName }}
+            - name: ALERT_CONFIGMAP_NAME
+              value: {{ .Values.alertConfigmapName }}
+            {{- end }}
+            {{- if .Values.productConfigmapName }}
+            - name: PRODUCT_CONFIGMAP_NAME
+              value: {{ .Values.productConfigmapName }}
+            {{- end }}
+            {{- if .Values.appConfigmapName }}
+            - name: APP_CONFIGMAP_NAME
+              value: {{ .Values.appConfigmapName }}
+            {{- end }}
+            {{- if .Values.assetReportConfigmapName }}
+            - name: ASSET_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.assetReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.savedReportConfigmapName }}
+            - name: SAVED_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.savedReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.groupFiltersConfigmapName }}
+            - name: GROUP_FILTERS_CONFIGMAP_NAME
+              value: {{ .Values.groupFiltersConfigmapName }}
+            {{- end }}
+            {{- if .Values.pricingConfigmapName }}
+            - name: PRICING_CONFIGMAP_NAME
+              value: {{ .Values.pricingConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -444,6 +478,10 @@ spec:
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_KSM_V1_METRICS
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
             {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
@@ -650,6 +688,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+        {{- if not .Values.kubecost.disableServer }}
         {{- if .Values.kubecost }}
         {{- if .Values.kubecost.fullImageName }}
         - image: {{ .Values.kubecost.fullImageName }}
@@ -771,6 +810,7 @@ spec:
                 configMapKeyRef:
                   name: external-grafana-config-map
                   key: grafanaURL
+            {{- end }}
             {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
