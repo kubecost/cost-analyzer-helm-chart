@@ -77,6 +77,7 @@ data:
         large_client_header_buffers 4 32k;
         add_header Cache-Control "must-revalidate";
 {{- if .Values.saml.enabled }}
+{{- if not .Values.saml.nginxAuthRequestDisabled }}
         add_header Cache-Control "max-age=0";
         location / {
             auth_request /auth;
@@ -87,6 +88,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             error_page 401 = /login;
         }
+{{- else }}
+        add_header Cache-Control "max-age=300";
+{{- end }}
 {{- else }}
         add_header Cache-Control "max-age=300";
 {{- end }}

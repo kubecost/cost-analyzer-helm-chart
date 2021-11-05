@@ -148,7 +148,8 @@ pricingCsv:
 # SAML integration for user management and RBAC, enterprise key required
 # Ref: https://github.com/kubecost/docs/blob/master/user-management.md
 saml:
-  enabled: false
+  enabled: true
+  nginxAuthRequestDisabled: true
   secretName: "kubecost-authzero"
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
