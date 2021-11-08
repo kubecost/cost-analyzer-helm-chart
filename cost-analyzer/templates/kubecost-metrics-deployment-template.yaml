@@ -178,6 +178,8 @@ spec:
               value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
             - name: EMIT_KSM_V1_METRICS
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+            - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
