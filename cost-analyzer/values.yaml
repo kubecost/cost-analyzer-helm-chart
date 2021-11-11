@@ -714,5 +714,5 @@ awsstore:
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
-#    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
+#    secretname: productkeysecret # kubectl create secret generic productkeysecret -n kubecost --from-file=product.json <--- update your productKey in a file named "productkey.json" of format { "key": "kc-b1325234" }
 #  cloudIntegrationSecret: "cloud-integration"
