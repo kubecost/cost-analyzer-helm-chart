@@ -1,6 +1,6 @@
 {{- if .Values.kubecostMetrics }}
 {{- if .Values.kubecostMetrics.exporter }}
-{{- if .Values.kubecostMetrics.exporter.enabled }}
+{{- if or .Values.kubecostMetrics.exporter.enabled .Values.agent }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -40,6 +40,11 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        {{- if .Values.agent }}
+        - name: config-store
+          secret:
+            secretName: {{ template "kubecost.agentStoreSecretName" . }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
@@ -114,7 +119,7 @@ spec:
 {{- end }}
       containers:
         - image: {{ .Values.kubecostMetrics.exporter.image }}
-          name: kubecost-metrics 
+          name: {{ template "kubecost.kubeMetricsName" . }}
         {{- if .Values.kubecostMetrics.exporter.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostMetrics.exporter.imagePullPolicy }}
         {{- else }}
@@ -132,6 +137,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.agent }}
+            - name: config-store
+              mountPath: /var/secrets
+            {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
@@ -172,6 +181,12 @@ spec:
               value: /var/configs/
             - name: KUBECOST_METRICS_PORT
               value: {{ (quote .Values.kubecostMetrics.exporter.port) | default (quote 9005) }}
+            {{- if .Values.agent }}
+            - name: KUBECOST_CONFIG_BUCKET
+              value: /var/secrets/object-store.yaml
+            - name: EXPORT_CLUSTER_CACHE_ENABLED
+              value: "true"
+            {{- end }}
             - name: EMIT_POD_ANNOTATIONS_METRIC
               value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
             - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
@@ -182,8 +197,6 @@ spec:
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
-            - name: KUBECOST_NAMESPACE
-              value: {{ .Release.Namespace }}
             - name: MAX_QUERY_CONCURRENCY
               value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 5) }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}

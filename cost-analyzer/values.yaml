@@ -221,7 +221,7 @@ kubecostMetrics:
   # the cost-model.
   exporter:
     enabled: false
-    image: "gcr.io/kubecost1/kube-metrics:v0.0.2-SNAPSHOT"
+    image: "gcr.io/kubecost1/kube-metrics:v0.0.3-SNAPSHOT"
     imagePullPolicy: Always 
     port: 9005
     resources: {}
