@@ -78,7 +78,18 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- end -}}
 
 {{- define "kubecost.kubeMetricsName" -}}
+{{- if .Values.agent }}
+{{- printf "%s-%s" .Release.Name "agent" -}}
+{{- else }}
 {{- printf "%s-%s" .Release.Name "metrics" -}}
+{{- end }}
+{{- end -}}
+
+{{/*
+Kubecost Agent Secret Name 
+*/}}
+{{- define "kubecost.agentStoreSecretName" -}}
+{{- printf "%s-%s" .Release.Name "object-store" -}}
 {{- end -}}
 
 {{/*
