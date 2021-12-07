@@ -93,7 +93,7 @@ spec:
             secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
             items:
             - key: compute-viewer-kubecost-key.json
-              path: key.json
+              path: service-key.json
         {{- end }}
         {{- end -}}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
@@ -285,13 +285,13 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
-              mountPath: /models
+              mountPath: /var/secrets
             {{- end }}
-            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
+            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             - name: cloud-integration
               mountPath: /var/cloud-integration
             {{- end }}
@@ -373,15 +373,7 @@ spec:
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
-            {{- if .Values.kubecostProductConfigs }}
-            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
-              value: /models/key.json
-            {{- else }}
               value: /var/configs/key.json
-            {{- end }}
-            {{- else }}
-              value: /var/configs/key.json
-            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
