@@ -40,7 +40,7 @@ securityContext:
   fsGroup: 472
 
 downloadDashboardsImage:
-  repository: appropriate/curl
+  repository: curlimages/curl
   tag: latest
   pullPolicy: IfNotPresent
 
