@@ -550,6 +550,11 @@ serviceAccount:
   annotations: {}
   # name: kc-test
 
+awsstore:
+  useAwsStore: false
+  createServiceAccount: false
+
+
 #kubecostMetrics:
 #  emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
 #  emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
