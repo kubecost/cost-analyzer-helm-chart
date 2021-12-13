@@ -549,11 +549,9 @@ serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
-
 awsstore:
   useAwsStore: false
   createServiceAccount: false
-
 
 #kubecostMetrics:
 #  emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
