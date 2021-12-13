@@ -149,17 +149,6 @@ Return the appropriate apiVersion for networkpolicy.
 {{- end -}}
 
 {{/*
-Return the appropriate apiVersion for Ingress.
-*/}}
-{{- define "cost-analyzer.ingress.apiVersion" -}}
-{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "extensions/v1beta1" -}}
-{{- else if semverCompare "^1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "networking.k8s.io/v1beta1" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Return the appropriate apiVersion for podsecuritypolicy.
 */}}
 {{- define "cost-analyzer.podSecurityPolicy.apiVersion" -}}

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pricing-configs
+  name: {{ default "pricing-configs" .Values.pricingConfigmapName }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
@@ -72,6 +72,9 @@ data:
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
     sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.sharedOverhead }}
+    sharedOverhead: "{{ .Values.kubecostProductConfigs.sharedOverhead }}"
   {{- end -}}
   {{- if gt (len (toString .Values.kubecostProductConfigs.shareTenancyCosts)) 0 }}
   {{- if eq (toString .Values.kubecostProductConfigs.shareTenancyCosts) "false" }}

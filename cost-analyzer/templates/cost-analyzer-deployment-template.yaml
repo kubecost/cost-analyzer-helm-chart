@@ -93,7 +93,7 @@ spec:
             secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
             items:
             - key: compute-viewer-kubecost-key.json
-              path: key.json
+              path: service-key.json
         {{- end }}
         {{- end -}}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}
@@ -170,6 +170,10 @@ spec:
             name: {{ template "cost-analyzer.fullname" . }}-saml
         {{- end }}
         {{- end }}
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+        # Extra volume(s)
+        {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
@@ -260,6 +264,10 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
+            {{- if .Values.extraVolumeMounts }}
+            # Extra volume mount(s)
+            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{- end }}
             {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
@@ -277,13 +285,13 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
-              mountPath: /models
+              mountPath: /var/secrets
             {{- end }}
-            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
+            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             - name: cloud-integration
               mountPath: /var/cloud-integration
             {{- end }}
@@ -321,6 +329,40 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.reporting }}
+            {{- if .Values.reporting.valuesReporting }}
+            - name: HELM_VALUES
+              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.alertConfigmapName }}
+            - name: ALERT_CONFIGMAP_NAME
+              value: {{ .Values.alertConfigmapName }}
+            {{- end }}
+            {{- if .Values.productConfigmapName }}
+            - name: PRODUCT_CONFIGMAP_NAME
+              value: {{ .Values.productConfigmapName }}
+            {{- end }}
+            {{- if .Values.appConfigmapName }}
+            - name: APP_CONFIGMAP_NAME
+              value: {{ .Values.appConfigmapName }}
+            {{- end }}
+            {{- if .Values.assetReportConfigmapName }}
+            - name: ASSET_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.assetReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.savedReportConfigmapName }}
+            - name: SAVED_REPORT_CONFIGMAP_NAME
+              value: {{ .Values.savedReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.groupFiltersConfigmapName }}
+            - name: GROUP_FILTERS_CONFIGMAP_NAME
+              value: {{ .Values.groupFiltersConfigmapName }}
+            {{- end }}
+            {{- if .Values.pricingConfigmapName }}
+            - name: PRICING_CONFIGMAP_NAME
+              value: {{ .Values.pricingConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -331,15 +373,7 @@ spec:
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS
-            {{- if .Values.kubecostProductConfigs }}
-            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
-              value: /models/key.json
-            {{- else }}
               value: /var/configs/key.json
-            {{- end }}
-            {{- else }}
-              value: /var/configs/key.json
-            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
@@ -436,6 +470,10 @@ spec:
             - name: EMIT_KSM_V1_METRICS
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
+            {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
               value: {{ (quote .Values.reporting.logCollection) | default (quote true) }}
@@ -471,6 +509,8 @@ spec:
             {{- end }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
+            - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
+              value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
@@ -487,6 +527,10 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote false) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
+            - name: ETL_USE_UNBLENDED_COST
+              value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+            - name: RECONCILE_NETWORK
+              value: {{ (quote .Values.kubecostModel.reconcileNetwork) | default (quote true) }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}
@@ -639,6 +683,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+        {{- if not .Values.kubecost.disableServer }}
         {{- if .Values.kubecost }}
         {{- if .Values.kubecost.fullImageName }}
         - image: {{ .Values.kubecost.fullImageName }}
@@ -761,13 +806,18 @@ spec:
                   name: external-grafana-config-map
                   key: grafanaURL
             {{- end }}
+            {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
+      {{- if gt (len .Values.priority.name) 0 }}
+      priorityClassName: {{ .Values.priority.name }}
+      {{- else }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
+      {{- end }}
       {{- end }}
       {{- end }}
       {{- with .Values.nodeSelector }}
