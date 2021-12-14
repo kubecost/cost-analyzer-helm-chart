@@ -118,13 +118,23 @@ spec:
             runAsUser: 0
 {{- end }}
       containers:
-        - image: {{ .Values.kubecostMetrics.exporter.image }}
-          name: {{ template "kubecost.kubeMetricsName" . }}
-        {{- if .Values.kubecostMetrics.exporter.imagePullPolicy }}
-          imagePullPolicy: {{ .Values.kubecostMetrics.exporter.imagePullPolicy }}
+        {{- if .Values.kubecostModel }}
+        {{- if .Values.kubecostModel.fullImageName }}
+        - image: {{ .Values.kubecostModel.fullImageName }}
+        {{- else if .Values.imageVersion }}
+        - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+        {{- else }}
+        - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
+        {{- else }}
+        - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+        {{ end }}
+        {{- if .Values.kubecostModel.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
           imagePullPolicy: Always
         {{- end }}
+          name: {{ template "kubecost.kubeMetricsName" . }}
           resources:
 {{ toYaml .Values.kubecostMetrics.exporter.resources | indent 12 }}
           readinessProbe:
@@ -159,6 +169,8 @@ spec:
               mountPath: /var/secrets
             {{- end }}
             {{- end }}
+          args: 
+            - agent
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
