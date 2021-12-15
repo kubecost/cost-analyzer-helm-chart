@@ -188,8 +188,10 @@ spec:
             {{- if .Values.agent }}
             - name: KUBECOST_CONFIG_BUCKET
               value: /var/secrets/object-store.yaml
+            - name: EXPORT_CLUSTER_INFO_ENABLED
+              value: {{ (quote .Values.kubecostMetrics.exporter.exportClusterInfo) | default (quote true) }}
             - name: EXPORT_CLUSTER_CACHE_ENABLED
-              value: "true"
+              value: {{ (quote .Values.kubecostMetrics.exporter.exportClusterCache) | default (quote true) }}
             {{- end }}
             - name: EMIT_POD_ANNOTATIONS_METRIC
               value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
