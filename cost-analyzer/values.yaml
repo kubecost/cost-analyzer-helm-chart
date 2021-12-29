@@ -155,6 +155,7 @@ saml:
   appRootURL: "http://localhost:9090" # sample URL
   # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   # nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" If your SAML provider requires a specific nameid format
+  # isGLUUProvider: false # An additional URL parameter must be appended for GLUU providers
   rbac:
     enabled: false
     groups:
