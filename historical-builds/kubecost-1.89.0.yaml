@@ -14,7 +14,7 @@ metadata:
     seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
     apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
     apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
-
+    
 spec:
   privileged: false
   allowPrivilegeEscalation: false
@@ -113,12 +113,13 @@ kind: ServiceAccount
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
+---
 # Source: cost-analyzer/charts/grafana/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -399,7 +400,7 @@ data:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
           regex:  kubecost-network-costs
-
+    
   recording_rules.yml: |
     {}
   rules: |
@@ -462,7 +463,7 @@ kind: ConfigMap
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -479,7 +480,7 @@ kind: ConfigMap
 metadata:
   name: nginx-conf
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -491,9 +492,9 @@ data:
 
     # Enable gzip encoding for content of the provided types of 50kb and higher.
     gzip on;
-    gzip_min_length 50000;
+    gzip_min_length 50000; 
     gzip_proxied expired no-cache no-store private auth;
-    gzip_types
+    gzip_types 
         application/atom+xml
         application/geo+json
         application/javascript
@@ -564,7 +565,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
+        
         location ~ ^/(turndown|cluster)/ {
 
             add_header 'Access-Control-Allow-Origin' '*' always;
@@ -600,7 +601,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
+    
     }
 ---
 # Source: cost-analyzer/templates/grafana-attached-disk-metrics-template.yaml
@@ -609,7 +610,7 @@ kind: ConfigMap
 metadata:
   name: attached-disk-metrics-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -1071,7 +1072,7 @@ kind: ConfigMap
 metadata:
   name: cluster-metrics-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -2771,7 +2772,7 @@ kind: ConfigMap
 metadata:
   name: cluster-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -2803,7 +2804,7 @@ data:
             "id":4,
             "iteration":1556759633456,
             "links":[
-
+        
             ],
             "panels":[
                 {
@@ -2816,7 +2817,7 @@ data:
                     },
                     "id":86,
                     "links":[
-
+        
                     ],
                     "mode":"markdown",
                     "title":"",
@@ -2852,7 +2853,7 @@ data:
                     "id":75,
                     "interval":null,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -2941,7 +2942,7 @@ data:
                     "id":77,
                     "interval":null,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3030,7 +3031,7 @@ data:
                     "id":78,
                     "interval":null,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3120,7 +3121,7 @@ data:
                     "id":129,
                     "interval":null,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3214,7 +3215,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3305,7 +3306,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3395,7 +3396,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3492,7 +3493,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3584,7 +3585,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3676,7 +3677,7 @@ data:
                     "interval":null,
                     "isNew":true,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3764,7 +3765,7 @@ data:
                     "id":93,
                     "interval":null,
                     "links":[
-
+        
                     ],
                     "mappingType":1,
                     "mappingTypes":[
@@ -3826,7 +3827,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -3853,7 +3854,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -3861,7 +3862,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -3876,7 +3877,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -3893,7 +3894,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -3938,7 +3939,7 @@ data:
                     "hideTimeOverride":false,
                     "id":73,
                     "links":[
-
+        
                     ],
                     "pageSize":10,
                     "repeat":null,
@@ -3983,7 +3984,7 @@ data:
                             "decimals":2,
                             "pattern":"Value #B",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -4001,7 +4002,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #A",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -4019,7 +4020,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -4037,7 +4038,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #C",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -4055,7 +4056,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #D",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -4152,14 +4153,14 @@ data:
                     },
                     "id":108,
                     "panels":[
-
+        
                     ],
                     "title":"CPU Metrics",
                     "type":"row"
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -4187,7 +4188,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -4195,7 +4196,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -4231,7 +4232,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -4248,7 +4249,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -4277,7 +4278,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -4303,7 +4304,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -4311,7 +4312,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -4326,7 +4327,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -4343,7 +4344,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -4388,7 +4389,7 @@ data:
                     "hideTimeOverride":true,
                     "id":104,
                     "links":[
-
+        
                     ],
                     "pageSize":8,
                     "repeatDirection":"v",
@@ -4430,7 +4431,7 @@ data:
                             "mappingType":1,
                             "pattern":"node",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -4448,7 +4449,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -4505,7 +4506,7 @@ data:
                             "mappingType":1,
                             "pattern":"namespace",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -4557,7 +4558,7 @@ data:
                     "hideTimeOverride":true,
                     "id":90,
                     "links":[
-
+        
                     ],
                     "pageSize":8,
                     "repeatDirection":"v",
@@ -4600,7 +4601,7 @@ data:
                             "mappingType":1,
                             "pattern":"node",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -4618,7 +4619,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -4655,7 +4656,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"percentunit"
@@ -4694,14 +4695,14 @@ data:
                     },
                     "id":113,
                     "panels":[
-
+        
                     ],
                     "title":"Memory Metrics",
                     "type":"row"
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -4727,7 +4728,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -4735,7 +4736,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -4771,7 +4772,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -4788,7 +4789,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -4816,7 +4817,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -4842,7 +4843,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -4850,7 +4851,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -4865,7 +4866,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -4882,7 +4883,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -4927,7 +4928,7 @@ data:
                     "hideTimeOverride":true,
                     "id":109,
                     "links":[
-
+        
                     ],
                     "pageSize":7,
                     "repeatDirection":"v",
@@ -4969,7 +4970,7 @@ data:
                             "mappingType":1,
                             "pattern":"node",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -4987,7 +4988,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -5045,7 +5046,7 @@ data:
                             "mappingType":1,
                             "pattern":"namespace",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5097,7 +5098,7 @@ data:
                     "hideTimeOverride":true,
                     "id":114,
                     "links":[
-
+        
                     ],
                     "pageSize":8,
                     "repeatDirection":"v",
@@ -5140,7 +5141,7 @@ data:
                             "mappingType":1,
                             "pattern":"node",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -5158,7 +5159,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -5195,7 +5196,7 @@ data:
                             "mappingType":1,
                             "pattern":"",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5234,7 +5235,7 @@ data:
                     },
                     "id":101,
                     "panels":[
-
+        
                     ],
                     "title":"Storage Metrics",
                     "type":"row"
@@ -5257,7 +5258,7 @@ data:
                     "hideTimeOverride":true,
                     "id":97,
                     "links":[
-
+        
                     ],
                     "pageSize":8,
                     "repeatDirection":"v",
@@ -5281,7 +5282,7 @@ data:
                             "mappingType":1,
                             "pattern":"instance",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -5299,7 +5300,7 @@ data:
                             "mappingType":1,
                             "pattern":"persistentvolumeclaim",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5317,7 +5318,7 @@ data:
                             "mappingType":1,
                             "pattern":"storageclass",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5335,7 +5336,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -5353,7 +5354,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -5371,7 +5372,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #A",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -5389,7 +5390,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #B",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5407,7 +5408,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #C",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"percentunit"
@@ -5448,7 +5449,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -5474,7 +5475,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -5482,7 +5483,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -5497,7 +5498,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -5514,7 +5515,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -5558,7 +5559,7 @@ data:
                     "hideTimeOverride":true,
                     "id":94,
                     "links":[
-
+        
                     ],
                     "pageSize":10,
                     "repeatDirection":"v",
@@ -5585,7 +5586,7 @@ data:
                             "mappingType":1,
                             "pattern":"namespace",
                             "thresholds":[
-
+        
                             ],
                             "type":"string",
                             "unit":"short"
@@ -5603,7 +5604,7 @@ data:
                             "mappingType":1,
                             "pattern":"persistentvolumeclaim",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5621,7 +5622,7 @@ data:
                             "mappingType":1,
                             "pattern":"storageclass",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5639,7 +5640,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -5657,7 +5658,7 @@ data:
                             "mappingType":1,
                             "pattern":"Time",
                             "thresholds":[
-
+        
                             ],
                             "type":"hidden",
                             "unit":"short"
@@ -5675,7 +5676,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #A",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"currencyUSD"
@@ -5693,7 +5694,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #B",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"percentunit"
@@ -5711,7 +5712,7 @@ data:
                             "mappingType":1,
                             "pattern":"Value #C",
                             "thresholds":[
-
+        
                             ],
                             "type":"number",
                             "unit":"short"
@@ -5752,7 +5753,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -5778,7 +5779,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -5786,7 +5787,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -5808,7 +5809,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -5825,7 +5826,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -5853,7 +5854,7 @@ data:
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -5879,7 +5880,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -5887,7 +5888,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -5902,7 +5903,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -5919,7 +5920,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -5955,14 +5956,14 @@ data:
                     },
                     "id":127,
                     "panels":[
-
+        
                     ],
                     "title":"Network",
                     "type":"row"
                 },
                 {
                     "aliasColors":{
-
+        
                     },
                     "bars":false,
                     "dashLength":10,
@@ -5988,7 +5989,7 @@ data:
                     "lines":true,
                     "linewidth":1,
                     "links":[
-
+        
                     ],
                     "nullPointMode":"null",
                     "percentage":false,
@@ -5996,7 +5997,7 @@ data:
                     "points":false,
                     "renderer":"flot",
                     "seriesOverrides":[
-
+        
                     ],
                     "spaceLength":10,
                     "stack":false,
@@ -6019,7 +6020,7 @@ data:
                         }
                     ],
                     "thresholds":[
-
+        
                     ],
                     "timeFrom":null,
                     "timeShift":null,
@@ -6036,7 +6037,7 @@ data:
                         "name":null,
                         "show":true,
                         "values":[
-
+        
                         ]
                     },
                     "yaxes":[
@@ -6281,7 +6282,7 @@ kind: ConfigMap
 metadata:
   name: deployment-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -7685,7 +7686,7 @@ kind: ConfigMap
 metadata:
   name: label-cost-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -8915,7 +8916,7 @@ kind: ConfigMap
 metadata:
   name: namespace-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -8947,7 +8948,7 @@ data:
         	"id":9,
         	"iteration":1553150922105,
         	"links":[
-
+        
         	],
         	"panels":[
         		{
@@ -8968,7 +8969,7 @@ data:
         			"hideTimeOverride":true,
         			"id":73,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeat":null,
@@ -9013,7 +9014,7 @@ data:
         					"decimals":2,
         					"pattern":"Value #B",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"decbytes"
@@ -9031,7 +9032,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #A",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"percent"
@@ -9049,7 +9050,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -9067,7 +9068,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #C",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"currencyUSD"
@@ -9085,7 +9086,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #D",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"currencyUSD"
@@ -9175,7 +9176,7 @@ data:
         			"hideTimeOverride":true,
         			"id":90,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeatDirection":"v",
@@ -9199,7 +9200,7 @@ data:
         					"mappingType":1,
         					"pattern":"namespace",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -9217,7 +9218,7 @@ data:
         					"mappingType":1,
         					"pattern":"persistentvolumeclaim",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -9235,7 +9236,7 @@ data:
         					"mappingType":1,
         					"pattern":"storageclass",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -9253,7 +9254,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"gbytes"
@@ -9271,7 +9272,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -9298,7 +9299,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9325,7 +9326,7 @@ data:
         			"lines":true,
         			"linewidth":1,
         			"links":[
-
+        
         			],
         			"nullPointMode":"null",
         			"percentage":false,
@@ -9333,7 +9334,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9347,7 +9348,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":null,
         			"timeShift":null,
@@ -9364,7 +9365,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9392,7 +9393,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9404,7 +9405,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9434,7 +9435,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9442,7 +9443,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9462,7 +9463,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9480,7 +9481,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9509,7 +9510,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9521,7 +9522,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9548,7 +9549,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9556,7 +9557,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9572,7 +9573,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9590,7 +9591,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9619,7 +9620,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9631,7 +9632,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9661,7 +9662,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9669,7 +9670,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9699,7 +9700,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9717,7 +9718,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9745,7 +9746,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9757,7 +9758,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9787,7 +9788,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9795,7 +9796,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9825,7 +9826,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9843,7 +9844,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -10019,7 +10020,7 @@ data:
         				"multi":false,
         				"name":"namespace",
         				"options":[
-
+        
         				],
         				"query":"query_result(sum(kube_namespace_created{namespace!=\"\"}) by (namespace))",
         				"refresh":1,
@@ -10028,7 +10029,7 @@ data:
         				"sort":0,
         				"tagValuesQuery":"",
         				"tags":[
-
+        
         				],
         				"tagsQuery":"",
         				"type":"query",
@@ -10037,7 +10038,7 @@ data:
         			{
         				"datasource":"${datasource}",
         				"filters":[
-
+        
         				],
         				"hide":0,
         				"label":"",
@@ -10108,7 +10109,7 @@ kind: ConfigMap
 metadata:
   name: node-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -10139,7 +10140,7 @@ data:
         	"id":6,
         	"iteration":1557245882378,
         	"links":[
-
+        
         	],
         	"panels":[
         		{
@@ -10169,7 +10170,7 @@ data:
         			"id":2,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10251,7 +10252,7 @@ data:
         			"id":3,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10333,7 +10334,7 @@ data:
         			"id":4,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10406,7 +10407,7 @@ data:
         			"hideTimeOverride":true,
         			"id":21,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeat":null,
@@ -10452,7 +10453,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -10470,7 +10471,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #C",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10488,7 +10489,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #A",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10506,7 +10507,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #B",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10524,7 +10525,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #D",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10542,7 +10543,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #E",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10560,7 +10561,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #F",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10631,7 +10632,7 @@ data:
         			"id":8,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10714,7 +10715,7 @@ data:
         			"id":18,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10796,7 +10797,7 @@ data:
         			"id":9,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10878,7 +10879,7 @@ data:
         			"id":19,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10935,7 +10936,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -10947,7 +10948,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -10977,7 +10978,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -10985,7 +10986,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -11005,7 +11006,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -11023,7 +11024,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -11052,7 +11053,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -11064,7 +11065,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -11091,7 +11092,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -11099,7 +11100,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -11118,7 +11119,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -11136,7 +11137,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -11165,7 +11166,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -11177,7 +11178,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -11207,7 +11208,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -11215,7 +11216,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -11245,7 +11246,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -11263,7 +11264,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -11291,7 +11292,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -11303,7 +11304,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -11333,7 +11334,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -11341,7 +11342,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -11371,7 +11372,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -11389,7 +11390,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -11438,7 +11439,7 @@ data:
         				"multi":false,
         				"name":"node",
         				"options":[
-
+        
         				],
         				"query":"query_result(kube_node_labels)",
         				"refresh":1,
@@ -11447,7 +11448,7 @@ data:
         				"sort":0,
         				"tagValuesQuery":"",
         				"tags":[
-
+        
         				],
         				"tagsQuery":"",
         				"type":"query",
@@ -11515,7 +11516,7 @@ kind: ConfigMap
 metadata:
   name: pod-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -12483,7 +12484,7 @@ kind: ConfigMap
 metadata:
   name: prom-benchmark-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18230,7 +18231,7 @@ apiVersion: v1
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18427,7 +18428,7 @@ kind: ClusterRole
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18499,9 +18500,9 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
+  - apiGroups: 
       - storage.k8s.io
-    resources:
+    resources: 
       - storageclasses
     verbs:
       - get
@@ -18580,7 +18581,7 @@ kind: ClusterRoleBinding
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18618,7 +18619,7 @@ metadata:
   namespace: kubecost
   name: kubecost-cost-analyzer
 rules:
-- apiGroups:
+- apiGroups: 
     - ''
   resources:
     - "pods/log"
@@ -18664,7 +18665,7 @@ kind: RoleBinding
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18795,7 +18796,7 @@ apiVersion: v1
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -18803,7 +18804,7 @@ metadata:
     app: cost-analyzer
 spec:
   selector:
-
+    
     app.kubernetes.io/name: cost-analyzer
     app.kubernetes.io/instance: kubecost
     app: cost-analyzer
@@ -18896,7 +18897,7 @@ spec:
       app: grafana
       release: kubecost
   strategy:
-    type: RollingUpdate
+    type: RollingUpdate    
   template:
     metadata:
       labels:
@@ -18957,7 +18958,7 @@ spec:
               mountPath: "/etc/grafana/provisioning/datasources"
             - name: storage
               mountPath: "/var/lib/grafana"
-              subPath:
+              subPath: 
           ports:
             - name: service
               containerPort: 80
@@ -19233,7 +19234,7 @@ kind: Deployment
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.89.0
     app.kubernetes.io/instance: kubecost
@@ -19255,7 +19256,7 @@ spec:
   template:
     metadata:
       labels:
-
+        
         app.kubernetes.io/name: cost-analyzer
         app.kubernetes.io/instance: kubecost
         app: cost-analyzer
@@ -19279,7 +19280,7 @@ spec:
       initContainers:
       containers:
         - image: gcr.io/kubecost1/cost-model:prod-1.89.0
-
+        
           name: cost-model
           imagePullPolicy: Always
           resources:
@@ -19369,7 +19370,7 @@ spec:
             - name: MAX_QUERY_CONCURRENCY
               value: "5"
             - name: UTC_OFFSET
-              value:
+              value: 
             - name: CLUSTER_ID
               value: cluster-one
             - name: SQL_ADDRESS
@@ -19384,7 +19385,7 @@ spec:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
         - image: gcr.io/kubecost1/frontend:prod-1.89.0
-
+        
           env:
             - name: GET_HOSTS_FROM
               value: dns
@@ -19405,7 +19406,7 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
         - image: gcr.io/kubecost1/server:prod-1.89.0
-
+        
           resources:
             requests:
               cpu: 100m
