@@ -7,8 +7,10 @@ metadata:
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  {{- if .Values.networkCosts.updateStrategy }}
   updateStrategy:
-    type: RollingUpdate
+    {{- toYaml .Values.networkCosts.updateStrategy | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ template "cost-analyzer.networkCostsName" . }}
