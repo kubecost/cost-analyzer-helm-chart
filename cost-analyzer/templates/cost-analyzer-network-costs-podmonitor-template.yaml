@@ -7,7 +7,7 @@ kind: PodMonitor
 metadata:
   name: {{ include "cost-analyzer.networkCostsName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ template "cost-analyzer.networkCostsLabels" merge (dict "extraLabels" .Values.networkCosts.additionalLabels) .  }}
     {{- if .Values.networkCosts.podMonitor.additionalLabels }}
     {{ toYaml .Values.networkCosts.podMonitor.additionalLabels | nindent 4 }}
     {{- end }}

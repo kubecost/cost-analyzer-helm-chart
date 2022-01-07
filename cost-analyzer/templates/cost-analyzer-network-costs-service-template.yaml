@@ -9,8 +9,7 @@ metadata:
     prometheus.io/scrape: "{{ .Values.networkCosts.prometheusScrape }}"
     prometheus.io/port: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
   labels:
-    app: {{ template "cost-analyzer.networkCostsName" . -}}
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ template "cost-analyzer.networkCostsLabels" merge (dict "extraLabels" .Values.networkCosts.additionalLabels) .  }}
 spec:
   clusterIP: None
   ports:

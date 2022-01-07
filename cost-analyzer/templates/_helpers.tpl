@@ -99,11 +99,22 @@ Create the name of the service account
 Create the common labels.
 */}}
 {{- define "cost-analyzer.commonLabels" -}}
+{{- if .Values.global.additionalLabels }}
+{{- toYaml .Values.global.additionalLabels -}}
+{{- end }}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app: cost-analyzer
+{{- end -}}
+
+{{- define "cost-analyzer.networkCostsLabels" -}}
+{{- $labelChart := include "cost-analyzer.chart" $ -}}
+{{- $labelApp := include "cost-analyzer.networkCostsName" $ -}}
+{{- $labelName := include "cost-analyzer.name" $ -}}
+{{- $labels := dict "app.kubernetes.io/name" $labelName "app" $labelApp "helm.sh/chart" $labelChart "app.kubernetes.io/instance" .Release.Name  "app.kubernetes.io/managed-by" .Release.Service -}}
+{{ merge .extraLabels $labels | toYaml | indent 4 }}
 {{- end -}}
 
 {{/*

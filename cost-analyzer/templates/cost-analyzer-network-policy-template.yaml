@@ -10,7 +10,7 @@ metadata:
 {{- end }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ template "cost-analyzer.networkCostsLabels" merge (dict "extraLabels" .Values.networkCosts.additionalLabels) .  }}
 {{- if .Values.networkPolicy.costAnalyzer.additionalLabels }}
 {{ toYaml .Values.networkPolicy.costAnalyzer.additionalLabels | indent 4 }}
 {{- end }}

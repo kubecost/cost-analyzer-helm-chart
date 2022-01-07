@@ -5,7 +5,7 @@ kind: DaemonSet
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
   labels:
-    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ template "cost-analyzer.networkCostsLabels" merge (dict "extraLabels" .Values.networkCosts.additionalLabels) .  }}
 spec:
   updateStrategy:
     type: RollingUpdate
@@ -19,7 +19,6 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        app: {{ template "cost-analyzer.networkCostsName" . }}
         {{- if .Values.networkCosts.additionalLabels }}
         {{ toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
         {{- end }}

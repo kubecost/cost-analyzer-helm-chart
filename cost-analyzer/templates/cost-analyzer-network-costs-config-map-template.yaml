@@ -6,7 +6,7 @@ kind: ConfigMap
 metadata:
   name: network-costs-config
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ template "cost-analyzer.networkCostsLabels" merge (dict "extraLabels" .Values.networkCosts.additionalLabels) .  }}
 data:
   config.yaml: |
 {{- toYaml .Values.networkCosts.config | nindent 4 }}
