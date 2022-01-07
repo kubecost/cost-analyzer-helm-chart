@@ -119,7 +119,6 @@ metadata:
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
----
 # Source: cost-analyzer/charts/grafana/templates/secret.yaml
 apiVersion: v1
 kind: Secret
@@ -19405,8 +19404,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
-        - image: gcr.io/kubecost1/server:prod-1.89.1
-        
+        - image: gcr.io/kubecost1/server:prod-1.89.1        
           resources:
             requests:
               cpu: 100m
