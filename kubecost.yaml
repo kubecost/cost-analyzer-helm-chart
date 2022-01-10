@@ -119,6 +119,7 @@ metadata:
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
+---
 # Source: cost-analyzer/charts/grafana/templates/secret.yaml
 apiVersion: v1
 kind: Secret
