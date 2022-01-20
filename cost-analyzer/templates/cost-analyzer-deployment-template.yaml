@@ -236,7 +236,9 @@ spec:
 {{ end }}
       containers:
         {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.fullImageName }}
+        {{- if .Values.kubecostModel.openSourceOnly }}
+        - image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
+        {{- else if .Values.kubecostModel.fullImageName }}
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
