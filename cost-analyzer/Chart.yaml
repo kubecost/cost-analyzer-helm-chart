@@ -10,9 +10,12 @@ annotations:
     - name: Homepage
       url: https://www.kubecost.com
 dependencies:
-  - name: grafana
+  - condition: global.grafana.enabled
+    name: grafana
     repository: file://./charts/grafana
-  - name: prometheus
+  - condition: global.prometheus.enabled
+    name: prometheus
     repository: file://./charts/prometheus
-  - name: thanos
+  - condition: global.thanos.enabled
+    name: thanos
     repository: file://./charts/thanos
