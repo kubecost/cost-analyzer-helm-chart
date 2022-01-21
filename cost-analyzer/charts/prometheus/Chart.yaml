@@ -19,5 +19,6 @@ sources:
 tillerVersion: '>=2.8.0'
 version: 11.0.2
 dependencies:
-  - name: kube-state-metrics
+  - condition: kube-state-metrics.disabled
+    name: kube-state-metrics
     repository: file://./charts/kube-state-metrics
