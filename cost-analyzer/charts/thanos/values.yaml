@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.22.0
+  tag: v0.24.0
   pullPolicy: IfNotPresent
 
 store:
@@ -171,13 +171,26 @@ queryFrontend:
   # Path to YAML file that contains response cache configuration.
   # responseCacheConfigFile:
 
- # Response Cache Configuration
+  # Response Cache Configuration
   responseCache:
     enabled: false
     maxSize: 512MB
     maxSizeItems: 0
     validity: 10m
 
+  downstreamTripper:
+    enabled: false 
+    idleConnectionTimeout: 90s
+    responseHeaderTimeout: 2m
+    tlsHandshakeTimeout: 10s
+    expectContinueTimeout: 1s
+    maxIdleConnections: 200
+    maxIdleConnectionsPerHost: 100
+    maxConnectionsPerHost: 0
+
+  # Downstream Tripper Configuration Content
+  # downstreamTripperConfig:
+    
   # Response cache configuration content
   # responseCacheConfig:
 

@@ -39,8 +39,8 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: prom/alertmanager
-    tag: v0.20.0
+    repository: quay.io/prometheus/alertmanager
+    tag: v0.23.0
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -358,7 +358,7 @@ configmapReload:
     ##
     image:
       repository: jimmidyson/configmap-reload
-      tag: v0.5.0
+      tag: v0.6.1
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -535,8 +535,8 @@ server:
   ## Prometheus server container image
   ##
   image:
-    repository: prom/prometheus
-    tag: v2.22.2
+    repository: quay.io/prometheus/prometheus
+    tag: v2.31.1
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
@@ -916,7 +916,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.0.1
+    tag: v1.4.2
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
