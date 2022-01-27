@@ -48,7 +48,7 @@ prometheus:
           fieldRef:
             fieldPath: metadata.name
       ports:
-      - name: sidecar-http
+      - name: http
         containerPort: 10902
       - name: grpc
         containerPort: 10901
