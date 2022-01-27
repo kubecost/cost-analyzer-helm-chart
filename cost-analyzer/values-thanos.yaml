@@ -28,7 +28,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.22.0
+      image: thanosio/thanos:v0.24.0
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
@@ -48,7 +48,7 @@ prometheus:
           fieldRef:
             fieldPath: metadata.name
       ports:
-      - name: sidecar-http
+      - name: http
         containerPort: 10902
       - name: grpc
         containerPort: 10901
@@ -97,6 +97,16 @@ thanos:
   queryFrontend:
     enabled: true
     compressResponses: true
+    # Downstream Tripper Configuration
+    downstreamTripper:
+      enabled: true 
+      idleConnectionTimeout: 90s
+      responseHeaderTimeout: 2m
+      tlsHandshakeTimeout: 10s
+      expectContinueTimeout: 1s
+      maxIdleConnections: 200
+      maxIdleConnectionsPerHost: 100
+      maxConnectionsPerHost: 0
     # Response Cache Configuration
     # Configure either a max size constraint or max items. 
     responseCache:

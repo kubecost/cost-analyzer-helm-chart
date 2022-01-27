@@ -1,0 +1,74 @@
+# Kubecost running as an Agent is designed for external hosting. The current setup deploys a
+# kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter. 
+global:
+  thanos:
+    enabled: false 
+  grafana:
+    enabled: false 
+    proxy: false 
+
+# Agent enables specific features designed to enhance the metrics exporter deployment
+# with enhancements designed for external hosting. 
+agent: true 
+
+# Exporter Pod
+kubecostMetrics: 
+  exporter:
+    enabled: true 
+    exportClusterInfo: true
+    exportClusterCache: true
+
+# Prometheus defaults to low rentention (10h), disables KSM, and attaches a thanos-sidecar
+# for exporting metrics. 
+prometheus:
+  kube-state-metrics:
+    enabled: false
+    disabled: true
+    
+  server:
+    extraArgs:
+      storage.tsdb.min-block-duration: 2h
+      storage.tsdb.max-block-duration: 2h
+      storage.tsdb.retention: 10h
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+    extraSecretMounts:
+      - name: object-store-volume
+        mountPath: /etc/thanos/config 
+        readOnly: true
+        secretName: | 
+          {{ template "kubecost.agentStoreSecretName" . }} 
+    enableAdminApi: true
+    sidecarContainers:
+    - name: thanos-sidecar
+      image: thanosio/thanos:v0.22.0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      args:
+      - sidecar
+      - --log.level=debug
+      - --tsdb.path=/data/
+      - --prometheus.url=http://127.0.0.1:9090
+      - --objstore.config-file=/etc/thanos/config/object-store.yaml
+      env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      ports:
+      - name: sidecar-http
+        containerPort: 10902
+      - name: grpc
+        containerPort: 10901
+      - name: cluster
+        containerPort: 10900
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/prometheus
+      - name: storage-volume
+        mountPath: /data
+        subPath: ""
+      - name: object-store-volume
+        mountPath: /etc/thanos/config

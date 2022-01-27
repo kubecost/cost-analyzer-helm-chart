@@ -80,7 +80,7 @@ spec:
         - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- range .Values.query.stores }}
-        - "--store={{ . }}"
+        - "--endpoint={{ . }}"
         {{- end }}
         {{- range .Values.query.serviceDiscoveryFiles }}
         - "--store.sd-files={{ . }}"
