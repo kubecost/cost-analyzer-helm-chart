@@ -22,7 +22,7 @@ Parameter | Description | Default
 `prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
 `prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
-`persistentVolume.size` | Define PVC size for cost-analyzer  | `0.2Gi`
+`persistentVolume.size` | Define PVC size for cost-analyzer  | `32.0Gi`
 `persistentVolume.dbSize` | Define PVC size for cost-analyzer's flat file database  | `32.0Gi`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`

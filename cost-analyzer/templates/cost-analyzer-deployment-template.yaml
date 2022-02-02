@@ -1,3 +1,4 @@
+{{- if not .Values.agent }}
 {{- $nginxPort := int .Values.service.port | default 9090 -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -236,7 +237,9 @@ spec:
 {{ end }}
       containers:
         {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.fullImageName }}
+        {{- if .Values.kubecostModel.openSourceOnly }}
+        - image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
+        {{- else if .Values.kubecostModel.fullImageName }}
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
@@ -545,6 +548,12 @@ spec:
             - name: no_proxy
               value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
+            {{- if .Values.kubecostMetrics }}
+            {{- if .Values.kubecostMetrics.exporter }}
+            - name: KUBECOST_METRICS_POD_ENABLED
+              value: {{ (quote .Values.kubecostMetrics.exporter.enabled) | default (quote false) }}
+            {{- end }}
+            {{- end }}
             - name: PV_ENABLED
               value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: MAX_QUERY_CONCURRENCY
@@ -836,3 +845,4 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}

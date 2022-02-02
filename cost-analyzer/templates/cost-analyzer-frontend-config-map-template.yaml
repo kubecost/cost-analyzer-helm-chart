@@ -1,3 +1,4 @@
+{{- if not .Values.agent }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
 apiVersion: v1
@@ -207,3 +208,4 @@ data:
         }
     {{- end }}
     }
+{{- end }}
