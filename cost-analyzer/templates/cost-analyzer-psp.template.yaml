@@ -4,6 +4,8 @@ apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
     name: {{ template "cost-analyzer.fullname" . }}-psp
+    labels:
+      {{ include "cost-analyzer.commonLabels" . | nindent 6 }}
 spec:
     privileged: false
     seLinux:
