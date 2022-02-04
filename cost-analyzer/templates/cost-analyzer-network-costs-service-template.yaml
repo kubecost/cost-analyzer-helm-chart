@@ -10,7 +10,7 @@ metadata:
     prometheus.io/port: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-    app: {{ template "cost-analyzer.networkCostsName" . -}}
+    app: {{ template "cost-analyzer.networkCostsName" . }}
 spec:
   clusterIP: None
   ports:
