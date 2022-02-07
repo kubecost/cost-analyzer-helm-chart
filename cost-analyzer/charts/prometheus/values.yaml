@@ -1226,8 +1226,13 @@ serverFiles:
       # service then set this appropriately.
       - job_name: 'kubernetes-service-endpoints'
 
-        kubernetes_sd_configs:
-          - role: endpoints
+        metrics_path: /metrics
+        scheme: http
+        dns_sd_configs:
+        - names:
+          - kubecost-kube-state-metrics
+          type: 'A'
+          port: 8080
 
         relabel_configs:
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape]
