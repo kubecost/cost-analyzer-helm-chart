@@ -101,11 +101,14 @@ data:
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
         listen 443 ssl;
+        listen [::]:443 ssl;
 {{- else }}
         listen {{ $nginxPort }};
+        listen [::]:{{ $nginxPort }};
 {{- end }}
 {{- else }}
         listen {{ $nginxPort }};
+        listen [::]:{{ $nginxPort }};
 {{- end }}
         location /api/ {
             {{- if .Values.saml.enabled }}

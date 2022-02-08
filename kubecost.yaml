@@ -531,6 +531,7 @@ data:
         add_header Cache-Control "max-age=300";
         add_header ETag "1.90.0-rc.0";
         listen 9090;
+        listen [::]:9090;
         location /api/ {
             proxy_pass http://api/;
             proxy_redirect off;
