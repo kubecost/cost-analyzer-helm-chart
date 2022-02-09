@@ -1,5 +1,8 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
+
+  ## @section Prometheus
+  ## @param global.prometheus.enabled If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
   prometheus:
     enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
@@ -7,6 +10,7 @@ global:
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
+  ## @section Thanos
   # Durable storage option, product key required
   thanos:
     enabled: false
@@ -15,12 +19,14 @@ global:
     # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
     # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
 
+  ## @section Grafana
   grafana:
     enabled: true # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
+  ## @section Kubecost Application Configuration
   notifications:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
@@ -129,10 +135,12 @@ global:
         - property: "cluster"
           value: "cluster-one"
 
+  ## @section Kubecost Deployment Configuration
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
 
+## @section Kubecost Application Configuration
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken: # ""
 
@@ -171,6 +179,7 @@ saml:
         assertionvalues:
           - "readonly"
 
+## @section Kubecost Deployment Configuration
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
 systemProxy:
@@ -276,7 +285,13 @@ kubecostModel:
     #  cpu: "800m"
     #  memory: "256Mi"
 
+## @section Kubecost Deployment Configuration
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
+## @param ingress.enabled If true, Ingress will be created
+## @param ingress.annotations Ingress annotations
+## @param ingress.paths Ingress paths
+## @param ingress.hosts Ingress hostnames
+## @param ingress.tls Ingress TLS configuration (YAML)
 ingress:
   enabled: false
   # className: nginx
@@ -294,12 +309,14 @@ ingress:
 
 nodeSelector: {}
 
+## @param tolerations node taints to tolerate
 tolerations: []
 #  - key: "key"
 #    operator: "Equal|Exists"
 #    value: "value"
 #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
+## @param affinity pod affinity
 affinity: {}
 
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
@@ -309,6 +326,12 @@ priority:
   # value: 1000000
 
 # If true, enable creation of NetworkPolicy resources.
+## @param networkPolicy.enabled If true, create a NetworkPolicy to deny egress
+## @param networkPolicy.costAnalyzer.enabled If true, create a newtork policy for cost-analzyer
+## @param networkPolicy.costAnalyzer.annotations Annotations to be added to the network policy
+## @param networkPolicy.costAnalyzer.additionalLabels Additional labels to be added to the network policy
+## @param networkPolicy.costAnalyzer.ingressRules [array] A list of network policy ingress rules
+## @param networkPolicy.costAnalyzer.egressRules [array] A list of network policy egress rules
 networkPolicy:
   enabled: false
   denyEgress: true # create a network policy that denies egress from kubecost
@@ -351,6 +374,9 @@ extraVolumes: []
 extraVolumeMounts: []
 
 # Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/master/storage.md
+## @param persistentVolume.enabled If true, Kubecost will create a Persistent Volume Claim for product config data.
+## @param persistentVolume.size Define PVC size for cost-analyzer
+## @param persistentVolume.dbSize Define PVC size for cost-analyzer's flat file database
 persistentVolume:
   size: 32Gi
   dbSize: 32.0Gi
@@ -379,6 +405,17 @@ remoteWrite:
     auth:
       password: admin # change me
 
+## @section Prometheus
+## @extra prometheus.kube-state-metrics.disabled If false, deploy [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) for Kubernetes metrics
+## @param prometheus.kube-state-metrics.resources [object] Set kube-state-metrics resource requests and limits.
+## @param prometheus.server.resources Prometheus server resource requests and limits.
+## @param prometheus.server.retention [object] Determines when to remove old data.
+## @param prometheus.server.persistentVolume.enabled If true, Prometheus server will create a Persistent Volume Claim.
+## @param prometheus.server.persistentVolume.size Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days.
+## @param prometheus.alertmanager.persistentVolume.enabled If true, Alertmanager will create a Persistent Volume Claim.
+## @param prometheus.nodeExporter.enabled If false, do not create NodeExporter daemonset.
+## @param prometheus.nodeExporter.resources [object] Node exporter resource requests and limits.
+## @param prometheus.pushgateway.persistentVolume.enabled If true, Prometheus Pushgateway will create a Persistent Volume Claim.
 prometheus:
   extraScrapeConfigs: |
     - job_name: kubecost
@@ -486,8 +523,11 @@ prometheus:
               labels:
                 daemonset: "true"
 
+## @section Kubecost Deployment Configuration
 ## Module for measuring network costs
 ## Ref: https://github.com/kubecost/docs/blob/master/network-allocation.md
+## @param networkCosts.enabled If true, collect network allocation metrics [More info](http://docs.kubecost.com/network-allocation)
+## @param networkCosts.podMonitor.enabled If true, a [PodMonitor](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#podmonitor) for the network-cost daemonset is created
 networkCosts:
   enabled: false
   podSecurityPolicy:
@@ -611,10 +651,14 @@ reporting:
   errorReporting: true
   valuesReporting: true
 
+## @param serviceMonitor.enabled Set this to true to create ServiceMonitor for Prometheus operator
+## @param serviceMonitor.additionalLabels Additional labels that can be used so ServiceMonitor will be discovered by Prometheus
 serviceMonitor:
   enabled: false
   additionalLabels: {}
 
+## @param prometheusRule.enabled Set this to `true` to create PrometheusRule for Prometheus operator
+## @param prometheusRule.additionalLabels Additional labels that can be used so PrometheusRule will be discovered by Prometheus
 prometheusRule:
   enabled: false
   additionalLabels: {}
@@ -629,6 +673,9 @@ initChownData:
     #  memory: "20Mi"
 
 
+## @section Grafana
+## @param grafana.resources [object] Grafana resource requests and limits.
+## @param grafana.sidecar.datasources.defaultDatasourceEnabled Set this to `false` to disable creation of Prometheus datasource in Grafana
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
@@ -654,10 +701,15 @@ grafana:
   grafana.ini:
     server:
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+
+## @section Kubecost Deployment Configuration
+## @param serviceAccount.create Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
+
+## @section Kubecost Application Configuration
 awsstore:
   useAwsStore: false
   createServiceAccount: false
