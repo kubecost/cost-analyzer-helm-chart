@@ -180,7 +180,13 @@ pricingCsv:
     URI: s3://kc-csv-test/pricing_schema.csv
     csvAccessCredentials: pricing-schema-access-secret
 
-# SAML integration for user management and RBAC, enterprise key required
+## @param saml [object] SAML integration for user management and RBAC, enterprise key required
+## @skip saml.enabled
+## @skip saml.secretName
+## @skip saml.idpMetadataURL
+## @skip saml.appRootURL
+## @skip saml.rbac.enabled
+## @skip saml.rbac.groups
 # Ref: https://github.com/kubecost/docs/blob/master/user-management.md
 saml:
   enabled: false
@@ -207,6 +213,10 @@ saml:
           - "readonly"
 
 ## @section Kubecost Deployment Configuration
+## @skip systemProxy.enabled
+## @skip systemProxy.httpProxyUrl
+## @skip systemProxy.httpsProxyUrl
+## @skip systemProxy.noProxy
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
 systemProxy:
@@ -218,6 +228,10 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
+## @skip kubecostFrontend.image
+## @skip kubecostFrontend.imagePullPolicy
+## @skip kubecostFrontend.resources.requests.cpu
+## @skip kubecostFrontend.resources.requests.memory
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
@@ -229,6 +243,10 @@ kubecostFrontend:
     #  cpu: "100m"
     #  memory: "256Mi"
 
+## @skip kubecost.disableServer
+## @skip kubecost.image
+## @skip kubecost.resources.requests.cpu
+## @skip kubecost.resources.requests.memory
 kubecost:
   # Disables the cost-analyzer-server container to spin up as part of kubecost
   # Setting this to true will mean all /api/ endpoints will be unavailable
@@ -242,6 +260,17 @@ kubecost:
     #  cpu: "100m"
     #  memory: "256Mi"
 
+## @skip kubecostMetrics.exporter.enabled
+## @skip kubecostMetrics.exporter.port
+## @skip kubecostMetrics.exporter.resources
+## @skip kubecostMetrics.exporter.tolerations
+## @skip kubecostMetrics.exporter.affinity
+## @skip kubecostMetrics.exporter.serviceMonitor.enabled
+## @skip kubecostMetrics.exporter.serviceMonitor.additionalLabels
+## @skip kubecostMetrics.exporter.priorityClassName
+## @skip kubecostMetrics.exporter.additionalLabels
+## @skip kubecostMetrics.exporter.nodeSelector
+## @skip kubecostMetrics.exporter.annotations
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required 
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself. 
 # However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead. 
@@ -284,6 +313,17 @@ kubecostMetrics:
     nodeSelector: {}
     annotations: {}
 
+## @skip kubecostModel.image
+## @skip kubecostModel.imagePullPolicy
+## @skip kubecostModel.outOfClusterPromMetricsEnabled
+## @skip kubecostModel.warmCache
+## @skip kubecostModel.warmSavingsCache
+## @skip kubecostModel.etl
+## @skip kubecostModel.etlDailyStoreDurationDays
+## @skip kubecostModel.etlHourlyStoreDurationHours
+## @skip kubecostModel.maxQueryConcurrency
+## @skip kubecostModel.resources.requests.cpu
+## @skip kubecostModel.resources.requests.memory
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
@@ -317,6 +357,7 @@ kubecostModel:
 ## @param ingress.enabled If true, Ingress will be created
 ## @param ingress.annotations Ingress annotations
 ## @param ingress.paths Ingress paths
+## @skip ingress.pathType
 ## @param ingress.hosts Ingress hostnames
 ## @param ingress.tls Ingress TLS configuration (YAML)
 ingress:
@@ -334,6 +375,7 @@ ingress:
   #    hosts:
   #      - cost-analyzer.local
 
+## @skip nodeSelector
 nodeSelector: {}
 
 ## @param tolerations node taints to tolerate
@@ -347,6 +389,7 @@ tolerations: []
 affinity: {}
 
 ## @param priority.enabled If true, creates a PriorityClass to be used by the cost-analyzer pod
+## @skip priority.name
 priority:
   enabled: false
   name: "" # Provide name of existing priority class only. If left blank, upstream chart will create one from default template.
@@ -359,6 +402,8 @@ priority:
 ## @param networkPolicy.costAnalyzer.additionalLabels Additional labels to be added to the network policy
 ## @param networkPolicy.costAnalyzer.ingressRules [array] A list of network policy ingress rules
 ## @param networkPolicy.costAnalyzer.egressRules [array] A list of network policy egress rules
+## @skip networkPolicy.denyEgress
+## @skip networkPolicy.sameNamespace
 networkPolicy:
   enabled: false
   denyEgress: true # create a network policy that denies egress from kubecost
@@ -390,6 +435,7 @@ networkPolicy:
     #   - selectors: # restrict egress to inside cluster
     #     - namespaceSelector: {}
 
+## @skip podSecurityPolicy.enabled
 podSecurityPolicy:
   enabled: true
 
@@ -411,6 +457,11 @@ persistentVolume:
   # storageClass: "-" #
   # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
 
+## @skip service.type
+## @skip service.port
+## @skip service.targetPort
+## @skip service.labels
+## @skip service.annotations
 service:
   type: ClusterIP
   port: 9090
@@ -419,6 +470,13 @@ service:
   labels: {}
   annotations: {}
 
+## @skip remoteWrite.postgres.enabled
+## @skip remoteWrite.postgres.initImage
+## @skip remoteWrite.postgres.initImagePullPolicy
+## @skip remoteWrite.postgres.installLocal
+## @skip remoteWrite.postgres.remotePostgresAddress
+## @skip remoteWrite.postgres.persistentVolume.size
+## @skip remoteWrite.postgres.auth.password
 # Enabling long-term durable storage with Postgres requires an enterprise license
 remoteWrite:
   postgres:
@@ -433,16 +491,27 @@ remoteWrite:
       password: admin # change me
 
 ## @section Prometheus
+## @skip prometheus.extraScrapeConfigs
 ## @extra prometheus.kube-state-metrics.disabled If false, deploy [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) for Kubernetes metrics
 ## @param prometheus.kube-state-metrics.resources [object] Set kube-state-metrics resource requests and limits.
 ## @param prometheus.server.resources Prometheus server resource requests and limits.
 ## @param prometheus.server.retention [object] Determines when to remove old data.
+## @skip prometheus.server.global.scrape_interval
+## @skip prometheus.server.global.scrape_timeout
+## @skip prometheus.server.global.evaluation_interval
+## @skip prometheus.server.global.external_labels.cluster_id
 ## @param prometheus.server.persistentVolume.enabled If true, Prometheus server will create a Persistent Volume Claim.
 ## @param prometheus.server.persistentVolume.size Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days.
+## @skip prometheus.server.extraArgs.query.max-concurrency
+## @skip prometheus.server.extraArgs.query.max-samples
+## @skip prometheus.server.tolerations
+## @skip prometheus.alertmanager.enabled
 ## @param prometheus.alertmanager.persistentVolume.enabled If true, Alertmanager will create a Persistent Volume Claim.
 ## @param prometheus.nodeExporter.enabled If false, do not create NodeExporter daemonset.
 ## @param prometheus.nodeExporter.resources [object] Node exporter resource requests and limits.
+## @skip prometheus.pushgateway.enabled
 ## @param prometheus.pushgateway.persistentVolume.enabled If true, Prometheus Pushgateway will create a Persistent Volume Claim.
+## @skip prometheus.serverFiles.rules.groups
 prometheus:
   extraScrapeConfigs: |
     - job_name: kubecost
@@ -555,6 +624,28 @@ prometheus:
 ## Ref: https://github.com/kubecost/docs/blob/master/network-allocation.md
 ## @param networkCosts.enabled If true, collect network allocation metrics [More info](http://docs.kubecost.com/network-allocation)
 ## @param networkCosts.podMonitor.enabled If true, a [PodMonitor](https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#podmonitor) for the network-cost daemonset is created
+## @skip networkCosts.image
+## @skip networkCosts.imagePullPolicy
+## @skip networkCosts.prometheusScrape
+## @skip networkCosts.trafficLogging
+## @skip networkCosts.port
+## @skip networkCosts.resources
+## @skip networkCosts.config.destinations.in-zone
+## @skip networkCosts.config.destinations.in-region
+## @skip networkCosts.config.destinations.cross-region
+## @skip networkCosts.config.destinations.direct-classification
+## @skip networkCosts.config.services.google-cloud-services
+## @skip networkCosts.config.services.amazon-web-services
+## @skip networkCosts.config.services.azure-cloud-services
+## @skip networkCosts.podMonitor.additionalLabels
+## @skip networkCosts.podSecurityPolicy.enabled
+## @skip networkCosts.tolerations
+## @skip networkCosts.affinity
+## @skip networkCosts.priorityClassName
+## @skip networkCosts.additionalLabels
+## @skip networkCosts.nodeSelector
+## @skip networkCosts.annotations
+## @skip networkCosts.updateStrategy.type
 networkCosts:
   enabled: false
   podSecurityPolicy:
@@ -662,11 +753,17 @@ kubecostDeployment:
   replicas: 1
 
 ## @param clusterController.enabled If true, enable the Kubecost Cluster Controller for Right Sizing and Cluster Turndown
+## @skip clusterController.image
+## @skip clusterController.imagePullPolicy
 clusterController:
   enabled: false
   image: gcr.io/kubecost1/cluster-controller:v0.0.2
   imagePullPolicy: Always
 
+## @skip reporting.logCollection
+## @skip reporting.productAnalytics
+## @skip reporting.errorReporting
+## @skip reporting.valuesReporting
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
   # Ref: http://docs.kubecost.com/bug-report
@@ -689,7 +786,9 @@ prometheusRule:
   enabled: false
   additionalLabels: {}
 
+## @skip supportNFS
 ## @param initChownDataImage Ensures all Kubecost filepath permissions on PV or local storage are set up correctly. Supports a fully qualified Docker image, e.g. registry.hub.docker.com/library/busybox:latest
+## @skip initChownData.resources
 supportNFS: false
 initChownDataImage: "busybox"
 initChownData:
@@ -702,6 +801,15 @@ initChownData:
 ## @section Grafana
 ## @param grafana.resources [object] Grafana resource requests and limits.
 ## @param grafana.sidecar.datasources.defaultDatasourceEnabled Set this to `false` to disable creation of Prometheus datasource in Grafana
+## @skip grafana.sidecar.dashboards.enabled
+## @skip grafana.sidecar.dashboards.label
+## @skip grafana.sidecar.dashboards.annotations
+## @skip grafana.sidecar.dashboards.error_throttle_sleep
+## @skip grafana.sidecar.datasources.enabled
+## @skip grafana.sidecar.datasources.dataSourceName
+## @skip grafana.sidecar.datasources.label
+## @skip grafana.sidecar.datasources.error_throttle_sleep
+## @skip grafana.grafana.ini.server.root_url
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
@@ -730,12 +838,15 @@ grafana:
 
 ## @section Kubecost Deployment Configuration
 ## @param serviceAccount.create Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own
+## @skip serviceAccount.annotations
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
 
 ## @section Kubecost Application Configuration
+## @skip awsstore.useAwsStore
+## @skip awsstore.createServiceAccount
 awsstore:
   useAwsStore: false
   createServiceAccount: false
