@@ -1,0 +1,36 @@
+name: Update README.md with values.yaml annotations
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths:
+      - 'cost-analyzer/values.yaml'
+  workflow_dispatch:
+
+jobs:
+  update-values:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Install readme-generator-for-helm
+        run: |
+          git clone https://github.com/bitnami-labs/readme-generator-for-helm
+          npm install -g readme-generator-for-helm
+
+      - name: Update README.md
+        run: readme-generator -v cost-analyzer/values.yaml -r cost-analyzer/README.md
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v8
+        with:
+          author_name: bot
+          author_email: support@kubecost.com
+          message: 'Update with values.yaml annotations'
+          add: 'cost-analyzer/README.md'
