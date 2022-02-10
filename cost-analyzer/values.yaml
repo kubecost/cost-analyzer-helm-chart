@@ -153,6 +153,8 @@ saml:
   #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
   idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
   appRootURL: "http://localhost:9090" # sample URL
+  authTimeout: 1440 # number of minutes the JWT will be valid
+  redirectURL: "https://dev-elu2z98r.auth0.com/v2/logout" # callback URL redirected to after logout
   # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   # nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" If your SAML provider requires a specific nameid format
   # isGLUUProvider: false # An additional URL parameter must be appended for GLUU providers
