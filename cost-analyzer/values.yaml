@@ -198,6 +198,7 @@ kubecost:
   # Setting this to true will mean all /api/ endpoints will be unavailable
   disableServer: false
   image: "gcr.io/kubecost1/server"
+  imagePullPolicy: IfNotPresent
   resources:
     requests:
       cpu: "100m"

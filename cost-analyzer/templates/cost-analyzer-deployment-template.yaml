@@ -711,6 +711,11 @@ spec:
           resources:
 {{ toYaml .Values.kubecost.resources | indent 12 }}
           name: cost-analyzer-server
+        {{- if .Values.kubecost.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecost.imagePullPolicy }}
+        {{- else }}
+          imagePullPolicy: Always
+        {{- end }}
           readinessProbe:
             httpGet:
               path: /healthz
