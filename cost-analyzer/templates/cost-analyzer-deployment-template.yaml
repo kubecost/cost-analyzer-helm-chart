@@ -614,6 +614,14 @@ spec:
             - name: NAME_ID_FORMAT
               value: {{ .Values.saml.nameIDFormat }}
             {{- end}}
+            {{- if .Values.saml.authTimeout }}
+            - name: AUTH_TOKEN_TIMEOUT
+              value: {{ (quote .Values.saml.authTimeout) }}
+            {{- end}}
+            {{- if .Values.saml.redirectURL }}
+            - name: LOGOUT_REDIRECT_URL
+              value: {{ .Values.saml.redirectURL }}
+            {{- end}}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
               value: "true"
