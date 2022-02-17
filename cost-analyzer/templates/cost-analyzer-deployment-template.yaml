@@ -375,8 +375,10 @@ spec:
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
+            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
@@ -813,8 +815,10 @@ spec:
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
+            {{- end }}
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
