@@ -250,6 +250,7 @@ kubecostMetrics:
     additionalLabels: {}
     nodeSelector: {}
     annotations: {}
+    extraArgs: []
 
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
@@ -278,6 +279,7 @@ kubecostModel:
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
+  extraArgs: []
 
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
@@ -514,6 +516,7 @@ networkCosts:
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
+  extraArgs: []
   config:
     # Configuration for traffic destinations, including specific classification
     # for IPs and CIDR blocks. This configuration will act as an override to the

@@ -35,6 +35,10 @@ spec:
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
         image: {{ .Values.networkCosts.image }}
+        {{- if .Values.networkCosts.extraArgs }}
+        args:
+          {{- toYaml .Values.networkCosts.extraArgs | nindent 8 }}
+        {{- end }}
 {{- if .Values.networkCosts.imagePullPolicy }}
         imagePullPolicy: {{ .Values.networkCosts.imagePullPolicy }}
 {{- else }}

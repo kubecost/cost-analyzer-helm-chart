@@ -172,6 +172,9 @@ spec:
             {{- end }}
           args: 
             - agent
+            {{- if .Values.kubecostMetrics.exporter.extraArgs }}
+            {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
+            {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:

@@ -250,6 +250,10 @@ spec:
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
+        {{- if .Values.kubecostModel.extraArgs }}
+          args:
+          {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
+        {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
