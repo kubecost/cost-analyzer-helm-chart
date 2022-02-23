@@ -39,9 +39,9 @@ spec:
         command:
           {{- toYaml .Values.networkCosts.command | nindent 8 }}
         {{- end }}
-        {{- if .Values.networkCosts.args }}
+        {{- if .Values.networkCosts.extraArgs }}
         args:
-          {{- toYaml .Values.networkCosts.args | nindent 8 }}
+          {{- toYaml .Values.networkCosts.extraArgs | nindent 8 }}
         {{- end }}
 {{- if .Values.networkCosts.imagePullPolicy }}
         imagePullPolicy: {{ .Values.networkCosts.imagePullPolicy }}
