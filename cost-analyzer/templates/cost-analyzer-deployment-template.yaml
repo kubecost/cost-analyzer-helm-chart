@@ -370,6 +370,10 @@ spec:
             - name: PRICING_CONFIGMAP_NAME
               value: {{ .Values.pricingConfigmapName }}
             {{- end }}
+            {{- if .Values.metricsConfigmapName }}
+            - name: METRICS_CONFIGMAP_NAME
+              value: {{ .Values.metricsConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
