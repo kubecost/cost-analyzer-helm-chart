@@ -531,7 +531,6 @@ data:
         add_header Cache-Control "max-age=300";
         add_header ETag "1.90.1";
         listen 9090;
-        listen [::]:9090;
         location /api/ {
             proxy_pass http://api/;
             proxy_redirect off;
@@ -19222,7 +19221,6 @@ metadata:
   labels:
     
     app.kubernetes.io/name: cost-analyzer
-
     helm.sh/chart: cost-analyzer-1.90.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
