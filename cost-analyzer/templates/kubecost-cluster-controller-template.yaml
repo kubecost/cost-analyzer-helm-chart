@@ -206,6 +206,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: CLUSTER_ID
+          value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
