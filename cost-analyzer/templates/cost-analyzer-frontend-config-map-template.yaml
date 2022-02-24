@@ -77,6 +77,12 @@ data:
         index index.html;
         large_client_header_buffers 4 32k;
         add_header Cache-Control "must-revalidate";
+
+        error_page 504 /custom_504.html;
+        location = /custom_504.html {
+            internal;
+        }
+
 {{- if .Values.saml.enabled }}
         add_header Cache-Control "max-age=0";
         location / {
@@ -101,11 +107,14 @@ data:
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
         listen 443 ssl;
+        listen [::]:443 ssl;
 {{- else }}
         listen {{ $nginxPort }};
+        listen [::]:{{ $nginxPort }};
 {{- end }}
 {{- else }}
         listen {{ $nginxPort }};
+        listen [::]:{{ $nginxPort }};
 {{- end }}
         location /api/ {
             {{- if .Values.saml.enabled }}
@@ -177,6 +186,18 @@ data:
             proxy_send_timeout          180;
             proxy_read_timeout          180;
             proxy_pass http://model/login;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /logout {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://model/logout;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";

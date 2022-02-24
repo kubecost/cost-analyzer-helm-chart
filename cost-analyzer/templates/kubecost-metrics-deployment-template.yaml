@@ -6,6 +6,7 @@ kind: Deployment
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
 {{- with .Values.kubecostMetrics.exporter.labels }}
 {{ toYaml . | indent 4 }}
@@ -171,6 +172,9 @@ spec:
             {{- end }}
           args: 
             - agent
+            {{- if .Values.kubecostMetrics.exporter.extraArgs }}
+            {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
+            {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:

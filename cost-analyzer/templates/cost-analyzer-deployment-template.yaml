@@ -250,6 +250,10 @@ spec:
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
+        {{- if .Values.kubecostModel.extraArgs }}
+          args:
+          {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
+        {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -613,6 +617,14 @@ spec:
             {{- if .Values.saml.nameIDFormat }}
             - name: NAME_ID_FORMAT
               value: {{ .Values.saml.nameIDFormat }}
+            {{- end}}
+            {{- if .Values.saml.authTimeout }}
+            - name: AUTH_TOKEN_TIMEOUT
+              value: {{ (quote .Values.saml.authTimeout) }}
+            {{- end}}
+            {{- if .Values.saml.redirectURL }}
+            - name: LOGOUT_REDIRECT_URL
+              value: {{ .Values.saml.redirectURL }}
             {{- end}}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
