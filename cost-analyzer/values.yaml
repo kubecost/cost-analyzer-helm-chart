@@ -763,7 +763,7 @@ awsstore:
 #  sharedOverhead: "" # value representing a fixed external cost per month to be distributed among aggregations.
 #  shareTenancyCosts: true # enable or disable sharing costs such as cluster management fees (defaults to "true" on Settings page)
 #  metricsConfigs: # configuration for metrics emitted by Kubecost
-#    disabledMetrics: [] # list of metrics that Kubecost with not emit. Note that disabling metrics can lead to unexpected behavior in the cost-model.
+#    disabledMetrics: [] # list of metrics that Kubecost will not emit. Note that disabling metrics can lead to unexpected behavior in the cost-model.
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
