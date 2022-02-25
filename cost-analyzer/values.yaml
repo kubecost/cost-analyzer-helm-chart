@@ -667,7 +667,7 @@ serviceAccount:
 awsstore:
   useAwsStore: false
   createServiceAccount: false
-  imageNameAndVersion: alpine:latest # An image must be defined for the awsstore deployment.
+  imageNameAndVersion: gcr.io/kubecost1/awsstore:latest
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
