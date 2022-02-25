@@ -25,7 +25,7 @@ spec:
             - image: {{ .Values.awsstore.imageNameAndVersion }}
               name: awsstore
               # Just sleep forever
-              command: [ "sleep" ]
-              args: [ "infinity" ]
+              command: [ "/bin/sh" ]
+              args: [ "-c", "while true; do go/bin/app; sleep infinity; done" ]
 {{- end }}
 {{- end }}
