@@ -616,7 +616,7 @@ spec:
             {{- end }}
             {{- if .Values.saml.isGLUUProvider }}
             - name: GLUU_SAML_PROVIDER
-              value: {{ .Values.saml.isGLUUProvider }}
+              value: {{ (quote .Values.saml.isGLUUProvider) }}
             {{- end }}
             {{- if .Values.saml.nameIDFormat }}
             - name: NAME_ID_FORMAT
