@@ -336,6 +336,9 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.kubecostModel.extraEnv -}}
+            {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
+            {{- end }}
             {{- if .Values.reporting }}
             {{- if .Values.reporting.valuesReporting }}
             - name: HELM_VALUES
@@ -690,6 +693,9 @@ spec:
           env:
             - name: GET_HOSTS_FROM
               value: dns
+            {{- if .Values.kubecostFrontend.extraEnv -}}
+            {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
+            {{- end }}
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
@@ -740,6 +746,9 @@ spec:
             - name: persistent-configs
               mountPath: /var/configs
           env:
+            {{- if .Values.kubecost.extraEnv -}}
+            {{ toYaml .Values.kubecost.extraEnv | nindent 12 }}
+            {{- end }}
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
