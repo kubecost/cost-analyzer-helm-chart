@@ -187,6 +187,9 @@ systemProxy:
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
+  # extraEnv:
+  # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
+  #   value: "1"
   resources:
     requests:
       cpu: "10m"
@@ -200,6 +203,9 @@ kubecost:
   # Setting this to true will mean all /api/ endpoints will be unavailable
   disableServer: false
   image: "gcr.io/kubecost1/server"
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
   resources:
     requests:
       cpu: "100m"
@@ -208,15 +214,15 @@ kubecost:
     #  cpu: "100m"
     #  memory: "256Mi"
 
-# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required 
-# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself. 
-# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead. 
-kubecostMetrics: 
-  # emitPodAnnotations: false 
-  # emitNamespaceAnnotations: false 
+# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
+# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
+# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
+kubecostMetrics:
+  # emitPodAnnotations: false
+  # emitNamespaceAnnotations: false
   # emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
   # emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
-  
+
   # Optional
   # The metrics exporter is a separate deployment and service (for prometheus scrape auto-discovery)
   # which emits metrics cost-model relies on. Enabling this deployment also removes the KSM dependency
@@ -239,7 +245,7 @@ kubecostMetrics:
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
     affinity: {}
 
-    # Service Monitor for Kubecost Metrics 
+    # Service Monitor for Kubecost Metrics
     serviceMonitor:
       enabled: false
       additionalLabels: {}
@@ -255,6 +261,9 @@ kubecostMetrics:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
   # Enables the emission of the kubecost_cloud_credit_total and
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
@@ -553,18 +562,18 @@ networkCosts:
       #   ips:
       #     - "10.0.0.0/24"
     services:
-      # google-cloud-services: when set to true, enables labeling traffic metrics with google cloud 
-      # service endpoints 
+      # google-cloud-services: when set to true, enables labeling traffic metrics with google cloud
+      # service endpoints
       google-cloud-services: false
-      # amazon-web-services: when set to true, enables labeling traffic metrics with amazon web service 
+      # amazon-web-services: when set to true, enables labeling traffic metrics with amazon web service
       # endpoints.
       amazon-web-services: false
-      # azure-cloud-services: when set to true, enables labeling traffic metrics with azure cloud service 
-      # endpoints 
-      azure-cloud-services: false   
-      # user defined services provide a way to define custom service endpoints which will label traffic metrics 
+      # azure-cloud-services: when set to true, enables labeling traffic metrics with azure cloud service
+      # endpoints
+      azure-cloud-services: false
+      # user defined services provide a way to define custom service endpoints which will label traffic metrics
       # falling within the defined address range.
-      #services: 
+      #services:
       #  - service: "test-service-1"
       #    ips:
       #      - "19.1.1.2"
