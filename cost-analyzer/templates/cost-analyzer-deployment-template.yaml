@@ -287,7 +287,7 @@ spec:
             {{- if .Values.kubecostProductConfigs.productKey }}
             {{- if .Values.kubecostProductConfigs.productKey.secretname }}
             - name: productkey-secret
-              mountPath: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+              mountPath: {{ .Values.kubecostProductConfigs.productKey.mountPath | default "/var/configs/productkey" }}
             {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
