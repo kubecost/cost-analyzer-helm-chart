@@ -197,6 +197,10 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+  api:
+    fqdn: TODO-some-fqdn-example
+  model:
+    fqdn: TODO-some-fqdn-example
 
 kubecost:
   # Disables the cost-analyzer-server container to spin up as part of kubecost

@@ -46,11 +46,27 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
+{{- if.Values.kubecostFrontend.api }}
+{{- if.Values.kubecostFrontend.api.fqdn }}
+        server {{ .Values.kubecostFrontend.api.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
     }
 
     upstream model {
+{{- if.Values.kubecostFrontend.model }}
+{{- if.Values.kubecostFrontend.model.fqdn }}
+        server {{ .Values.kubecostFrontend.model.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
     }
 
 {{- if .Values.clusterController }}
