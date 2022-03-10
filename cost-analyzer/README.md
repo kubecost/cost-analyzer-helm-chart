@@ -46,3 +46,4 @@ Parameter | Description | Default
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
 `affinity` | pod affinity | `{}`
+`kubecostProductConfigs.productKey.mountPath` | Customize path at which to mount the product key secret | `"/var/configs/productkey"`
