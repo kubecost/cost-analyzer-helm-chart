@@ -72,7 +72,11 @@ data:
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
     upstream clustercontroller {
+{{- if .Values.clusterController.fqdn }}
+        server {{ .Values.clusterController.fqdn }};
+{{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
+{{-end }}
     }
 {{- end }}
 {{- end }}
