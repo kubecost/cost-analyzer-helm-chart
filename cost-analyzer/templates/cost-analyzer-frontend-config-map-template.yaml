@@ -76,7 +76,7 @@ data:
         server {{ .Values.clusterController.fqdn }};
 {{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
-{{-end }}
+{{- end }}
     }
 {{- end }}
 {{- end }}
