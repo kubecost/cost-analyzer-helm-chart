@@ -47,6 +47,6 @@ Parameter | Description | Default
 `tolerations` | node taints to tolerate | `[]`
 `affinity` | pod affinity | `{}`
 `kubecostProductConfigs.productKey.mountPath` | Use instead of `kubecostProductConfigs.productKey.secretname` to declare the path at which the product key file is mounted (eg. by a secrets provisioner) | `N/A`
-`kubecostFrontend.api.fqdn` | Customize the upstream api FQDN | `kubecost-api.kubecost.svc.cluster.local`
-`kubecostFrontend.model.fqdn` | Customize the upstream model FQDN | `kubecost-model.kubecost.svc.cluster.local`
-`clusterController.fqdn` | Customize the cluster controller FQDN | `kubecost-cluster-controller.kubecost.svc.cluster.local`
+`kubecostFrontend.api.fqdn` | Customize the upstream api FQDN | `kubecost-api.kubecost.svc.cluster.local:9001`
+`kubecostFrontend.model.fqdn` | Customize the upstream model FQDN | `kubecost-model.kubecost.svc.cluster.local:9003`
+`clusterController.fqdn` | Customize the upstream cluster controller FQDN | `kubecost-cluster-controller.kubecost.svc.cluster.local:9731`
