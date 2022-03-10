@@ -17,7 +17,7 @@ global:
 
   grafana:
     enabled: true # If false, Grafana will not be installed
-    domainName: cost-analyzer-grafana.default.svc #example grafana domain
+    domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 
@@ -197,10 +197,10 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
-  api:
-    fqdn: TODO-some-fqdn-example
-  model:
-    fqdn: TODO-some-fqdn-example
+#  api:
+#    fqdn: kubecost-api.kubecost.svc.cluster.local
+#  model:
+#    fqdn: kubecost-model.kubecost.svc.cluster.local
 
 kubecost:
   # Disables the cost-analyzer-server container to spin up as part of kubecost
@@ -619,7 +619,7 @@ clusterController:
   enabled: false
   image: gcr.io/kubecost1/cluster-controller:v0.0.5
   imagePullPolicy: Always
-  fqdn: TODO-some-fqdn-example
+  # fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local
 
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
