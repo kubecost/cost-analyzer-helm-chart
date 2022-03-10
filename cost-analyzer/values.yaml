@@ -779,5 +779,6 @@ awsstore:
 #    key: ""
 #    enabled: false
 #    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
-#    mountPath: "/var/configs/productkey"
+#    volumeMountPath: "/var/configs/productkey" # set the path at which the secret should be mounted (accessible as a volume)
+#    envvarMountPath: "/var/configs/productkey" # set the path at which the secret is mounted (accessible as an environment variable)
 #  cloudIntegrationSecret: "cloud-integration"

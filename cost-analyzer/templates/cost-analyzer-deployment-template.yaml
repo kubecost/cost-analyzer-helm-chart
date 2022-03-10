@@ -287,7 +287,7 @@ spec:
             {{- if .Values.kubecostProductConfigs.productKey }}
             {{- if .Values.kubecostProductConfigs.productKey.secretname }}
             - name: productkey-secret
-              mountPath: {{ .Values.kubecostProductConfigs.productKey.mountPath | default "/var/configs/productkey" }}
+              mountPath: {{ .Values.kubecostProductConfigs.productKey.volumeMountPath | default "/var/configs/productkey" }}
             {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
@@ -400,7 +400,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.productKey }}
             - name: PRODUCT_KEY_MOUNT_PATH
-              value: {{ .Values.kubecostProductConfigs.productKey.mountPath | default "/var/configs/productkey" }}
+              value: {{ .Values.kubecostProductConfigs.productKey.envvarMountPath | default "/var/configs/productkey" }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
