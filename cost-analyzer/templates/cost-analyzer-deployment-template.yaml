@@ -400,7 +400,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.productKey }}
             - name: PRODUCT_KEY_MOUNT_PATH
-              value: {{ .Values.kubecostProductConfigs.productKey.mountPath | default "/var/configs/productkey" }}
+              value: {{ .Values.kubecostProductConfigs.productKey.mountPath | default "/var/configs/productkey/productkey.json" }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
