@@ -50,3 +50,4 @@ Parameter | Description | Default
 `kubecostFrontend.api.fqdn` | Customize the upstream api FQDN | `computed in terms of the service name and namespace`
 `kubecostFrontend.model.fqdn` | Customize the upstream model FQDN | `computed in terms of the service name and namespace`
 `clusterController.fqdn` | Customize the upstream cluster controller FQDN | `computed in terms of the service name and namespace`
+`global.grafana.fqdn` | Customize the upstream grafana FQDN | `computed in terms of the release name and namespace`
