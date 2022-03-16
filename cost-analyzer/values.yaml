@@ -20,7 +20,7 @@ global:
     domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
-    # fqdn: cost-analyzer-grafana.default.svc # example grafana fqdn, if enabled overrides other address computation
+    # fqdn: cost-analyzer-grafana.default.svc
 
   notifications:
     # Kubecost alerting configuration

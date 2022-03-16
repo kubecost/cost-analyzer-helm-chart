@@ -83,14 +83,14 @@ data:
 
 {{- if .Values.global.grafana.proxy }}
     upstream grafana {
+{{- if .Values.global.grafana.enabled }}
 {{- if .Values.global.grafana.fqdn }}
         server {{ .Values.global.grafana.fqdn }};
 {{- else }}
-{{- if .Values.global.grafana.enabled }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
+{{- end }}
 {{- else }}
         server {{.Values.global.grafana.domainName}};
-{{- end }}
 {{- end }}
     }
 {{- end }}
