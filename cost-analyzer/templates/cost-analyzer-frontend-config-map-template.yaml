@@ -46,17 +46,37 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
+{{- if.Values.kubecostFrontend.api }}
+{{- if.Values.kubecostFrontend.api.fqdn }}
+        server {{ .Values.kubecostFrontend.api.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
     }
 
     upstream model {
+{{- if.Values.kubecostFrontend.model }}
+{{- if.Values.kubecostFrontend.model.fqdn }}
+        server {{ .Values.kubecostFrontend.model.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
     }
 
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
     upstream clustercontroller {
+{{- if .Values.clusterController.fqdn }}
+        server {{ .Values.clusterController.fqdn }};
+{{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
+{{- end }}
     }
 {{- end }}
 {{- end }}
@@ -64,12 +84,16 @@ data:
 {{- if .Values.global.grafana.proxy }}
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
+{{- if .Values.global.grafana.fqdn }}
+        server {{ .Values.global.grafana.fqdn }};
+{{- else }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
-{{ else }}
+{{- end }}
+{{- else }}
         server {{.Values.global.grafana.domainName}};
-{{ end }}
+{{- end }}
     }
-{{ end }}
+{{- end }}
 
     server {
         server_name _;
