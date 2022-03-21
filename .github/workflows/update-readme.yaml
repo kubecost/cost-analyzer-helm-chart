@@ -7,7 +7,6 @@ on:
       - synchronize
     paths:
       - 'cost-analyzer/values.yaml'
-  workflow_dispatch:
 
 jobs:
   update-values:
