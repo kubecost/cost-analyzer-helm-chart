@@ -21,10 +21,10 @@ jobs:
       - name: Install readme-generator-for-helm
         run: |
           git clone https://github.com/bitnami-labs/readme-generator-for-helm
-          npm install -g readme-generator-for-helm
+          npm install ./readme-generator-for-helm
 
       - name: Update README.md
-        run: readme-generator -v cost-analyzer/values.yaml -r cost-analyzer/README.md
+        run: ./readme-generator-for-helm/bin/index.js -v cost-analyzer/values.yaml -r cost-analyzer/README.md
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v8
