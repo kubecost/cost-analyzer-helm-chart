@@ -250,6 +250,10 @@ spec:
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
         {{ end }}
           name: cost-model
+        {{- if .Values.kubecostModel.extraArgs }}
+          args:
+          {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
+        {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -332,6 +336,9 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.kubecostModel.extraEnv -}}
+            {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
+            {{- end }}
             {{- if .Values.reporting }}
             {{- if .Values.reporting.valuesReporting }}
             - name: HELM_VALUES
@@ -366,6 +373,10 @@ spec:
             - name: PRICING_CONFIGMAP_NAME
               value: {{ .Values.pricingConfigmapName }}
             {{- end }}
+            {{- if .Values.metricsConfigmapName }}
+            - name: METRICS_CONFIGMAP_NAME
+              value: {{ .Values.metricsConfigmapName }}
+            {{- end }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -386,6 +397,14 @@ spec:
               value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
             {{- else }}
               value: production
+            {{- end }}
+            {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.mountPath }}
+            - name: PRODUCT_KEY_MOUNT_PATH
+              value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+            {{- end }}
+            {{- end }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
@@ -510,6 +529,8 @@ spec:
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
+            - name : ETL_CLOUD_USAGE_ENABLED
+              value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote false) }}
             - name : ETL_CLOUD_ASSETS_ENABLED
               value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
@@ -608,11 +629,19 @@ spec:
             {{- end }}
             {{- if .Values.saml.isGLUUProvider }}
             - name: GLUU_SAML_PROVIDER
-              value: {{ .Values.saml.isGLUUProvider }}
+              value: {{ (quote .Values.saml.isGLUUProvider) }}
             {{- end }}
             {{- if .Values.saml.nameIDFormat }}
             - name: NAME_ID_FORMAT
               value: {{ .Values.saml.nameIDFormat }}
+            {{- end}}
+            {{- if .Values.saml.authTimeout }}
+            - name: AUTH_TOKEN_TIMEOUT
+              value: {{ (quote .Values.saml.authTimeout) }}
+            {{- end}}
+            {{- if .Values.saml.redirectURL }}
+            - name: LOGOUT_REDIRECT_URL
+              value: {{ .Values.saml.redirectURL }}
             {{- end}}
             {{- if .Values.saml.rbac.enabled }}
             - name: SAML_RBAC_ENABLED
@@ -672,6 +701,9 @@ spec:
           env:
             - name: GET_HOSTS_FROM
               value: dns
+            {{- if .Values.kubecostFrontend.extraEnv -}}
+            {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
+            {{- end }}
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
@@ -722,6 +754,9 @@ spec:
             - name: persistent-configs
               mountPath: /var/configs
           env:
+            {{- if .Values.kubecost.extraEnv -}}
+            {{ toYaml .Values.kubecost.extraEnv | nindent 12 }}
+            {{- end }}
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
                 configMapKeyRef:
