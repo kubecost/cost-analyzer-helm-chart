@@ -284,6 +284,7 @@ kubecost:
 ## @skip kubecostMetrics.exporter.additionalLabels
 ## @skip kubecostMetrics.exporter.nodeSelector
 ## @skip kubecostMetrics.exporter.annotations
+## @skip kubecostMetrics.exporter.extraArgs
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required 
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself. 
 # However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead. 
@@ -339,6 +340,7 @@ kubecostMetrics:
 ## @skip kubecostModel.maxQueryConcurrency
 ## @skip kubecostModel.resources.requests.cpu
 ## @skip kubecostModel.resources.requests.memory
+## @skip kubecostModel.extraArgs
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
@@ -649,6 +651,7 @@ prometheus:
 ## @skip networkCosts.trafficLogging
 ## @skip networkCosts.port
 ## @skip networkCosts.resources
+## @skip networkCosts.extraArgs
 ## @skip networkCosts.config.destinations.in-zone
 ## @skip networkCosts.config.destinations.in-region
 ## @skip networkCosts.config.destinations.cross-region
