@@ -405,6 +405,10 @@ spec:
               value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
             {{- end }}
             {{- end }}
+            {{- if .Values.kubecostProductConfigs.ingestPodUID }}
+            - name: INGEST_POD_UID
+              value: {{ (quote .Values.kubecostProductConfigs.ingestPodUID) }}
+            {{- end }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
