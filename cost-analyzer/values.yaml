@@ -688,7 +688,7 @@ awsstore:
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-kubecostProductConfigs:
+#kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
@@ -787,4 +787,4 @@ kubecostProductConfigs:
 #    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
 #    mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "kc-b1325234" }
 #  cloudIntegrationSecret: "cloud-integration"
-  ingestPodUID: false
+#  ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
