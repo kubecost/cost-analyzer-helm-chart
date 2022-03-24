@@ -225,8 +225,8 @@ kubecost:
 kubecostMetrics:
   # emitPodAnnotations: false
   # emitNamespaceAnnotations: false
-    emitKsmV1Metrics: false # emit all KSM metrics in KSM v1.
-    emitKsmV1MetricsOnly: true # emit only the KSM metrics missing from KSM v2. Advanced users only.
+  emitKsmV1Metrics: false # emit all KSM metrics in KSM v1.
+  emitKsmV1MetricsOnly: true # emit only the KSM metrics missing from KSM v2. Advanced users only.
 
   # Optional
   # The metrics exporter is a separate deployment and service (for prometheus scrape auto-discovery)
