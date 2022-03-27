@@ -645,7 +645,7 @@ grafana:
           type: prometheus
           url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
           access: proxy
-          isDefault: true
+          isDefault: false
   sidecar:
     dashboards:
       enabled: true
@@ -657,12 +657,6 @@ grafana:
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: false
-      defaultDatasourceEnabled: false
-      dataSourceName: prometheus-kubecost
-      # label that the configmaps with datasources are marked with
-      label: kubecost_grafana_datasource
-      # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
-      error_throttle_sleep: 0
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
