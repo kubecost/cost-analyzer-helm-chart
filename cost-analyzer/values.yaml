@@ -637,6 +637,15 @@ initChownData:
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus-kubecost
+          type: prometheus
+          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+          access: proxy
+          isDefault: true
   sidecar:
     dashboards:
       enabled: true
@@ -647,7 +656,7 @@ grafana:
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: true
+      enabled: false
       defaultDatasourceEnabled: false
       dataSourceName: prometheus-kubecost
       # label that the configmaps with datasources are marked with
