@@ -203,22 +203,6 @@ kubecostFrontend:
 #  model:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
 
-kubecost:
-  # Disables the cost-analyzer-server container to spin up as part of kubecost
-  # Setting this to true will mean all /api/ endpoints will be unavailable
-  disableServer: false
-  image: "gcr.io/kubecost1/server"
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "55Mi"
-    #limits:
-    #  cpu: "100m"
-    #  memory: "256Mi"
-
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
 # However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
