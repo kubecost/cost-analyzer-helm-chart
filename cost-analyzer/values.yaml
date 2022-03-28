@@ -203,22 +203,6 @@ kubecostFrontend:
 #  model:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
 
-kubecost:
-  # Disables the cost-analyzer-server container to spin up as part of kubecost
-  # Setting this to true will mean all /api/ endpoints will be unavailable
-  disableServer: false
-  image: "gcr.io/kubecost1/server"
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "55Mi"
-    #limits:
-    #  cpu: "100m"
-    #  memory: "256Mi"
-
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
 # However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
@@ -653,6 +637,15 @@ initChownData:
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus-kubecost
+          type: prometheus
+          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+          access: proxy
+          isDefault: false
   sidecar:
     dashboards:
       enabled: true
@@ -663,13 +656,7 @@ grafana:
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: true
-      defaultDatasourceEnabled: false
-      dataSourceName: prometheus-kubecost
-      # label that the configmaps with datasources are marked with
-      label: kubecost_grafana_datasource
-      # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
-      error_throttle_sleep: 0
+      enabled: false
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
