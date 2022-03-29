@@ -530,9 +530,7 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
             - name : ETL_CLOUD_USAGE_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote false) }}
-            - name : ETL_CLOUD_ASSETS_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
+              value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
