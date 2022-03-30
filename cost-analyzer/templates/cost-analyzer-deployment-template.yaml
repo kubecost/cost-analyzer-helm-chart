@@ -530,7 +530,7 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
             - name : ETL_CLOUD_USAGE_ENABLED
-            {{- if eq .Values.kubecostModel.etlCloudAsset false }}
+            {{- if not .Values.kubecostModel.etlCloudAsset }}
               value: "false"
             {{- else }}
               value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
