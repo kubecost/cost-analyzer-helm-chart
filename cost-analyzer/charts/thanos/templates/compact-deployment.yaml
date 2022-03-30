@@ -23,6 +23,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: compact
 {{ with .Values.compact.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.compact.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:

@@ -25,6 +25,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query-frontend
 {{ with .Values.queryFrontend.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.queryFrontend.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:

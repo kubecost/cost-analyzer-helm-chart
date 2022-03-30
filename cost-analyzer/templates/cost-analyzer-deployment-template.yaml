@@ -336,6 +336,9 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.kubecostModel.extraEnv -}}
+            {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
+            {{- end }}
             {{- if .Values.reporting }}
             {{- if .Values.reporting.valuesReporting }}
             - name: HELM_VALUES
@@ -394,6 +397,14 @@ spec:
               value: {{ .Values.kubecostProductConfigs.clusterProfile | default "production" }}
             {{- else }}
               value: production
+            {{- end }}
+            {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.mountPath }}
+            - name: PRODUCT_KEY_MOUNT_PATH
+              value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+            {{- end }}
+            {{- end }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
@@ -518,8 +529,12 @@ spec:
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
-            - name : ETL_CLOUD_ASSETS_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlCloudAssets) | default (quote true) }}
+            - name : ETL_CLOUD_USAGE_ENABLED
+            {{- if eq .Values.kubecostModel.etlCloudAsset false }}
+              value: "false"
+            {{- else }}
+              value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
+            {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
@@ -688,6 +703,9 @@ spec:
           env:
             - name: GET_HOSTS_FROM
               value: dns
+            {{- if .Values.kubecostFrontend.extraEnv -}}
+            {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
+            {{- end }}
           name: cost-analyzer-frontend
           volumeMounts:
             - name: nginx-conf
@@ -712,153 +730,4 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
-        {{- if not .Values.kubecost.disableServer }}
-        {{- if .Values.kubecost }}
-        {{- if .Values.kubecost.fullImageName }}
-        - image: {{ .Values.kubecost.fullImageName }}
-        {{- else if .Values.imageVersion}}
-        - image: {{ .Values.kubecost.image }}:{{ .Values.imageVersion }}
-        {{- else }}
-        - image: {{ .Values.kubecost.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
-        {{- else }}
-        - image: gcr.io/kubecost1/server:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
-          resources:
-{{ toYaml .Values.kubecost.resources | indent 12 }}
-          name: cost-analyzer-server
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          volumeMounts:
-            - name: persistent-configs
-              mountPath: /var/configs
-          env:
-            - name: PROMETHEUS_SERVER_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "cost-analyzer.fullname" . }}
-                  key: prometheus-server-endpoint
-            {{- if .Values.reporting }}
-            {{- if .Values.reporting.valuesReporting }}
-            - name: HELM_VALUES
-              value: {{ template "cost-analyzer.filterEnabled" .Values }}
-            {{- end }}
-            {{- end }}
-            {{- if .Values.global.prometheus.insecureSkipVerify }}
-            - name: INSECURE_SKIP_VERIFY
-              value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
-            {{- end }}
-            {{- /*
-              If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
-              to ensure that the custom query service target is used. The global.thanos.enabled
-              flag does not have any affect on this behavior.
-            */}}
-            {{- if .Values.global.thanos.queryService }}
-            - name: THANOS_ENABLED
-              value: "true"
-            - name: THANOS_QUERY_URL
-              value: {{ .Values.global.thanos.queryService }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- else if and .Values.global.thanos.enabled .Values.thanos }}
-            {{- if .Values.thanos.query }}
-            {{- if .Values.thanos.query.enabled }}
-            - name: THANOS_ENABLED
-              value: "true"
-            - name: THANOS_QUERY_URL
-              value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
-            - name: MC_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: USERNAME
-            - name: MC_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: PASSWORD
-            {{- end }}
-            {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
-            - name: DB_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
-                  key: USERNAME
-            - name: DB_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.prometheus.queryServiceBasicAuthSecretName }}
-                  key: PASSWORD
-            {{- end }}
-            {{- if .Values.global.prometheus.queryServiceBearerTokenSecretName }}
-            - name: DB_BEARER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.prometheus.queryServiceBearerTokenSecretName }}
-                  key: TOKEN
-            {{- end }}
-            {{- if .Values.global.thanos.queryServiceBearerTokenSecretName }}
-            - name: MC_BEARER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBearerTokenSecretName }}
-                  key: TOKEN
-            {{- end }}
-            - name: KUBECOST_NAMESPACE
-              value: {{ .Release.Namespace }}
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /var/configs/key.json
-            - name: KUBECOST_TOKEN
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ template "cost-analyzer.fullname" . }}
-                  key: kubecost-token
-            {{- if eq .Values.global.grafana.proxy false }}
-            - name: GRAFANA_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: external-grafana-config-map
-                  key: grafanaURL
-            {{- end }}
-            {{- end }}
-    {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
-      {{- if .Values.priority }}
-      {{- if .Values.priority.enabled }}
-      {{- if gt (len .Values.priority.name) 0 }}
-      priorityClassName: {{ .Values.priority.name }}
-      {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
-      {{- end }}
-      {{- end }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
 {{- end }}
