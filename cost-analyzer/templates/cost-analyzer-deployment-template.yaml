@@ -533,7 +533,7 @@ spec:
             {{- if .Values.kubecostModel.etlCloudUsage }}
               value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
             {{- else if .Values.kubecostModel.etlCloudAsset }}
-              value: {{ (quote .Values.kubecostModel.etlCloudAsset) }}
+              value: {{ (quote .Values.kubecostModel.etlCloudAsset) | default (quote true) }}
             {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
