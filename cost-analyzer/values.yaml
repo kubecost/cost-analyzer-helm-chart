@@ -5,7 +5,7 @@ global:
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
-    # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
+    # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
   # Durable storage option, product key required
   thanos:
