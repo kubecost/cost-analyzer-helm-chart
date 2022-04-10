@@ -101,7 +101,10 @@ spec:
       - name: data
       {{- if .Values.store.dataVolume }}
       {{- if .Values.store.dataVolume.persistentVolumeClaim }}
-      {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+      {{- if .Values.store.dataVolume.persistentVolumeClaim.existingClaim }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+      {{- else if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
         persistentVolumeClaim:
           claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}
       {{- else }}

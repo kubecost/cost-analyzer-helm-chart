@@ -3,6 +3,7 @@
 {{- if .Values.store.dataVolume -}}
 {{- if .Values.store.dataVolume.persistentVolumeClaim -}}
 {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName -}}
+{{- if not .Values.store.dataVolume.persistentVolumeClaim.existingClaim -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -20,6 +21,7 @@ spec:
     {{- else }}
       storage: 100Gi
     {{- end }}
+{{ -end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
