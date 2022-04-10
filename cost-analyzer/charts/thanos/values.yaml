@@ -35,6 +35,7 @@ store:
     persistentVolumeClaim:
       claimName: store-data-volume
       storage: 100Gi
+      #existingClaim: store-data-volume
   # Number of replicas running from store component
   replicaCount: 1
   # Extra labels for store pod template
