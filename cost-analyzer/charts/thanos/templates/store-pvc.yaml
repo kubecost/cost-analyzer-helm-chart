@@ -21,7 +21,7 @@ spec:
     {{- else }}
       storage: 100Gi
     {{- end }}
-{{ -end -}}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
