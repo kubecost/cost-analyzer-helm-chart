@@ -336,6 +336,18 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            {{- if .Values.global.grafana}}
+            {{- if .Values.global.grafana.enabled }}
+            - name: GRAFANA_ENABLED
+              value: "true"
+            {{- else }}
+            - name: GRAFANA_ENABLED
+              value: "false"
+            {{- end }}
+            {{- else }}
+            - name: GRAFANA_ENABLED
+              value: "false"
+            {{- end }}
             {{- if .Values.kubecostModel.extraEnv -}}
             {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
             {{- end }}
