@@ -671,7 +671,7 @@ server:
     #   - domain.com/prometheus
 
     ## PathType determines the interpretation of the Path matching
-    pathType: "Exact"
+    pathType: "Prefix"
 
     ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
     extraPaths: []
