@@ -617,6 +617,7 @@ reporting:
   errorReporting: true
   valuesReporting: true
   # googleAnalyticsTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
+  # googleAnalyticsTag is only included in our Enterprise offering.
   # googleAnalyticsTag: G-XXXXXXXXX
 
 serviceMonitor:
