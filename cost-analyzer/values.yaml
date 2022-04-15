@@ -198,6 +198,8 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+#  customerGoogleTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
+#  customerGoogleTag: G-XXXXXXXXX
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
