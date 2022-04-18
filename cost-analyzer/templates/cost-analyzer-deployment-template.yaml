@@ -530,10 +530,10 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
             - name : ETL_CLOUD_USAGE_ENABLED
-            {{- if eq .Values.kubecostModel.etlCloudAsset false }}
-              value: "false"
-            {{- else }}
+            {{- if kindIs "bool" .Values.kubecostModel.etlCloudUsage }}
               value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
+            {{- else if kindIs "bool" .Values.kubecostModel.etlCloudAsset }}
+              value: {{ (quote .Values.kubecostModel.etlCloudAsset) | default (quote true) }}
             {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
@@ -734,4 +734,29 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.priority }}
+      {{- if .Values.priority.enabled }}
+      {{- if gt (len .Values.priority.name) 0 }}
+      priorityClassName: {{ .Values.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
