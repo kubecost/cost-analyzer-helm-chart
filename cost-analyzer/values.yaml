@@ -639,6 +639,9 @@ initChownData:
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
+  rbac:
+    # Manage the Grafana Pod Security Policy
+    pspEnabled: true
   datasources:
     datasources.yaml:
       apiVersion: 1
