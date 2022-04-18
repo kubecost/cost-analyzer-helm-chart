@@ -270,6 +270,7 @@ kubecostModel:
   etlHourlyStoreDurationHours: 49
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
+  etlCloudAsset: false
   resources:
     requests:
       cpu: "200m"
