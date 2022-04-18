@@ -673,6 +673,10 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
+            {{- if .Values.kubecostFrontend.customerGoogleTag }}
+            - name: CUSTOMER_GOOGLE_TAG
+              value: {{ .Values.kubecostFrontend.customerGoogleTag }}
+            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
