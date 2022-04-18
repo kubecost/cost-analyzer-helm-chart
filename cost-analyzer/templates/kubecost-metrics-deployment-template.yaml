@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
-    {{ include "kubecost.chartLabels" . | nindent 4 }}
+    {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
 {{- with .Values.kubecostMetrics.exporter.labels }}
 {{ toYaml . | indent 4 }}

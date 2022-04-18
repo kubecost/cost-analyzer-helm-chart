@@ -5,7 +5,7 @@ global:
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
-    # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
+    # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
   # Durable storage option, product key required
   thanos:
@@ -198,26 +198,12 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+#  customerGoogleTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
+#  customerGoogleTag: G-XXXXXXXXX
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
-
-kubecost:
-  # Disables the cost-analyzer-server container to spin up as part of kubecost
-  # Setting this to true will mean all /api/ endpoints will be unavailable
-  disableServer: false
-  image: "gcr.io/kubecost1/server"
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "55Mi"
-    #limits:
-    #  cpu: "100m"
-    #  memory: "256Mi"
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
@@ -656,6 +642,15 @@ grafana:
   rbac:
     # Manage the Grafana Pod Security Policy
     pspEnabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus-kubecost
+          type: prometheus
+          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+          access: proxy
+          isDefault: false
   sidecar:
     dashboards:
       enabled: true
@@ -666,13 +661,7 @@ grafana:
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: true
-      defaultDatasourceEnabled: false
-      dataSourceName: prometheus-kubecost
-      # label that the configmaps with datasources are marked with
-      label: kubecost_grafana_datasource
-      # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
-      error_throttle_sleep: 0
+      enabled: false
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
@@ -766,7 +755,7 @@ awsstore:
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
-#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK
+#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, SEK
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
