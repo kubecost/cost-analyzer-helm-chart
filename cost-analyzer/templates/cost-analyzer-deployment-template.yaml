@@ -673,9 +673,9 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
-            {{- if .Values.kubecostFrontend.customerGoogleTag }}
-            - name: CUSTOMER_GOOGLE_TAG
-              value: {{ .Values.kubecostFrontend.customerGoogleTag }}
+            {{- if .Values.reporting.googleAnalyticsTag }}
+            - name: GOOGLE_ANALYTICS_TAG
+              value: {{ .Values.reporting.googleAnalyticsTag }}
             {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
