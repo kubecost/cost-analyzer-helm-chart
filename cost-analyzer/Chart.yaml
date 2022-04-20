@@ -8,3 +8,13 @@ annotations:
   "artifacthub.io/links": |
     - name: Homepage
       url: https://www.kubecost.com
+dependencies:
+  - condition: global.grafana.enabled
+    name: grafana
+    repository: file://./charts/grafana
+  - condition: global.prometheus.enabled
+    name: prometheus
+    repository: file://./charts/prometheus
+  - condition: global.thanos.enabled
+    name: thanos
+    repository: file://./charts/thanos
