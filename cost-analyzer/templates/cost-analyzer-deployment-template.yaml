@@ -543,8 +543,8 @@ spec:
             {{- end }}
             - name: ETL_RESOLUTION_SECONDS
               value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 300) }}
-            - name: ETL_MAX_BATCH_HOURS
-              value: {{ (quote .Values.kubecostModel.etlMaxBatchHours) | default (quote 6) }}
+            - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
+              value: {{ (quote .Values.kubecostModel.maxPrometheusQueryDurationMinutes) | default (quote 1440) }}
             - name: ETL_DAILY_STORE_DURATION_DAYS
               value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
