@@ -729,6 +729,7 @@ awsstore:
 #  athenaRegion: us-east-1
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
+#  athenaWorkgroup: "primary" # The default workgroup in AWS is 'primary'
 #  masterPayerARN: ""
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
