@@ -14,7 +14,7 @@ metadata:
 {{- end }}
 {{- if .Values.kubecostMetrics.exporter.prometheusScrape }}
     prometheus.io/scrape: "true"
-    prometheus.io/port: {{ quote .Values.kubecostMetrics.exporter.port | default (quote 9005) }}
+    prometheus.io/port: {{ (quote .Values.kubecostMetrics.exporter.port) | default (quote 9005) }}
 {{- end }}
 {{- end }}
 spec:
