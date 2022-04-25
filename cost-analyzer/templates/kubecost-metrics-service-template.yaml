@@ -6,10 +6,11 @@ kind: Service
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.kubecostMetrics.exporter.service.annotations }}
   annotations:
-    prometheus.io/scrape: "true"
-    prometheus.io/port: {{ (quote .Values.kubecostMetrics.exporter.port) | default (quote 9005) }}
+{{ toYaml .Values.kubecostMetrics.exporter.service.annotations | indent 4 }}
+{{- end }}
 spec:
   ports:
   - name: tcp-metrics

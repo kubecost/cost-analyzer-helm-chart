@@ -234,6 +234,10 @@ kubecostMetrics:
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
     affinity: {}
 
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+
     # Service Monitor for Kubecost Metrics
     serviceMonitor:
       enabled: false
@@ -244,7 +248,6 @@ kubecostMetrics:
     priorityClassName: []
     additionalLabels: {}
     nodeSelector: {}
-    annotations: {}
     extraArgs: []
 
 kubecostModel:
@@ -504,6 +507,9 @@ networkCosts:
   # NOTE: Setting this option to true and leaving the above extraScrapeConfig "job_name: kubecost-networking" configured will cause the
   # NOTE: pods to be scraped twice.
   prometheusScrape: false
+  # Override Prometheus scrape annotations for custom Prometheus setups. Advanced.
+  prometheusScrapeAnnotations:
+    prometheus.io/scrape: "true"
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes.
   trafficLogging: true
