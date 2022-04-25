@@ -13,7 +13,7 @@ metadata:
 {{ toYaml .Values.kubecostMetrics.exporter.service.annotations | indent 4 }}
 {{- end }}
 {{- if .Values.kubecostMetrics.exporter.prometheusScrape }}
-    prometheus.io/scrape: "{{ .Values.kubecostMetrics.exporter.prometheusScrape }}"
+    prometheus.io/scrape: "true"
     prometheus.io/port: {{ quote .Values.kubecostMetrics.exporter.port | default (quote 9005) }}
 {{- end }}
 {{- end }}
