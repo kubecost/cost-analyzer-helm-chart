@@ -122,6 +122,9 @@ data:
   {{- if .Values.kubecostProductConfigs.athenaTable }}
     athenaTable: "{{ .Values.kubecostProductConfigs.athenaTable }}"
   {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaWorkgroup }}
+    athenaWorkgroup: "{{ .Values.kubecostProductConfigs.athenaWorkgroup }}"
+  {{- end -}}
   {{- if .Values.kubecostProductConfigs.masterPayerARN}}
     masterPayerARN: "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
   {{- end }}
