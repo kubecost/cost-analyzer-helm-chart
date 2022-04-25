@@ -220,6 +220,9 @@ kubecostMetrics:
   exporter:
     enabled: false
     port: 9005
+    # Adds the default Prometheus scrape annotations to the metrics exporter service.
+    # Set to false and use service.annotations (below) to set custom scrape annotations.
+    prometheusScrape: true
     resources: {}
       # requests:
       #  cpu: "200m"
@@ -235,8 +238,7 @@ kubecostMetrics:
     affinity: {}
 
     service:
-      annotations:
-        prometheus.io/scrape: "true"
+      annotations: {}
 
     # Service Monitor for Kubecost Metrics
     serviceMonitor:
@@ -502,14 +504,11 @@ networkCosts:
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
-  # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
-  # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
+  # For existing Prometheus Installs, annotates the Service which generates Endpoints for each of the network-costs pods.
+  # The Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
   # NOTE: Setting this option to true and leaving the above extraScrapeConfig "job_name: kubecost-networking" configured will cause the
   # NOTE: pods to be scraped twice.
   prometheusScrape: false
-  # Override Prometheus scrape annotations for custom Prometheus setups. Advanced.
-  prometheusScrapeAnnotations:
-    prometheus.io/scrape: "true"
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes.
   trafficLogging: true
@@ -587,6 +586,9 @@ networkCosts:
   #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
 
   affinity: {}
+
+  service:
+    annotations: {}
 
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass

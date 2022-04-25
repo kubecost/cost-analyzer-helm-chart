@@ -7,9 +7,15 @@ metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
 {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-{{- if .Values.kubecostMetrics.exporter.service.annotations }}
+{{- if (or .Values.kubecostMetrics.exporter.service.annotations .Values.kubecostMetrics.exporter.prometheusScrape) }}
   annotations:
+{{- if .Values.kubecostMetrics.exporter.service.annotations }}
 {{ toYaml .Values.kubecostMetrics.exporter.service.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.kubecostMetrics.exporter.prometheusScrape }}
+    prometheus.io/scrape: "{{ .Values.kubecostMetrics.exporter.prometheusScrape }}"
+    prometheus.io/port: {{ quote .Values.kubecostMetrics.exporter.port | default (quote 9005) }}
+{{- end }}
 {{- end }}
 spec:
   ports:
