@@ -535,9 +535,11 @@ spec:
             {{- end }}
             - name : ETL_CLOUD_USAGE_ENABLED
             {{- if kindIs "bool" .Values.kubecostModel.etlCloudUsage }}
-              value: {{ (quote .Values.kubecostModel.etlCloudUsage) | default (quote true) }}
+              value: {{ (quote .Values.kubecostModel.etlCloudUsage) }}
             {{- else if kindIs "bool" .Values.kubecostModel.etlCloudAsset }}
-              value: {{ (quote .Values.kubecostModel.etlCloudAsset) | default (quote true) }}
+              value: {{ (quote .Values.kubecostModel.etlCloudAsset) }}
+            {{- else }}
+              value: "true"
             {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
