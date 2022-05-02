@@ -198,8 +198,6 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
-#  customerGoogleTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
-#  customerGoogleTag: G-XXXXXXXXX
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
@@ -604,7 +602,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.0.5
+  image: gcr.io/kubecost1/cluster-controller:v0.0.6
   imagePullPolicy: Always
 #  fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local:9731
 
@@ -614,9 +612,13 @@ reporting:
   logCollection: true
   # Basic frontend analytics
   productAnalytics: true
+
   # Report Javascript errors
   errorReporting: true
   valuesReporting: true
+  # googleAnalyticsTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
+  # googleAnalyticsTag is only included in our Enterprise offering.
+  # googleAnalyticsTag: G-XXXXXXXXX
 
 serviceMonitor:
   enabled: false
@@ -729,6 +731,7 @@ awsstore:
 #  athenaRegion: us-east-1
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
+#  athenaWorkgroup: "primary" # The default workgroup in AWS is 'primary'
 #  masterPayerARN: ""
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
@@ -779,3 +782,4 @@ awsstore:
 #    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
 #    mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "kc-b1325234" }
 #  cloudIntegrationSecret: "cloud-integration"
+#  ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.

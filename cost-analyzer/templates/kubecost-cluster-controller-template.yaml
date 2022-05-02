@@ -224,6 +224,11 @@ spec:
       - name: cluster-controller-keys
         secret:
           secretName: {{ .Values.clusterController.secretName | default "cluster-controller-service-key" }}
+          # The secret is optional because not all of cluster controller's
+          # functionality requires this secret. Cluster controller will
+          # partially or fully initialize based on the presence of these keys
+          # and their validity.
+          optional: true
 ---
 apiVersion: v1
 kind: Service
