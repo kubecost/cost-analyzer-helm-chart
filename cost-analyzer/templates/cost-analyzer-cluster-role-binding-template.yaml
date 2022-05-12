@@ -31,5 +31,5 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
-{{- end }}
+    namespace: {{ .Release.Namespace }} 
+{{- end }} 
