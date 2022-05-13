@@ -269,7 +269,7 @@ kubecostModel:
   # Set to 0 to disable hourly ETL (not recommended)
   etlHourlyStoreDurationHours: 49
   # For deploying kubecost in a cluster that does not self-monitor
-  etlReadOnlyMode: true
+  etlReadOnlyMode: false
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   resources:
