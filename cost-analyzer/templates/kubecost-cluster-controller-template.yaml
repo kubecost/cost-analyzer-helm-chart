@@ -247,6 +247,7 @@ spec:
     app: {{ template "kubecost.clusterControllerName" . }}
 ---
 # TurndownSchedule Custom Resource Definition for persistence
+{{- if .Capabilities.APIVersions.Has "apiextensions.k8s.io/v1" }}
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
@@ -294,8 +295,55 @@ spec:
     - td
     - tds
   scope: Cluster
-  
-  
+{{ else }}
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: turndownschedules.kubecost.k8s.io
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  group: kubecost.k8s.io
+  version: v1alpha1
+  names:
+    kind: TurndownSchedule
+    singular: turndownschedule
+    plural: turndownschedules
+    shortNames:
+    - td
+    - tds
+  scope: Cluster
+  subresources:
+    status: {}
+  validation:
+    openAPIV3Schema:
+      properties:
+        spec:
+          type: object
+          properties:
+            start: 
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+            repeat: 
+              type: string
+              enum: [none, daily, weekly]
+  additionalPrinterColumns:
+  - name: State
+    type: string
+    description: The state of the turndownschedule 
+    JSONPath: .status.state
+  - name: Next Turndown
+    type: string
+    description: The next turndown date-time
+    JSONPath: .status.nextScaleDownTime
+  - name: Next Turn Up
+    type: string
+    description: The next turn up date-time
+    JSONPath: .status.nextScaleUpTime
+{{ end -}}
   
 {{- end }}
 {{- end }}
