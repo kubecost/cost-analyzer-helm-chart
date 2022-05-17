@@ -173,6 +173,11 @@ saml:
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+      - name: editor
+        enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+        assertionName: "http://schemas.auth0.com/userType"
+        assertionValues:
+          - "editor"
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
