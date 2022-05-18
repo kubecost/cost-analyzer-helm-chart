@@ -256,37 +256,40 @@ metadata:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   group: kubecost.k8s.io
-  versions: v1alpha1
-    schema:
-      openAPIV3Schema:
-        properties:
-          spec:
-            type: object
-            properties:
-              start: 
-                type: string
-                format: date-time
-              end:
-                type: string
-                format: date-time
-              repeat: 
-                type: string
-                enum: [none, daily, weekly]
-    subresources:
-      status: {}
-    additionalPrinterColumns:
-      - name: State
-        type: string
-        description: The state of the turndownschedule 
-        jsonPath: .status.state
-      - name: Next Turndown
-        type: string
-        description: The next turndown date-time
-        jsonPath: .status.nextScaleDownTime
-      - name: Next Turn Up
-        type: string
-        description: The next turn up date-time
-        jsonPath: .status.nextScaleUpTime
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              type: object
+              properties:
+                start: 
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+                repeat: 
+                  type: string
+                  enum: [none, daily, weekly]
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: State
+          type: string
+          description: The state of the turndownschedule 
+          jsonPath: .status.state
+        - name: Next Turndown
+          type: string
+          description: The next turndown date-time
+          jsonPath: .status.nextScaleDownTime
+        - name: Next Turn Up
+          type: string
+          description: The next turn up date-time
+          jsonPath: .status.nextScaleUpTime
   names:
     kind: TurndownSchedule
     singular: turndownschedule
