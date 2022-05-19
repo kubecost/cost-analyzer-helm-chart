@@ -49,6 +49,7 @@ Parameter | Description | Default
 `prometheusRule.enabled` | Set this to `true` to create PrometheusRule for Prometheus operator | `false`
 `prometheusRule.additionalLabels` | Additional labels that can be used so PrometheusRule will be discovered by Prometheus | `{}`
 `grafana.resources` | Grafana resource requests and limits. | `{}`
+`grafana.sidecar.dashboards.enabled` | Set this to `false` to disable creation of Dashboards in Grafana | `true`
 `grafana.sidecar.datasources.defaultDatasourceEnabled` | Set this to `false` to disable creation of Prometheus datasource in Grafana | `true`
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
