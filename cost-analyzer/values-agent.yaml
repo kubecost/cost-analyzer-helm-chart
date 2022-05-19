@@ -11,6 +11,14 @@ global:
 # with enhancements designed for external hosting. 
 agent: true 
 
+# No Grafana configuration is required.
+grafana:
+  sidecar:
+    dashboards:
+      enabled: false
+    datasources:
+      defaultDatasourceEnabled: false
+
 # Exporter Pod
 kubecostMetrics: 
   exporter:
