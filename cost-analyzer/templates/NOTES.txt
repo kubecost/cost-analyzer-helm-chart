@@ -2,10 +2,18 @@
 
 --------------------------------------------------
 {{- $servicePort := .Values.service.port | default 9090 -}}
-Kubecost has been successfully installed. When pods are Ready, you can enable port-forwarding with the following command:
-    
+Kubecost has been successfully installed.
+
+Please allow 5-10 minutes for Kubecost to gather metrics.
+
+If you have configured cloud-integrations, it can take up to 48 hours for cost reconciliation to occur.
+
+When using Durable storage (Enterprise Edition), please allow up to 4 hours for data to be collected and the UI to be healthy.
+
+When pods are Ready, you can enable port-forwarding with the following command:
+
     kubectl port-forward --namespace {{ .Release.Namespace }} deployment/{{ template "cost-analyzer.fullname" . }} {{ $servicePort }}
-    
+
 Next, navigate to http://localhost:{{ $servicePort }} in a web browser.
 
 Having installation issues? View our Troubleshooting Guide at http://docs.kubecost.com/troubleshoot-install

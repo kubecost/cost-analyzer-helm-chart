@@ -664,6 +664,7 @@ grafana:
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: false
+      error_throttle_sleep: 0
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
