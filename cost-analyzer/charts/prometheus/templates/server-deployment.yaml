@@ -60,6 +60,12 @@ spec:
           resources:
 {{ toYaml .Values.configmapReload.prometheus.resources | indent 12 }}
           volumeMounts:
+            {{- if .Values.selfsignedCertConfigMapName }}
+            - name: {{ .Values.selfsignedCertConfigMapName }}
+              mountPath: /etc/ssl/certs/my-cert.pem
+              subPath: my-cert.pem
+              readOnly: false
+            {{- end }}
             - name: config-volume
               mountPath: /etc/config
               readOnly: true
@@ -168,6 +174,11 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.server.terminationGracePeriodSeconds }}
       volumes:
+        {{- if .Values.selfsignedCertConfigMapName }}
+        - name: {{ .Values.selfsignedCertConfigMapName }}
+          configMap:
+            name: {{ .Values.selfsignedCertConfigMapName }}
+        {{- end }}
         - name: config-volume
           configMap:
             name: {{ if .Values.server.configMapOverrideName }}{{ .Release.Name }}-{{ .Values.server.configMapOverrideName }}{{- else }}{{ template "prometheus.server.fullname" . }}{{- end }}
