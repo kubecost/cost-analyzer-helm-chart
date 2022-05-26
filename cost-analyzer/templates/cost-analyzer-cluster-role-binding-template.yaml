@@ -3,13 +3,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
 subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
@@ -17,17 +17,19 @@ subjects:
 ---
 {{- end }}
 {{- end }}
+{{- if (not .Values.kubecostModel.etlReadOnlyMode) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
 subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ .Release.Namespace }} 
+{{- end }} 

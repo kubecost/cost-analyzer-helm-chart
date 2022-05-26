@@ -1,9 +1,10 @@
+{{- if not .Values.kubecostModel.etlReadOnlyMode -}}
 {{- if and .Values.reporting .Values.reporting.logCollection -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 rules:
@@ -20,7 +21,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ template "cost-analyzer.serviceAccountName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 rules:
@@ -105,3 +106,4 @@ rules:
       - get
       - list
       - watch
+{{- end }}
