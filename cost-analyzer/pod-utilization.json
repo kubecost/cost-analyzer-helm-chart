@@ -178,14 +178,14 @@
       ],
       "targets": [
         {
-          "expr": "sum(\n  avg_over_time(container_memory_allocation_bytes{namespace=\"$namespace\", pod=\"$pod\", container!=\"POD\"}[$__range])\n) by (container,node)",
+          "expr": "sum(\n  avg_over_time(container_memory_allocation_bytes{namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\", cluster_id=~\"$cluster\"}[$__range])\n) by (container,node, cluster_id)",
           "format": "table",
           "instant": true,
           "intervalFactor": 1,
           "refId": "B"
         },
         {
-          "expr": "sum(\n  avg_over_time(container_cpu_allocation{namespace=\"$namespace\", pod=\"$pod\", container!=\"POD\"}[$__range])\n  or up * 0 \n) by (container,node)",
+          "expr": "sum(\n  avg_over_time(container_cpu_allocation{namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\", cluster_id=~\"$cluster\"}[$__range])\n  or up * 0 \n) by (container,node, cluster_id)",
           "format": "table",
           "hide": false,
           "instant": true,
@@ -261,21 +261,21 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "avg (rate (container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (container_name)",
+          "expr": "avg (rate (container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod_name=~\"$pod\", container_name!=\"POD\",container_name!=\"\", cluster_id=~\"$cluster\"}[10m])) by (container_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{ container_name }} (usage)",
+          "legendFormat": "{{cluster_id}} - {{ container_name }} (usage)",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
         },
         {
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
-          "legendFormat": "{{ container}} (request)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\", cluster_id=~\"$cluster\"}) by (container, cluster_id)",
+          "legendFormat": "{{cluster_id}} - {{ container}} (request)",
           "refId": "B"
         }
       ],
@@ -381,24 +381,24 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "avg (avg_over_time (container_memory_working_set_bytes{namespace=\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\",container_name!=\"\"}[1m])) by (container_name)",
+          "expr": "avg (avg_over_time (container_memory_working_set_bytes{namespace=~\"$namespace\", pod_name=~\"$pod\", container_name!=\"POD\",container_name!=\"\", cluster_id=~\"$cluster\"}[1m])) by (container_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{ container_name }} (usage)",
+          "legendFormat": "{{cluster_id}}-{{ container_name }} (usage)",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
         },
         {
-          "expr": "avg(kube_pod_container_resource_requests_memory_bytes{namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
+          "expr": "avg(kube_pod_container_resource_requests_memory_bytes{namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\", cluster_id=~\"$cluster\"}) by (container, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "{{ container }} (requested)",
+          "legendFormat": "{{cluster_id}}-{{ container }} (requested)",
           "refId": "B"
         }
       ],
@@ -504,25 +504,25 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg (rate (container_network_receive_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
+          "expr": "avg (rate (container_network_receive_bytes_total{namespace=~\"$namespace\",pod_name=~\"$pod\", cluster_id=~\"$cluster\"}[10m])) by (pod_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "<- in",
+          "legendFormat": "{{cluster_id}} <- in",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
         },
         {
-          "expr": "- avg (rate (container_network_transmit_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
+          "expr": "- avg (rate (container_network_transmit_bytes_total{namespace=~\"$namespace\",pod_name=~\"$pod\", cluster_id=~\"$cluster\"}[10m])) by (pod_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "-> out",
+          "legendFormat": "{{cluster_id}} -> out",
           "refId": "B"
         }
       ],
@@ -628,25 +628,25 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "avg (rate (container_fs_writes_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
+          "expr": "avg (rate (container_fs_writes_bytes_total{namespace=~\"$namespace\",pod_name=~\"$pod\", cluster_id=~\"$cluster\"}[10m])) by (pod_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "<- write",
+          "legendFormat": "{{cluster_id}} <- write",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
         },
         {
-          "expr": "- avg (rate (container_fs_reads_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
+          "expr": "- avg (rate (container_fs_reads_bytes_total{namespace=~\"$namespace\",pod_name=~\"$pod\", cluster_id=~\"$cluster\"}[10m])) by (pod_name, cluster_id)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "-> read",
+          "legendFormat": "{{cluster_id}} -> read",
           "refId": "B"
         }
       ],
@@ -752,12 +752,12 @@
       "steppedLine": true,
       "targets": [
         {
-          "expr": "100\n  * sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))\n  / sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))",
+          "expr": "100\n  * sum by(container_name, pod_name, namespace, cluster_id) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=~\"$pod\", container_name!=\"POD\", cluster_id=~\"$cluster\"}[5m]))\n  / sum by(container_name, pod_name, namespace, cluster_id) (increase(container_cpu_cfs_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=~\"$pod\", container_name!=\"POD\", cluster_id=~\"$cluster\"}[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{container_name}}",
+          "legendFormat": "{{cluster_id}}-{{container_name}}",
           "refId": "B"
         }
       ],
@@ -815,80 +815,66 @@
   "templating": {
     "list": [
       {
-        "allValue": null,
         "current": {
-          "selected": true,
-          "text": "kube-system",
-          "value": "kube-system"
-        },
-        "datasource": "${datasource}",
-        "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
-        "hide": 0,
-        "includeAll": false,
-        "label": "ns",
-        "multi": false,
-        "name": "namespace",
-        "options": [],
-        "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
-        "refresh": 1,
-        "regex": "/namespace=\\\"(.*?)(\\\")/",
-        "skipUrlSync": false,
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "selected": true,
-          "text": "heapster-gke-5759dc947d-ctckh",
-          "value": "heapster-gke-5759dc947d-ctckh"
-        },
-        "datasource": "${datasource}",
-        "definition": "",
-        "hide": 0,
-        "includeAll": false,
-        "label": "pod",
-        "multi": false,
-        "name": "pod",
-        "options": [],
-        "query": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (pod_name))",
-        "refresh": 1,
-        "regex": "/pod_name=\\\"(.*?)(\\\")/",
-        "skipUrlSync": false,
-        "sort": 1,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "allValue": null,
-        "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "ns",
+        "name": "namespace",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "current": {
+          "selected": false,
+          "text": ".*",
+          "value": ".*"
+        },
+        "hide": 0,
+        "label": "pod",
+        "name": "pod",
+        "options": [
+          {
+            "selected": true,
+            "text": ".*",
+            "value": ".*"
+          }
+        ],
+        "query": ".*",
+        "skipUrlSync": false,
+        "type": "textbox"
+      },
+      {
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": ".*",
+          "value": ".*"
         },
         "datasource": "${datasource}",
-        "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+        "definition": "kubecost_cluster_info",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "",
         "multi": false,
         "name": "cluster",
         "options": [],
-        "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+        "query": "kubecost_cluster_info",
         "refresh": 1,
         "regex": "/cluster_id=\\\"(.*?)(\\\")/",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
