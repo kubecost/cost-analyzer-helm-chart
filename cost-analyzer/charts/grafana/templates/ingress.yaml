@@ -1,3 +1,4 @@
+{{ if .Values.global.grafana.enabled }}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "grafana.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
@@ -40,3 +41,4 @@ spec:
               servicePort: {{ $servicePort }}
   {{- end }}
 {{- end }}
+{{ end }}

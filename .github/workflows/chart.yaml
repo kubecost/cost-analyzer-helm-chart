@@ -1,0 +1,34 @@
+name: Chart build
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-with-cost-model-develop:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.2
+
+      - name: Run helm lint
+        working-directory: ./cost-analyzer
+        run: helm lint
+
+      - name: Run helm template
+        working-directory: ./cost-analyzer
+        # Template the chart out for kubeval usage and also validates that it can 'build'
+        run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
+
+      - name: Kubeval
+        uses: instrumenta/kubeval-action@master
+        with:
+          files: ./cost-analyzer/full.yaml
+          ignore_missing_schemas: false
+

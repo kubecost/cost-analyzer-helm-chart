@@ -5,6 +5,7 @@ kind: ServiceAccount
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
 ---
 #
@@ -17,6 +18,7 @@ kind: ClusterRole
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
 rules:
   - apiGroups:
@@ -153,6 +155,7 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -167,6 +170,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   strategy:
     rollingUpdate:
@@ -201,6 +206,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: CLUSTER_ID
+          value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
@@ -217,11 +224,18 @@ spec:
       - name: cluster-controller-keys
         secret:
           secretName: {{ .Values.clusterController.secretName | default "cluster-controller-service-key" }}
+          # The secret is optional because not all of cluster controller's
+          # functionality requires this secret. Cluster controller will
+          # partially or fully initialize based on the presence of these keys
+          # and their validity.
+          optional: true
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}-service
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -233,10 +247,64 @@ spec:
     app: {{ template "kubecost.clusterControllerName" . }}
 ---
 # TurndownSchedule Custom Resource Definition for persistence
+{{- if .Capabilities.APIVersions.Has "apiextensions.k8s.io/v1" }}
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: turndownschedules.kubecost.k8s.io
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+spec:
+  group: kubecost.k8s.io
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              type: object
+              properties:
+                start: 
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+                repeat: 
+                  type: string
+                  enum: [none, daily, weekly]
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: State
+          type: string
+          description: The state of the turndownschedule 
+          jsonPath: .status.state
+        - name: Next Turndown
+          type: string
+          description: The next turndown date-time
+          jsonPath: .status.nextScaleDownTime
+        - name: Next Turn Up
+          type: string
+          description: The next turn up date-time
+          jsonPath: .status.nextScaleUpTime
+  names:
+    kind: TurndownSchedule
+    singular: turndownschedule
+    plural: turndownschedules
+    shortNames:
+    - td
+    - tds
+  scope: Cluster
+{{ else }}
 apiVersion: apiextensions.k8s.io/v1beta1
 kind: CustomResourceDefinition
 metadata:
   name: turndownschedules.kubecost.k8s.io
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   group: kubecost.k8s.io
   version: v1alpha1
@@ -278,5 +346,7 @@ spec:
     type: string
     description: The next turn up date-time
     JSONPath: .status.nextScaleUpTime
+{{ end -}}
+  
 {{- end }}
 {{- end }}

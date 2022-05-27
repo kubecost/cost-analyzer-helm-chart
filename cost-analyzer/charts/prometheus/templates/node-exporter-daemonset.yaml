@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.nodeExporter.enabled -}}
 apiVersion: {{ template "prometheus.daemonset.apiVersion" . }}
 kind: DaemonSet
@@ -121,3 +122,4 @@ spec:
       {{- end }}
 
 {{- end -}}
+{{ end }}

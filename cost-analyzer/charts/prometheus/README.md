@@ -63,8 +63,8 @@ Assuming you have an existing release of the prometheus chart, named `prometheus
 	  enabled: false
 	alertmanagerFiles:
 	  alertmanager.yml: ""
-	kubeStateMetrics:
-	  enabled: false
+	kube-state-metrics:
+	  disabled: true
 	nodeExporter:
 	  enabled: false
 	pushgateway:
@@ -183,7 +183,7 @@ Parameter | Description | Default
 `configmapReload.prometheus.enabled` | If false, the configmap-reload container for Prometheus will not be deployed | `true`
 `configmapReload.prometheus.name` | configmap-reload container name | `configmap-reload`
 `configmapReload.prometheus.image.repository` | configmap-reload container image repository | `jimmidyson/configmap-reload`
-`configmapReload.prometheus.image.tag` | configmap-reload container image tag | `v0.3.0`
+`configmapReload.prometheus.image.tag` | configmap-reload container image tag | `v0.5.0`
 `configmapReload.prometheus.image.pullPolicy` | configmap-reload container image pull policy | `IfNotPresent`
 `configmapReload.prometheus.extraArgs` | Additional configmap-reload container arguments | `{}`
 `configmapReload.prometheus.extraVolumeDirs` | Additional configmap-reload volume directories | `{}`
@@ -192,7 +192,7 @@ Parameter | Description | Default
 `configmapReload.alertmanager.enabled` | If false, the configmap-reload container for AlertManager will not be deployed | `true`
 `configmapReload.alertmanager.name` | configmap-reload container name | `configmap-reload`
 `configmapReload.alertmanager.image.repository` | configmap-reload container image repository | `jimmidyson/configmap-reload`
-`configmapReload.alertmanager.image.tag` | configmap-reload container image tag | `v0.3.0`
+`configmapReload.alertmanager.image.tag` | configmap-reload container image tag | `v0.5.0`
 `configmapReload.alertmanager.image.pullPolicy` | configmap-reload container image pull policy | `IfNotPresent`
 `configmapReload.alertmanager.extraArgs` | Additional configmap-reload container arguments | `{}`
 `configmapReload.alertmanager.extraVolumeDirs` | Additional configmap-reload volume directories | `{}`
@@ -204,7 +204,7 @@ Parameter | Description | Default
 `initChownData.image.tag` | init-chown-data container image tag | `latest`
 `initChownData.image.pullPolicy` | init-chown-data container image pull policy | `IfNotPresent`
 `initChownData.resources` | init-chown-data pod resource requests & limits | `{}`
-`kubeStateMetrics.enabled` | If true, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `true`
+`kube-state-metrics.disabled` | If false, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `false`
 `nodeExporter.enabled` | If true, create node-exporter | `true`
 `nodeExporter.name` | node-exporter container name | `node-exporter`
 `nodeExporter.image.repository` | node-exporter container image repository| `prom/node-exporter`

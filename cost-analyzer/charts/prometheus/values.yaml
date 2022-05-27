@@ -39,8 +39,8 @@ alertmanager:
   ## alertmanager container image
   ##
   image:
-    repository: prom/alertmanager
-    tag: v0.20.0
+    repository: quay.io/prometheus/alertmanager
+    tag: v0.23.0
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -320,7 +320,7 @@ configmapReload:
     ##
     image:
       repository: jimmidyson/configmap-reload
-      tag: v0.3.0
+      tag: v0.7.1
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -358,7 +358,7 @@ configmapReload:
     ##
     image:
       repository: jimmidyson/configmap-reload
-      tag: v0.3.0
+      tag: v0.7.1
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -384,7 +384,7 @@ configmapReload:
     ##
     resources: {}
 
-kubeStateMetrics:
+kube-state-metrics:
   ## If false, kube-state-metrics sub-chart will not be installed
   ## Please see https://github.com/helm/charts/tree/master/stable/kube-state-metrics for configurable values
   ##
@@ -535,8 +535,8 @@ server:
   ## Prometheus server container image
   ##
   image:
-    repository: prom/prometheus
-    tag: v2.17.2
+    repository: quay.io/prometheus/prometheus
+    tag: v2.31.1
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
@@ -669,6 +669,9 @@ server:
     hosts: []
     #   - prometheus.domain.com
     #   - domain.com/prometheus
+
+    ## PathType determines the interpretation of the Path matching
+    pathType: "Prefix"
 
     ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
     extraPaths: []
@@ -916,7 +919,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.0.1
+    tag: v1.4.2
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
@@ -1199,7 +1202,7 @@ serverFiles:
             regex: (.+)
             target_label: __metrics_path__
             replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
-        
+
         metric_relabel_configs:
           - source_labels: [ __name__ ]
             regex: (container_cpu_usage_seconds_total|container_memory_working_set_bytes|container_network_receive_errors_total|container_network_transmit_errors_total|container_network_receive_packets_dropped_total|container_network_transmit_packets_dropped_total|container_memory_usage_bytes|container_cpu_cfs_throttled_periods_total|container_cpu_cfs_periods_total|container_fs_usage_bytes|container_fs_limit_bytes|container_cpu_cfs_periods_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_usage_bytes|container_fs_limit_bytes|container_cpu_cfs_throttled_periods_total|container_cpu_cfs_periods_total|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_usage_bytes|container_fs_limit_bytes|container_spec_cpu_shares|container_spec_memory_limit_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_reads_bytes_total|container_network_receive_bytes_total|container_fs_writes_bytes_total|container_fs_reads_bytes_total|cadvisor_version_info)
@@ -1259,7 +1262,7 @@ serverFiles:
             target_label: kubernetes_node
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|deployment_match_labels|kube_deployment_spec_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_persistentvolumeclaim_resource_requests_storage_bytes|container_memory_allocation_bytes|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_cpu_cores|container_cpu_usage_seconds_total|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_resource_requests_memory_bytes|kube_node_status_capacity_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kubecost_cluster_memory_working_set_bytes|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|up|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|container_fs_writes_bytes_total|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_deployment_status_replicas_available|kube_statefulset_status_replicas|kube_daemonset_status_number_ready|kube_deployment_status_replicas|kube_statefulset_replicas|kube_daemonset_status_desired_number_scheduled|kube_replicaset_owner|kube_pod_container_info)
+            regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_fs_writes_bytes_total|container_gpu_allocation|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|DCGM_FI_DEV_GPU_UTIL|deployment_match_labels|kube_daemonset_status_desired_number_scheduled|kube_daemonset_status_number_ready|kube_deployment_spec_replicas|kube_deployment_status_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_allocatable|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|kube_node_status_capacity|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_pod_container_info|kube_pod_container_resource_limits|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kube_replicaset_owner|kube_statefulset_replicas|kube_statefulset_status_replicas|kubecost_cluster_info|kubecost_cluster_management_cost|kubecost_cluster_memory_working_set_bytes|kubecost_load_balancer_cost|kubecost_network_internet_egress_cost|kubecost_network_region_egress_cost|kubecost_network_zone_egress_cost|kubecost_node_is_spot|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_count|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|node_total_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|up)
             action: keep
 
       # Scrape config for slow service endpoints; same as above, but with a larger

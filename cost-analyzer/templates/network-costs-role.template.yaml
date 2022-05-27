@@ -5,7 +5,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: kubecost-network-costs
+  name: {{ template "cost-analyzer.fullname" . }}-network-costs
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
   annotations:
 {{- if .Values.networkCosts.podSecurityPolicy.annotations }}
 {{ toYaml .Values.networkCosts.podSecurityPolicy.annotations | indent 4 }}
@@ -15,7 +17,7 @@ rules:
   resources: ['podsecuritypolicies']
   verbs: ['use']
   resourceNames:
-  - kubecost-network-costs
+  - {{ template "cost-analyzer.fullname" . }}-network-costs
 {{- end }}
 {{- end }}
 {{- end }}

@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if and .Values.store.enabled .Values.store.http.ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -81,3 +82,4 @@ spec:
             servicePort: {{ $.Values.store.http.port }}
   {{- end }}
 {{- end }}
+{{ end }}

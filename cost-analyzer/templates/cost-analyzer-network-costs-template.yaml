@@ -7,8 +7,10 @@ metadata:
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
+  {{- if .Values.networkCosts.updateStrategy }}
   updateStrategy:
-    type: RollingUpdate
+    {{- toYaml .Values.networkCosts.updateStrategy | nindent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       app: {{ template "cost-analyzer.networkCostsName" . }}
@@ -24,11 +26,19 @@ spec:
         {{ toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
         {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       hostNetwork: true
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
         image: {{ .Values.networkCosts.image }}
+        {{- if .Values.networkCosts.extraArgs }}
+        args:
+          {{- toYaml .Values.networkCosts.extraArgs | nindent 8 }}
+        {{- end }}
 {{- if .Values.networkCosts.imagePullPolicy }}
         imagePullPolicy: {{ .Values.networkCosts.imagePullPolicy }}
 {{- else }}

@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if and .Values.sidecar.enabled .Values.sidecar.metrics.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -28,3 +29,4 @@ spec:
       metricRelabelings: {{ toYaml . | nindent 8 }}
       {{- end }}
 {{- end -}}
+{{ end }}

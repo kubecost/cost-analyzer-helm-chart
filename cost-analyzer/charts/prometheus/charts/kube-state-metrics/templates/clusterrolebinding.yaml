@@ -1,5 +1,6 @@
+{{ if not .Values.disabled }}
 {{- if .Values.rbac.create -}}
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   labels:
@@ -17,3 +18,4 @@ subjects:
   name: {{ template "kube-state-metrics.fullname" . }}
   namespace: {{ template "kube-state-metrics.namespace" . }}
 {{- end -}}
+{{ end }}

@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if .Values.query.enabled }}
 apiVersion: v1
 kind: Service
@@ -61,3 +62,4 @@ spec:
     app.kubernetes.io/component: query
 {{ with .Values.query.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end -}}
+{{ end }}

@@ -1,4 +1,5 @@
 ---
+{{ if .Values.global.thanos.enabled }}
 {{- if and .Values.queryFrontend.enabled .Values.queryFrontend.http.ingress.enabled }}
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -41,5 +42,4 @@ spec:
               servicePort: {{ $.Values.queryFrontend.http.port }}
   {{- end }}
 {{- end }}
-
-
+{{ end }}

@@ -8,36 +8,62 @@
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
+  "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 7,
-  "iteration": 1586214000479,
+  "iteration": 1645115160709,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 2,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "Monthly projected CPU cost given last 10m",
-      "format": "currencyUSD",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -47,42 +73,29 @@
       },
       "hideTimeOverride": true,
       "id": 15,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "label_cloud_google_com_gke_preemptible",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P0C970EB638C812D0"
+          },
+          "exemplar": false,
           "expr": "sum(\n  avg(container_cpu_allocation) by (pod,node)\n\n  * on (node) group_left()\n  avg(avg_over_time(node_cpu_hourly_cost[10m])) by (node)\n\n  * on (pod) group_left()\n  label_replace(\n    max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod),\n    \"pod_name\",\n    \"$1\", \n    \"pod\", \n    \"(.+)\"\n  )\n) * 730",
           "format": "time_series",
           "instant": true,
@@ -92,40 +105,49 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "timeFrom": "15m",
-      "timeShift": null,
       "title": "CPU Cost",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 2,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "Based on CPU usage over last 24 hours",
-      "format": "currencyUSD",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -135,42 +157,29 @@
       },
       "hideTimeOverride": true,
       "id": 16,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "label_cloud_google_com_gke_preemptible",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P0C970EB638C812D0"
+          },
+          "exemplar": false,
           "expr": "sum(\n  avg(container_memory_allocation_bytes) by (pod,node) / 1024 / 1024 / 1024\n\n  * on (node) group_left()\n  avg(avg_over_time(node_ram_hourly_cost[10m])) by (node)\n\n  * on (pod) group_left()\n  label_replace(\n    max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod),\n    \"pod_name\",\n    \"$1\", \n    \"pod\", \n    \"(.+)\"\n  )\n) * 730",
           "format": "time_series",
           "instant": true,
@@ -180,40 +189,49 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "timeFrom": "15m",
-      "timeShift": null,
       "title": "Memory Cost",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 2,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "",
-      "format": "currencyUSD",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -223,42 +241,29 @@
       },
       "hideTimeOverride": true,
       "id": 21,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "label_cloud_google_com_gke_preemptible",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P0C970EB638C812D0"
+          },
+          "exemplar": false,
           "expr": "sum(\n sum(kube_persistentvolumeclaim_info{storageclass!=\".*ssd.*\"}) by (persistentvolumeclaim, storageclass)\n * on (persistentvolumeclaim) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim)\n * on (persistentvolumeclaim) group_left(label_app)\n max(kube_persistentvolumeclaim_labels{label_$label=~\"$label_value\"}) by (persistentvolumeclaim) or up * 0\n) / 1024 / 1024 /1024 * .04 \n\n+\n\nsum(\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, storageclass)\n * on (persistentvolumeclaim) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim)\n * on (persistentvolumeclaim) group_left(label_app)\n max(kube_persistentvolumeclaim_labels{label_$label=~\"$label_value\"}) by (persistentvolumeclaim) or up * 0\n) / 1024 / 1024 /1024 * .17 \n",
           "format": "time_series",
           "instant": true,
@@ -268,40 +273,49 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "timeFrom": "15m",
-      "timeShift": null,
       "title": "Storage Cost",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 2,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
       "description": "Cost of memory + CPU usage",
-      "format": "currencyUSD",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 5,
@@ -311,42 +325,29 @@
       },
       "hideTimeOverride": true,
       "id": 20,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "label_cloud_google_com_gke_preemptible",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "P0C970EB638C812D0"
+          },
+          "exemplar": false,
           "expr": "# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CPU ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nsum(\n  avg(container_cpu_allocation) by (pod,node)\n\n  * on (node) group_left()\n  avg(avg_over_time(node_cpu_hourly_cost[10m])) by (node)\n\n  * on (pod) group_left()\n  label_replace(\n    max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod),\n    \"pod_name\",\n    \"$1\", \n    \"pod\", \n    \"(.+)\"\n  )\n) * 730\n\n#END CPU\n+\n\n# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Memory ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\nsum(\n  avg(container_memory_allocation_bytes) by (pod,node) / 1024 / 1024 / 1024\n\n  * on (node) group_left()\n  avg(avg_over_time(node_ram_hourly_cost[10m])) by (node)\n\n  * on (pod) group_left()\n  label_replace(\n    max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod),\n    \"pod_name\",\n    \"$1\", \n    \"pod\", \n    \"(.+)\"\n  )\n) * 730\n\n# END MEMORY\n\n+\n\n# ~~~~~~~~~~~~~~~~~~~~~~~~~~~ STORAGE ~~~~~~~~~~~~~~~~~~~~~~~~~\n\nsum(\n sum(kube_persistentvolumeclaim_info{storageclass!=\".*ssd.*\"}) by (persistentvolumeclaim, storageclass)\n * on (persistentvolumeclaim) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim)\n * on (persistentvolumeclaim) group_left(label_app)\n max(kube_persistentvolumeclaim_labels{label_$label=~\"$label_value\"}) by (persistentvolumeclaim) or up * 0\n) / 1024 / 1024 /1024 * .04 \n\n+\n\nsum(\n sum(kube_persistentvolumeclaim_info{storageclass=~\".*ssd.*\"}) by (persistentvolumeclaim, storageclass)\n * on (persistentvolumeclaim) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim)\n * on (persistentvolumeclaim) group_left(label_app)\n max(kube_persistentvolumeclaim_labels{label_$label=~\"$label_value\"}) by (persistentvolumeclaim) or up * 0\n) / 1024 / 1024 /1024 * .17 \n\n\n# END STORAGE\n",
           "format": "time_series",
           "instant": true,
@@ -356,38 +357,46 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "timeFrom": "15m",
-      "timeShift": null,
       "title": "Total Cost",
-      "type": "singlestat",
-      "valueFontSize": "110%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -396,79 +405,70 @@
         "y": 5
       },
       "id": 10,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": " cores",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+          "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "title": "CPU Request",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 2,
-      "format": "none",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -477,40 +477,22 @@
         "y": 5
       },
       "id": 17,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": " cores",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
       "targets": [
         {
           "expr": "sum(\n label_replace(\n sum(rate(container_cpu_usage_seconds_total{image!=\"\",container_name!=\"POD\"}[1h])) by (kubernetes_io_hostname,pod_name),\n \"node\",\n \"$1\", \n \"kubernetes_io_hostname\", \n \"(.+)\"\n ) \n * on (pod_name) group_left()\n label_replace(\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod),\n \"pod_name\",\n \"$1\", \n \"pod\", \n \"(.+)\"\n ) or up * 0\n) ",
@@ -519,37 +501,46 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "title": "CPU Used",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 0,
-      "format": "bytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -558,78 +549,69 @@
         "y": 5
       },
       "id": 11,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": true,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
       "targets": [
         {
-          "expr": "sum(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
+          "expr": "sum(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n) ",
           "format": "time_series",
           "intervalFactor": 1,
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "title": "Memory Request",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "format": "bytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -638,40 +620,22 @@
         "y": 5
       },
       "id": 18,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
       "targets": [
         {
           "expr": "sum(\n label_replace(\n sum (container_memory_working_set_bytes{pod_name!=\"\",container!=\"POD\",container!=\"\"}) by (pod_name),\n \"pod\",\n \"$1\", \n \"pod_name\", \n \"(.+)\")\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod)\n or up * 0\n)",
@@ -681,37 +645,46 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "title": "Memory Usage",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
-      "cacheTimeout": null,
-      "colorBackground": false,
-      "colorValue": false,
-      "colors": [
-        "#299c46",
-        "rgba(237, 129, 40, 0.89)",
-        "#d44a3a"
-      ],
-      "datasource": "${datasource}",
-      "decimals": 0,
-      "format": "bytes",
-      "gauge": {
-        "maxValue": 100,
-        "minValue": 0,
-        "show": false,
-        "thresholdLabels": false,
-        "thresholdMarkers": true
+      "datasource": {
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "gridPos": {
         "h": 4,
@@ -720,40 +693,22 @@
         "y": 5
       },
       "id": 22,
-      "interval": null,
       "links": [],
-      "mappingType": 1,
-      "mappingTypes": [
-        {
-          "name": "value to text",
-          "value": 1
-        },
-        {
-          "name": "range to text",
-          "value": 2
-        }
-      ],
       "maxDataPoints": 100,
-      "nullPointMode": "connected",
-      "nullText": null,
-      "postfix": "",
-      "postfixFontSize": "50%",
-      "prefix": "",
-      "prefixFontSize": "50%",
-      "rangeMaps": [
-        {
-          "from": "null",
-          "text": "N/A",
-          "to": "null"
-        }
-      ],
-      "sparkline": {
-        "fillColor": "rgba(31, 118, 189, 0.18)",
-        "full": false,
-        "lineColor": "rgb(31, 120, 193)",
-        "show": false
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
       },
-      "tableColumn": "",
       "targets": [
         {
           "expr": "sum(\n max(kube_persistentvolumeclaim_info) by (persistentvolumeclaim, storageclass)\n * on (persistentvolumeclaim) group_right(storageclass)\n sum(kube_persistentvolumeclaim_resource_requests_storage_bytes) by (persistentvolumeclaim)\n * on (persistentvolumeclaim) group_left(label_app)\n max(kube_persistentvolumeclaim_labels{label_$label=~\"$label_value\"}) by (persistentvolumeclaim) or up * 0\n) \n",
@@ -763,32 +718,26 @@
           "refId": "A"
         }
       ],
-      "thresholds": "",
       "title": "Storage Request",
-      "type": "singlestat",
-      "valueFontSize": "80%",
-      "valueMaps": [
-        {
-          "op": "=",
-          "text": "N/A",
-          "value": "null"
-        }
-      ],
-      "valueName": "current"
+      "type": "stat"
     },
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${datasource}",
+      "datasource": {
+        "uid": "${datasource}"
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
         "y": 9
       },
+      "hiddenSeries": false,
       "id": 8,
       "legend": {
         "avg": false,
@@ -803,6 +752,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -813,14 +765,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
           "refId": "C"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_cpu_cores) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "request",
@@ -835,8 +787,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
+      "timeRegions": [],
       "title": "CPU Usage vs Requests vs Limits",
       "tooltip": {
         "shared": true,
@@ -845,33 +796,25 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -879,14 +822,18 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${datasource}",
+      "datasource": {
+        "uid": "${datasource}"
+      },
       "fill": 1,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
         "y": 9
       },
+      "hiddenSeries": false,
       "id": 23,
       "legend": {
         "avg": false,
@@ -901,6 +848,9 @@
       "linewidth": 1,
       "links": [],
       "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
       "percentage": false,
       "pointradius": 5,
       "points": false,
@@ -911,14 +861,14 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_limits{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "limit",
           "refId": "C"
         },
         {
-          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests_memory_bytes) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
+          "expr": "sum(\n label_replace(\n sum (kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\"}) by (pod, container)\n * on (pod) group_left()\n max(kube_pod_labels{label_$label=~\"$label_value\"}) by (pod,container),\n \"container_name\",\n \"$1\", \n \"container\", \n \"(.+)\"\n )\n) \n",
           "format": "time_series",
           "intervalFactor": 1,
           "legendFormat": "request",
@@ -933,8 +883,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
-      "timeShift": null,
+      "timeRegions": [],
       "title": "Memory Usage vs Requests vs Limits",
       "tooltip": {
         "shared": true,
@@ -943,38 +892,30 @@
       },
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
           "format": "bytes",
-          "label": null,
           "logBase": 1,
-          "max": null,
           "min": "0",
           "show": true
         },
         {
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     }
   ],
   "refresh": false,
-  "schemaVersion": 16,
+  "schemaVersion": 34,
   "style": "dark",
   "tags": [
     "cost",
@@ -984,7 +925,10 @@
   "templating": {
     "list": [
       {
-        "datasource": "${datasource}",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
         "filters": [],
         "hide": 0,
         "label": "",
@@ -993,7 +937,6 @@
         "type": "adhoc"
       },
       {
-        "allValue": null,
         "current": {
           "tags": [],
           "text": "app",
@@ -1006,7 +949,7 @@
         "name": "label",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "app",
             "value": "app"
           },
@@ -1021,7 +964,7 @@
             "value": "component"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "release",
             "value": "release"
           },
@@ -1058,24 +1001,30 @@
       {
         "allValue": ".*",
         "current": {
-          "tags": [],
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "${datasource}",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "Value",
         "multi": false,
         "name": "label_value",
         "options": [],
-        "query": "query_result(SUM(kube_pod_labels{label_$label!=\"\",namespace!=\"kube-system\"}) by (label_$label))",
+        "query": {
+          "query": "query_result(SUM(kube_pod_labels{label_$label!=\"\",namespace!=\"kube-system\"}) by (label_$label))",
+          "refId": "default-kubecost-label_value-Variable-Query"
+        },
         "refresh": 1,
         "regex": "/label_$label=\\\"(.*?)(\\\")/",
         "skipUrlSync": false,
         "sort": 0,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
@@ -1083,88 +1032,71 @@
       {
         "allValue": "()",
         "current": {
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "${datasource}",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "",
         "hide": 0,
         "includeAll": true,
         "label": "",
         "multi": false,
         "name": "Deployments",
         "options": [],
-        "query": "label_values(deployment)",
+        "query": {
+          "query": "label_values(deployment)",
+          "refId": "default-kubecost-Deployments-Variable-Query"
+        },
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
-        "allValue": null,
         "current": {
-          "tags": [],
+          "selected": false,
           "text": "All",
           "value": "$__all"
         },
-        "datasource": "${datasource}",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "",
         "hide": 0,
         "includeAll": true,
-        "label": null,
         "multi": false,
         "name": "Secondary",
-        "options": [
-          {
-            "selected": true,
-            "text": "All",
-            "value": "$__all"
-          },
-          {
-            "selected": false,
-            "text": "app",
-            "value": "app"
-          },
-          {
-            "selected": false,
-            "text": "component",
-            "value": "component"
-          },
-          {
-            "selected": false,
-            "text": "controller_revision_hash",
-            "value": "controller_revision_hash"
-          },
-          {
-            "selected": false,
-            "text": "k8s_app",
-            "value": "k8s_app"
-          }
-        ],
-        "query": "query_result(kube_pod_labels)",
-        "refresh": 0,
+        "options": [],
+        "query": {
+          "query": "query_result(kube_pod_labels)",
+          "refId": "default-kubecost-Secondary-Variable-Query"
+        },
+        "refresh": 1,
         "regex": "/.+?label_([^=]*).*/",
         "skipUrlSync": false,
         "sort": 1,
         "tagValuesQuery": "",
-        "tags": [],
         "tagsQuery": "",
         "type": "query",
         "useTags": false
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "default-kubecost",
           "value": "default-kubecost"
         },
-        "error": null,
         "hide": 0,
         "includeAll": false,
-        "label": null,
         "multi": false,
         "name": "datasource",
         "options": [],
@@ -1208,5 +1140,6 @@
   "timezone": "",
   "title": "Label costs & utilization",
   "uid": "lWMhIA-ik",
-  "version": 2
+  "version": 1,
+  "weekStart": ""
 }

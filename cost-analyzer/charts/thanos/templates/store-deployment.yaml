@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.store.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -22,6 +23,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: store
 {{ with .Values.store.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.store.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:
@@ -37,6 +41,10 @@ spec:
       prometheus.io/port: "{{ .Values.store.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-store
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -80,6 +88,12 @@ spec:
         - name: config-volume
           mountPath: /etc/config
           readOnly: true
+        {{- if .Values.store.selfsignedCertConfigMapName }}
+        - name: {{ .Values.store.selfsignedCertConfigMapName }}
+          mountPath: /etc/ssl/certs/my-cert.pem
+          subPath: my-cert.pem
+          readOnly: false
+        {{- end }}
         - name: data
           mountPath: /var/thanos/store
         {{- if .Values.store.certSecretName }}
@@ -91,10 +105,28 @@ spec:
           {{ toYaml .Values.store.resources | nindent 10 }}
       volumes:
       - name: data
+      {{- if .Values.store.dataVolume }}
+      {{- if .Values.store.dataVolume.persistentVolumeClaim }}
+      {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}
+      {{- else }}
         emptyDir: {}
+      {{- end }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}          
       - name: config-volume
         secret:
           secretName: {{ include "thanos.secretname" . }}
+      {{- if .Values.store.selfsignedCertConfigMapName }}
+      - name: {{ .Values.store.selfsignedCertConfigMapName }}
+        configMap:
+          name: {{ .Values.store.selfsignedCertConfigMapName }}
+      {{- end }}
       {{- if .Values.store.certSecretName }}
       - name: {{ .Values.store.certSecretName }}
         secret:
@@ -117,3 +149,4 @@ spec:
       serviceAccountName: "{{ . }}"
       {{- end }}
 {{- end }}
+{{ end }}

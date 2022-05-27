@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.queryFrontend.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -24,6 +25,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query-frontend
 {{ with .Values.queryFrontend.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.queryFrontend.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:
@@ -39,6 +43,10 @@ spec:
         prometheus.io/port: "{{ .Values.queryFrontend.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-query-frontend
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -53,6 +61,24 @@ spec:
         - "--query-range.max-query-length={{ .Values.queryFrontend.maxQueryLength }}"
         - "--query-range.max-query-parallelism={{ .Values.queryFrontend.maxQueryParallelism }}"
         - "--query-range.response-cache-max-freshness={{ .Values.queryFrontend.responseCacheMaxFreshness }}"
+        {{- if .Values.queryFrontend.downstreamTripper.enabled }}
+        {{- with .Values.queryFrontend.downstreamTripper }}
+        - |-
+          --query-frontend.downstream-tripper-config=
+            idle_conn_timeout: {{ quote .idleConnectionTimeout }}
+            response_header_timeout: {{ quote .responseHeaderTimeout }}
+            tls_handshake_timeout: {{ quote .tlsHandshakeTimeout }}
+            expect_continue_timeout: {{ quote .expectContinueTimeout }}
+            max_idle_conns: {{ .maxIdleConnections }}
+            max_idle_conns_per_host: {{ .maxIdleConnectionsPerHost }}
+            max_conns_per_host: {{ .maxConnectionsPerHost }}
+        {{- end }}
+        {{- else if .Values.queryFrontend.downstreamTripperConfigFile }}
+          - "--query-frontend.downstream-tripper-config-file={{ .Values.queryFrontend.downstreamTripperConfigFile }}"
+        {{- else if .Values.queryFrontend.downstreamTripperConfig }}
+          - |-
+          --query-frontend.downstream-tripper-config={{ toYaml .Values.queryFrontend.downstreamTripperConfig | nindent 12 }}
+        {{- end }}
         {{- if .Values.queryFrontend.responseCache.enabled }}
         {{- with .Values.queryFrontend.responseCache }}
         - |-
@@ -117,4 +143,5 @@ spec:
       {{- with  .Values.queryFrontend.serviceAccount }}
       serviceAccountName: "{{ . }}"
       {{- end }}
+{{ end }}
 {{ end }}

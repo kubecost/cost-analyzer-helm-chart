@@ -16,6 +16,8 @@ metadata:
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
+  annotations:
+{{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     label-cost-utilization.json: |-
 {{ .Files.Get "label-cost-utilization.json" | indent 8 }}

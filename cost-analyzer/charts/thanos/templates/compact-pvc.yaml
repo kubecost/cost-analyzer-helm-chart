@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if .Values.compact.enabled }}
 {{- if .Values.compact.dataVolume -}}
 {{- if .Values.compact.dataVolume.persistentVolumeClaim -}}
@@ -23,3 +24,4 @@ spec:
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{ end }}

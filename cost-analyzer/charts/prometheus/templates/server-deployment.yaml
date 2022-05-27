@@ -1,3 +1,4 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 {{- if not .Values.server.statefulSet.enabled -}}
 apiVersion: {{ template "prometheus.deployment.apiVersion" . }}
@@ -59,6 +60,12 @@ spec:
           resources:
 {{ toYaml .Values.configmapReload.prometheus.resources | indent 12 }}
           volumeMounts:
+            {{- if .Values.selfsignedCertConfigMapName }}
+            - name: {{ .Values.selfsignedCertConfigMapName }}
+              mountPath: /etc/ssl/certs/my-cert.pem
+              subPath: my-cert.pem
+              readOnly: false
+            {{- end }}
             - name: config-volume
               mountPath: /etc/config
               readOnly: true
@@ -167,6 +174,11 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.server.terminationGracePeriodSeconds }}
       volumes:
+        {{- if .Values.selfsignedCertConfigMapName }}
+        - name: {{ .Values.selfsignedCertConfigMapName }}
+          configMap:
+            name: {{ .Values.selfsignedCertConfigMapName }}
+        {{- end }}
         - name: config-volume
           configMap:
             name: {{ if .Values.server.configMapOverrideName }}{{ .Release.Name }}-{{ .Values.server.configMapOverrideName }}{{- else }}{{ template "prometheus.server.fullname" . }}{{- end }}
@@ -203,7 +215,7 @@ spec:
       {{- range .Values.server.extraSecretMounts }}
         - name: {{ .name }}
           secret:
-            secretName: {{ .secretName }}
+            secretName: {{ tpl .secretName $ }}
       {{- end }}
       {{- range .Values.configmapReload.prometheus.extraConfigmapMounts }}
         - name: {{ .name }}
@@ -212,3 +224,4 @@ spec:
       {{- end }}
 {{- end -}}
 {{- end -}}
+{{ end }}

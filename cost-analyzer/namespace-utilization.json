@@ -412,7 +412,7 @@
 			"steppedLine":false,
 			"targets":[
 				{
-					"expr":"topk(10,\n label_replace(\n sum(kube_pod_container_resource_requests_cpu_cores{namespace=\"$namespace\"}) by (pod),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n ) \n/ on (pod_name) sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod_name=~\".+\"}[1h])) by (pod_name))",
+					"expr":"topk(10,\n label_replace(\n sum(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=\"$namespace\"}) by (pod),\n \"pod_name\", \n \"$1\", \n \"pod\", \n \"(.+)\"\n ) \n/ on (pod_name) sum(rate(container_cpu_usage_seconds_total{namespace=\"$namespace\",pod_name=~\".+\"}[1h])) by (pod_name))",
 					"format":"time_series",
 					"intervalFactor":1,
 					"refId":"A"

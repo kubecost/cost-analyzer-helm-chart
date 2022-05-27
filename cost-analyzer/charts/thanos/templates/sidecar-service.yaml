@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{- if .Values.sidecar.enabled }}
 apiVersion: v1
 kind: Service
@@ -42,7 +43,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/version: {{ $.Chart.AppVersion | replace "+" "_" }}
     app.kubernetes.io/component: sidecar
-{{ with .Values.store.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
+{{ with .Values.sidecar.http.service.labels }}{{ toYaml . | indent 4 }}{{ end }}
 spec:
   type: {{ .Values.sidecar.http.service.type }}
   {{- if .Values.sidecar.http.service.externalTrafficPolicy }}
@@ -57,3 +58,4 @@ spec:
     app: prometheus
 {{ with .Values.sidecar.http.service.matchLabels }}{{ toYaml . | indent 4 }}{{ end }}
 {{- end }}
+{{ end }}

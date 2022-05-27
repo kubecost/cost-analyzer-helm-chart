@@ -1,3 +1,4 @@
+{{ if not .Values.disabled }}
 apiVersion: apps/v1
 {{- if .Values.autosharding.enabled }}
 kind: StatefulSet
@@ -37,6 +38,10 @@ spec:
 {{ toYaml .Values.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+{{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.imagePullSecrets | indent 2 }}
+{{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
       serviceAccountName: {{ template "kube-state-metrics.serviceAccountName" . }}
       {{- if .Values.securityContext.enabled }}
@@ -184,3 +189,4 @@ spec:
       tolerations:
 {{ toYaml .Values.tolerations | indent 8 }}
 {{- end }}
+{{ end }}

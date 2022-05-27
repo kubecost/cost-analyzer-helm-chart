@@ -5,7 +5,9 @@
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
 kind: PodSecurityPolicy
 metadata:
-    name: kubecost-network-costs
+    name: {{ template "cost-analyzer.fullname" . }}-network-costs
+    labels:
+      {{ include "cost-analyzer.commonLabels" . | nindent 6 }}
 spec:
     privileged: true
     hostNetwork: true

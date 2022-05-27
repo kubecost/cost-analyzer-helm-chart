@@ -18,7 +18,7 @@ spec:
     {{- if .Values.persistentVolume }}
       storage: {{ .Values.persistentVolume.size }}
     {{- else }}
-      storage: 0.2Gi
+      storage: 32.0Gi
     {{ end }}
 {{- end -}}
 {{- end -}}

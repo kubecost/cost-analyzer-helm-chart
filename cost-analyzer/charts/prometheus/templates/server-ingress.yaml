@@ -1,10 +1,16 @@
+{{ if .Values.global.prometheus.enabled }}
 {{- if .Values.server.enabled -}}
 {{- if .Values.server.ingress.enabled -}}
 {{- $releaseName := .Release.Name -}}
 {{- $serviceName := include "prometheus.server.fullname" . }}
 {{- $servicePort := .Values.server.service.servicePort -}}
 {{- $extraPaths := .Values.server.ingress.extraPaths -}}
-{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+{{- $pathType := .Values.server.ingress.pathType -}}
+{{- $apiV1 := false -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
 apiVersion: networking.k8s.io/v1beta1
 {{ else }}
 apiVersion: extensions/v1beta1
@@ -31,10 +37,20 @@ spec:
 {{ if $extraPaths }}
 {{ toYaml $extraPaths | indent 10 }}
 {{- end }}
+          {{- if $apiV1 }}
+          - path: /{{ rest $url | join "/" }}
+            pathType: {{ $pathType }}
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  number: {{ $servicePort }}
+          {{- else }}
           - path: /{{ rest $url | join "/" }}
             backend:
               serviceName: {{ $serviceName }}
               servicePort: {{ $servicePort }}
+          {{- end }}
   {{- end -}}
 {{- if .Values.server.ingress.tls }}
   tls:
@@ -42,3 +58,4 @@ spec:
   {{- end -}}
 {{- end -}}
 {{- end -}}
+{{ end }}

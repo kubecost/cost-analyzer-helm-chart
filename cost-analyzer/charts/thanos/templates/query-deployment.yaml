@@ -1,3 +1,4 @@
+{{ if .Values.global.thanos.enabled }}
 {{ if .Values.query.enabled }}
 apiVersion: apps/v1
 kind: Deployment
@@ -24,6 +25,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: query
 {{ with .Values.query.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.query.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:
@@ -39,6 +43,10 @@ spec:
         prometheus.io/port: "{{ .Values.query.http.port }}"
       {{- end }}
     spec:
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
       containers:
       - name: thanos-query
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -75,7 +83,7 @@ spec:
         - "--store=dnssrv+_grpc._tcp.{{ include "thanos.componentname" (list $ "sidecar") }}-grpc.{{ .Release.Namespace }}.svc"
         {{- end  }}
         {{- range .Values.query.stores }}
-        - "--store={{ . }}"
+        - "--endpoint={{ . }}"
         {{- end }}
         {{- range .Values.query.serviceDiscoveryFiles }}
         - "--store.sd-files={{ . }}"
@@ -143,4 +151,5 @@ spec:
       {{- with  .Values.query.serviceAccount }}
       serviceAccountName: "{{ . }}"
       {{- end }}
+{{ end }}
 {{ end }}
