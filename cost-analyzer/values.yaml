@@ -760,7 +760,7 @@ awsstore:
 #    daemonset_external_label: "kubernetes_daemonset"
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
-#  clusterName: "" # used for display in Kubecost UI
+#  clusterName: "" # clusterName is the default context name in settings.
 #  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, PLN, SEK
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
