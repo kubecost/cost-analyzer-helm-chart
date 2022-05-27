@@ -602,7 +602,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.0.6
+  image: gcr.io/kubecost1/cluster-controller:v0.1.0
   imagePullPolicy: Always
 #  fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local:9731
 
