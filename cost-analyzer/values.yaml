@@ -173,6 +173,11 @@ saml:
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+      - name: editor
+        enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+        assertionName: "http://schemas.auth0.com/userType"
+        assertionValues:
+          - "editor"
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
@@ -268,6 +273,8 @@ kubecostModel:
   # The total number of hours the ETL pipelines will build
   # Set to 0 to disable hourly ETL (not recommended)
   etlHourlyStoreDurationHours: 49
+  # For deploying kubecost in a cluster that does not self-monitor
+  etlReadOnlyMode: false
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   resources:
@@ -664,6 +671,7 @@ grafana:
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: false
+      error_throttle_sleep: 0
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
@@ -758,7 +766,7 @@ awsstore:
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
 #  clusterName: "" # used for display in Kubecost UI
-#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, SEK
+#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, PLN, SEK
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017

@@ -67,11 +67,22 @@ spec:
           - name: http
             containerPort: {{ .Values.bucket.http.port }}
         volumeMounts:
+          {{- if .Values.bucket.selfsignedCertConfigMapName }}
+          - name: {{ .Values.bucket.selfsignedCertConfigMapName }}
+            mountPath: /etc/ssl/certs/my-cert.pem
+            subPath: my-cert.pem
+            readOnly: false
+          {{- end }}
           - name: config-volume
             mountPath: /etc/config
             readOnly: true
         resources: {{ toYaml .Values.bucket.resources | nindent 10 }}
       volumes:
+      {{- if .Values.bucket.selfsignedCertConfigMapName }}
+      - name: {{ .Values.bucket.selfsignedCertConfigMapName }}
+        configMap:
+          name: {{ .Values.bucket.selfsignedCertConfigMapName }}
+      {{- end }}
       - name: config-volume
         secret:
           secretName: {{ include "thanos.secretname" . }}

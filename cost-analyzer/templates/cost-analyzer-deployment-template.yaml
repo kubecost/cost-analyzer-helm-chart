@@ -524,6 +524,10 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
+            {{- if .Values.kubecostModel.etlReadOnlyMode }}
+            - name: ETL_READ_ONLY
+              value: "true"
+            {{- end }}
             {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             - name: ETL_TO_DISK_ENABLED
               value: "false"

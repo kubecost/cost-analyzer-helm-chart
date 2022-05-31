@@ -49,9 +49,24 @@ Parameter | Description | Default
 `prometheusRule.enabled` | Set this to `true` to create PrometheusRule for Prometheus operator | `false`
 `prometheusRule.additionalLabels` | Additional labels that can be used so PrometheusRule will be discovered by Prometheus | `{}`
 `grafana.resources` | Grafana resource requests and limits. | `{}`
+`grafana.sidecar.dashboards.enabled` | Set this to `false` to disable creation of Dashboards in Grafana | `true`
 `grafana.sidecar.datasources.defaultDatasourceEnabled` | Set this to `false` to disable creation of Prometheus datasource in Grafana | `true`
 `serviceAccount.create` | Set this to `false` if you want to create the service account `kubecost-cost-analyzer` on your own | `true`
 `tolerations` | node taints to tolerate | `[]`
 `affinity` | pod affinity | `{}`
 `extraVolumes` | A list of volumes to be added to the pod | `[]`|
 `extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
+
+## Adjusting Log Output
+The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables. 
+
+For example, to set the log level to `trace` the following flag can be added to the helm command:
+
+```
+    --set 'kubecostModel.extraEnv[0].name=LOG_LEVEL,kubecostModel.extraEnv[0].value=trace'
+```
+`LOG_FORMAT` options:
+
+`JSON` - A structured logging output: `{"level":"info","time":"2006-01-02T15:04:05.999999999Z07:00","message":"Starting cost-model (git commit \"1.91.0-rc.0\")"}`
+
+`pretty` - A nice human readable output: `2006-01-02T15:04:05.999999999Z07:00 INF Starting cost-model (git commit "1.91.0-rc.0")`
