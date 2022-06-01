@@ -267,6 +267,8 @@ kubecostModel:
   warmSavingsCache: true
   # Run allocation ETL pipelines
   etl: true
+  # Enable the ETL filestore backing storage
+  etlFileStoreEnabled: true 
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
