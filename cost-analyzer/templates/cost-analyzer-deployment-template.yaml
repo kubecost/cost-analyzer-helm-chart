@@ -560,7 +560,7 @@ spec:
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
             - name: ETL_FILE_STORE_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote false) }}
+              value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
