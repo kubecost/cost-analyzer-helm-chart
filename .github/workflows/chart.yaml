@@ -32,3 +32,34 @@ jobs:
           files: ./cost-analyzer/full.yaml
           ignore_missing_schemas: false
 
+      # Setup a short sha to use for cluster naming to ensure we create and cleanup unique clusters and set the k8s version for
+      # both kubectl and k3s
+      - name: Setup env
+        run: |
+          echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
+          echo "k8s_version=v1.23.7" >> $GITHUB_ENV
+
+      - uses: azure/setup-kubectl@v2.0
+        with:
+          version: ${{ env.k8s_version }}
+
+      - uses: AbsaOSS/k3d-action@v2
+        name: "Create Single Cluster"
+        with:
+          cluster-name: ${{ env.short_sha }}
+          args: >-
+            --agents 1
+            --no-lb
+            --image docker.io/rancher/k3s:${{ env.k8s_version }}-k3s1
+            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
+
+      - name: Install Kubecost
+        working-directory: ./cost-analyzer
+        run: |
+          kubectl create ns kubecost
+          helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
+
+      - name: Cleanup k3s
+        if: always()
+        run: |
+          k3d cluster delete ${{ env.short_sha }}
