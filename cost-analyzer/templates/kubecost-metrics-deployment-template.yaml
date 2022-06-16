@@ -44,7 +44,11 @@ spec:
         {{- if .Values.agent }}
         - name: config-store
           secret:
+          {{- if .Values.agentStoreSecretName }}
+            secretName: {{ .Values.agentStoreSecretName }}
+          {{- else }}
             secretName: {{ template "kubecost.agentStoreSecretName" . }}
+          {{- end }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
