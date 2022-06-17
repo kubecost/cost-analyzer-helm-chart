@@ -9,7 +9,6 @@ metadata:
   name: {{ include "kubecost.kubeMetricsName" . }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
-    {{ include "kubecost.chartLabels" . | nindent 4 }}
     {{- if .Values.kubecostMetrics.exporter.serviceMonitor.additionalLabels }}
     {{ toYaml .Values.kubecostMetrics.exporter.serviceMonitor.additionalLabels | nindent 4 }}
     {{- end }}

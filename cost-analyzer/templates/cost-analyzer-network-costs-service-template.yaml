@@ -1,13 +1,19 @@
 {{- if .Values.networkCosts }}
 {{- if .Values.networkCosts.enabled }}
-{{- if .Values.networkCosts.prometheusScrape }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
+{{- if (or .Values.networkCosts.service.annotations .Values.networkCosts.prometheusScrape) }}
   annotations:
-    prometheus.io/scrape: "{{ .Values.networkCosts.prometheusScrape }}"
+{{- if .Values.networkCosts.service.annotations }}
+{{ toYaml .Values.networkCosts.service.annotations | indent 4 }}
+{{- end }}
+{{- if .Values.networkCosts.prometheusScrape }}
+    prometheus.io/scrape: "true"
     prometheus.io/port: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
+{{- end }}
+{{- end }}
   labels:
     {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "cost-analyzer.networkCostsName" . }}
@@ -21,6 +27,5 @@ spec:
   selector:
     app: {{ template "cost-analyzer.networkCostsName" . }}
   type: ClusterIP
-{{- end }}
 {{- end }}
 {{- end }}

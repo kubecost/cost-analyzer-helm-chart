@@ -136,6 +136,10 @@ spec:
           imagePullPolicy: Always
         {{- end }}
           name: {{ template "kubecost.kubeMetricsName" . }}
+          ports:
+            - name: tcp-metrics
+              protocol: TCP
+              containerPort: {{ .Values.kubecostMetrics.exporter.port | default 9005 }}
           resources:
 {{ toYaml .Values.kubecostMetrics.exporter.resources | indent 12 }}
           readinessProbe:
@@ -170,7 +174,7 @@ spec:
               mountPath: /var/secrets
             {{- end }}
             {{- end }}
-          args: 
+          args:
             - agent
             {{- if .Values.kubecostMetrics.exporter.extraArgs }}
             {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
