@@ -44,7 +44,7 @@ spec:
         {{- if .Values.agent }}
         - name: config-store
           secret:
-            secretName: kubecost-agent-object-store
+            secretName: {{ .Values.agentKeySecretName }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}

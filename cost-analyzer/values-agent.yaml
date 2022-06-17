@@ -10,10 +10,7 @@ global:
 # Agent enables specific features designed to enhance the metrics exporter deployment
 # with enhancements designed for external hosting. 
 agent: true 
-
-# If createAgentSecret is set to false, you must manually create a secret with the name 
-# of `kubecost-agent-object-store` with the contents of the agent.key file provided to you
-#createAgentSecret: false
+agentKeySecretName: kubecost-agent-object-store
 
 # No Grafana configuration is required.
 grafana:
@@ -49,8 +46,7 @@ prometheus:
       - name: object-store-volume
         mountPath: /etc/thanos/config 
         readOnly: true
-        secretName: |
-            kubecost-agent-object-store
+        secretName: {{ .Values.agentKeySecretName }}
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
