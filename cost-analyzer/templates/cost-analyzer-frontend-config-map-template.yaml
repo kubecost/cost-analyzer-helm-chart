@@ -99,6 +99,7 @@ data:
         server_name _;
         root /var/www;
         index index.html;
+        try_files $uri $uri/ /index.html;
         large_client_header_buffers 4 32k;
         add_header Cache-Control "must-revalidate";
 
