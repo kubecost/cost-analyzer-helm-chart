@@ -206,8 +206,16 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        {{- if and (hasKey .Values.prometheus.server.global.external_labels "cluster_id") (not .Values.prometheus.server.clusterIDConfigmap) }}
         - name: CLUSTER_ID
           value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+        {{- else }}
+        - name: CLUSTER_ID
+          valueFrom:
+            configMapKeyRef:
+              name: {{ required "A cluster_id OR clusterIDConfigmap is required!" .Values.prometheus.server.clusterIDConfigmap }}
+              key: CLUSTER_ID
+        {{- end }}
         - name: TURNDOWN_NAMESPACE
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
