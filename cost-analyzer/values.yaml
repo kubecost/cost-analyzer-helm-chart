@@ -435,8 +435,8 @@ prometheus:
       scrape_interval: 1m
       scrape_timeout: 10s
       evaluation_interval: 1m
-      external_labels:
-        cluster_id: cluster-one # Each cluster should have a unique ID
+      external_labels: {}
+        # cluster_id: cluster-one # Each cluster should have a unique ID
     persistentVolume:
       size: 32Gi
       enabled: true
