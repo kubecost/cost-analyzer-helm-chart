@@ -120,9 +120,13 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             error_page 401 = /login;
+            try_files $uri $uri/ /index.html;
         }
 {{- else }}
         add_header Cache-Control "max-age=300";
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
 {{- end }}
 {{- if .Values.imageVersion }}
         add_header ETag "{{ $.Values.imageVersion }}";
