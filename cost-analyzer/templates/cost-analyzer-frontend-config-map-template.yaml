@@ -124,6 +124,9 @@ data:
         }
 {{- else }}
         add_header Cache-Control "max-age=300";
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
 {{- end }}
 {{- if .Values.imageVersion }}
         add_header ETag "{{ $.Values.imageVersion }}";
