@@ -172,6 +172,18 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.oidc }}
+        {{- if .Values.oidc.enabled }}
+        - name: oidc-config
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-oidc
+        {{- if .Values.oidc.secretName }}
+        - name: oidc-client-secret
+          secret:
+            secretName: {{ .Values.oidc.secretName }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -332,6 +344,16 @@ spec:
             {{- if .Values.saml.rbac.enabled }}
             - name: saml-roles
               mountPath: /var/configs/saml
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.oidc }}
+            {{- if .Values.oidc.enabled }}
+            - name: oidc-config
+              mountPath: /var/configs/oidc
+            {{- if .Values.oidc.secretName }}
+            - name: oidc-client-secret
+              mountPath: /var/configs/oidc-client-secret
             {{- end }}
             {{- end }}
             {{- end }}
@@ -627,6 +649,10 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
+            {{- if .Values.oidc.enabled }}
+            - name: OIDC_ENABLED
+              value: "true"
+            {{- end}}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
             - name: SAML_ENABLED

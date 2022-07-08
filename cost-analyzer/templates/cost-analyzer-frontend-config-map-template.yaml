@@ -1,6 +1,11 @@
 {{- if not .Values.agent }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
+{{- if .Values.saml.enabled }}
+{{- if .Values.oidc.enabled }}
+{{- fail "SAML and OIDC cannot both be enabled" }}
+{{- end }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -107,7 +112,7 @@ data:
             internal;
         }
 
-{{- if .Values.saml.enabled }}
+{{- if or .Values.saml.enabled .Values.oidc.enabled }}
         add_header Cache-Control "max-age=0";
         location /unauthorized.html {
             
@@ -151,7 +156,7 @@ data:
         listen [::]:{{ $nginxPort }};
 {{- end }}
         location /api/ {
-            {{- if .Values.saml.enabled }}
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             auth_request /auth;
             {{- end }}
             proxy_pass http://api/;
@@ -178,8 +183,8 @@ data:
             add_header 'Access-Control-Allow-Origin' '*' always;
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
-            {{- if .Values.saml }}
-            {{- if .Values.saml.enabled }}
+            {{- if or .Values.saml .Values.oidc }}
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             auth_request /auth;
             {{- else if .Values.saml.rbac.enabled}}
             auth_request /authrbac;
@@ -203,6 +208,17 @@ data:
 {{- else }}
             return 404;
 {{- end }}
+        }
+        location /oidc/ {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://model/oidc/;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /saml/ {
             proxy_connect_timeout       180;
@@ -252,7 +268,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{ end }}
-    {{- if .Values.saml.enabled }}
+    {{- if or .Values.saml.enabled .Values.oidc.enabled }}
         location /auth {
             proxy_pass http://model/isAuthenticated;
         }

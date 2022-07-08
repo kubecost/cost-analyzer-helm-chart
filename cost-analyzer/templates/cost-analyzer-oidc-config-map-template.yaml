@@ -1,0 +1,21 @@
+{{- if .Values.oidc }}
+{{- if .Values.oidc.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-oidc
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+{{- $root := . }}
+    oidc.json: |-
+      {
+        "enabled" : {{ .Values.oidc.enabled }},
+        "clientID" : "{{ .Values.oidc.clientID }}",
+        "secretName" : "{{ .Values.oidc.secretName }}",
+        "authURL" : "{{ .Values.oidc.authURL }}",
+        "loginRedirectURL" : "{{ .Values.oidc.loginRedirectURL }}",
+        "discoveryURL" : "{{ .Values.oidc.discoveryURL }}"
+      }
+{{- end -}}
+{{- end -}}
