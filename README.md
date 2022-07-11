@@ -29,7 +29,7 @@ Parameter | Description | Default
 `prometheus.server.retention` | Determines when to remove old data. | `15d`
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
-`prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not crate NodeExporter daemonset.  | `true`
+`prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not create NodeExporter daemonset.  | `true`
 `prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
 `prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
