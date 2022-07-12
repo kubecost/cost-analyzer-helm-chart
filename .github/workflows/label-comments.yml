@@ -8,11 +8,11 @@ jobs:
   add-followup-label:
     runs-on: ubuntu-latest
     steps:
-      - name: Check developer whitelist
+      - name: Check comment author
         id: author
         run: |
           echo "::set-output name=AUTHOR::$(grep '${{github.event.actor.login}}' 'normsbee teevans michaelmdresser wolfeaustin mbolt35 nikovacevic')"
-      - name: Apply label
+      - name: Apply follow-up label to issues last commented by a user not in the org
         uses: actions-ecosystem/action-add-labels@v1
         if: ${{ steps.author.outputs.AUTHOR }}
         with:
