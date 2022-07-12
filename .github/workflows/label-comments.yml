@@ -8,13 +8,17 @@ jobs:
   add-followup-label:
     runs-on: ubuntu-latest
     steps:
-      - name: Check comment author
-        id: author
+      - name: Check comment actor org membership
+        id: response
         run: |
-          echo "::set-output name=AUTHOR::$(grep '${{github.event.actor.login}}' 'normsbee teevans michaelmdresser wolfeaustin mbolt35 nikovacevic')"
+          echo ${{ github.actor }} && echo "::set-output name=MEMBER_RESPONSE::$(curl -i -H 'Accept: application/vnd.github+json' -H 'Authorization: token ${{ github.token }}' 'https://api.github.com/orgs/kubecost/members/${{ github.actor }}')"
+      - name: "Check for 204 response"
+        id: membership
+        run: |
+          echo '${{ steps.response.outputs.MEMBER_RESPONSE }}' && echo "::set-output name=IS_MEMBER::$(grep 'HTTP/2 204' <<< '${{ steps.response.outputs.MEMBER_RESPONSE }}')"
       - name: Apply follow-up label to issues last commented by a user not in the org
+        if: steps.membership.outputs.IS_MEMBER == ''
         uses: actions-ecosystem/action-add-labels@v1
-        if: ${{ steps.author.outputs.AUTHOR }}
         with:
           labels: needs-follow-up
 
