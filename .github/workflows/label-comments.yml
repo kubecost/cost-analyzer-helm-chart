@@ -1,0 +1,20 @@
+name: add-label-on-comment
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  add-followup-label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check developer whitelist
+        id: author
+        run: |
+          echo "::set-output name=AUTHOR::$(grep '${{github.event.actor.login}}' 'normsbee teevans michaelmdresser wolfeaustin mbolt35 nikovacevic')"
+      - name: Apply label
+        uses: actions-ecosystem/action-add-labels@v1
+        if: ${{ steps.author.outputs.AUTHOR }}
+        with:
+          labels: needs-follow-up
+
