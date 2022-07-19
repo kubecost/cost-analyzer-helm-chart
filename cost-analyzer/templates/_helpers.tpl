@@ -217,3 +217,33 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
 {{- template "cost-analyzer.filter" (dict "v" . "r" $result) }}
 {{- $result | toJson | b64enc }}
 {{- end -}}
+
+{{/*
+This template runs the full check for leader/follower requirements in order to determine
+whether it should be configured. This template will return true if it's enabled and all 
+requirements are met. 
+*/}}
+{{- define "cost-analyzer.leaderFollowerEnabled" }}
+    {{- if .Values.kubecostDeployment }}
+        {{- if .Values.kubecostDeployment.leaderFollower }}
+            {{- if .Values.kubecostDeployment.leaderFollower.enabled }}
+                {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
+                {{- if not (.Values.kubecostModel.etlFileStoreEnabled | default true) }}
+                    {{- "" }}
+                {{- else if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
+                    {{- "" }}
+                {{- else if not (gt (int $replicas) 1) }}
+                    {{- ""}}
+                {{- else }}
+                    {{- "true" }}
+                {{- end }}
+            {{- else }}
+                {{- "" }}
+            {{- end }}
+        {{- else }}
+            {{- "" }}
+        {{- end }}
+    {{- else }}
+        {{- "" }}
+    {{- end }}
+{{- end }}
