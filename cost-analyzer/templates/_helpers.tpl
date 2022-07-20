@@ -228,7 +228,7 @@ requirements are met.
         {{- if .Values.kubecostDeployment.leaderFollower }}
             {{- if .Values.kubecostDeployment.leaderFollower.enabled }}
                 {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
-                {{- if not (.Values.kubecostModel.etlFileStoreEnabled | default true) }}
+                {{- if not .Values.kubecostModel.etlFileStoreEnabled }}
                     {{- "" }}
                 {{- else if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
                     {{- "" }}

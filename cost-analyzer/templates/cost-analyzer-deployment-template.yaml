@@ -713,31 +713,36 @@ spec:
             - name: GOOGLE_ANALYTICS_TAG
               value: {{ .Values.reporting.googleAnalyticsTag }}
             {{- end }}
-            # Leader/Follower has baseline requirements before enabling
+            {{- /*
+              Leader/Follower has baseline requirements before enabling:
+                * ETL FileStore Enabled 
+                * Bucket Backup Configured
+                * Replicas > 1
+            */}}
             {{- if .Values.kubecostDeployment }}
             {{- if .Values.kubecostDeployment.leaderFollower }}
-            {{- if .Values.kubecostDeployment.leaderFollower.enabled }}
-            # Requirement: ETL FileStore Enabled 
-            {{- if not (.Values.kubecostModel.etlFileStoreEnabled | default true) }}
+            {{- if .Values.kubecostDeployment.leaderFollower.enabled -}}
+
+            {{- $etlFileStore := .Values.kubecostModel.etlFileStoreEnabled }}
+            {{- if not $etlFileStore }}
             {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
-            {{- end }}
-            # Requirement: Bucket Backup Configured
+            {{- end -}}
+            
             {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
             {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
-            {{- end }}
-            # Requirement: Replicas > 1
+            {{- end -}}
+
             {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
             {{- if not (gt (int $replicas) 1) }}
             {{- fail "Leader/Follower should be used with kubecostDeployment.replicas > 1" }}
             {{- end }}
-
-            # Ensures that the leader follower template is also returning valid enabled
+            {{- /* 
+              Checks to ensure that the named template returns true if we've made it here 
+            */}}
             {{- $result := include "cost-analyzer.leaderFollowerEnabled" . }}
             {{- if not $result }}
             {{- fail (quote $result) }}
             {{- end }}
-            
-            # Finally, write the env var if all requirements check out
             - name: LEADER_FOLLOWER_ENABLED
               value: "true"
             {{- end }}
