@@ -1,3 +1,8 @@
+## Default values for Kubecost Helm chart
+
+## FOR THE EASIEST UPGRADE PATH, DO NOT COPY THIS FILE AS YOUR OWN values.yaml.
+## ONLY SET THE VALUES YOU WANT TO OVERRIDE IN YOUR values.yaml.
+
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
