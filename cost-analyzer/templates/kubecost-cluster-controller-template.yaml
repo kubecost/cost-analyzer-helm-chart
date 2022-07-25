@@ -5,8 +5,11 @@ kind: ServiceAccount
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
+    app.kubernetes.io/name: {{ template "kubecost.clusterControllerName" . }}
+    helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 ---
 #
 # NOTE: 
@@ -18,8 +21,11 @@ kind: ClusterRole
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
+    app.kubernetes.io/name: {{ template "kubecost.clusterControllerName" . }}
+    helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 rules:
   - apiGroups:
       - kubecost.com
@@ -155,8 +161,11 @@ kind: ClusterRoleBinding
 metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     app: {{ template "kubecost.clusterControllerName" . }}
+    app.kubernetes.io/name: {{ template "kubecost.clusterControllerName" . }}
+    helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
