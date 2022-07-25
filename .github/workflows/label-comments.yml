@@ -18,7 +18,7 @@ jobs:
       - name: "Check for non-4XX response"
         id: membership
         run: |
-          echo '${{ steps.response.outputs.MEMBER_RESPONSE }}' && echo "::set-output name=IS_MEMBER::$(grep -E 'HTTP/2 [235]' <<< '${{ steps.response.outputs.MEMBER_RESPONSE }}')"
+          echo '${{ steps.response.outputs.MEMBER_RESPONSE }}' && echo "::set-output name=IS_MEMBER::$(grep 'HTTP/2 [235]' <<< '${{ steps.response.outputs.MEMBER_RESPONSE }}')"
 
       - name: Apply needs-follow-up label if this is a new or reopened issue by user not in the org
         if: ${{ steps.membership.outputs.IS_MEMBER == '' && github.event_name == 'issues' && (github.event.action == 'opened' || github.event.action == 'reopened') }}
