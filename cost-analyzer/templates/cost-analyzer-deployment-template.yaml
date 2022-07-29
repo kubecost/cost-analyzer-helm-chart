@@ -715,10 +715,50 @@ spec:
             - name: GOOGLE_ANALYTICS_TAG
               value: {{ .Values.reporting.googleAnalyticsTag }}
             {{- end }}
+            {{- /*
+              Leader/Follower has baseline requirements before enabling:
+                * ETL FileStore Enabled 
+                * Bucket Backup Configured
+                * Replicas > 1
+            */}}
+            {{- if .Values.kubecostDeployment }}
+            {{- if .Values.kubecostDeployment.leaderFollower }}
+            {{- if .Values.kubecostDeployment.leaderFollower.enabled -}}
+
+            {{- $etlFileStore := .Values.kubecostModel.etlFileStoreEnabled }}
+            {{- if not $etlFileStore }}
+            {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
+            {{- end -}}
+            
+            {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
+            {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
+            {{- end -}}
+
+            {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
+            {{- if not (gt (int $replicas) 1) }}
+            {{- fail "Leader/Follower should be used with kubecostDeployment.replicas > 1" }}
+            {{- end }}
+            {{- /* 
+              Checks to ensure that the named template returns true if we've made it here 
+            */}}
+            {{- $result := include "cost-analyzer.leaderFollowerEnabled" . }}
+            {{- if not $result }}
+            {{- fail (quote $result) }}
+            {{- end }}
+            - name: LEADER_FOLLOWER_ENABLED
+              value: "true"
+            {{- end }}
+            {{- end }}
+            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
