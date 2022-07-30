@@ -23,6 +23,9 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: compact
 {{ with .Values.compact.deploymentMatchLabels }}{{ toYaml . | indent 6 }}{{ end }}
+{{ with .Values.compact.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{ end }}
   template:
     metadata:
       labels:
@@ -68,6 +71,12 @@ spec:
         - name: http
           containerPort: {{ .Values.compact.http.port }}
         volumeMounts:
+        {{- if .Values.compact.selfsignedCertConfigMapName }}
+        - name: {{ .Values.compact.selfsignedCertConfigMapName }}
+          mountPath: /etc/ssl/certs/my-cert.pem
+          subPath: my-cert.pem
+          readOnly: false
+        {{- end }}
         - name: config-volume
           mountPath: /etc/config
           readOnly: true
@@ -75,6 +84,11 @@ spec:
           mountPath: /var/thanos/compact
         resources: {{ toYaml .Values.compact.resources | nindent 10 }}
       volumes:
+      {{- if .Values.compact.selfsignedCertConfigMapName }}
+      - name: {{ .Values.compact.selfsignedCertConfigMapName }}
+        configMap:
+          name: {{ .Values.compact.selfsignedCertConfigMapName }}
+      {{- end }}
       - name: data-volume
       {{- if .Values.compact.dataVolume }}
       {{- if .Values.compact.dataVolume.persistentVolumeClaim }}

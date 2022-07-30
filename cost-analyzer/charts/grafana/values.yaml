@@ -25,7 +25,7 @@ livenessProbe:
 
 image:
   repository: grafana/grafana
-  tag: 8.3.2
+  tag: 9.0.2
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -255,7 +255,7 @@ smtp:
 ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
 ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
 sidecar:
-  image: kiwigrid/k8s-sidecar:1.15.4
+  image: kiwigrid/k8s-sidecar:1.19.2
   imagePullPolicy: IfNotPresent
   resources:
 #   limits:

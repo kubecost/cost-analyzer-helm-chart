@@ -5,7 +5,7 @@ global:
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
-    # queryServiceBearerTokenSecretName: dbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
+    # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
   # Durable storage option, product key required
   thanos:
@@ -20,6 +20,7 @@ global:
     domainName: cost-analyzer-grafana.default.svc #example grafana domain Ignored if enabled: true
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
+#    fqdn: cost-analyzer-grafana.default.svc
 
   notifications:
     # Kubecost alerting configuration
@@ -172,6 +173,20 @@ saml:
         assertionName:  "http://schemas.auth0.com/userType"
         assertionvalues:
           - "readonly"
+      - name: editor
+        enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+        assertionName: "http://schemas.auth0.com/userType"
+        assertionValues:
+          - "editor"
+
+oidc:
+  enabled: false
+  clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
+  clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
+  secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
+  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server 
+  loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
+  discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
@@ -187,6 +202,9 @@ systemProxy:
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
+  # extraEnv:
+  # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
+  #   value: "1"
   resources:
     requests:
       cpu: "10m"
@@ -194,29 +212,20 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+#  api:
+#    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
+#  model:
+#    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
 
-kubecost:
-  # Disables the cost-analyzer-server container to spin up as part of kubecost
-  # Setting this to true will mean all /api/ endpoints will be unavailable
-  disableServer: false
-  image: "gcr.io/kubecost1/server"
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "55Mi"
-    #limits:
-    #  cpu: "100m"
-    #  memory: "256Mi"
-
-# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required 
-# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself. 
-# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead. 
-kubecostMetrics: 
-  # emitPodAnnotations: false 
-  # emitNamespaceAnnotations: false 
+# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
+# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
+# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
+kubecostMetrics:
+  # emitPodAnnotations: false
+  # emitNamespaceAnnotations: false
   # emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
   # emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
-  
+
   # Optional
   # The metrics exporter is a separate deployment and service (for prometheus scrape auto-discovery)
   # which emits metrics cost-model relies on. Enabling this deployment also removes the KSM dependency
@@ -225,6 +234,9 @@ kubecostMetrics:
   exporter:
     enabled: false
     port: 9005
+    # Adds the default Prometheus scrape annotations to the metrics exporter service.
+    # Set to false and use service.annotations (below) to set custom scrape annotations.
+    prometheusScrape: true
     resources: {}
       # requests:
       #  cpu: "200m"
@@ -239,7 +251,10 @@ kubecostMetrics:
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
     affinity: {}
 
-    # Service Monitor for Kubecost Metrics 
+    service:
+      annotations: {}
+
+    # Service Monitor for Kubecost Metrics
     serviceMonitor:
       enabled: false
       additionalLabels: {}
@@ -249,11 +264,14 @@ kubecostMetrics:
     priorityClassName: []
     additionalLabels: {}
     nodeSelector: {}
-    annotations: {}
+    extraArgs: []
 
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
   # Enables the emission of the kubecost_cloud_credit_total and
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
@@ -263,12 +281,16 @@ kubecostModel:
   warmSavingsCache: true
   # Run allocation ETL pipelines
   etl: true
+  # Enable the ETL filestore backing storage
+  etlFileStoreEnabled: true 
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
   # The total number of hours the ETL pipelines will build
   # Set to 0 to disable hourly ETL (not recommended)
   etlHourlyStoreDurationHours: 49
+  # For deploying kubecost in a cluster that does not self-monitor
+  etlReadOnlyMode: false
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   resources:
@@ -278,6 +300,7 @@ kubecostModel:
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
+  extraArgs: []
 
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
 ingress:
@@ -499,8 +522,8 @@ networkCosts:
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
-  # For existing Prometheus Installs, create a Service which generates Endpoints for each of the network-costs pods.
-  # This Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
+  # For existing Prometheus Installs, annotates the Service which generates Endpoints for each of the network-costs pods.
+  # The Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
   # NOTE: Setting this option to true and leaving the above extraScrapeConfig "job_name: kubecost-networking" configured will cause the
   # NOTE: pods to be scraped twice.
   prometheusScrape: false
@@ -514,6 +537,7 @@ networkCosts:
     #requests:
     #  cpu: "50m"
     #  memory: "20Mi"
+  extraArgs: []
   config:
     # Configuration for traffic destinations, including specific classification
     # for IPs and CIDR blocks. This configuration will act as an override to the
@@ -550,18 +574,18 @@ networkCosts:
       #   ips:
       #     - "10.0.0.0/24"
     services:
-      # google-cloud-services: when set to true, enables labeling traffic metrics with google cloud 
-      # service endpoints 
+      # google-cloud-services: when set to true, enables labeling traffic metrics with google cloud
+      # service endpoints
       google-cloud-services: false
-      # amazon-web-services: when set to true, enables labeling traffic metrics with amazon web service 
+      # amazon-web-services: when set to true, enables labeling traffic metrics with amazon web service
       # endpoints.
       amazon-web-services: false
-      # azure-cloud-services: when set to true, enables labeling traffic metrics with azure cloud service 
-      # endpoints 
-      azure-cloud-services: false   
-      # user defined services provide a way to define custom service endpoints which will label traffic metrics 
+      # azure-cloud-services: when set to true, enables labeling traffic metrics with azure cloud service
+      # endpoints
+      azure-cloud-services: false
+      # user defined services provide a way to define custom service endpoints which will label traffic metrics
       # falling within the defined address range.
-      #services: 
+      #services:
       #  - service: "test-service-1"
       #    ips:
       #      - "19.1.1.2"
@@ -581,6 +605,9 @@ networkCosts:
 
   affinity: {}
 
+  service:
+    annotations: {}
+
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: []
@@ -597,12 +624,15 @@ networkCosts:
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
   replicas: 1
+  leaderFollower:
+    enabled: false
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.0.2
+  image: gcr.io/kubecost1/cluster-controller:v0.1.0
   imagePullPolicy: Always
+#  fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local:9731
 
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
@@ -610,9 +640,13 @@ reporting:
   logCollection: true
   # Basic frontend analytics
   productAnalytics: true
+
   # Report Javascript errors
   errorReporting: true
   valuesReporting: true
+  # googleAnalyticsTag allows you to embed your Google Global Site Tag to track usage of Kubecost.
+  # googleAnalyticsTag is only included in our Enterprise offering.
+  # googleAnalyticsTag: G-XXXXXXXXX
 
 serviceMonitor:
   enabled: false
@@ -635,6 +669,18 @@ initChownData:
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
+  rbac:
+    # Manage the Grafana Pod Security Policy
+    pspEnabled: true
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus-kubecost
+          type: prometheus
+          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+          access: proxy
+          isDefault: false
   sidecar:
     dashboards:
       enabled: true
@@ -645,12 +691,7 @@ grafana:
       error_throttle_sleep: 0
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: true
-      defaultDatasourceEnabled: false
-      dataSourceName: prometheus-kubecost
-      # label that the configmaps with datasources are marked with
-      label: kubecost_grafana_datasource
-      # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
+      enabled: false
       error_throttle_sleep: 0
 #  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
@@ -719,6 +760,7 @@ awsstore:
 #  athenaRegion: us-east-1
 #  athenaDatabase: athenacurcfn_athena_test1
 #  athenaTable: "athena_test1"
+#  athenaWorkgroup: "primary" # The default workgroup in AWS is 'primary'
 #  masterPayerARN: ""
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
@@ -744,13 +786,14 @@ awsstore:
 #    daemonset_external_label: "kubernetes_daemonset"
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
-#  clusterName: "" # used for display in Kubecost UI
-#  currencyCode: "USD" # offical support for USD, CAD, EUR, and CHF
+#  clusterName: "" # clusterName is the default context name in settings.
+#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, PLN, SEK
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
 #  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
+#  azureOfferDurableID: "MS-AZR-0003p"
 #  azureStorageSecretName: "azure-storage-config" # Name of Kubernetes Secret where Azure Storage Configuration is stored
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
@@ -760,8 +803,12 @@ awsstore:
 #  sharedNamespaces: "" # namespaces with shared workloads, example value: "kube-system\,ingress-nginx\,kubecost\,monitoring"
 #  sharedOverhead: "" # value representing a fixed external cost per month to be distributed among aggregations.
 #  shareTenancyCosts: true # enable or disable sharing costs such as cluster management fees (defaults to "true" on Settings page)
+#  metricsConfigs: # configuration for metrics emitted by Kubecost
+#    disabledMetrics: [] # list of metrics that Kubecost will not emit. Note that disabling metrics can lead to unexpected behavior in the cost-model.
 #  productKey: # apply business or enterprise product license
 #    key: ""
 #    enabled: false
 #    secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }
+#    mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "kc-b1325234" }
 #  cloudIntegrationSecret: "cloud-integration"
+#  ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.

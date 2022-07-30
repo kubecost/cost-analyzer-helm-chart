@@ -6,7 +6,7 @@ kind: Deployment
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
 {{- with .Values.kubecostMetrics.exporter.labels }}
 {{ toYaml . | indent 4 }}
@@ -44,7 +44,7 @@ spec:
         {{- if .Values.agent }}
         - name: config-store
           secret:
-            secretName: {{ template "kubecost.agentStoreSecretName" . }}
+            secretName: {{ .Values.agentKeySecretName }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
@@ -136,6 +136,10 @@ spec:
           imagePullPolicy: Always
         {{- end }}
           name: {{ template "kubecost.kubeMetricsName" . }}
+          ports:
+            - name: tcp-metrics
+              protocol: TCP
+              containerPort: {{ .Values.kubecostMetrics.exporter.port | default 9005 }}
           resources:
 {{ toYaml .Values.kubecostMetrics.exporter.resources | indent 12 }}
           readinessProbe:
@@ -170,8 +174,11 @@ spec:
               mountPath: /var/secrets
             {{- end }}
             {{- end }}
-          args: 
+          args:
             - agent
+            {{- if .Values.kubecostMetrics.exporter.extraArgs }}
+            {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
+            {{- end }}
           env:
             - name: PROMETHEUS_SERVER_ENDPOINT
               valueFrom:
@@ -204,8 +211,6 @@ spec:
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
             - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
               value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
-            - name: RELEASE_NAME
-              value: {{ .Release.Name }}
             - name: MAX_QUERY_CONCURRENCY
               value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 5) }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}

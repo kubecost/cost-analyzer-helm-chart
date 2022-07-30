@@ -274,7 +274,7 @@
         },
         {
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\"}) by (container)",
           "legendFormat": "{{ container}} (request)",
           "refId": "B"
         }

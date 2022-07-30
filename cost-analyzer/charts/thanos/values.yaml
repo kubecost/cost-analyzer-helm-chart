@@ -55,6 +55,10 @@ store:
   #
   # Add extra selector matchLabels to store deployment
   deploymentMatchLabels: {}
+  # Override the default deployment strategy
+  # deploymentStrategy:
+  #   type: RollingUpdate
+
   # Enable metrics collecting for store service
   metrics:
     # This is the Prometheus annotation type scraping configuration
@@ -274,6 +278,9 @@ queryFrontend:
   #
   # Add extra selector matchLabels to query deployment
   deploymentMatchLabels: {}
+  # Override the default deployment strategy
+  # deploymentStrategy:
+  #   type: RollingUpdate
 
   # Enable metrics collecting for query service
   metrics:
@@ -437,6 +444,9 @@ query:
   #
   # Add extra selector matchLabels to query deployment
   deploymentMatchLabels: {}
+  # Override the default deployment strategy
+  # deploymentStrategy:
+  #   type: RollingUpdate
 
   # Enable metrics collecting for query service
   metrics:
@@ -563,7 +573,10 @@ compact:
   #
   # Add extra selector matchLabels to compact deployment
   deploymentMatchLabels: {}
-  #
+  # Override the default deployment strategy
+  # deploymentStrategy:
+  #   type: RollingUpdate
+
   # Enable metrics collecting for compact service
   metrics:
     # This is the Prometheus annotation type scraping configuration
@@ -671,6 +684,9 @@ bucket:
   #
   # Add extra selector matchLabels to bucket deployment
   deploymentMatchLabels: {}
+  # Override the default deployment strategy
+  # deploymentStrategy:
+  #   type: RollingUpdate
 
   # Enable podDisruptionBudget for bucket component
   podDisruptionBudget:

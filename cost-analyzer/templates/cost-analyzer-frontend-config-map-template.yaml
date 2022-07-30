@@ -1,6 +1,11 @@
 {{- if not .Values.agent }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
+{{- if .Values.saml.enabled }}
+{{- if .Values.oidc.enabled }}
+{{- fail "SAML and OIDC cannot both be enabled" }}
+{{- end }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -13,9 +18,9 @@ data:
 
     # Enable gzip encoding for content of the provided types of 50kb and higher.
     gzip on;
-    gzip_min_length 50000; 
+    gzip_min_length 50000;
     gzip_proxied expired no-cache no-store private auth;
-    gzip_types 
+    gzip_types
         application/atom+xml
         application/geo+json
         application/javascript
@@ -46,17 +51,37 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
+{{- if.Values.kubecostFrontend.api }}
+{{- if.Values.kubecostFrontend.api.fqdn }}
+        server {{ .Values.kubecostFrontend.api.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
+{{- end }}
     }
 
     upstream model {
+{{- if.Values.kubecostFrontend.model }}
+{{- if.Values.kubecostFrontend.model.fqdn }}
+        server {{ .Values.kubecostFrontend.model.fqdn }};
+{{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
+{{- else }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
+{{- end }}
     }
 
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
     upstream clustercontroller {
+{{- if .Values.clusterController.fqdn }}
+        server {{ .Values.clusterController.fqdn }};
+{{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
+{{- end }}
     }
 {{- end }}
 {{- end }}
@@ -64,12 +89,16 @@ data:
 {{- if .Values.global.grafana.proxy }}
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
+{{- if .Values.global.grafana.fqdn }}
+        server {{ .Values.global.grafana.fqdn }};
+{{- else }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
-{{ else }}
+{{- end }}
+{{- else }}
         server {{.Values.global.grafana.domainName}};
-{{ end }}
+{{- end }}
     }
-{{ end }}
+{{- end }}
 
     server {
         server_name _;
@@ -77,8 +106,17 @@ data:
         index index.html;
         large_client_header_buffers 4 32k;
         add_header Cache-Control "must-revalidate";
-{{- if .Values.saml.enabled }}
+
+        error_page 504 /custom_504.html;
+        location = /custom_504.html {
+            internal;
+        }
+
+{{- if or .Values.saml.enabled .Values.oidc.enabled }}
         add_header Cache-Control "max-age=0";
+        location /unauthorized.html {
+            
+        }
         location / {
             auth_request /auth;
             proxy_redirect off;
@@ -87,9 +125,13 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             error_page 401 = /login;
+            try_files $uri $uri/ /index.html;
         }
 {{- else }}
         add_header Cache-Control "max-age=300";
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
 {{- end }}
 {{- if .Values.imageVersion }}
         add_header ETag "{{ $.Values.imageVersion }}";
@@ -98,6 +140,9 @@ data:
 {{- end }}
 {{- if .Values.kubecostFrontend.tls }}
 {{- if .Values.kubecostFrontend.tls.enabled }}
+{{- if .Values.kubecostFrontend.tls.specifyProtocols }}
+        ssl_protocols       {{ $.Values.kubecostFrontend.tls.protocols }};
+{{- end }}
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
         listen 443 ssl;
@@ -111,7 +156,7 @@ data:
         listen [::]:{{ $nginxPort }};
 {{- end }}
         location /api/ {
-            {{- if .Values.saml.enabled }}
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             auth_request /auth;
             {{- end }}
             proxy_pass http://api/;
@@ -132,20 +177,20 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        
+
         location ~ ^/(turndown|cluster)/ {
 
             add_header 'Access-Control-Allow-Origin' '*' always;
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
-            {{- if .Values.saml }}
-            {{- if .Values.saml.enabled }}
+            {{- if or .Values.saml .Values.oidc }}
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             auth_request /auth;
             {{- else if .Values.saml.rbac.enabled}}
             auth_request /authrbac;
             {{- end }}
             {{- end }}
-            
+
             rewrite ^/(?:turndown|cluster)/(.*)$ /$1 break;
             proxy_pass http://clustercontroller;
             proxy_connect_timeout       180;
@@ -156,13 +201,24 @@ data:
             proxy_set_header Connection "";
             proxy_set_header X-Real-IP  $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        
+
 {{- else }}
             return 404;
 {{- end }}
 {{- else }}
             return 404;
 {{- end }}
+        }
+        location /oidc/ {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://model/oidc/;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /saml/ {
             proxy_connect_timeout       180;
@@ -212,7 +268,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{ end }}
-    {{- if .Values.saml.enabled }}
+    {{- if or .Values.saml.enabled .Values.oidc.enabled }}
         location /auth {
             proxy_pass http://model/isAuthenticated;
         }

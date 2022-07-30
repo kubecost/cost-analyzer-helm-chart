@@ -58,8 +58,11 @@ data:
   {{- if .Values.kubecostProductConfigs.azureClientID }}
     azureClientID: "{{ .Values.kubecostProductConfigs.azureClientID }}"
   {{- end -}}
-    {{- if .Values.kubecostProductConfigs.azureTenantID }}
+  {{- if .Values.kubecostProductConfigs.azureTenantID }}
     azureTenantID: "{{ .Values.kubecostProductConfigs.azureTenantID }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.azureOfferDurableID }}
+    azureOfferDurableID: "{{ .Values.kubecostProductConfigs.azureOfferDurableID }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.discount }}
     discount: "{{ .Values.kubecostProductConfigs.discount }}"
@@ -118,6 +121,9 @@ data:
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.athenaTable }}
     athenaTable: "{{ .Values.kubecostProductConfigs.athenaTable }}"
+  {{- end -}}
+  {{- if .Values.kubecostProductConfigs.athenaWorkgroup }}
+    athenaWorkgroup: "{{ .Values.kubecostProductConfigs.athenaWorkgroup }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.masterPayerARN}}
     masterPayerARN: "{{ .Values.kubecostProductConfigs.masterPayerARN }}"

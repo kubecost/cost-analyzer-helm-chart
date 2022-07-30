@@ -17,6 +17,7 @@ subjects:
 ---
 {{- end }}
 {{- end }}
+{{- if (not .Values.kubecostModel.etlReadOnlyMode) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -30,4 +31,5 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
-    namespace: {{ .Release.Namespace }}
+    namespace: {{ .Release.Namespace }} 
+{{- end }} 
