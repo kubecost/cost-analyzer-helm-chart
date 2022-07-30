@@ -12,9 +12,12 @@ dependencies:
   - condition: global.grafana.enabled
     name: grafana
     repository: file://./charts/grafana
+    version: "~1.17.2"
   - condition: global.prometheus.enabled
     name: prometheus
     repository: file://./charts/prometheus
+    version: "~11.0.2"
   - condition: global.thanos.enabled
     name: thanos
     repository: file://./charts/thanos
+    version: "~0.24.0"
