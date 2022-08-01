@@ -559,6 +559,8 @@ spec:
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
+            - name: ETL_STORE_READ_ONLY
+              value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
             - name : ETL_CLOUD_USAGE_ENABLED
             {{- if kindIs "bool" .Values.kubecostModel.etlCloudUsage }}
               value: {{ (quote .Values.kubecostModel.etlCloudUsage) }}
