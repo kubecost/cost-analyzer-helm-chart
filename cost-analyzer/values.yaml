@@ -624,6 +624,8 @@ networkCosts:
 # Used for HA mode in Business & Enterprise tier
 kubecostDeployment:
   replicas: 1
+  leaderFollower:
+    enabled: false
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

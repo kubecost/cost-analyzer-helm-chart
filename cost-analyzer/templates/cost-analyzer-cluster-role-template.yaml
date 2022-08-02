@@ -55,6 +55,15 @@ rules:
       - get
       - list
       - watch
+{{- $isLeaderFollowerEnabled := include "cost-analyzer.leaderFollowerEnabled" . }}
+{{- if $isLeaderFollowerEnabled }}
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - '*'
+{{- end }}
   - apiGroups:
       - apps
     resources:
