@@ -51,3 +51,18 @@ Parameter | Description | Default
 `kubecostFrontend.model.fqdn` | Customize the upstream model FQDN | `computed in terms of the service name and namespace`
 `clusterController.fqdn` | Customize the upstream cluster controller FQDN | `computed in terms of the service name and namespace`
 `global.grafana.fqdn` | Customize the upstream grafana FQDN | `computed in terms of the release name and namespace`
+
+
+## Testing
+To perform local testing do next:
+- install locally [kind](https://github.com/kubernetes-sigs/kind) according to documentation.
+- install locally [ct](https://github.com/helm/chart-testing) according to documentation.
+- create local cluster using `kind` \
+use image version from [kind docker registry](https://hub.docker.com/r/kindest/node/tags?page=1)
+```shell
+kind create cluster --image kindest/node:<set-image-tag>
+```
+- perform ct execution
+```shell
+ct install  --chart-dirs="." --charts="." --helm-repo-extra-args="--set=global.prometheus.enabled=false --set=global.grafana.enabled=false"
+```
