@@ -56,8 +56,8 @@ store:
   # Add extra selector matchLabels to store deployment
   deploymentMatchLabels: {}
   # Override the default deployment strategy
-  # deploymentStrategy:
-  #   type: RollingUpdate
+  deploymentStrategy:
+    type: Recreate
 
   # Enable metrics collecting for store service
   metrics:
@@ -279,8 +279,8 @@ queryFrontend:
   # Add extra selector matchLabels to query deployment
   deploymentMatchLabels: {}
   # Override the default deployment strategy
-  # deploymentStrategy:
-  #   type: RollingUpdate
+  deploymentStrategy:
+    type: Recreate
 
   # Enable metrics collecting for query service
   metrics:
@@ -445,8 +445,8 @@ query:
   # Add extra selector matchLabels to query deployment
   deploymentMatchLabels: {}
   # Override the default deployment strategy
-  # deploymentStrategy:
-  #   type: RollingUpdate
+  deploymentStrategy:
+    type: Recreate
 
   # Enable metrics collecting for query service
   metrics:
@@ -574,8 +574,8 @@ compact:
   # Add extra selector matchLabels to compact deployment
   deploymentMatchLabels: {}
   # Override the default deployment strategy
-  # deploymentStrategy:
-  #   type: RollingUpdate
+  deploymentStrategy:
+    type: Recreate
 
   # Enable metrics collecting for compact service
   metrics:
@@ -685,8 +685,8 @@ bucket:
   # Add extra selector matchLabels to bucket deployment
   deploymentMatchLabels: {}
   # Override the default deployment strategy
-  # deploymentStrategy:
-  #   type: RollingUpdate
+  deploymentStrategy:
+    type: Recreate
 
   # Enable podDisruptionBudget for bucket component
   podDisruptionBudget:
