@@ -7,7 +7,8 @@ kind: Service
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   labels:
-{{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{ include "kubecost.chartLabels" . | nindent 4 }}
+    app: {{ template "kubecost.kubeMetricsName" . }}
 {{- if (or .Values.kubecostMetrics.exporter.service.annotations $prometheusScrape) }}
   annotations:
 {{- if .Values.kubecostMetrics.exporter.service.annotations }}
