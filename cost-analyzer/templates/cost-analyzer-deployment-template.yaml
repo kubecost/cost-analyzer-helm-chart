@@ -571,8 +571,12 @@ spec:
             {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
+            - name: ETL_CLOUD_REFRESH_RATE_HOURS
+              value: {{ (quote .Values.kubecostModel.etlCloudRefreshRateHours) | default (quote 6) }}
             - name: ETL_CLOUD_QUERY_WINDOW_DAYS
               value: {{ (quote .Values.kubecostModel.etlCloudQueryWindowDays) | default (quote 7) }}
+            - name: ETL_CLOUD_RUN_WINDOW_DAYS
+              value: {{ (quote .Values.kubecostModel.etlCloudRunWindowDays) | default (quote 3) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
