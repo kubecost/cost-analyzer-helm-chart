@@ -64,12 +64,12 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-      # {{- if .Values.hosted }}
-      #   - name: config-store
-      #     secret:
-      #       defaultMode: 420
-      #       secretName: kubecost-thanos
-      # {{- end }}
+      {{- if .Values.hosted }}
+        - name: config-store
+          secret:
+            defaultMode: 420
+            secretName: kubecost-thanos
+      {{- end }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -287,11 +287,11 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
           volumeMounts:
-            # {{- if .Values.hosted }}
-            # - name: config-store
-            #   mountPath: /var/secrets
-            #   readOnly: true
-            # {{- end }}
+            {{- if .Values.hosted }}
+            - name: config-store
+              mountPath: /var/secrets
+              readOnly: true
+            {{- end }}
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.extraVolumeMounts }}
@@ -358,7 +358,7 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- if .Values.oidc }}
+                        {{- if .Values.oidc }}
             {{- if .Values.oidc.enabled }}
             - name: oidc-config
               mountPath: /var/configs/oidc
@@ -728,14 +728,14 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
-            # {{- if .Values.hosted }}
-            # - name: KUBECOST_CONFIG_BUCKET
-            #   value: /var/secrets/object-store.yaml
-            # - name: CLUSTER_INFO_FILE_ENABLED
-            #   value: "true"
-            # - name: CLUSTER_CACHE_FILE_ENABLED
-            #   value: "true"
-            # {{- end }}
+            {{- if .Values.hosted }}
+            - name: KUBECOST_CONFIG_BUCKET
+              value: /var/secrets/object-store.yaml
+            - name: CLUSTER_INFO_FILE_ENABLED
+              value: "true"
+            - name: CLUSTER_CACHE_FILE_ENABLED
+              value: "true"
+            {{- end }}
             {{- if .Values.reporting.googleAnalyticsTag }}
             - name: GOOGLE_ANALYTICS_TAG
               value: {{ .Values.reporting.googleAnalyticsTag }}
