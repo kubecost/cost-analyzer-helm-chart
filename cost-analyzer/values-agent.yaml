@@ -1,16 +1,16 @@
 # Kubecost running as an Agent is designed for external hosting. The current setup deploys a
-# kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter.
+# kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter. 
 global:
   thanos:
-    enabled: false
+    enabled: false 
   grafana:
-    enabled: false
-    proxy: false
+    enabled: false 
+    proxy: false 
 
 # Agent enables specific features designed to enhance the metrics exporter deployment
-# with enhancements designed for external hosting.
-agent: true
-# agentKeySecretName: kubecost-agent-object-store
+# with enhancements designed for external hosting. 
+agent: true 
+agentKeySecretName: kubecost-agent-object-store
 
 # No Grafana configuration is required.
 grafana:
@@ -21,19 +21,19 @@ grafana:
       defaultDatasourceEnabled: false
 
 # Exporter Pod
-kubecostMetrics:
+kubecostMetrics: 
   exporter:
-    enabled: true
+    enabled: true 
     exportClusterInfo: true
     exportClusterCache: true
 
 # Prometheus defaults to low rentention (10h), disables KSM, and attaches a thanos-sidecar
-# for exporting metrics.
+# for exporting metrics. 
 prometheus:
   kube-state-metrics:
     enabled: false
     disabled: true
-
+    
   server:
     extraArgs:
       storage.tsdb.min-block-duration: 2h
@@ -44,9 +44,9 @@ prometheus:
       runAsUser: 1001
     extraSecretMounts:
       - name: object-store-volume
-        mountPath: /etc/thanos/config
+        mountPath: /etc/thanos/config 
         readOnly: true
-        secretName: kubecost-agent-object-store
+        secretName: {{ .Values.agentKeySecretName }}
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar

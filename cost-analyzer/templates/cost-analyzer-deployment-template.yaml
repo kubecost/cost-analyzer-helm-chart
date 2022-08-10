@@ -64,12 +64,6 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-      # {{- if .Values.hosted }}
-      #   - name: config-store
-      #     secret:
-      #       defaultMode: 420
-      #       secretName: kubecost-thanos
-      # {{- end }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -287,11 +281,6 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
           volumeMounts:
-            # {{- if .Values.hosted }}
-            # - name: config-store
-            #   mountPath: /var/secrets
-            #   readOnly: true
-            # {{- end }}
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.extraVolumeMounts }}
@@ -358,7 +347,7 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-                        {{- if .Values.oidc }}
+            {{- if .Values.oidc }}
             {{- if .Values.oidc.enabled }}
             - name: oidc-config
               mountPath: /var/configs/oidc
@@ -654,11 +643,7 @@ spec:
             {{- if .Values.thanos.query }}
             {{- if .Values.thanos.query.enabled }}
             - name: THANOS_ENABLED
-            {{- if .Values.hosted }}
-              value: "false"
-            {{- else }}
               value: "true"
-            {{- end }}
             - name: THANOS_QUERY_URL
               value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
             - name: THANOS_QUERY_OFFSET
@@ -728,21 +713,13 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
-            # {{- if .Values.hosted }}
-            # - name: KUBECOST_CONFIG_BUCKET
-            #   value: /var/secrets/object-store.yaml
-            # - name: CLUSTER_INFO_FILE_ENABLED
-            #   value: "true"
-            # - name: CLUSTER_CACHE_FILE_ENABLED
-            #   value: "true"
-            # {{- end }}
             {{- if .Values.reporting.googleAnalyticsTag }}
             - name: GOOGLE_ANALYTICS_TAG
               value: {{ .Values.reporting.googleAnalyticsTag }}
             {{- end }}
             {{- /*
               Leader/Follower has baseline requirements before enabling:
-                * ETL FileStore Enabled
+                * ETL FileStore Enabled 
                 * Bucket Backup Configured
                 * Replicas > 1
             */}}
@@ -754,7 +731,7 @@ spec:
             {{- if not $etlFileStore }}
             {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
             {{- end -}}
-
+            
             {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
             {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
             {{- end -}}
@@ -763,8 +740,8 @@ spec:
             {{- if not (gt (int $replicas) 1) }}
             {{- fail "Leader/Follower should be used with kubecostDeployment.replicas > 1" }}
             {{- end }}
-            {{- /*
-              Checks to ensure that the named template returns true if we've made it here
+            {{- /* 
+              Checks to ensure that the named template returns true if we've made it here 
             */}}
             {{- $result := include "cost-analyzer.leaderFollowerEnabled" . }}
             {{- if not $result }}
