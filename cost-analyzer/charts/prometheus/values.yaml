@@ -590,7 +590,7 @@ server:
     scrape_interval: 1m
     ## How long until a scrape request times out
     ##
-    scrape_timeout: 10s
+    scrape_timeout: 60s
     ## How frequently to evaluate rules
     ##
     evaluation_interval: 1m
