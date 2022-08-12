@@ -33,9 +33,9 @@ networkPolicy:
 podSecurityPolicy:
   enabled: false
 
-imageVersion: prod-1.95.1
+imageVersion: prod-1.96.0
 kubecostFrontend:
-  image: public.ecr.aws/j1f1u6t2/frontend
+  image: public.ecr.aws/kubecost/frontend
   imagePullPolicy: Always
   resources:
     requests:
@@ -46,7 +46,7 @@ kubecostFrontend:
     #  memory: "256Mi"
   
 kubecostModel:
-  image: public.ecr.aws/j1f1u6t2/cost-model
+  image: public.ecr.aws/kubecost/cost-model
   imagePullPolicy: Always
   warmCache: true
   warmSavingsCache: true
@@ -138,7 +138,7 @@ prometheus:
     enabled: false
   server:
     image:
-      repository: public.ecr.aws/j1f1u6t2/prometheus
+      repository: public.ecr.aws/kubecost/prometheus
       tag: v2.35.0
 
 reporting:
