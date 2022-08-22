@@ -16,7 +16,7 @@ prometheus:
       kubernetes.io/os: linux
 
 nodeExporter:
-  enabled: false
+  enabled: true
   affinity:
     nodeAffinity:
       requiredDuringSchedulingIgnoredDuringExecution:
