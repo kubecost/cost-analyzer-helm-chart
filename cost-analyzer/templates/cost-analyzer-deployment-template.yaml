@@ -76,6 +76,12 @@ spec:
            defaultMode: 420
            secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
         {{- end }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        - name: federated-storage-config
+          secret:
+           defaultMode: 420
+           secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.productKey }}
         {{- if .Values.kubecostProductConfigs.productKey.secretname }}
@@ -294,6 +300,11 @@ spec:
             {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
+            {{- end }}
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: federated-storage-config
+              mountPath: /var/configs/etl
+              readOnly: true
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.productKey }}
@@ -558,6 +569,10 @@ spec:
             {{- else }}
             - name: ETL_TO_DISK_ENABLED
               value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
+            {{- end }}
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated-store.yaml"
             {{- end }}
             - name: ETL_STORE_READ_ONLY
               value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
