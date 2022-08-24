@@ -42,6 +42,8 @@ spec:
 {{- end }}
 {{- end }}
     spec:
+      {{- if .Values.openshiftDeployment }}
+      securityContext: {}
       {{- if .Values.kubecostFrontend.tls }}
       {{- if .Values.kubecostFrontend.tls.enabled }}
       securityContext:
@@ -55,6 +57,7 @@ spec:
       {{- else if lt $nginxPort 1025 }}
       securityContext:
         runAsUser: 0
+      {{- end }}
       {{- else }}
       securityContext:
         runAsUser: 1001

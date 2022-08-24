@@ -1,0 +1,36 @@
+kubecostProductConfigs:
+  clusterName: CLUSTER_NAME
+  projectID: CLUSTER_NAME
+
+prometheus:
+  nodeExporter:
+    enabled: false
+  serviceAccounts:
+    nodeExporter:
+      create: false
+  kube-state-metrics:
+    disabled: true
+  server:
+    global:
+      external_labels:
+        cluster_id: CLUSTER_NAME
+
+networkCosts:
+  enabled: false
+global:
+  grafana:
+    enabled: false
+    proxy: false
+
+
+kubecostFrontend:
+  fullImageName: "linhlamkc/cost-analyzer-frontend:prod-1.96.0"
+openshiftDeployment: true
+
+# Define persistence volume for cost-analyzer
+persistentVolume:
+  size: 32Gi
+  dbSize: 32.0Gi
+  enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
+  # storageClass: "-" #
+  # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
