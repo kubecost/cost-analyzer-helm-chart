@@ -63,25 +63,25 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 
 {{- define "cost-analyzer.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
+{{ include "cost-analyzer.fullname" . }}
 {{- end -}}
 
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
 {{- define "cost-analyzer.networkCostsName" -}}
-{{- printf "%s-%s" .Release.Name "network-costs" -}}
+{{- printf "%s-%s" (include "cost-analyzer.fullname" .) "network-costs" -}}
 {{- end -}}
 
 {{- define "kubecost.clusterControllerName" -}}
-{{- printf "%s-%s" .Release.Name "cluster-controller" -}}
+{{- printf "%s-%s" (include "cost-analyzer.fullname" .) "cluster-controller" -}}
 {{- end -}}
 
 {{- define "kubecost.kubeMetricsName" -}}
 {{- if .Values.agent }}
-{{- printf "%s-%s" .Release.Name "agent" -}}
+{{- printf "%s-%s" (include "cost-analyzer.fullname" .) "agent" -}}
 {{- else }}
-{{- printf "%s-%s" .Release.Name "metrics" -}}
+{{- printf "%s-%s" (include "cost-analyzer.fullname" .) "metrics" -}}
 {{- end }}
 {{- end -}}
 
@@ -180,9 +180,9 @@ Return the appropriate apiVersion for podsecuritypolicy.
 
 {{/*
 Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
-will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map 
-is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the 
-map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the 
+will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map
+is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the
+map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the
 enabled only version to the output .r
 */}}
 {{- define "cost-analyzer.filter" -}}
@@ -220,8 +220,8 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
 
 {{/*
 This template runs the full check for leader/follower requirements in order to determine
-whether it should be configured. This template will return true if it's enabled and all 
-requirements are met. 
+whether it should be configured. This template will return true if it's enabled and all
+requirements are met.
 */}}
 {{- define "cost-analyzer.leaderFollowerEnabled" }}
     {{- if .Values.kubecostDeployment }}
