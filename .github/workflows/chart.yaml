@@ -24,7 +24,7 @@ jobs:
       - name: Run helm template
         working-directory: ./cost-analyzer
         # Template the chart out for kubeval usage and also validates that it can 'build'
-        run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
+        run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false --set prometheus.server.global.external_labels.cluster_id=cluster-1 > full.yaml
 
       - name: Kubeval
         uses: instrumenta/kubeval-action@master
@@ -57,7 +57,7 @@ jobs:
         working-directory: ./cost-analyzer
         run: |
           kubectl create ns kubecost
-          helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
+          helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false --set prometheus.server.global.external_labels.cluster_id=cluster-1
 
       - name: Cleanup k3s
         if: always()
