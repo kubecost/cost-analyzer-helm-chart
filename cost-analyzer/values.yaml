@@ -1,7 +1,7 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
+    enabled: true # If false, Prometheus will not be installed -- please read this before disabling: https://github.com/kubecost/docs/blob/main/custom-prom.md
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
@@ -184,7 +184,7 @@ oidc:
   clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
   clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
   secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
-  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server 
+  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
 
@@ -282,7 +282,7 @@ kubecostModel:
   # Run allocation ETL pipelines
   etl: true
   # Enable the ETL filestore backing storage
-  etlFileStoreEnabled: true 
+  etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
@@ -461,8 +461,14 @@ prometheus:
     enabled: false
     persistentVolume:
       enabled: true
+  # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     enabled: true
+  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibity, but can be disabled to save resources without concern to kubecost metrics
+  kubeStateMetrics:
+    enabled: true
+  kube-state-metrics:
+    disabled: false
   pushgateway:
     enabled: false
     persistentVolume:
