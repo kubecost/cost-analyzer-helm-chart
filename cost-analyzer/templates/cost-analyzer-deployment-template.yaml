@@ -358,7 +358,7 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-                        {{- if .Values.oidc }}
+            {{- if .Values.oidc }}
             {{- if .Values.oidc.enabled }}
             - name: oidc-config
               mountPath: /var/configs/oidc
