@@ -248,6 +248,35 @@ spec:
             runAsUser: 0
 {{ end }}
       containers:
+        {{- if .Values.global.amp.enabled }}
+        - name: sigv4proxy
+          image: {{ .Values.sigV4Proxy.image }}
+          {{- if .Values.sigV4Proxy.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.sigV4Proxy.imagePullPolicy }}
+          {{- else }}
+          imagePullPolicy: Always
+          {{- end }}
+          args:
+          - --name
+          - {{ .Values.sigV4Proxy.name }}
+          - --region
+          - {{ .Values.sigV4Proxy.region }}
+          - --host
+          - {{ .Values.sigV4Proxy.host }}
+          {{- if .Values.sigV4Proxy.role_arn }}
+          - --role-arn
+          - {{ .Values.sigV4Proxy.role_arn }}
+          {{- end }}          
+          - --port
+          - :{{ .Values.sigV4Proxy.port }}
+          ports:
+          - name: aws-sigv4-proxy
+            containerPort: {{ .Values.sigV4Proxy.port | int }}
+          {{- if .Values.sigV4Proxy.extraEnv }}
+          env:
+          {{- toYaml .Values.sigV4Proxy.extraEnv | nindent 10 }}
+          {{- end }}
+        {{- end }}
         {{- if .Values.kubecostModel }}
         {{- if .Values.kubecostModel.openSourceOnly }}
         - image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}

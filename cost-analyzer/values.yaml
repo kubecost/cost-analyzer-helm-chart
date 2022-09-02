@@ -22,6 +22,18 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
 
+  # Amazon Managed Service for Prometheus
+  amp:
+    enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
+    prometheusServerEndpoint: https://localhost:8085/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
+    remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
+    sigv4:
+      region: us-west-2
+      # access_key: ACCESS_KEY # AWS Access key 
+      # secret_key: SECRET_KEY # AWS Secret key
+      # role_arn: ROLE_ARN # AWS role arn
+      # profile: PROFILE # AWS profile
+
   notifications:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
@@ -265,6 +277,20 @@ kubecostMetrics:
     additionalLabels: {}
     nodeSelector: {}
     extraArgs: []
+
+sigV4Proxy:
+  image: public.ecr.aws/aws-observability/aws-sigv4-proxy:latest
+  imagePullPolicy: Always
+  name: aps
+  port: 8005
+  region: us-west-2 # The AWS region
+  host: aps-workspaces.us-west-2.amazonaws.com # The hostname for AMP service.
+  # role_arn: arn:aws:iam::<account>:role/role-name # The AWS IAM role to assume.
+  extraEnv: # Pass extra env variables to sigV4Proxy
+  # - name: AWS_ACCESS_KEY_ID
+  #   value: <access_key>
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   value: <secret_key>
 
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
