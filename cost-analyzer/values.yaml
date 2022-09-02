@@ -184,7 +184,7 @@ oidc:
   clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
   clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
   secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
-  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server 
+  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
 
@@ -212,6 +212,8 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+  ipv6:
+    enabled: true # disable if the cluster does not support ipv6
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
@@ -282,7 +284,7 @@ kubecostModel:
   # Run allocation ETL pipelines
   etl: true
   # Enable the ETL filestore backing storage
-  etlFileStoreEnabled: true 
+  etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
