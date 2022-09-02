@@ -224,6 +224,8 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+  ipv6:
+    enabled: true # disable if the cluster does not support ipv6
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
