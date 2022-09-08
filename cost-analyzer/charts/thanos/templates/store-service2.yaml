@@ -34,7 +34,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "thanos.componentname" (list $ "store") }}-http
+  name: {{ include "thanos.componentname" (list $ "store") }}-http-test
   {{- with .Values.store.http.service.annotations }}
   annotations: {{ toYaml .| nindent 4 }}
   {{- end }}
