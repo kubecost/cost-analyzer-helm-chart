@@ -1,7 +1,7 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- only actively supported on paid Kubecost plans
+    enabled: true # If false, Prometheus will not be installed -- please read this before disabling: https://github.com/kubecost/docs/blob/main/custom-prom.md
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
@@ -21,6 +21,18 @@ global:
     scheme: "http" # http or https, for the domain name above.
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
+
+  # Amazon Managed Service for Prometheus
+  amp:
+    enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
+    prometheusServerEndpoint: https://localhost:8085/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
+    remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
+    sigv4:
+      region: us-west-2
+      # access_key: ACCESS_KEY # AWS Access key 
+      # secret_key: SECRET_KEY # AWS Secret key
+      # role_arn: ROLE_ARN # AWS role arn
+      # profile: PROFILE # AWS profile
 
   notifications:
     # Kubecost alerting configuration
@@ -184,7 +196,7 @@ oidc:
   clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
   clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
   secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
-  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server 
+  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
 
@@ -212,6 +224,8 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+  ipv6:
+    enabled: true # disable if the cluster does not support ipv6
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
@@ -266,6 +280,20 @@ kubecostMetrics:
     nodeSelector: {}
     extraArgs: []
 
+sigV4Proxy:
+  image: public.ecr.aws/aws-observability/aws-sigv4-proxy:latest
+  imagePullPolicy: Always
+  name: aps
+  port: 8005
+  region: us-west-2 # The AWS region
+  host: aps-workspaces.us-west-2.amazonaws.com # The hostname for AMP service.
+  # role_arn: arn:aws:iam::<account>:role/role-name # The AWS IAM role to assume.
+  extraEnv: # Pass extra env variables to sigV4Proxy
+  # - name: AWS_ACCESS_KEY_ID
+  #   value: <access_key>
+  # - name: AWS_SECRET_ACCESS_KEY
+  #   value: <secret_key>
+
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
@@ -282,7 +310,7 @@ kubecostModel:
   # Run allocation ETL pipelines
   etl: true
   # Enable the ETL filestore backing storage
-  etlFileStoreEnabled: true 
+  etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
@@ -410,7 +438,7 @@ prometheus:
     - job_name: kubecost
       honor_labels: true
       scrape_interval: 1m
-      scrape_timeout: 10s
+      scrape_timeout: 60s
       metrics_path: /metrics
       scheme: http
       dns_sd_configs:
@@ -461,8 +489,14 @@ prometheus:
     enabled: false
     persistentVolume:
       enabled: true
+  # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     enabled: true
+  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibity, but can be disabled to save resources without concern to kubecost metrics
+  kubeStateMetrics:
+    enabled: true
+  kube-state-metrics:
+    disabled: false
   pushgateway:
     enabled: false
     persistentVolume:

@@ -1,6 +1,10 @@
 {{ if .Values.global.thanos.enabled }}
 {{- if and .Values.queryFrontend.enabled .Values.queryFrontend.podDisruptionBudget.enabled }}
+{{- if .Capabilities.APIVersions.Has "policy/v1" -}}
+apiVersion: policy/v1
+{{- else}}
 apiVersion: policy/v1beta1
+{{- end }}
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "thanos.componentname" (list $ "query-frontend") }}

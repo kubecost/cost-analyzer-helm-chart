@@ -115,7 +115,7 @@ data:
 {{- if or .Values.saml.enabled .Values.oidc.enabled }}
         add_header Cache-Control "max-age=0";
         location /unauthorized.html {
-            
+
         }
         location / {
             auth_request /auth;
@@ -146,14 +146,20 @@ data:
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
         listen 443 ssl;
+{{- if .Values.kubecostFrontend.ipv6.enabled }}
         listen [::]:443 ssl;
-{{- else }}
-        listen {{ $nginxPort }};
-        listen [::]:{{ $nginxPort }};
 {{- end }}
 {{- else }}
         listen {{ $nginxPort }};
+{{- if .Values.kubecostFrontend.ipv6.enabled }}
         listen [::]:{{ $nginxPort }};
+{{- end }}
+{{- end }}
+{{- else }}
+        listen {{ $nginxPort }};
+{{- if .Values.kubecostFrontend.ipv6.enabled }}
+        listen [::]:{{ $nginxPort }};
+{{- end }}
 {{- end }}
         location /api/ {
             {{- if or .Values.saml.enabled .Values.oidc.enabled }}
@@ -266,6 +272,7 @@ data:
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header Host $http_host;
         }
     {{ end }}
     {{- if or .Values.saml.enabled .Values.oidc.enabled }}
