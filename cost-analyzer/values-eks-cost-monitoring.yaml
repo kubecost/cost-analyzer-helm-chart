@@ -33,7 +33,7 @@ networkPolicy:
 podSecurityPolicy:
   enabled: false
 
-imageVersion: prod-1.96.0
+imageVersion: prod-1.97.0
 kubecostFrontend:
   image: public.ecr.aws/kubecost/frontend
   imagePullPolicy: Always
