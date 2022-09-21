@@ -29,7 +29,7 @@ global:
     remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
     sigv4:
       region: us-west-2
-      # access_key: ACCESS_KEY # AWS Access key 
+      # access_key: ACCESS_KEY # AWS Access key
       # secret_key: SECRET_KEY # AWS Secret key
       # role_arn: ROLE_ARN # AWS role arn
       # profile: PROFILE # AWS profile
@@ -272,6 +272,9 @@ kubecostMetrics:
     serviceMonitor:
       enabled: false
       additionalLabels: {}
+      networkCosts:
+        enabled: false
+        additionalLabels: {}
 
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -685,6 +688,10 @@ reporting:
 serviceMonitor:
   enabled: false
   additionalLabels: {}
+  networkCosts:
+    enabled: false
+    scrapeTimeout: 10s
+    additionalLabels: {}
 
 prometheusRule:
   enabled: false
