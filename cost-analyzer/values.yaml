@@ -269,13 +269,13 @@ kubecostMetrics:
       annotations: {}
 
     # Service Monitor for Kubecost Metrics
-    serviceMonitor:
+    serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
       networkCosts:
         enabled: false
+        scrapeTimeout: 10s
         additionalLabels: {}
-
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
     priorityClassName: []
@@ -685,7 +685,7 @@ reporting:
   # googleAnalyticsTag is only included in our Enterprise offering.
   # googleAnalyticsTag: G-XXXXXXXXX
 
-serviceMonitor:
+serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
   additionalLabels: {}
   networkCosts:
