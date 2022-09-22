@@ -111,7 +111,7 @@ spec:
       {{- if .Values.store.dataVolume.persistentVolumeClaim }}
       {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
         persistentVolumeClaim:
-          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test1
       {{- else }}
         emptyDir: {}
       {{- end }}
@@ -267,7 +267,7 @@ spec:
       {{- if .Values.store.dataVolume.persistentVolumeClaim }}
       {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
         persistentVolumeClaim:
-          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test2
       {{- else }}
         emptyDir: {}
       {{- end }}
@@ -422,7 +422,7 @@ spec:
       {{- if .Values.store.dataVolume.persistentVolumeClaim }}
       {{- if .Values.store.dataVolume.persistentVolumeClaim.claimName }}
         persistentVolumeClaim:
-          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test
+          claimName: {{ .Values.store.dataVolume.persistentVolumeClaim.claimName }}-test3
       {{- else }}
         emptyDir: {}
       {{- end }}
