@@ -76,9 +76,9 @@ spec:
         {{- end }}
         {{- if .Values.store.extraArgs }}
         {{ toYaml .Values.store.extraArgs | nindent 8 }}
+        {{- end }}
         - "--min-time=-90d"
         - "--max-time=-60d"
-        {{- end }}
         ports:
         - name: http
           containerPort: {{ .Values.store.http.port }}
@@ -232,9 +232,9 @@ spec:
         {{- end }}
         {{- if .Values.store.extraArgs }}
         {{ toYaml .Values.store.extraArgs | nindent 8 }}
+        {{- end }}
         - "--min-time=-60d"
         - "--max-time=-30d"
-        {{- end }}
         ports:
         - name: http
           containerPort: {{ .Values.store.http.port }}
@@ -388,8 +388,8 @@ spec:
         {{- end }}
         {{- if .Values.store.extraArgs }}
         {{ toYaml .Values.store.extraArgs | nindent 8 }}
-        - "--min-time=-30d"
         {{- end }}
+        - "--min-time=-30d"
         ports:
         - name: http
           containerPort: {{ .Values.store.http.port }}
