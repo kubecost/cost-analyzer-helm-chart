@@ -196,7 +196,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-        location /pkg.service.allocation.v1/ {
+        location /services/ {
             grpc_pass grpc://grpcserver;
         }
 
