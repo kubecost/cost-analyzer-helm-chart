@@ -319,6 +319,11 @@ kubecostModel:
   etlHourlyStoreDurationHours: 49
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
+
+  # Enables or disables the ContainerStats pipeline, used for quantile-based
+  # queries like for request sizing recommendations.
+  # containerStatsEnabled: true
+
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   resources:
