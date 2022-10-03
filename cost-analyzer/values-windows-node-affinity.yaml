@@ -31,3 +31,20 @@ prometheus:
 grafana:
   nodeSelector:
     kubernetes.io/os: linux
+
+thanos:
+  store:
+    nodeSelector:
+      kubernetes.io/os: linux
+  queryFrontend:
+    nodeSelector:
+      kubernetes.io/os: linux
+  query:
+    nodeSelector:
+      kubernetes.io/os: linux
+  compact:
+    nodeSelector:
+      kubernetes.io/os: linux
+  bucket:
+    nodeSelector:
+      kubernetes.io/os: linux
