@@ -1263,14 +1263,6 @@ serverFiles:
           - source_labels: [ __name__ ]
             regex: (kubelet_volume_stats_used_bytes)
             action: keep
-          - source_labels: [ container ]
-            target_label: container_name
-            regex: (.+)
-            action: replace
-          - source_labels: [ pod ]
-            target_label: pod_name
-            regex: (.+)
-            action: replace
 
       # Scrape config for service endpoints.
       #
