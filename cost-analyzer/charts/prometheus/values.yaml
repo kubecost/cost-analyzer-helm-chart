@@ -1261,7 +1261,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kubelet_volume_stats_used_bytes)
+            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha 
             action: keep
 
       # Scrape config for service endpoints.
