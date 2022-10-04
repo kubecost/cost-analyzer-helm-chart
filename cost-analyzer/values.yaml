@@ -29,7 +29,7 @@ global:
     remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
     sigv4:
       region: us-west-2
-      # access_key: ACCESS_KEY # AWS Access key 
+      # access_key: ACCESS_KEY # AWS Access key
       # secret_key: SECRET_KEY # AWS Secret key
       # role_arn: ROLE_ARN # AWS role arn
       # profile: PROFILE # AWS profile
@@ -269,10 +269,13 @@ kubecostMetrics:
       annotations: {}
 
     # Service Monitor for Kubecost Metrics
-    serviceMonitor:
+    serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
-
+      networkCosts:
+        enabled: false
+        scrapeTimeout: 10s
+        additionalLabels: {}
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
     priorityClassName: []
@@ -319,6 +322,11 @@ kubecostModel:
   etlHourlyStoreDurationHours: 49
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
+
+  # Enables or disables the ContainerStats pipeline, used for quantile-based
+  # queries like for request sizing recommendations.
+  # containerStatsEnabled: true
+
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
   resources:
@@ -682,9 +690,13 @@ reporting:
   # googleAnalyticsTag is only included in our Enterprise offering.
   # googleAnalyticsTag: G-XXXXXXXXX
 
-serviceMonitor:
+serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
   additionalLabels: {}
+  networkCosts:
+    enabled: false
+    scrapeTimeout: 10s
+    additionalLabels: {}
 
 prometheusRule:
   enabled: false

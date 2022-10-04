@@ -1,0 +1,25 @@
+{{- if .Values.serviceMonitor.networkCosts.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "cost-analyzer.networkCostsName" . }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- if .Values.serviceMonitor.networkCosts.additionalLabels }}
+    {{ toYaml .Values.serviceMonitor.networkCosts.additionalLabels | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+    - port: metrics
+      honorLabels: true
+      interval: 1m
+      scrapeTimeout: {{ .Values.serviceMonitor.networkCosts.scrapeTimeout }}
+      path: /metrics
+      scheme: http
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app: {{ include "cost-analyzer.networkCostsName" . }}
+{{- end }}

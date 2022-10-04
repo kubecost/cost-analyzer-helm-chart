@@ -463,9 +463,15 @@ spec:
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
+
                                                                # This GCP api key is expected to be here and is limited to accessing google's billing API. 
+            {{- if .Values.kubecostProductConfigs }}
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
+            {{- end }}
+            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
@@ -651,6 +657,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
               value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+            - name: CONTAINER_STATS_ENABLED
+              value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote true) }}
             - name: RECONCILE_NETWORK
               value: {{ (quote .Values.kubecostModel.reconcileNetwork) | default (quote true) }}
             {{- if .Values.systemProxy.enabled }}
