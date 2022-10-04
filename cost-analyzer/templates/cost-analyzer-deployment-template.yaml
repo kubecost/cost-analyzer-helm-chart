@@ -463,7 +463,7 @@ spec:
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
-                                                               # This GCP api key is expected to be there and is limited to accessing googles billing API. 
+                                                               # This GCP api key is expected to be here and is limited to accessing google's billing API. 
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             - name: CONFIG_PATH
