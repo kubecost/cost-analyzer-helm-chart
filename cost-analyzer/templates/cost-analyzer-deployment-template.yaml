@@ -190,6 +190,13 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.federatedETL.federator }}
+        {{- if .Values.federatedETL.federator.enabled }}
+        - name: federator-config
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-federator
+        {{- end }}
+        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -305,6 +312,12 @@ spec:
             - name: federated-storage-config
               mountPath: /var/configs/etl
               readOnly: true
+            {{- end }}
+            {{- if .Values.federatedETL }}
+            {{- if .Values.federatedETL.federator.enabled }}
+            - name: federator-config
+              mountPath: /var/configs/federator
+            {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.productKey }}
@@ -574,6 +587,18 @@ spec:
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
             {{- end }}
+            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: FEDERATED_CLUSTER
+              value: "true"
+            {{- end}}
+            {{- if .Values.federatedETL.primaryCluster }}
+            - name: FEDERATED_PRIMARY_CLUSTER
+              value: "true"
+            {{- end}}
+            {{- if .Values.federatedETL.federator.enabled }}
+            - name: FEDERATED_FEDERATOR_ENABLED
+              value: "true"
+            {{- end}}
             - name: ETL_STORE_READ_ONLY
               value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
             - name : ETL_CLOUD_USAGE_ENABLED

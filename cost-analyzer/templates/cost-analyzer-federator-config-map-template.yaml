@@ -1,0 +1,13 @@
+{{- if .Values.federatedETL.federator }}
+{{- if .Values.federatedETL.federator.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-federator
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+{{- $root := . }}
+    federator.json: '{{ toJson .Values.federatedETL.federator }}'
+{{- end -}}
+{{- end -}}
