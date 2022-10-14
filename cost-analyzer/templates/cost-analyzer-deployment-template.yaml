@@ -278,7 +278,7 @@ spec:
           {{- if .Values.sigV4Proxy.role_arn }}
           - --role-arn
           - {{ .Values.sigV4Proxy.role_arn }}
-          {{- end }}          
+          {{- end }}
           - --port
           - :{{ .Values.sigV4Proxy.port }}
           ports:
@@ -312,6 +312,13 @@ spec:
         {{- else }}
           imagePullPolicy: Always
         {{- end }}
+          ports:
+          - name: tcp-model
+            containerPort: 9090
+            protocol: TCP
+          - name: tcp-frontend
+            containerPort: 9003
+            protocol: TCP
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
