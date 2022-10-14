@@ -588,8 +588,8 @@ networkCosts:
       # In Zone contains a list of address/range that will be
       # classified as in zone.
       in-zone:
-        # Loopback
-        - "127.0.0.1"
+        # Loopback Addresses in "IANA IPv4 Special-Purpose Address Registry"
+        - "127.0.0.0/8"
         # IPv4 Link Local Address Space
         - "169.254.0.0/16"
         # Private Address Ranges in RFC-1918
