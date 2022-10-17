@@ -1,6 +1,6 @@
 rbac:
   create: true
-  pspEnabled: true
+  pspEnabled: false
   pspUseAppArmor: true
 serviceAccount:
   create: true
