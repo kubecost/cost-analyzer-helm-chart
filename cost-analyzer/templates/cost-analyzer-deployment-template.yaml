@@ -18,11 +18,11 @@ spec:
   selector:
     matchLabels:
 {{ include "cost-analyzer.selectorLabels" . | nindent 8}}
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
+{{- if .Values.kubecostDeployment }}
+{{- with .Values.kubecostDeployment.deploymentStrategy }}
+  strategy: {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- end }}
   template:
     metadata:
       labels:

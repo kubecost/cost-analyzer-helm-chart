@@ -668,6 +668,8 @@ kubecostDeployment:
   replicas: 1
   leaderFollower:
     enabled: false
+  deploymentStrategy:
+    type: RollingUpdate
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
