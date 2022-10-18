@@ -19,8 +19,16 @@ spec:
     matchLabels:
 {{ include "cost-analyzer.selectorLabels" . | nindent 8}}
 {{- if .Values.kubecostDeployment }}
+{{- if .Values.kubecostDeployment.deploymentStrategy }}
 {{- with .Values.kubecostDeployment.deploymentStrategy }}
   strategy: {{ toYaml . | nindent 4 }}
+{{- end }}
+{{- else }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
 {{- end }}
 {{- end }}
   template:
