@@ -314,10 +314,10 @@ spec:
         {{- end }}
           ports:
           - name: tcp-model
-            containerPort: 9090
+            containerPort: 9003
             protocol: TCP
           - name: tcp-frontend
-            containerPort: 9003
+            containerPort: 9090
             protocol: TCP
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
