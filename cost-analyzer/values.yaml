@@ -783,9 +783,7 @@ federatedETL:
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-kubecostProductConfigs:
-  etlBucketConfigSecret: "kubecost-backup"
-  federatedStorageConfigSecret: "kc-federated-secret"
+# kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
