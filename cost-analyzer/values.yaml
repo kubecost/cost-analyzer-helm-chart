@@ -707,13 +707,13 @@ awsstore:
   createServiceAccount: false
 
 federatedETL:
-  federatedCluster: true
-  primaryCluster: true
+  federatedCluster: false
+  primaryCluster: false
   redirectS3Backup: false
   useExistingS3Config: false
   federator:
     # federationCutoffDate: "2022-10-18T00:00:00.000Z"
-    enabled: true
+    enabled: false
     clusters: []
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
