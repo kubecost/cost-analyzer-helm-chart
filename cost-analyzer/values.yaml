@@ -707,13 +707,23 @@ awsstore:
   createServiceAccount: false
 
 federatedETL:
-  federatedCluster: false
-  primaryCluster: false
-  redirectS3Backup: false
+  # federatedCluster indicates whether this cluster should push data to the Federated store
+  federatedCluster: false 
+  # primaryCluster indicates whether this cluster should load data from the combined section of the Federated store
+  primaryCluster: false 
+  # redirectS3Backup changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL
+  # Note S3 backup should be enabled separately for this.
+  redirectS3Backup: false 
+  # useExistingS3Config will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
   useExistingS3Config: false
   federator:
+    # federationCutoffDate is an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator.
+    # If this is not set, the Federator will process all files regardless of date.
     # federationCutoffDate: "2022-10-18T00:00:00.000Z"
+    # federator.enabled enables the federator to run inside the costmodel container, federating the data in the Federated store
     enabled: false
+    # federator.clusters is an optional whitelist of clusters.
+    # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
