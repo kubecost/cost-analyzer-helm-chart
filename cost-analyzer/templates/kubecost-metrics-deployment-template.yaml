@@ -187,8 +187,10 @@ spec:
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
+            {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
+            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: KUBECOST_METRICS_PORT
@@ -234,14 +236,15 @@ spec:
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
-            {{- if and (hasKey .Values.prometheus.server.global.external_labels "cluster_id") (not .Values.prometheus.server.clusterIDConfigmap) }}
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
-            {{- else }}
+            {{- end }}
+            {{- if .Values.prometheus.server.clusterIDConfigmap }}
             - name: CLUSTER_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ required "A cluster_id OR clusterIDConfigmap is required!" .Values.prometheus.server.clusterIDConfigmap }}
+                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
             {{- end }}
             {{- if .Values.kubecostModel.promClusterIDLabel }}
