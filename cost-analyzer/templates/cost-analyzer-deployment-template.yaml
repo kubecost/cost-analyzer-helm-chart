@@ -449,6 +449,10 @@ spec:
             - name: APP_CONFIGMAP_NAME
               value: {{ .Values.appConfigmapName }}
             {{- end }}
+            {{- if .Values.kubecostModel.softMemoryLimit }}
+            - name: GOMEMLIMIT
+              value: {{ .Values.kubecostModel.softMemoryLimit }}
+            {{- end }}
             {{- if .Values.assetReportConfigmapName }}
             - name: ASSET_REPORT_CONFIGMAP_NAME
               value: {{ .Values.assetReportConfigmapName }}
