@@ -310,7 +310,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
-              mountPath: /var/configs/etl
+              mountPath: /var/configs/etl/federated
               readOnly: true
             {{- end }}
             {{- if .Values.federatedETL }}
@@ -585,7 +585,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
-              value: "/var/configs/etl/federated-store.yaml"
+              value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
             {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
@@ -593,6 +593,14 @@ spec:
             {{- end}}
             {{- if .Values.federatedETL.primaryCluster }}
             - name: FEDERATED_PRIMARY_CLUSTER
+              value: "true"
+            {{- end}}
+            {{- if .Values.federatedETL.redirectS3Backup }}
+            - name: FEDERATED_REDIRECT_BACKUP
+              value: "true"
+            {{- end}}
+            {{- if .Values.federatedETL.useExistingS3Config }}
+            - name: FEDERATED_USE_EXISTING_CONFIG
               value: "true"
             {{- end}}
             {{- if .Values.federatedETL.federator.enabled }}

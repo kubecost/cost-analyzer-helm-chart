@@ -444,8 +444,8 @@ prometheus:
       scrape_interval: 1m
       scrape_timeout: 10s
       evaluation_interval: 1m
-      external_labels: {}
-        # cluster_id: cluster-one # Each cluster should have a unique ID
+      external_labels:
+        cluster_id: federated-one # Each cluster should have a unique ID
     persistentVolume:
       size: 32Gi
       enabled: true
@@ -707,10 +707,13 @@ awsstore:
   createServiceAccount: false
 
 federatedETL:
-  federatedCluster: false
-  primaryCluster: false
+  federatedCluster: true
+  primaryCluster: true
+  redirectS3Backup: false
+  useExistingS3Config: false
   federator:
-    enabled: false
+    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
+    enabled: true
     clusters: []
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
@@ -718,7 +721,9 @@ federatedETL:
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-#kubecostProductConfigs:
+kubecostProductConfigs:
+  etlBucketConfigSecret: "kubecost-backup"
+  federatedStorageConfigSecret: "kc-federated-secret"
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/master/multi-cluster.md
