@@ -827,7 +827,6 @@ spec:
             {{- if not $etlFileStore }}
             {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
             {{- end -}}
-
             {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
             {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
             {{- end -}}
