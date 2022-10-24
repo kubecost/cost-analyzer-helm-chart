@@ -817,14 +817,14 @@ awsstore:
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
 #  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
-#  labelMappingConfigs:  # names of k8s labels used to designate different allocation concepts
+#  labelMappingConfigs:  # names of k8s labels or annotations used to designate different allocation concepts
 #    enabled: true
 #    owner_label: "owner"
 #    team_label: "team"
 #    department_label: "dept"
 #    product_label: "product"
 #    environment_label: "env"
-#    namespace_external_label: "kubernetes_namespace" # external labels are used to map external cloud costs to kubernetes concepts
+#    namespace_external_label: "kubernetes_namespace" # external labels/tags are used to map external cloud costs to kubernetes concepts
 #    cluster_external_label: "kubernetes_cluster"
 #    controller_external_label: "kubernetes_controller"
 #    product_external_label: "kubernetes_label_app"
