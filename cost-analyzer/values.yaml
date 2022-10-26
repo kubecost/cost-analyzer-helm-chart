@@ -774,7 +774,7 @@ federatedETL:
     # federationCutoffDate: "2022-10-18T00:00:00.000Z"
     # federator.enabled enables the federator to run inside the costmodel container, federating the data in the Federated store
     enabled: false
-    # federator.clusters is an optional whitelist of clusters.
+    # federator.clusters is an optional whitelist of clusters by cluster id.
     # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
 
