@@ -78,6 +78,8 @@ spec:
             defaultMode: 420
             secretName: kubecost-thanos
       {{- end }}
+        - emptyDir: {}
+          name: tmp
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -920,7 +922,11 @@ spec:
             {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
             {{- end }}
           name: cost-analyzer-frontend
+          securityContext:
+            readOnlyRootFilesystem: true
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
             {{- if .Values.kubecostFrontend.tls }}
