@@ -324,10 +324,10 @@ spec:
           args:
           {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
         {{- end }}
+        {{- if .Values.kubecostModel.securityContext }}
           securityContext:
-          {{- if .Values.kubecostModel.securityContext -}}
-          {{ toYaml .Values.kubecostModel.securityContext | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.kubecostModel.securityContext | nindent 12 -}}
+        {{ end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -926,10 +926,10 @@ spec:
             {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
             {{- end }}
           name: cost-analyzer-frontend
+        {{- if .Values.kubecostFrontend.securityContext }}
           securityContext:
-          {{- if .Values.kubecostFrontend.securityContext -}}
-          {{ toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
+        {{ end }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
