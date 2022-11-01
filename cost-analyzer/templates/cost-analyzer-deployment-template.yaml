@@ -78,8 +78,8 @@ spec:
             defaultMode: 420
             secretName: kubecost-thanos
       {{- end }}
-        - emptyDir: {}
-          name: tmp
+        - name: tmp
+          emptyDir: {}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -324,6 +324,10 @@ spec:
           args:
           {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
         {{- end }}
+          securityContext:
+          {{- if .Values.kubecostModel.securityContext -}}
+          {{ toYaml .Values.kubecostModel.securityContext | nindent 12 }}
+          {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -923,7 +927,9 @@ spec:
             {{- end }}
           name: cost-analyzer-frontend
           securityContext:
-            readOnlyRootFilesystem: true
+          {{- if .Values.kubecostFrontend.securityContext -}}
+          {{ toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
