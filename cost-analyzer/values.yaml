@@ -218,6 +218,8 @@ kubecostFrontend:
   # extraEnv:
   # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
   #   value: "1"
+  # securityContext:
+  #   readOnlyRootFilesystem: true
   resources:
     requests:
       cpu: "10m"
@@ -304,6 +306,8 @@ kubecostModel:
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
+  # securityContext:
+  #   readOnlyRootFilesystem: true
   # Enables the emission of the kubecost_cloud_credit_total and
   # kubecost_cloud_expense_total metrics
   outOfClusterPromMetricsEnabled: false
@@ -760,12 +764,12 @@ awsstore:
 
 federatedETL:
   # federatedCluster indicates whether this cluster should push data to the Federated store
-  federatedCluster: false 
+  federatedCluster: false
   # primaryCluster indicates whether this cluster should load data from the combined section of the Federated store
-  primaryCluster: false 
+  primaryCluster: false
   # redirectS3Backup changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL
   # Note S3 backup should be enabled separately for this.
-  redirectS3Backup: false 
+  redirectS3Backup: false
   # useExistingS3Config will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
   useExistingS3Config: false
   federator:
