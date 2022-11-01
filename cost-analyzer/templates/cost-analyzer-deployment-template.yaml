@@ -707,7 +707,7 @@ spec:
             - name: ETL_USE_UNBLENDED_COST
               value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
             - name: CONTAINER_STATS_ENABLED
-              value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote true) }}
+              value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote false) }}
             - name: RECONCILE_NETWORK
               value: {{ (quote .Values.kubecostModel.reconcileNetwork) | default (quote true) }}
             {{- if .Values.systemProxy.enabled }}
