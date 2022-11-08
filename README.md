@@ -1,12 +1,13 @@
 # Kubecost helm chart
+
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
 To install via helm 3, run the following commands:
 
 ```
-helm upgrade -install kubecost -namespace kubecost --create-namespace \
+helm upgrade --install kubecost --namespace kubecost --create-namespace \
   --repo https://kubecost.github.io/cost-analyzer/ cost-analyzer \
-  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98
+  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
 ```
 
 While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed with a single-file manifest using the following command:<a name="manifest"></a>
@@ -31,8 +32,8 @@ Parameter | Description | Default
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not create NodeExporter daemonset.  | `true`
-`prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
-`prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
+`prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `false`
+`prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `false`
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
 `persistentVolume.size` | Define PVC size for cost-analyzer  | `32.0Gi`
 `persistentVolume.dbSize` | Define PVC size for cost-analyzer's flat file database  | `32.0Gi`
