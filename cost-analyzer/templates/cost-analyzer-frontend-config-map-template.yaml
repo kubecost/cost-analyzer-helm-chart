@@ -114,9 +114,6 @@ data:
 
 {{- if or .Values.saml.enabled .Values.oidc.enabled }}
         add_header Cache-Control "max-age=0";
-        location /unauthorized.html {
-
-        }
         location / {
             auth_request /auth;
             proxy_redirect off;
