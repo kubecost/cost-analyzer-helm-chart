@@ -4,11 +4,12 @@ Helm chart for the Kubecost project, which is created to monitor and manage Kube
 To install via helm 3, run the following commands:
 
 ```
-helm repo add kubecost https://kubecost.github.io/cost-analyzer/
-helm upgrade -i --create-namespace kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
+helm upgrade -install kubecost -namespace kubecost --create-namespace \
+  --repo https://kubecost.github.io/cost-analyzer/ cost-analyzer \
+  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98
 ```
 
-While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed staticly with the following command:<a name="manifest"></a>
+While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed with a single-file manifest using the following command:<a name="manifest"></a>
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost
@@ -58,7 +59,7 @@ Parameter | Description | Default
 `extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
 
 ## Adjusting Log Output
-The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables. 
+The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables.
 
 For example, to set the log level to `trace` the following flag can be added to the helm command:
 
