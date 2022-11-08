@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.28.1
+  tag: v0.29.0
   pullPolicy: IfNotPresent
 
 store:
