@@ -1,6 +1,6 @@
 {{- if .Values.kubecostMetrics }}
 {{- if .Values.kubecostMetrics.exporter }}
-{{- if or .Values.kubecostMetrics.exporter.enabled .Values.agent }}
+{{- if or (or .Values.kubecostMetrics.exporter.enabled .Values.agent) .Values.cloudAgent }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -175,7 +175,11 @@ spec:
             {{- end }}
             {{- end }}
           args:
+            {{- if .Values.cloudAgent }}
+            - cloud-agent
+            {{- else }}
             - agent
+            {{- end }}
             {{- if .Values.kubecostMetrics.exporter.extraArgs }}
             {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
             {{- end }}
@@ -185,6 +189,12 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            {{- if .Values.cloudAgent }}
+            - name: CLOUD_AGENT_KEY
+              value: {{ .Values.cloudAgentKey }}
+            - name: CLOUD_REPORTING_SERVER
+              value: {{ .Values.cloudReportingServer }}
+            {{- end }}
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             - name: GOOGLE_APPLICATION_CREDENTIALS

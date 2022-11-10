@@ -1,4 +1,4 @@
-{{- if not .Values.agent }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $nginxPort := int .Values.service.port | default 9090 -}}
 apiVersion: apps/v1
 kind: Deployment
