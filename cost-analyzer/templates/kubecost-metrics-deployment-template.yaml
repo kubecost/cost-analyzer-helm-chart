@@ -244,7 +244,10 @@ spec:
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
-            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
+            {{- if .Values.cloudAgentClusterId }}
+            - name: CLUSTER_ID 
+              value: {{ .Values.cloudAgentClusterId }}
+            {{- else if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
             {{- end }}
