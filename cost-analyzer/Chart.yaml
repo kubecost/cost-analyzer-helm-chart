@@ -20,4 +20,4 @@ dependencies:
   - condition: global.thanos.enabled
     name: thanos
     repository: file://./charts/thanos
-    version: "~0.24.0"
+    version: "~0.29.0"
