@@ -38,6 +38,25 @@ spec:
 {{- end }}
 {{- end }}
     spec:
+      {{- if .Values.kubecostFrontend.tls }}
+      {{- if .Values.kubecostFrontend.tls.enabled }}
+      securityContext:
+        runAsUser: 0
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
+      {{- else if lt $nginxPort 1025 }}
+      securityContext:
+        runAsUser: 0
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
@@ -161,11 +180,11 @@ spec:
             - name: gcp-key-secret
               mountPath: /var/secrets
             {{- end }}
-            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
+            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             - name: cloud-integration
               mountPath: /var/cloud-integration
             {{- end }}
@@ -262,10 +281,17 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
+            - name: PV_ENABLED
+              value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:
