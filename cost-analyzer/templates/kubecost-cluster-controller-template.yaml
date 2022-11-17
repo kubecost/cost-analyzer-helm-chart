@@ -209,9 +209,11 @@ spec:
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
           value: {{ template "kubecost.clusterControllerName" . }}
+        {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
+        {{- end }}
         {{- end }}
         ports:
         - name: http-server
