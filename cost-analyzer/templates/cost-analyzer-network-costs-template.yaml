@@ -47,6 +47,13 @@ spec:
 {{- if .Values.networkCosts.resources }}
         resources:
 {{ toYaml .Values.networkCosts.resources | indent 10 }}
+{{- else }}
+        resources:
+          limits:
+            cpu: 500m
+          requests:
+            cpu: 50m
+            memory: 20Mi
 {{- end }}
         env:
         {{- if .Values.networkCosts.hostProc }}
