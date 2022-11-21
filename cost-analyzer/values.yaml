@@ -586,14 +586,18 @@ networkCosts:
   # Traffic Logging will enable logging the top 5 destinations for each source
   # every 30 minutes.
   trafficLogging: true
-  
+
   # Port will set both the containerPort and hostPort to this value.
   # These must be identical due to network-costs being run on hostNetwork
   port: 3001
-  resources: {}
-    #requests:
-    #  cpu: "50m"
-    #  memory: "20Mi"
+  # this daemonset can use significant resources on large clusters: https://guide.kubecost.com/hc/en-us/articles/4407595973527-Network-Traffic-Cost-Allocation
+  resources:
+    limits:
+      cpu: 500m # can be less, will depend on cluster size
+      # memory: it is not recommended to set a memory limit
+    requests:
+     cpu: 50m
+     memory: 20Mi
   extraArgs: []
   config:
     # Configuration for traffic destinations, including specific classification
