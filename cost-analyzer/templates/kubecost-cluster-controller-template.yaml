@@ -222,7 +222,7 @@ spec:
           value: {{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
         {{- if .Values.clusterController.kubescaler }}
         - name: CC_KUBESCALER_DEFAULT_RESIZE_ALL
-          value: {{ .Values.clusterController.kubescaler.defaultResizeAll | default false }}
+          value: {{ .Values.clusterController.kubescaler.defaultResizeAll | default "false" | quote }}
         {{- end }}
         ports:
         - name: http-server
