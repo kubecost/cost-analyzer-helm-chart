@@ -219,10 +219,10 @@ spec:
         - name: CC_LOG_LEVEL
           value: {{ .Values.clusterController.logLevel | default "info" }}
         - name: CC_KUBESCALER_COST_MODEL_PATH
-          value: {{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
+          value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
         {{- if .Values.clusterController.kubescaler }}
         - name: CC_KUBESCALER_DEFAULT_RESIZE_ALL
-          value: {{ .Values.clusterController.kubescaler.defaultResizeAll | default false }}
+          value: {{ .Values.clusterController.kubescaler.defaultResizeAll | default "false" | quote }}
         {{- end }}
         ports:
         - name: http-server
