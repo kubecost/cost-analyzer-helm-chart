@@ -1,6 +1,14 @@
 {{ if .Values.global.thanos.enabled }}
 {{ if and .Values.bucket.enabled .Values.bucket.http.ingress.enabled }}
+{{- $apiV1 := false -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
 apiVersion: extensions/v1beta1
+{{ end -}}
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "bucket") }}
@@ -18,6 +26,9 @@ metadata:
 {{ toYaml .Values.bucket.http.ingress.labels | indent 4 }}
   {{- end }}
 spec:
+{{- if .Values.bucket.http.ingress.className }}
+  ingressClassName: {{ .Values.ingress.bucket.http.className }}
+{{- end }}
   {{- if .Values.bucket.http.ingress.tls }}
   tls:
     {{- range .Values.bucket.http.ingress.tls }}
@@ -33,10 +44,20 @@ spec:
   - host: {{ . }}
     http:
       paths:
+        {{- if $apiV1 }}
+        - path: {{ $.Values.bucket.http.ingress.path }}
+          pathType: {{ .Values.bucket.http.ingress.pathType }}
+          backend:
+            service:
+              name: {{ include "thanos.componentname" (list $ "bucket") }}
+              port:
+                number: {{ $.Values.bucket.http.port }}
+        {{- else }}
         - path: {{ $.Values.bucket.http.ingress.path }}
           backend:
             serviceName: {{ include "thanos.componentname" (list $ "bucket") }}
             servicePort: {{ $.Values.bucket.http.port }}
+        {{- end }}
   {{- end }}
 {{ end }}
 {{ end }}

@@ -1,7 +1,15 @@
 ---
 {{ if .Values.global.thanos.enabled }}
 {{- if and .Values.queryFrontend.enabled .Values.queryFrontend.http.ingress.enabled }}
+{{- $apiV1 := false -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
 apiVersion: extensions/v1beta1
+{{ end -}}
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "query-frontend") }}-http
@@ -19,6 +27,9 @@ metadata:
   annotations: {{ toYaml . | nindent 4 }}
     {{- end }}
 spec:
+{{- if .Values.queryFrontend.http.ingress.className }}
+  ingressClassName: {{ .Values.ingress.queryFrontend.http.className }}
+{{- end }}
   {{- if .Values.queryFrontend.http.ingress.tls }}
   tls:
     {{- range .Values.queryFrontend.http.ingress.tls }}
@@ -36,10 +47,20 @@ spec:
     - host: {{ . }}
       http:
         paths:
+        {{- if $apiV1 }}
+          - path: {{ $.Values.queryFrontend.http.ingress.path }}
+            pathType: {{ .Values.queryFrontend.http.ingress.pathType }}
+            backend:
+              service:
+                name: {{ include "thanos.componentname" (list $ "query-frontend") }}-http
+                port:
+                  number: {{ $.Values.queryFrontend.http.port }}
+        {{- else }}
           - path: {{ $.Values.queryFrontend.http.ingress.path }}
             backend:
               serviceName: {{ include "thanos.componentname" (list $ "query-frontend") }}-http
               servicePort: {{ $.Values.queryFrontend.http.port }}
+        {{- end }}
   {{- end }}
 {{- end }}
 {{ end }}
