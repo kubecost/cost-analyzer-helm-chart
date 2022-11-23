@@ -49,7 +49,7 @@ spec:
         paths:
         {{- if $apiV1 }}
           - path: {{ $.Values.queryFrontend.http.ingress.path }}
-            pathType: {{ .Values.queryFrontend.http.ingress.pathType }}
+            pathType: {{ $.Values.queryFrontend.http.ingress.pathType }}
             backend:
               service:
                 name: {{ include "thanos.componentname" (list $ "query-frontend") }}-http

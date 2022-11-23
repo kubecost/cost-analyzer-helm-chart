@@ -45,7 +45,7 @@ spec:
         paths:
         {{- if $apiV1 }}
           - path: {{ $ingressPath }}
-            pathType: {{ .Values.ingress.pathType }}
+            pathType: {{ $.Values.ingress.pathType }}
             backend:
               service:
                 name: {{ $fullName }}

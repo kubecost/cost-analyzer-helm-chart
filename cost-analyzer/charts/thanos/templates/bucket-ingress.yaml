@@ -46,7 +46,7 @@ spec:
       paths:
         {{- if $apiV1 }}
         - path: {{ $.Values.bucket.http.ingress.path }}
-          pathType: {{ .Values.bucket.http.ingress.pathType }}
+          pathType: {{ $.Values.bucket.http.ingress.pathType }}
           backend:
             service:
               name: {{ include "thanos.componentname" (list $ "bucket") }}
