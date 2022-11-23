@@ -184,6 +184,7 @@ data:
         location ~ ^/(turndown|cluster)/ {
 
             add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
 {{- if .Values.clusterController }}
 {{- if .Values.clusterController.enabled }}
             {{- if or .Values.saml .Values.oidc }}
