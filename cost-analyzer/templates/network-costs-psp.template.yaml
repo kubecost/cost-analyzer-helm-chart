@@ -1,5 +1,6 @@
 {{- if .Values.networkCosts }}
 {{- if .Values.networkCosts.enabled }}
+{{- if .Capabilities.APIVersions.Has "policy/v1beta1/PodSecurityPolicy" }}
 {{- if .Values.networkCosts.podSecurityPolicy }}
 {{- if .Values.networkCosts.podSecurityPolicy.enabled }}
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
@@ -32,6 +33,7 @@ spec:
         rule: RunAsAny
     volumes:
         - '*'
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
