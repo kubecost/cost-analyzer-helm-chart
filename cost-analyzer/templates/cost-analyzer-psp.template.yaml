@@ -1,3 +1,4 @@
+{{- if .Capabilities.APIVersions.Has "policy/v1beta1/PodSecurityPolicy" }}
 {{- if .Values.podSecurityPolicy }}
 {{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: {{ include "cost-analyzer.podSecurityPolicy.apiVersion" . }}
@@ -18,5 +19,6 @@ spec:
         rule: RunAsAny
     volumes:
         - '*'
+{{- end }}
 {{- end }}
 {{- end }}
