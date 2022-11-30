@@ -45,7 +45,7 @@ spec:
         imagePullPolicy: Always
 {{- end }}
 {{- if .Values.networkCosts.resources }}
-        resources: {{- toYaml .Values.networkCosts.resources | nindent 8 }}
+        resources: {{- toYaml .Values.networkCosts.resources | nindent 10 }}
 {{- end }}
         env:
         {{- if .Values.networkCosts.hostProc }}
