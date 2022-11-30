@@ -592,7 +592,7 @@ networkCosts:
   port: 3001
   # this daemonset can use significant resources on large clusters: https://guide.kubecost.com/hc/en-us/articles/4407595973527-Network-Traffic-Cost-Allocation
   resources:
-    limits:
+    limits: # remove the limits by setting limits: {}
       cpu: 500m # can be less, will depend on cluster size
       # memory: it is not recommended to set a memory limit
     requests:
