@@ -668,6 +668,7 @@ networkCosts:
 
   service:
     annotations: {}
+    labels: {}
 
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
