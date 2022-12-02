@@ -888,7 +888,6 @@ federatedETL:
 #  azureTenantID: 72faf3ff-7a3f-4597-b0d9-7b0b201bb23a
 #  azureClientPassword: fake key # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  azureOfferDurableID: "MS-AZR-0003p"
-#  azureStorageSecretName: "azure-storage-config" # Name of Kubernetes Secret where Azure Storage Configuration is stored
 #  discount: "" # percentage discount applied to compute
 #  negotiatedDiscount: "" # custom negotiated cloud provider discount
 #  defaultIdle: false
