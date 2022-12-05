@@ -90,7 +90,7 @@ global:
         #   threshold: 5              # Send Alert if health scores changes by 5 or more
 
         # Kubecost Health Diagnostic
-        # - type: diagnostic          # Alerts when kubecost is is unable to compute costs - ie: Prometheus unreachable
+        # - type: diagnostic          # Alerts when kubecost is unable to compute costs - ie: Prometheus unreachable
         #   window: 10m
 
     alertmanager: # Supply an alertmanager FQDN to receive notifications from the app.
