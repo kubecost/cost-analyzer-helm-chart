@@ -97,7 +97,7 @@ global:
       enabled: false # If true, allow kubecost to write to your alertmanager
       fqdn: http://cost-analyzer-prometheus-server.default.svc #example fqdn. Ignored if prometheus.enabled: true
 
-   # Set saved report(s) accessible from reports.html
+   # Set saved Cost Allocation report(s) accessible from /reports
    # Ref: http://docs.kubecost.com/saved-reports
   savedReports:
     enabled: false # If true, overwrites report parameters set through UI
@@ -129,7 +129,7 @@ global:
         accumulate: true # entire window resolution
         filters: [] # if no filters, specify empty array
 
-  # Set saved report(s) accessible from reports.html
+  # Set saved Asset report(s) accessible from /reports
   # Ref: http://docs.kubecost.com/saved-reports
   assetReports:
     enabled: false # If true, overwrites report parameters set through UI
@@ -141,6 +141,20 @@ global:
       filters:
         - property: "cluster"
           value: "cluster-one"
+
+  # Set saved Advanced report(s) accessible from /reports
+  # Ref: http://docs.kubecost.com/saved-reports
+  advancedReports:
+    enabled: false # If true, overwrites report parameters set through UI
+    reports:
+    - title: "Example Advanced Report 0"
+      window: "7d"
+      aggregateBy: "namespace"
+      filters:
+        - property: "cluster"
+          value: "cluster-one"
+      cloudBreakdown: "service"
+      cloudJoin: "label:kubernetes_namespace"
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
