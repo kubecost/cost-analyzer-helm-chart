@@ -22,6 +22,9 @@ serviceAccounts:
   server:
     create: true
     name:
+    ## Prometheus server ServiceAccount annotations.
+    ## Can be used for AWS IRSA annotations when using Remote Write mode with Amazon Managed Prometheus.
+    annotations: {}
 
 alertmanager:
   ## If false, alertmanager will not be installed
