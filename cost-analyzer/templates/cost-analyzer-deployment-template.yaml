@@ -722,7 +722,7 @@ spec:
               value: {{ (quote .labels) }}
             {{- end }}
             - name: CLOUD_COST_TOP_N
-              value: {{ (quote .topN) | default (quote 1000) }}
+              value: {{ (quote .topNItems) | default (quote 1000) }}
             {{- end }}
             - name: CONTAINER_STATS_ENABLED
               value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote false) }}
