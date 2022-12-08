@@ -1,6 +1,14 @@
 {{ if .Values.global.thanos.enabled }}
 {{- if and .Values.store.enabled .Values.store.http.ingress.enabled }}
+{{- $apiV1 := false -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
 apiVersion: extensions/v1beta1
+{{ end -}}
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-http
@@ -18,6 +26,9 @@ metadata:
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
 spec:
+{{- if .Values.store.http.ingress.className }}
+  ingressClassName: {{ .Values.ingress.store.http.className }}
+{{- end }}
   {{- if .Values.store.http.ingress.tls }}
   tls:
     {{- range .Values.store.http.ingress.tls }}
@@ -33,17 +44,35 @@ spec:
   - host: {{ . }}
     http:
       paths:
+        {{- if $apiV1 }}
+        - path: {{ $.Values.store.http.ingress.path }}
+          pathType: {{ .Values.store.http.ingress.pathType }}
+          backend:
+            service:
+              name: {{ include "thanos.componentname" (list $ "store") }}-http
+              port:
+                number: {{ $.Values.store.http.port }}
+        {{- else }}
         - path: {{ $.Values.store.http.ingress.path }}
           backend:
             serviceName: {{ include "thanos.componentname" (list $ "store") }}-http
             servicePort: {{ $.Values.store.http.port }}
+        {{- end }}
   {{- end }}
 {{- end }}
 
 ---
 
   {{- if and .Values.store.enabled .Values.store.grpc.ingress.enabled }}
+{{- $apiV1 := false -}}
+{{- if .Capabilities.APIVersions.Has "networking.k8s.io/v1" }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
 apiVersion: extensions/v1beta1
+{{ end -}}
 kind: Ingress
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-grpc
@@ -61,6 +90,9 @@ metadata:
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
 spec:
+{{- if .Values.store.grpc.ingress.className }}
+  ingressClassName: {{ .Values.ingress.store.grpc.className }}
+{{- end }}
   {{- if .Values.store.grpc.ingress.tls }}
   tls:
     {{- range .Values.store.grpc.ingress.tls }}
@@ -76,10 +108,20 @@ spec:
   - host: {{ . }}
     http:
       paths:
+        {{- if $apiV1 }}
+        - path: {{ $.Values.store.grpc.ingress.path }}
+          pathType: {{ $.Values.store.grpc.ingress.pathType }}
+          backend:
+            service:
+              name: {{ include "thanos.componentname" (list $ "store") }}-grpc
+              port:
+                number: {{ $.Values.store.grpc.port }}
+        {{- else }}
         - path: {{ $.Values.store.grpc.ingress.path }}
           backend:
             serviceName: {{ include "thanos.componentname" (list $ "store") }}-grpc
-            servicePort: {{ $.Values.store.http.port }}
+            servicePort: {{ $.Values.store.grpc.port }}
+        {{- end }}
   {{- end }}
 {{- end }}
 {{ end }}
