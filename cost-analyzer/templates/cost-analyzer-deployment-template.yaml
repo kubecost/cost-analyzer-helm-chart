@@ -712,6 +712,18 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
               value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+            {{- with .Values.kubecostModel.cloudCost }}
+            - name: CLOUD_COST_ENABLED
+              value: {{ (quote .enabled) | default (quote false) }}
+            {{- with .labelList }}
+            - name: CLOUD_COST_IS_INCLUDE_LIST
+              value: {{ (quote .IsIncludeList) | default (quote false) }}
+            - name: CLOUD_COST_LABEL_LIST
+              value: {{ (quote .labels) }}
+            {{- end }}
+            - name: CLOUD_COST_TOP_N
+              value: {{ (quote .topN) | default (quote 1000) }}
+            {{- end }}
             - name: CONTAINER_STATS_ENABLED
               value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote false) }}
             - name: RECONCILE_NETWORK
