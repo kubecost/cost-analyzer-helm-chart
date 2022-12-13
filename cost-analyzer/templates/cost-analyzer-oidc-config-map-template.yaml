@@ -1,5 +1,3 @@
-{{- if .Values.oidc }}
-{{- if .Values.oidc.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,7 +15,18 @@ data:
         "authURL" : "{{ .Values.oidc.authURL }}",
         "loginRedirectURL" : "{{ .Values.oidc.loginRedirectURL }}",
         "discoveryURL" : "{{ .Values.oidc.discoveryURL }}",
-        "hostedDomain" : "{{ .Values.oidc.hostedDomain }}"
+        "hostedDomain" : "{{ .Values.oidc.hostedDomain }}",
+        "rbac" : {
+          "enabled" : "{{ .Values.oidc.rbac.enabled }}",
+          "groups" : 
+          {{- range $g := .Values.oidc.rbac.groups }}
+            - name: {{ $g.name }}
+              enabled: {{ $g.enabled }}
+              assertionName: "{{ $g.assertionName }}"
+              assertionValues: 
+              {{- range $v := $g.assertionValues }}
+                - "{{ $v }}"
+              {{- end }}
+          {{- end }}
+        }
       }
-{{- end -}}
-{{- end -}}
