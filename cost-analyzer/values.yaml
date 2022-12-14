@@ -209,7 +209,7 @@ saml:
       - name: readonly
         enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
         assertionName:  "http://schemas.auth0.com/userType"
-        assertionvalues:
+        assertionValues:
           - "readonly"
       - name: editor
         enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
@@ -238,7 +238,7 @@ oidc:
         - name: readonly
           enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
           assertionName:  "http://schemas.auth0.com/userType"
-          assertionvalues:
+          assertionValues:
             - "readonly"
         - name: editor
           enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
