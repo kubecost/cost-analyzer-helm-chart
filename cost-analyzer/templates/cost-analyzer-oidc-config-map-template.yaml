@@ -16,16 +16,22 @@ data:
         "discoveryURL" : "{{ .Values.oidc.discoveryURL }}",
         "hostedDomain" : "{{ .Values.oidc.hostedDomain }}",
         "rbac" : {
-          "enabled" : "{{ .Values.oidc.rbac.enabled }}",
-          "groups" : 
-          {{- range $g := .Values.oidc.rbac.groups }}
-            - name: {{ $g.name }}
-              enabled: {{ $g.enabled }}
-              assertionName: "{{ $g.assertionName }}"
-              assertionValues: 
-              {{- range $v := $g.assertionValues }}
-                - "{{ $v }}"
-              {{- end }}
+          "enabled" : {{ .Values.oidc.rbac.enabled }},
+          "groups" : [
+          {{- range $i, $g := .Values.oidc.rbac.groups }}
+          {{- if ne $i 0 }},{{- end }}
+          {
+            "name": "{{ $g.name }}",
+            "enabled": {{ $g.enabled }},
+            "assertionName": "{{ $g.assertionName }}",
+            "assertionValues": [
+            {{- range $j, $v := $g.assertionValues }}
+            {{- if ne $j 0 }},{{- end }}
+              "{{ $v }}"
+            {{- end }}
+            ]
+          }
           {{- end }}
+          ]
         }
       }
