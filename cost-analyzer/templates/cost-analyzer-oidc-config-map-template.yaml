@@ -22,9 +22,22 @@ data:
           {{- range $i, $g := .Values.oidc.rbac.groups }}
           {{- if ne $i 0 }},{{- end }}
           {
-            "name": "{{ $g.name }}",
+            "roleName": "{{ $g.name }}",
             "enabled": {{ $g.enabled }},
+            "baseRole": "{{ $g.baseRole }}",
             "assertionName": "{{ $g.assertionName }}",
+            "routeBlacklist": [
+            {{- range $j, $v := $g.routeBlacklist }}
+            {{- if ne $j 0 }},{{- end }}
+              "{{ $v }}"
+            {{- end }}
+            ],
+            "routeWhitelist": [
+            {{- range $j, $v := $g.routeWhitelist }}
+            {{- if ne $j 0 }},{{- end }}
+              "{{ $v }}"
+            {{- end }}
+            ],
             "assertionValues": [
             {{- range $j, $v := $g.assertionValues }}
             {{- if ne $j 0 }},{{- end }}
