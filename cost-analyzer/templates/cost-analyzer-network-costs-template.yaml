@@ -6,6 +6,9 @@ metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.networkCosts.additionalLabels }}
+{{ toYaml .Values.networkCosts.additionalLabels | indent 4 }}
+{{- end }}
 spec:
   {{- if .Values.networkCosts.updateStrategy }}
   updateStrategy:
