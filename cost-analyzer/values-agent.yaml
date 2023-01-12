@@ -27,13 +27,33 @@ kubecostMetrics:
     exportClusterInfo: true
     exportClusterCache: true
 
-# Prometheus defaults to low rentention (10h), disables KSM, and attaches a thanos-sidecar
+# Prometheus defaults to low retention (10h), disables KSM, and attaches a thanos-sidecar
 # for exporting metrics.
 prometheus:
   kube-state-metrics:
     enabled: false
     disabled: true
-
+  extraScrapeConfigs: |
+    - job_name: kubecost
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  kubecost-agent-agent
+    - job_name: kubecost-networking
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
     extraArgs:
       storage.tsdb.min-block-duration: 2h
