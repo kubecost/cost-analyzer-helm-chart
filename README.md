@@ -1,14 +1,16 @@
 # Kubecost helm chart
+
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
 To install via helm 3, run the following commands:
 
 ```
-helm repo add kubecost https://kubecost.github.io/cost-analyzer/
-helm upgrade -i --create-namespace kubecost kubecost/cost-analyzer --namespace kubecost --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
+helm upgrade --install kubecost --namespace kubecost --create-namespace \
+  --repo https://kubecost.github.io/cost-analyzer/ cost-analyzer \
+  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
 ```
 
-While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed staticly with the following command:<a name="manifest"></a>
+While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed with a single-file manifest using the following command:<a name="manifest"></a>
 
 ```
 kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost
@@ -30,8 +32,8 @@ Parameter | Description | Default
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not create NodeExporter daemonset.  | `true`
-`prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `true`
-`prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `true`
+`prometheus.alertmanager.persistentVolume.enabled` | If true, Alertmanager will create a Persistent Volume Claim. | `false`
+`prometheus.pushgateway.persistentVolume.enabled` | If true, Prometheus Pushgateway will create a Persistent Volume Claim. | `false`
 `persistentVolume.enabled` | If true, Kubecost will create a Persistent Volume Claim for product config data.  | `true`
 `persistentVolume.size` | Define PVC size for cost-analyzer  | `32.0Gi`
 `persistentVolume.dbSize` | Define PVC size for cost-analyzer's flat file database  | `32.0Gi`
@@ -58,7 +60,7 @@ Parameter | Description | Default
 `extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
 
 ## Adjusting Log Output
-The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables. 
+The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables.
 
 For example, to set the log level to `trace` the following flag can be added to the helm command:
 

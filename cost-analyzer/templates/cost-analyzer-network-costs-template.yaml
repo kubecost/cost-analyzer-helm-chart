@@ -6,6 +6,9 @@ metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.networkCosts.additionalLabels }}
+{{ toYaml .Values.networkCosts.additionalLabels | indent 4 }}
+{{- end }}
 spec:
   {{- if .Values.networkCosts.updateStrategy }}
   updateStrategy:
@@ -45,8 +48,7 @@ spec:
         imagePullPolicy: Always
 {{- end }}
 {{- if .Values.networkCosts.resources }}
-        resources:
-{{ toYaml .Values.networkCosts.resources | indent 10 }}
+        resources: {{- toYaml .Values.networkCosts.resources | nindent 10 }}
 {{- end }}
         env:
         {{- if .Values.networkCosts.hostProc }}
@@ -61,8 +63,22 @@ spec:
           value: {{ (quote .Values.networkCosts.port) | default (quote 3001) }}
         - name: TRAFFIC_LOGGING_ENABLED
           value: {{ (quote .Values.networkCosts.trafficLogging) | default (quote true) }}
-        - name: GODEBUG
-          value: "madvdontneed=1"
+        {{- if .Values.networkCosts.softMemoryLimit }}
+        - name: GOMEMLIMIT
+          value: {{ .Values.networkCosts.softMemoryLimit }}
+        {{- end }}
+        {{- if .Values.networkCosts.heapMonitor }}
+        {{- if .Values.networkCosts.heapMonitor.enabled }}
+        - name: HEAP_MONITOR_ENABLED
+          value: "true"
+        - name: HEAP_MONITOR_THRESHOLD
+          value: {{ .Values.networkCosts.heapMonitor.threshold }}
+        {{- if .Values.networkCosts.heapMonitor.outFile }}
+        - name: HEAP_MONITOR_OUTPUT
+          value: {{ .Values.networkCosts.heapMonitor.outFile }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
         volumeMounts:
         {{- if .Values.networkCosts.hostProc }}
         - mountPath: {{ .Values.networkCosts.hostProc.mountPath }}

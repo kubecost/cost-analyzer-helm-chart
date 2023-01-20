@@ -362,6 +362,7 @@ Parameter | Description | Default
 `serviceAccounts.pushgateway.name` | name of the pushgateway service account to use or create | `{{ prometheus.pushgateway.fullname }}`
 `serviceAccounts.server.create` | If true, create the server service account | `true`
 `serviceAccounts.server.name` | name of the server service account to use or create | `{{ prometheus.server.fullname }}`
+`serviceAccounts.server.annotations` | annotations for the server service account | `{}`
 `server.terminationGracePeriodSeconds` | Prometheus server Pod termination grace period | `300`
 `server.retention` | (optional) Prometheus data retention | `"15d"`
 `serverFiles.alerts` | (Deprecated) Prometheus server alerts configuration | `{}`

@@ -1,0 +1,50 @@
+kubecostMetrics:
+  exporter:
+    nodeSelector:
+      kubernetes.io/os: linux
+
+nodeSelector:
+  kubernetes.io/os: linux
+
+networkCosts:
+  nodeSelector:
+    kubernetes.io/os: linux
+
+prometheus:
+  server:
+    nodeSelector:
+      kubernetes.io/os: linux
+  kube-state-metrics:
+    nodeSelector:
+      kubernetes.io/os: linux
+  nodeExporter:
+    enabled: true
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+grafana:
+  nodeSelector:
+    kubernetes.io/os: linux
+
+thanos:
+  store:
+    nodeSelector:
+      kubernetes.io/os: linux
+  queryFrontend:
+    nodeSelector:
+      kubernetes.io/os: linux
+  query:
+    nodeSelector:
+      kubernetes.io/os: linux
+  compact:
+    nodeSelector:
+      kubernetes.io/os: linux
+  bucket:
+    nodeSelector:
+      kubernetes.io/os: linux

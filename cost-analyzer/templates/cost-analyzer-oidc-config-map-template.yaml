@@ -15,7 +15,8 @@ data:
         "secretName" : "{{ .Values.oidc.secretName }}",
         "authURL" : "{{ .Values.oidc.authURL }}",
         "loginRedirectURL" : "{{ .Values.oidc.loginRedirectURL }}",
-        "discoveryURL" : "{{ .Values.oidc.discoveryURL }}"
+        "discoveryURL" : "{{ .Values.oidc.discoveryURL }}",
+        "hostedDomain" : "{{ .Values.oidc.hostedDomain }}"
       }
 {{- end -}}
 {{- end -}}

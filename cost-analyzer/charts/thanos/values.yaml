@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.24.0
+  tag: v0.29.0
   pullPolicy: IfNotPresent
 
 store:
@@ -418,6 +418,7 @@ query:
         # kubernetes.io/tls-acme: "true"
       labels: {}
       path: "/"
+      pathType: ImplementationSpecific
       hosts:
         - "/"
       tls: []
@@ -509,6 +510,7 @@ query:
       # kubernetes.io/tls-acme: "true"
       labels: {}
       path: "/"
+      pathType: ImplementationSpecific
       hosts:
         - "/"
       tls: []
@@ -530,8 +532,6 @@ compact:
   retentionResolution1h: 1825d
   # Number of goroutines to use when compacting groups.
   compactConcurrency: 1
-  # Number of goroutines to use when syncing block metadata from object storage.
-  blockSyncConcurrency: 20
   # Disables Downsampling data
   disableDownsampling: false
   # Log filtering level.
@@ -652,6 +652,7 @@ bucket:
       # kubernetes.io/tls-acme: "true"
       labels: {}
       path: "/"
+      pathType: ImplementationSpecific
       hosts:
         - "/"
       tls: []
@@ -756,6 +757,7 @@ sidecar:
       # kubernetes.io/tls-acme: "true"
       labels: {}
       path: "/"
+      pathType: ImplementationSpecific
       hosts:
         - "/"
       tls: []
@@ -783,6 +785,7 @@ sidecar:
       # kubernetes.io/tls-acme: "true"
       labels: {}
       path: "/"
+      pathType: ImplementationSpecific
       hosts:
         - "/"
       tls: []
