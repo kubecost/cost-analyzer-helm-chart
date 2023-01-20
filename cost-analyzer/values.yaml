@@ -40,6 +40,7 @@ global:
     # alertConfigs:
       # frontendUrl: http://localhost:9090 # optional, used for linkbacks
       # globalSlackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Slack alerts
+      # globalMsTeamsWebhookUrl: https://xxxxx.webhook.office.com/webhookb2/XXXXXXXXXXXXXXXXXXXXXXXX/IncomingWebhook/XXXXXXXXXXXXXXXXXXXXXXXX # optional, used for Microsoft Teams alerts
       # globalAlertEmails:
       #   - recipient@example.com
       #   - additionalRecipient@example.com
@@ -54,8 +55,9 @@ global:
         #   ownerContact:               # optional, overrides globalAlertEmails default
         #     - owner@example.com
         #     - owner2@example.com
-        #   # optional, used for alert-specific Slack alerts
+        #   # optional, used for alert-specific Slack and Microsoft Teams alerts
         #   slackWebhookUrl: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+        #   msTeamsWebhookUrl: https://xxxxx.webhook.office.com/webhookb2/XXXXXXXXXXXXXXXXXXXXXXXX/IncomingWebhook/XXXXXXXXXXXXXXXXXXXXXXXX
 
         # Daily cluster budget alert on cluster `cluster-one`
         # - type: budget
