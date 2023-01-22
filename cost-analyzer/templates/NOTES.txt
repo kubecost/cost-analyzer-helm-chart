@@ -1,8 +1,34 @@
 
 
 --------------------------------------------------
+{{- $node := (lookup "v1" "Node" "" "") }}
+{{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
+{{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
+{{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
+{{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
+
 {{- $servicePort := .Values.service.port | default 9090 -}}
 Kubecost has been successfully installed.
+
+{{- if (and $isEKS $isGT22) -}}
+
+WARNING: ON EKS v1.23+ INSTALLATION OF EBS-CSI DRIVER IS REQUIRED TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+
+{{- if (and $EBSCSINotExists $PVNotExists) }}
+
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+
+{{- else if (and $EBSCSINotExists (not $PVNotExists)) -}}
+
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+
+{{- else if (not $EBSCSINotExists) -}}
+
+We detected a EBS-CSI Driver, but you should check that Kubecost's PersistentVolume has been installed correctly
+
+{{- end -}}
+{{- end -}}
+
 
 Please allow 5-10 minutes for Kubecost to gather metrics.
 
