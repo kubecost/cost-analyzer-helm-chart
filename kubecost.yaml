@@ -18546,7 +18546,7 @@ spec:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
         - name: grafana
-          image: "grafana/grafana:9.0.2"
+          image: "grafana/grafana:9.3.1"
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: config

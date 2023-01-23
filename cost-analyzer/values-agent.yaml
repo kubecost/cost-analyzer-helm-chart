@@ -11,6 +11,12 @@ global:
 # with enhancements designed for external hosting.
 agent: true
 # agentKeySecretName: kubecost-agent-object-store
+agentCsi:
+  enabled: false
+  secretProvider:
+    name: kubecost-agent-object-store-secretprovider
+    provider:
+    parameters: {}
 
 # No Grafana configuration is required.
 grafana:

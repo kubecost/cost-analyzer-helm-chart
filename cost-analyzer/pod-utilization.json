@@ -546,12 +546,7 @@
           "step": 10
         },
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "${datasource}"
-          },
-          "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\"}) by (cluster_id, container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
           "format": "time_series",
           "hide": false,
           "instant": false,

@@ -43,8 +43,16 @@ spec:
       volumes:
         {{- if .Values.agent }}
         - name: config-store
+          {{- if .Values.agentCsi.enabled }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ .Values.agentCsi.secretProvider.name }}"
+          {{- else }}
           secret:
             secretName: {{ .Values.agentKeySecretName }}
+          {{- end }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
