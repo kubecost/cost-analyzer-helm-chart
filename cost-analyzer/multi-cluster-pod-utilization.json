@@ -1,41 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_PROMETHEUS",
-      "label": "Prometheus",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "9.3.1"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": ""
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -63,14 +26,15 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": null,
+  "id": 16,
+  "iteration": 1674564472460,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -329,13 +293,13 @@
           }
         ]
       },
-      "pluginVersion": "9.3.1",
+      "pluginVersion": "9.0.2",
       "repeatDirection": "v",
       "targets": [
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"memory\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n) by (cluster_id, namespace, container)",
           "format": "table",
@@ -346,7 +310,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n  or up * 0 \n) by (cluster_id, namespace, container)",
           "format": "table",
@@ -373,7 +337,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${datasource}"
       },
       "description": "This graph attempts to show you CPU use of your application vs its requests",
       "fieldConfig": {
@@ -382,8 +346,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -455,7 +417,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "avg(rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (cluster_id, container_name)",
@@ -472,7 +434,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -489,7 +451,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${datasource}"
       },
       "description": "This graph attempts to show you RAM use of your application vs its requests",
       "fieldConfig": {
@@ -498,8 +460,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -571,7 +531,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "avg(avg_over_time(container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[5m])) by (cluster_id, container_name)",
@@ -588,10 +548,10 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id,container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -607,7 +567,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "${datasource}"
       },
       "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
       "fieldConfig": {
@@ -616,8 +576,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisCenteredZero": false,
-            "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
@@ -689,7 +647,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "expr": "100\n  * sum by(cluster_id, container_name,  namespace) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))\n  / sum by(cluster_id, container_name,  namespace) (increase(container_cpu_cfs_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))",
@@ -707,7 +665,7 @@
     }
   ],
   "refresh": false,
-  "schemaVersion": 37,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [
     "cost",
@@ -719,9 +677,9 @@
     "list": [
       {
         "current": {
-          "selected": false,
-          "text": "Prometheus",
-          "value": "Prometheus"
+          "selected": true,
+          "text": "Thanos",
+          "value": "Thanos"
         },
         "hide": 0,
         "includeAll": false,
@@ -736,10 +694,14 @@
         "type": "datasource"
       },
       {
-        "current": {},
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels, cluster_id)",
         "hide": 0,
@@ -762,10 +724,14 @@
         "useTags": false
       },
       {
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "kubecost",
+          "value": "kubecost"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
         "hide": 0,
@@ -788,10 +754,14 @@
         "useTags": false
       },
       {
-        "current": {},
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "${datasource}"
         },
         "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
         "hide": 0,
@@ -843,6 +813,6 @@
   "timezone": "browser",
   "title": "Multi-cluster container utilization metrics",
   "uid": "multi-cluster-pod-utilization",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
