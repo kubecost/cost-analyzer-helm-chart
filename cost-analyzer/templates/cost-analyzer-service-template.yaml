@@ -5,6 +5,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.service.labels }}
