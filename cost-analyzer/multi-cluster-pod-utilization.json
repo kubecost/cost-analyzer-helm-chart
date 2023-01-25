@@ -420,7 +420,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (cluster_id, container_name)",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (cluster_id, namespace, container_name)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -438,7 +438,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
           "legendFormat": "{{ cluster_id }}/{{ container }} (request)",
           "range": true,
           "refId": "requests"
@@ -534,7 +534,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(avg_over_time(container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[5m])) by (cluster_id, container_name)",
+          "expr": "avg(avg_over_time(container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[5m])) by (cluster_id, namespace, container_name)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -551,7 +551,7 @@
             "uid": "PBFA97CFB590B2093"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id,container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -650,7 +650,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100\n  * sum by(cluster_id, container_name,  namespace) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))\n  / sum by(cluster_id, container_name,  namespace) (increase(container_cpu_cfs_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))",
+          "expr": "100\n  * sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))\n  / sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
