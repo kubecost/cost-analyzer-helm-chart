@@ -5,6 +5,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}

@@ -4,6 +4,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ include "cost-analyzer.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if .Values.serviceMonitor.additionalLabels }}

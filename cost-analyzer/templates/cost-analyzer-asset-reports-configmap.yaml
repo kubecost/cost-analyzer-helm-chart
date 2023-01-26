@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ default "asset-report-configs" .Values.assetReportConfigmapName }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
