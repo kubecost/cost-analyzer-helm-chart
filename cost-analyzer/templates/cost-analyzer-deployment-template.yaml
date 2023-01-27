@@ -92,6 +92,12 @@ spec:
           secret:
            defaultMode: 420
            secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if .Values.global.thanos.enabled }}
+        # ETL backups are default enabled if the user has configured Thanos
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ .Values.thanos.storeSecretName }}
         {{- end }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
@@ -362,7 +368,7 @@ spec:
             # Extra volume mount(s)
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
-            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- if or .Values.kubecostModel.etlBucketConfigSecret .Values.global.thanos.enabled }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
@@ -645,7 +651,7 @@ spec:
             - name: ETL_READ_ONLY
               value: "true"
             {{- end }}
-            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- if or .Values.kubecostModel.etlBucketConfigSecret .Values.global.thanos.enabled }}
             - name: ETL_TO_DISK_ENABLED
               value: "false"
             - name: ETL_BUCKET_CONFIG
