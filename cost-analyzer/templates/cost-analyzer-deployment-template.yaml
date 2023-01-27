@@ -714,6 +714,18 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
               value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+            {{- if .Values.kubecostModel }}
+            {{- if .Values.kubecostModel.allocation }}
+            {{- if .Values.kubecostModel.allocation.nodeLabels }}
+            {{- with .Values.kubecostModel.allocation.nodeLabels }}
+            - name: ALLOCATION_NODE_LABELS_ENABLED
+              value: {{ (quote .enabled) | default (quote true) }}
+            - name: ALLOCATION_NODE_LABELS_INCLUDE_LIST
+              value: {{ (quote .includeList) }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
             {{- with .Values.kubecostModel.cloudCost }}
             - name: CLOUD_COST_ENABLED
               value: {{ (quote .enabled) | default (quote false) }}
