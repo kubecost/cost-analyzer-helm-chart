@@ -6,6 +6,7 @@ metadata:
   name: deployment-validation
 webhooks:
   - name: "deployment-validation.kubecost.svc"
+    failurePolicy: Ignore
     namespaceSelector:
       matchExpressions:
         - key: kubernetes.io/metadata.name
