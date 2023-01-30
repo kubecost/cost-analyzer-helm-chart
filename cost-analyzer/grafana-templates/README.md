@@ -4,7 +4,7 @@
 
 Kubecost, by default, ships with a Grafana instance that already contains the dashboards in this repo.
 
-The dashboards in this repo are designed for those wanting to load the dashboards into an existing Grafana instance.
+The dashboards in this repo are templated for those wanting to load the dashboards into an existing Grafana instance.
 
 ## Caveats
 

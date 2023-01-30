@@ -788,6 +788,7 @@ grafana:
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
     server:
+      serve_from_sub_path: true
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.

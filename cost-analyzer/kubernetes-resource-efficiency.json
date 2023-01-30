@@ -24,16 +24,28 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 12,
+  "id": 29,
   "links": [],
   "liveNow": false,
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "panels": [],
+      "title": "Requests - Usage (negative values are unused reservations)",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "${datasource}"
       },
-      "description": "Top n resources with the least efficient memory requests.\nmetric is unused memory by aggregation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -60,7 +72,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -88,15 +100,17 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 16,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 1
       },
-      "id": 7,
+      "id": 4,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -110,27 +124,35 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "exemplar": false,
-          "expr": "topk(13,sum by ($aggregation)((container_memory_usage_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\",container!=\"POD\",container!=\"\"} - on (cluster_id,namespace,pod,container) avg by (cluster_id,namespace,pod,container)(kube_pod_container_resource_requests{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\",resource=\"memory\"})) * -1 >0 ) )",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "{{$aggregation}} Memory Efficiency",
+          "expr": "sum by ($aggregation) (\n    (sum by (cluster_id,namespace,pod,container) (container_memory_usage_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n   -(sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n)",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum by ($aggregation) (\n    -(sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n)",
+          "hide": true,
+          "legendFormat": "{{$aggregation}} Request",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "Memory Efficiency",
+      "title": "Memory Request-Usage",
       "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "${datasource}"
       },
-      "description": "Top n resources with the least efficient CPU requests.\nmetric is unused cores by aggregation.",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -157,7 +179,7 @@
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": false,
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -179,20 +201,23 @@
                 "value": 80
               }
             ]
-          }
+          },
+          "unit": "none"
         },
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
+        "h": 14,
         "w": 24,
         "x": 0,
-        "y": 8
+        "y": 17
       },
       "id": 6,
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "lastNotNull"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -206,23 +231,38 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(13,\r\n  sum by ($aggregation)(\r\n    (rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}[30m])\r\n      - on (namespace,pod,container) group_left avg by (namespace,pod,container)\r\n      (kube_pod_container_resource_requests{resource=\"cpu\"})\r\n     ) * -1 >0\r\n  )\r\n)",
-          "interval": "",
-          "legendFormat": "{{$aggregation}} CPU Efficiency",
+          "expr": "sum by ($aggregation)(\n    (sum by (cluster_id,namespace,pod,container) (rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}[1h])))\n    -  \n    (sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}))\n)\n \n",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "-sum by ($aggregation)(\n    (sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}))\n)",
+          "hide": true,
+          "legendFormat": "{{$aggregation}} Request",
+          "range": true,
+          "refId": "B"
         }
       ],
-      "title": "CPU Efficiency",
+      "title": "CPU Request-Usage",
       "type": "timeseries"
     }
   ],
   "schemaVersion": 37,
   "style": "dark",
-  "tags": [],
+  "tags": [
+		"utilization",
+		"metrics",
+    "kubecost"
+  ],
   "templating": {
     "list": [
       {
@@ -277,13 +317,13 @@
       },
       {
         "current": {
-          "selected": false,
+          "selected": true,
           "text": "All",
           "value": "$__all"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels, cluster_id)",
         "hide": 0,
@@ -303,13 +343,13 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": "kubecost",
+          "value": "kubecost"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
         "hide": 0,
@@ -335,7 +375,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
+          "uid": "${datasource}"
         },
         "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
         "hide": 0,
@@ -356,13 +396,13 @@
     ]
   },
   "time": {
-    "from": "now-2d",
-    "to": "now-3h"
+    "from": "now-6h",
+    "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "Kubernetes Resource Efficiency",
-  "uid": "kubecost-resource-efficiency",
+  "uid": "kubernetes-resource-efficiency",
   "version": 1,
   "weekStart": ""
 }

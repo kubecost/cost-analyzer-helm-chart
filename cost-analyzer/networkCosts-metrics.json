@@ -25,10 +25,23 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
+  "id": 12,
   "links": [],
   "liveNow": false,
   "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 12,
+      "panels": [],
+      "title": "Network Data Transfers (negative is egress data)",
+      "type": "row"
+    },
     {
       "datasource": {
         "type": "prometheus",
@@ -92,7 +105,7 @@
         "h": 14,
         "w": 11,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 10,
       "options": {
@@ -198,7 +211,7 @@
         "h": 14,
         "w": 13,
         "x": 11,
-        "y": 0
+        "y": 1
       },
       "id": 2,
       "options": {
@@ -248,6 +261,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -306,7 +320,7 @@
         "h": 14,
         "w": 11,
         "x": 0,
-        "y": 14
+        "y": 15
       },
       "id": 9,
       "options": {
@@ -348,14 +362,14 @@
         }
       ],
       "title": "Cross Region Data",
-      "type": "timeseries",
-      "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>"
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "${datasource}"
       },
+      "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -414,7 +428,7 @@
         "h": 14,
         "w": 13,
         "x": 11,
-        "y": 14
+        "y": 15
       },
       "id": 8,
       "options": {
@@ -456,21 +470,22 @@
         }
       ],
       "title": "Cross Zone Data",
-      "type": "timeseries",
-      "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>"
+      "type": "timeseries"
     }
   ],
   "refresh": false,
   "schemaVersion": 37,
   "style": "dark",
   "tags": [
+		"utilization",
+		"metrics",
     "kubecost"
   ],
   "templating": {
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "Prometheus",
           "value": "Prometheus"
         },
@@ -617,6 +632,6 @@
   "timezone": "",
   "title": "Kubecost networkCosts Metrics",
   "uid": "kubecost-networkCosts-metrics",
-  "version": 1,
+  "version": 7,
   "weekStart": ""
 }

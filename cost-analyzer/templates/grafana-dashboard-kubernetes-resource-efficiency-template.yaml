@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-multi-cluster-efficiency-by-resource
+  name: grafana-dashboard-kubernetes-resource-efficiency
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -19,8 +19,8 @@ metadata:
   annotations:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
-    multi-cluster-efficiency-by-resource.json: |-
-{{ .Files.Get "multi-cluster-efficiency-by-resource.json" | indent 8 }}
+    kubernetes-resource-efficiency.json: |-
+{{ .Files.Get "kubernetes-resource-efficiency.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
