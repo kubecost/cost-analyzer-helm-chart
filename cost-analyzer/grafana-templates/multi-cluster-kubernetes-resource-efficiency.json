@@ -416,8 +416,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Kubernetes Resource Efficiency",
-  "uid": "kubecost-resource-efficiency",
+  "title": "Pod cost & utilization metrics(multi-cluster)",
+  "uid": "at-cost-analysis-pod2",
   "version": 2,
   "weekStart": ""
 }

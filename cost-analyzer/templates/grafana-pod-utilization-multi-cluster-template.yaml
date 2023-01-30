@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-multi-cluster-pod-utilization
+  name: grafana-dashboard-pod-utilization-multi-cluster
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -19,8 +19,8 @@ metadata:
   annotations:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
-    multi-cluster-pod-utilization.json: |-
-{{ .Files.Get "multi-cluster-pod-utilization.json" | indent 8 }}
+    pod-utilization-multi-cluster.json: |-
+{{ .Files.Get "pod-utilization-multi-cluster.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
