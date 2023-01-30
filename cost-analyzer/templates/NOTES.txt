@@ -12,19 +12,15 @@ Kubecost has been successfully installed.
 
 {{ if (and $isEKS $isGT22) -}}
 
-WARNING: ON EKS v1.23+ INSTALLATION OF EBS-CSI DRIVER IS REQUIRED TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+WARNING: ON EKS v1.23+ INSTALLATION OF EBS-CSI DRIVER IS REQUIRED TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
 {{ if (and $EBSCSINotExists $PVNotExists) -}}
 
-ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
 {{ else if (and $EBSCSINotExists (not $PVNotExists)) -}}
 
-ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.aws.amazon.com/eks/latest/userguide/ebs-csi.html
-
-{{ else if (not $EBSCSINotExists) -}}
-
-We detected a EBS-CSI Driver, but you should check that Kubecost's PersistentVolume has been installed correctly
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
 {{ end -}}
 {{ end -}}
