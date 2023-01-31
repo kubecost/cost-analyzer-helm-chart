@@ -825,6 +825,9 @@ federatedETL:
     # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
 
+kubecostAdmissionController:
+  enabled: false
+
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
 # These configs can also be set from the Settings page in the Kubecost product UI
