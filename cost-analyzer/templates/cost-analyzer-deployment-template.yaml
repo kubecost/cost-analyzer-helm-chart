@@ -94,7 +94,7 @@ spec:
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
-        {{- else if and .Values.global.thanos.enabled (ne .Values.kubecostModel.etlBucketConfigSecret "") }}
+        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
             {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
         {{- if $etlBackupBucketSecret }}
