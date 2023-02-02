@@ -87,18 +87,21 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- /*
+          If Thanos is enabled, then enable ETL backups by default.
+          To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
+        */}}
+        {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
-        - name: etl-bucket-config
-          secret:
-           defaultMode: 420
-           secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne .Values.kubecostModel.etlBucketConfigSecret "") }}
-        {{- /* If Thanos is enabled, then enable ETL backups by default. */}}
-        {{- /* To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret="" */}}
+            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
+        {{- end }}
+        {{- if $etlBackupBucketSecret }}
         - name: etl-bucket-config
           secret:
            defaultMode: 420
-           secretName: {{ .Values.thanos.storeSecretName }}
+           secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
@@ -369,9 +372,7 @@ spec:
             # Extra volume mount(s)
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
-            {{- if or .Values.kubecostModel.etlBucketConfigSecret (and .Values.global.thanos.enabled (ne .Values.kubecostModel.etlBucketConfigSecret "")) }}
-            {{- /* If Thanos is enabled, then enable ETL backups by default. */}}
-            {{- /* To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret="" */}}
+            {{- if $etlBackupBucketSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
@@ -654,9 +655,7 @@ spec:
             - name: ETL_READ_ONLY
               value: "true"
             {{- end }}
-            {{- if or .Values.kubecostModel.etlBucketConfigSecret (and .Values.global.thanos.enabled (ne .Values.kubecostModel.etlBucketConfigSecret "")) }}
-            {{- /* If Thanos is enabled, then enable ETL backups by default. */}}
-            {{- /* To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret="" */}}
+            {{- if $etlBackupBucketSecret }}
             - name: ETL_TO_DISK_ENABLED
               value: "false"
             - name: ETL_BUCKET_CONFIG
