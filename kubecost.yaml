@@ -1,72 +1,3 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    kubernetes.io/metadata.name: kubecost
-  name: kubecost
----
-# Source: cost-analyzer/charts/grafana/templates/podsecuritypolicy.yaml
-apiVersion: policy/v1beta1
-kind: PodSecurityPolicy
-metadata:
-  name: kubecost-grafana
-  labels:
-    app: grafana
-    chart: grafana-1.17.2
-    release: kubecost
-  annotations:
-    seccomp.security.alpha.kubernetes.io/allowedProfileNames: 'docker/default'
-    seccomp.security.alpha.kubernetes.io/defaultProfileName:  'docker/default'
-    apparmor.security.beta.kubernetes.io/allowedProfileNames: 'runtime/default'
-    apparmor.security.beta.kubernetes.io/defaultProfileName:  'runtime/default'
-
-spec:
-  privileged: false
-  allowPrivilegeEscalation: false
-  requiredDropCapabilities:
-    - ALL
-  volumes:
-    - 'configMap'
-    - 'emptyDir'
-    - 'projected'
-    - 'secret'
-    - 'downwardAPI'
-    - 'persistentVolumeClaim'
-  hostNetwork: false
-  hostIPC: false
-  hostPID: false
-  runAsUser:
-    rule: 'RunAsAny'
-  seLinux:
-    rule: 'RunAsAny'
-  supplementalGroups:
-    rule: 'RunAsAny'
-  fsGroup:
-    rule: 'RunAsAny'
-  readOnlyRootFilesystem: false
----
-# Source: cost-analyzer/templates/cost-analyzer-psp.template.yaml
-apiVersion: policy/v1beta1
-kind: PodSecurityPolicy
-metadata:
-    name: kubecost-cost-analyzer-psp
-    labels:
-
-      app.kubernetes.io/name: cost-analyzer
-      app.kubernetes.io/instance: kubecost
-      app: cost-analyzer
-spec:
-    privileged: false
-    seLinux:
-        rule: RunAsAny
-    supplementalGroups:
-        rule: RunAsAny
-    runAsUser:
-        rule: RunAsAny
-    fsGroup:
-        rule: RunAsAny
-    volumes:
-        - '*'
 ---
 # Source: cost-analyzer/charts/grafana/templates/serviceaccount.yaml
 apiVersion: v1
@@ -75,8 +6,10 @@ metadata:
   labels:
     app: grafana
     chart: grafana-1.17.2
+    heritage: Helm
     release: kubecost
   name: kubecost-grafana
+  namespace: kubecost
 ---
 # Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/serviceaccount.yaml
 apiVersion: v1
@@ -84,6 +17,8 @@ kind: ServiceAccount
 metadata:
   labels:
     app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: kubecost
   name: kubecost-kube-state-metrics
   namespace: kubecost
@@ -99,7 +34,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-node-exporter
+  namespace: kubecost
 ---
 # Source: cost-analyzer/charts/prometheus/templates/server-serviceaccount.yaml
 apiVersion: v1
@@ -110,17 +47,22 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
+  namespace: kubecost
 ---
 # Source: cost-analyzer/templates/cost-analyzer-service-account-template.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 ---
 # Source: cost-analyzer/charts/grafana/templates/secret.yaml
@@ -128,10 +70,12 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
 type: Opaque
 data:
   admin-user: "YWRtaW4="
@@ -146,7 +90,9 @@ metadata:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
   name: kubecost-grafana-config-dashboards
+  namespace: kubecost
 data:
   provider.yaml: |-
     apiVersion: 1
@@ -164,10 +110,12 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
 data:
   grafana.ini: |
     [analytics]
@@ -187,6 +135,7 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
+    serve_from_sub_path = true
   datasources.yaml: |
     apiVersion: 1
     datasources:
@@ -210,7 +159,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
+  namespace: kubecost
 data:
   alerting_rules.yml: |
     {}
@@ -222,7 +173,7 @@ data:
       external_labels:
         cluster_id: cluster-one
       scrape_interval: 1m
-      scrape_timeout: 10s
+      scrape_timeout: 60s
     rule_files:
     - /etc/config/recording_rules.yml
     - /etc/config/alerting_rules.yml
@@ -302,6 +253,10 @@ data:
         regex: true
         source_labels:
         - __meta_kubernetes_service_annotation_prometheus_io_scrape
+      - action: keep
+        regex: (kubecost-kube-state-metrics|kubecost-prometheus-node-exporter|kubecost-network-costs)
+        source_labels:
+        - __meta_kubernetes_endpoints_name
       - action: replace
         regex: (https?)
         source_labels:
@@ -430,7 +385,7 @@ data:
         - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
           regex:  kubecost-network-costs
-
+    
   recording_rules.yml: |
     {}
   rules: |
@@ -477,10 +432,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 data:
     prometheus-alertmanager-endpoint: http://kubecost-prometheus-alertmanager.kubecost
@@ -492,10 +450,13 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: nginx-conf
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 data:
   nginx.conf: |
@@ -561,7 +522,7 @@ data:
         location / {
             try_files $uri $uri/ /index.html;
         }
-        add_header ETag "1.98.0";
+        add_header ETag "1.100.0";
         listen 9090;
         listen [::]:9090;
         location /api/ {
@@ -587,6 +548,7 @@ data:
         location ~ ^/(turndown|cluster)/ {
 
             add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             return 404;
         }
         location /oidc/ {
@@ -621,6 +583,7 @@ data:
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header  X-Original-URI $request_uri;
         }
 
         location /logout {
@@ -643,7 +606,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header Host $http_host;
         }
-
+    
     }
 ---
 # Source: cost-analyzer/templates/grafana-attached-disk-metrics-template.yaml
@@ -652,9 +615,11 @@ kind: ConfigMap
 metadata:
   name: attached-disk-metrics-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -666,29 +631,88 @@ data:
             "list": [
               {
                 "builtIn": 1,
-                "datasource": "-- Grafana --",
+                "datasource": {
+                  "type": "datasource",
+                  "uid": "grafana"
+                },
                 "enable": true,
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
+                "target": {
+                  "limit": 100,
+                  "matchAny": false,
+                  "tags": [],
+                  "type": "dashboard"
+                },
                 "type": "dashboard"
               }
             ]
           },
           "editable": true,
-          "gnetId": null,
+          "fiscalYearStartMonth": 0,
           "graphTooltip": 0,
-          "id": 10,
-          "iteration": 1589748792557,
+          "id": 15,
+          "iteration": 1674508602609,
           "links": [],
+          "liveNow": false,
           "panels": [
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "${datasource}",
-              "fill": 1,
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decbytes"
+                },
+                "overrides": []
+              },
               "gridPos": {
                 "h": 9,
                 "w": 12,
@@ -696,82 +720,96 @@ data:
                 "y": 0
               },
               "id": 2,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
               "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "pluginVersion": "9.0.2",
               "targets": [
                 {
-                  "expr": "sum(container_fs_limit_bytes{instance=~'$disk', device!=\"tmpfs\", id=\"/\"}) by (instance)",
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum(container_fs_limit_bytes{instance=~'$disk', device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance)",
                   "format": "time_series",
+                  "interval": "",
                   "intervalFactor": 1,
+                  "legendFormat": "{{cluster_id}}/{{instance}}",
+                  "range": true,
                   "refId": "A"
                 }
               ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
               "title": "Disk Size",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "decbytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
+              "type": "timeseries"
             },
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "${datasource}",
-              "fill": 1,
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "decimals": 1,
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
               "gridPos": {
                 "h": 9,
                 "w": 12,
@@ -779,83 +817,96 @@ data:
                 "y": 0
               },
               "id": 4,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
               "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "pluginVersion": "9.0.2",
               "targets": [
                 {
-                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\"}) by (instance) / sum(container_fs_limit_bytes{instance=~'$disk',device!=\"tmpfs\", id=\"/\"}) by (instance)",
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance) / sum(container_fs_limit_bytes{instance=~'$disk',device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id,instance)",
                   "format": "time_series",
+                  "interval": "",
                   "intervalFactor": 1,
+                  "legendFormat": "{{cluster_id}}-{{instance}}",
+                  "range": true,
                   "refId": "A"
                 }
               ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
               "title": "Disk Utilization",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "decimals": 1,
-                  "format": "percentunit",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
+              "type": "timeseries"
             },
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "${datasource}",
-              "fill": 1,
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "decimals": 1,
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "percentunit"
+                },
+                "overrides": []
+              },
               "gridPos": {
                 "h": 9,
                 "w": 12,
@@ -863,83 +914,93 @@ data:
                 "y": 9
               },
               "id": 5,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
               "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "pluginVersion": "9.0.2",
               "targets": [
                 {
-                  "expr": "1 - sum(container_fs_inodes_free{instance=~'$disk',id=\"/\"}) by (instance) / sum(container_fs_inodes_total{instance=~'$disk',id=\"/\"}) by (instance)",
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "1 - sum(container_fs_inodes_free{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance) / sum(container_fs_inodes_total{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance)",
                   "format": "time_series",
                   "intervalFactor": 1,
+                  "legendFormat": "{{cluster_id}}/{{instance}}",
+                  "range": true,
                   "refId": "A"
                 }
               ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
               "title": "iNode Utilization",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "decimals": 1,
-                  "format": "percentunit",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": "0",
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
+              "type": "timeseries"
             },
             {
-              "aliasColors": {},
-              "bars": false,
-              "dashLength": 10,
-              "dashes": false,
-              "datasource": "${datasource}",
-              "fill": 1,
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 10,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decbytes"
+                },
+                "overrides": []
+              },
               "gridPos": {
                 "h": 9,
                 "w": 12,
@@ -947,77 +1008,40 @@ data:
                 "y": 9
               },
               "id": 3,
-              "legend": {
-                "avg": false,
-                "current": false,
-                "max": false,
-                "min": false,
-                "show": true,
-                "total": false,
-                "values": false
-              },
-              "lines": true,
-              "linewidth": 1,
               "links": [],
-              "nullPointMode": "null",
-              "percentage": false,
-              "pointradius": 5,
-              "points": false,
-              "renderer": "flot",
-              "seriesOverrides": [],
-              "spaceLength": 10,
-              "stack": false,
-              "steppedLine": false,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom"
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "none"
+                }
+              },
+              "pluginVersion": "9.0.2",
               "targets": [
                 {
-                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\"}) by (instance)",
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance)",
                   "format": "time_series",
+                  "interval": "",
                   "intervalFactor": 1,
+                  "legendFormat": "{{cluster_id}}/{{instance}}",
+                  "range": true,
                   "refId": "A"
                 }
               ],
-              "thresholds": [],
-              "timeFrom": null,
-              "timeShift": null,
               "title": "Disk Usage",
-              "tooltip": {
-                "shared": true,
-                "sort": 0,
-                "value_type": "individual"
-              },
-              "type": "graph",
-              "xaxis": {
-                "buckets": null,
-                "mode": "time",
-                "name": null,
-                "show": true,
-                "values": []
-              },
-              "yaxes": [
-                {
-                  "format": "decbytes",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                },
-                {
-                  "format": "short",
-                  "label": null,
-                  "logBase": 1,
-                  "max": null,
-                  "min": null,
-                  "show": true
-                }
-              ],
-              "yaxis": {
-                "align": false,
-                "alignLevel": null
-              }
+              "type": "timeseries"
             }
           ],
-          "schemaVersion": 16,
+          "schemaVersion": 36,
           "style": "dark",
           "tags": [
             "cost",
@@ -1027,47 +1051,77 @@ data:
           "templating": {
             "list": [
               {
-                "allValue": null,
                 "current": {
-                  "text": "All",
-                  "value": "$__all"
+                  "selected": false,
+                  "text": "Thanos",
+                  "value": "Thanos"
                 },
-                "datasource": "${datasource}",
-                "hide": 0,
-                "includeAll": true,
-                "label": null,
-                "multi": false,
-                "name": "disk",
-                "options": [],
-                "query": "query_result(sum(container_fs_limit_bytes{device!=\"tmpfs\", id=\"/\"}) by (instance))",
-                "refresh": 1,
-                "regex": "/instance=\\\"(.*?)(\\\")/",
-                "skipUrlSync": false,
-                "sort": 0,
-                "tagValuesQuery": "",
-                "tags": [],
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-              },
-              {
-                "current": {
-                  "selected": true,
-                  "text": "default-kubecost",
-                  "value": "default-kubecost"
-                },
-                "error": null,
                 "hide": 0,
                 "includeAll": false,
-                "label": null,
                 "multi": false,
                 "name": "datasource",
                 "options": [],
                 "query": "prometheus",
+                "queryValue": "",
                 "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
                 "type": "datasource"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(cluster_id)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                  "query": "label_values(cluster_id)",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(container_fs_limit_bytes{cluster_id=~\"$cluster\"}, instance)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "disk",
+                "options": [],
+                "query": {
+                  "query": "label_values(container_fs_limit_bytes{cluster_id=~\"$cluster\"}, instance)",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
               }
             ]
           },
@@ -1103,7 +1157,8 @@ data:
           "timezone": "",
           "title": "Attached disk metrics",
           "uid": "nBH7qBgMk",
-          "version": 2
+          "version": 4,
+          "weekStart": ""
         }
 ---
 # Source: cost-analyzer/templates/grafana-dashboard-cluster-metrics-template.yaml
@@ -1112,9 +1167,11 @@ kind: ConfigMap
 metadata:
   name: cluster-metrics-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -2810,9 +2867,11 @@ kind: ConfigMap
 metadata:
   name: cluster-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -6022,9 +6081,11 @@ kind: ConfigMap
 metadata:
   name: deployment-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -7418,15 +7479,443 @@ data:
           "version": 1
         }
 ---
+# Source: cost-analyzer/templates/grafana-dashboard-kubernetes-resource-efficiency-template.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-kubernetes-resource-efficiency
+  labels:
+    
+    app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
+    app: cost-analyzer
+    grafana_dashboard: "1"
+  annotations:
+    {}
+data:
+    kubernetes-resource-efficiency.json: |-
+        {
+          "annotations": {
+            "list": [
+              {
+                "builtIn": 1,
+                "datasource": {
+                  "type": "grafana",
+                  "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                  "limit": 100,
+                  "matchAny": false,
+                  "tags": [],
+                  "type": "dashboard"
+                },
+                "type": "dashboard"
+              }
+            ]
+          },
+          "editable": true,
+          "fiscalYearStartMonth": 0,
+          "graphTooltip": 0,
+          "id": 29,
+          "links": [],
+          "liveNow": false,
+          "panels": [
+            {
+              "collapsed": false,
+              "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+              },
+              "id": 2,
+              "panels": [],
+              "title": "Requests - Usage (negative values are unused reservations)",
+              "type": "row"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": 3600000,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "bytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 16,
+                "w": 24,
+                "x": 0,
+                "y": 1
+              },
+              "id": 4,
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by ($aggregation) (\n    (sum by (cluster_id,namespace,pod,container) (container_memory_usage_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n   -(sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n)",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by ($aggregation) (\n    -(sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"memory\",unit=\"byte\",cluster_id=~\"$cluster\",namespace=~\"$namespace\",container=~\"$container\",container!=\"POD\",container!=\"\"}))\n)",
+                  "hide": true,
+                  "legendFormat": "{{$aggregation}} Request",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "Memory Request-Usage",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": 3600000,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 14,
+                "w": 24,
+                "x": 0,
+                "y": 17
+              },
+              "id": 6,
+              "options": {
+                "legend": {
+                  "calcs": [
+                    "lastNotNull"
+                  ],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by ($aggregation)(\n    (sum by (cluster_id,namespace,pod,container) (rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}[1h])))\n    -  \n    (sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}))\n)\n \n",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "-sum by ($aggregation)(\n    (sum by (cluster_id,namespace,pod,container) (kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\",container!=\"\"}))\n)",
+                  "hide": true,
+                  "legendFormat": "{{$aggregation}} Request",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "CPU Request-Usage",
+              "type": "timeseries"
+            }
+          ],
+          "schemaVersion": 37,
+          "style": "dark",
+          "tags": [
+        		"utilization",
+        		"metrics",
+            "kubecost"
+          ],
+          "templating": {
+            "list": [
+              {
+                "current": {
+                  "selected": false,
+                  "text": "default",
+                  "value": "default"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "datasource",
+                "options": [],
+                "query": "prometheus",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "namespace",
+                  "value": "namespace"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "aggregation",
+                "options": [
+                  {
+                    "selected": false,
+                    "text": "cluster_id",
+                    "value": "cluster_id"
+                  },
+                  {
+                    "selected": true,
+                    "text": "namespace",
+                    "value": "namespace"
+                  },
+                  {
+                    "selected": false,
+                    "text": "container",
+                    "value": "container"
+                  }
+                ],
+                "query": "cluster_id,namespace,container",
+                "queryValue": "",
+                "skipUrlSync": false,
+                "type": "custom"
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_namespace_labels, cluster_id)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_namespace_labels, cluster_id)",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "kubecost",
+                  "value": "kubecost"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "namespace",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "container",
+                "options": [],
+                "query": {
+                  "query": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              }
+            ]
+          },
+          "time": {
+            "from": "now-6h",
+            "to": "now"
+          },
+          "timepicker": {},
+          "timezone": "",
+          "title": "Kubernetes Resource Efficiency",
+          "uid": "kubernetes-resource-efficiency",
+          "version": 1,
+          "weekStart": ""
+        }
+---
 # Source: cost-analyzer/templates/grafana-dashboard-label-cost-utilization-template.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: label-cost-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -8585,9 +9074,11 @@ kind: ConfigMap
 metadata:
   name: namespace-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -8615,7 +9106,7 @@ data:
         	"id":9,
         	"iteration":1553150922105,
         	"links":[
-
+        
         	],
         	"panels":[
         		{
@@ -8636,7 +9127,7 @@ data:
         			"hideTimeOverride":true,
         			"id":73,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeat":null,
@@ -8681,7 +9172,7 @@ data:
         					"decimals":2,
         					"pattern":"Value #B",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"decbytes"
@@ -8699,7 +9190,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #A",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"percent"
@@ -8717,7 +9208,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -8735,7 +9226,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #C",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"currencyUSD"
@@ -8753,7 +9244,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #D",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"currencyUSD"
@@ -8843,7 +9334,7 @@ data:
         			"hideTimeOverride":true,
         			"id":90,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeatDirection":"v",
@@ -8867,7 +9358,7 @@ data:
         					"mappingType":1,
         					"pattern":"namespace",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -8885,7 +9376,7 @@ data:
         					"mappingType":1,
         					"pattern":"persistentvolumeclaim",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -8903,7 +9394,7 @@ data:
         					"mappingType":1,
         					"pattern":"storageclass",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -8921,7 +9412,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"gbytes"
@@ -8939,7 +9430,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -8966,7 +9457,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -8993,7 +9484,7 @@ data:
         			"lines":true,
         			"linewidth":1,
         			"links":[
-
+        
         			],
         			"nullPointMode":"null",
         			"percentage":false,
@@ -9001,7 +9492,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9015,7 +9506,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":null,
         			"timeShift":null,
@@ -9032,7 +9523,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9060,7 +9551,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9072,7 +9563,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9102,7 +9593,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9110,7 +9601,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9130,7 +9621,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9148,7 +9639,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9177,7 +9668,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9189,7 +9680,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9216,7 +9707,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9224,7 +9715,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9240,7 +9731,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9258,7 +9749,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9287,7 +9778,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9299,7 +9790,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9329,7 +9820,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9337,7 +9828,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9367,7 +9858,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9385,7 +9876,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9413,7 +9904,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -9425,7 +9916,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -9455,7 +9946,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -9463,7 +9954,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -9493,7 +9984,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -9511,7 +10002,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -9687,7 +10178,7 @@ data:
         				"multi":false,
         				"name":"namespace",
         				"options":[
-
+        
         				],
         				"query":"query_result(sum(kube_namespace_created{namespace!=\"\"}) by (namespace))",
         				"refresh":1,
@@ -9696,7 +10187,7 @@ data:
         				"sort":0,
         				"tagValuesQuery":"",
         				"tags":[
-
+        
         				],
         				"tagsQuery":"",
         				"type":"query",
@@ -9705,7 +10196,7 @@ data:
         			{
         				"datasource":"${datasource}",
         				"filters":[
-
+        
         				],
         				"hide":0,
         				"label":"",
@@ -9776,9 +10267,11 @@ kind: ConfigMap
 metadata:
   name: node-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -9805,7 +10298,7 @@ data:
         	"id":6,
         	"iteration":1557245882378,
         	"links":[
-
+        
         	],
         	"panels":[
         		{
@@ -9835,7 +10328,7 @@ data:
         			"id":2,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -9917,7 +10410,7 @@ data:
         			"id":3,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -9999,7 +10492,7 @@ data:
         			"id":4,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10072,7 +10565,7 @@ data:
         			"hideTimeOverride":true,
         			"id":21,
         			"links":[
-
+        
         			],
         			"pageSize":8,
         			"repeat":null,
@@ -10118,7 +10611,7 @@ data:
         					"mappingType":1,
         					"pattern":"Time",
         					"thresholds":[
-
+        
         					],
         					"type":"hidden",
         					"unit":"short"
@@ -10136,7 +10629,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #C",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10154,7 +10647,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #A",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10172,7 +10665,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #B",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"short"
@@ -10190,7 +10683,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #D",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10208,7 +10701,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #E",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10226,7 +10719,7 @@ data:
         					"mappingType":1,
         					"pattern":"Value #F",
         					"thresholds":[
-
+        
         					],
         					"type":"number",
         					"unit":"bytes"
@@ -10297,7 +10790,7 @@ data:
         			"id":8,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10380,7 +10873,7 @@ data:
         			"id":18,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10462,7 +10955,7 @@ data:
         			"id":9,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10544,7 +11037,7 @@ data:
         			"id":19,
         			"interval":null,
         			"links":[
-
+        
         			],
         			"mappingType":1,
         			"mappingTypes":[
@@ -10601,7 +11094,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -10613,7 +11106,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -10643,7 +11136,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -10651,7 +11144,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -10671,7 +11164,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -10689,7 +11182,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -10718,7 +11211,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -10730,7 +11223,7 @@ data:
         			"error":false,
         			"fill":0,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -10757,7 +11250,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -10765,7 +11258,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -10784,7 +11277,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -10802,7 +11295,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -10831,7 +11324,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -10843,7 +11336,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -10873,7 +11366,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -10881,7 +11374,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -10911,7 +11404,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -10929,7 +11422,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -10957,7 +11450,7 @@ data:
         		},
         		{
         			"aliasColors":{
-
+        
         			},
         			"bars":false,
         			"dashLength":10,
@@ -10969,7 +11462,7 @@ data:
         			"error":false,
         			"fill":1,
         			"grid":{
-
+        
         			},
         			"gridPos":{
         				"h":6,
@@ -10999,7 +11492,7 @@ data:
         			"lines":true,
         			"linewidth":2,
         			"links":[
-
+        
         			],
         			"nullPointMode":"connected",
         			"percentage":false,
@@ -11007,7 +11500,7 @@ data:
         			"points":false,
         			"renderer":"flot",
         			"seriesOverrides":[
-
+        
         			],
         			"spaceLength":10,
         			"stack":false,
@@ -11037,7 +11530,7 @@ data:
         				}
         			],
         			"thresholds":[
-
+        
         			],
         			"timeFrom":"",
         			"timeShift":null,
@@ -11055,7 +11548,7 @@ data:
         				"name":null,
         				"show":true,
         				"values":[
-
+        
         				]
         			},
         			"yaxes":[
@@ -11104,7 +11597,7 @@ data:
         				"multi":false,
         				"name":"node",
         				"options":[
-
+        
         				],
         				"query":"query_result(kube_node_labels)",
         				"refresh":1,
@@ -11113,7 +11606,7 @@ data:
         				"sort":0,
         				"tagValuesQuery":"",
         				"tags":[
-
+        
         				],
         				"tagsQuery":"",
         				"type":"query",
@@ -11181,9 +11674,11 @@ kind: ConfigMap
 metadata:
   name: pod-utilization-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -11585,7 +12080,7 @@ data:
                   "step": 10
                 },
                 {
-                  "expr": "avg(kube_pod_container_resource_requests_memory_bytes{namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
@@ -12147,9 +12642,11 @@ kind: ConfigMap
 metadata:
   name: prom-benchmark-dashboard
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
     grafana_dashboard: "1"
   annotations:
@@ -17846,6 +18343,1497 @@ data:
           "version": 4
         }
 ---
+# Source: cost-analyzer/templates/grafana-networkcosts-metrics-template.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-networkcosts-metrics
+  labels:
+    
+    app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
+    app: cost-analyzer
+    grafana_dashboard: "1"
+  annotations:
+    {}
+data:
+    networkCosts-metrics.json: |-
+        {
+          "annotations": {
+            "list": [
+              {
+                "builtIn": 1,
+                "datasource": {
+                  "type": "grafana",
+                  "uid": "-- Grafana --"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                  "limit": 100,
+                  "matchAny": false,
+                  "tags": [],
+                  "type": "dashboard"
+                },
+                "type": "dashboard"
+              }
+            ]
+          },
+          "description": "https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration",
+          "editable": true,
+          "fiscalYearStartMonth": 0,
+          "graphTooltip": 0,
+          "id": 12,
+          "links": [],
+          "liveNow": false,
+          "panels": [
+            {
+              "collapsed": false,
+              "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+              },
+              "id": 12,
+              "panels": [],
+              "title": "Network Data Transfers (negative is egress data)",
+              "type": "row"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "decimals": 2,
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decmbytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 14,
+                "w": 11,
+                "x": 0,
+                "y": 1
+              },
+              "id": 10,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+                  "interval": "",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+                  "hide": false,
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "All Data",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decmbytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 14,
+                "w": 13,
+                "x": 11,
+                "y": 1
+              },
+              "id": 2,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+                  "hide": false,
+                  "interval": "",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+                  "hide": false,
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "Internet Data",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "decimals": 2,
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decmbytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 14,
+                "w": 11,
+                "x": 0,
+                "y": 15
+              },
+              "id": 9,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "interval": "",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "hide": false,
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "Cross Region Data",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "Cross region and cross zone subnets must be defined via the configMap. \nSee: \n<https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration#overriding-traffic-classifications>",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisCenteredZero": false,
+                    "axisColorMode": "text",
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "linear",
+                    "lineWidth": 1,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "auto",
+                    "spanNulls": false,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "decimals": 2,
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "decmbytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 14,
+                "w": 13,
+                "x": 11,
+                "y": 15
+              },
+              "id": 8,
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "single",
+                  "sort": "none"
+                }
+              },
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "interval": "",
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "A"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "hide": false,
+                  "legendFormat": "__auto",
+                  "range": true,
+                  "refId": "B"
+                }
+              ],
+              "title": "Cross Zone Data",
+              "type": "timeseries"
+            }
+          ],
+          "refresh": false,
+          "schemaVersion": 37,
+          "style": "dark",
+          "tags": [
+        		"utilization",
+        		"metrics",
+            "kubecost"
+          ],
+          "templating": {
+            "list": [
+              {
+                "current": {
+                  "selected": false,
+                  "text": "Prometheus",
+                  "value": "Prometheus"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "datasource",
+                "options": [],
+                "query": "prometheus",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "namespace",
+                  "value": "namespace"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "aggregation",
+                "options": [
+                  {
+                    "selected": false,
+                    "text": "cluster_id",
+                    "value": "cluster_id"
+                  },
+                  {
+                    "selected": true,
+                    "text": "namespace",
+                    "value": "namespace"
+                  },
+                  {
+                    "selected": false,
+                    "text": "pod_name",
+                    "value": "pod_name"
+                  }
+                ],
+                "query": "cluster_id, namespace, pod_name",
+                "queryValue": "",
+                "skipUrlSync": false,
+                "type": "custom"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(cluster_id)",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                  "query": "label_values(cluster_id)",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "namespace",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "pod",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 0,
+                "type": "query"
+              },
+              {
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "filters": [],
+                "hide": 0,
+                "name": "filter",
+                "skipUrlSync": false,
+                "type": "adhoc"
+              }
+            ]
+          },
+          "time": {
+            "from": "now-7d",
+            "to": "now"
+          },
+          "timepicker": {},
+          "timezone": "",
+          "title": "Kubecost networkCosts Metrics",
+          "uid": "kubecost-networkCosts-metrics",
+          "version": 7,
+          "weekStart": ""
+        }
+---
+# Source: cost-analyzer/templates/grafana-pod-utilization-multi-cluster-template.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-pod-utilization-multi-cluster
+  labels:
+    
+    app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
+    app: cost-analyzer
+    grafana_dashboard: "1"
+  annotations:
+    {}
+data:
+    pod-utilization-multi-cluster.json: |-
+        {
+          "annotations": {
+            "list": [
+              {
+                "builtIn": 1,
+                "datasource": {
+                  "type": "datasource",
+                  "uid": "grafana"
+                },
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                  "limit": 100,
+                  "matchAny": false,
+                  "tags": [],
+                  "type": "dashboard"
+                },
+                "type": "dashboard"
+              }
+            ]
+          },
+          "description": "Visualize your kubernetes costs at the pod level.",
+          "editable": true,
+          "fiscalYearStartMonth": 0,
+          "gnetId": 9063,
+          "graphTooltip": 0,
+          "id": 16,
+          "iteration": 1674564472460,
+          "links": [],
+          "liveNow": false,
+          "panels": [
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "displayMode": "auto",
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "container_name"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Container"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "rgba(245, 54, 54, 0.9)",
+                              "value": null
+                            },
+                            {
+                              "color": "rgba(50, 172, 45, 0.97)",
+                              "value": 30
+                            },
+                            {
+                              "color": "#c15c17",
+                              "value": 80
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #memory_requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Memory Request"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "bytes"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #cpu_requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "CPU Request"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "none"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Time"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #C"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Memory ($/hour)"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #D"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Spot/PE RAM"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #E"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Total"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "#bf1b00",
+                              "value": null
+                            },
+                            {
+                              "color": "rgba(50, 172, 45, 0.97)"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "cluster_id"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 226
+                      }
+                    ]
+                  }
+                ]
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 0
+              },
+              "hideTimeOverride": true,
+              "id": 98,
+              "links": [],
+              "options": {
+                "footer": {
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Memory Request"
+                  }
+                ]
+              },
+              "pluginVersion": "9.0.2",
+              "repeatDirection": "v",
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"memory\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n) by (cluster_id, namespace, container)",
+                  "format": "table",
+                  "instant": true,
+                  "intervalFactor": 1,
+                  "refId": "memory_requests"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n  or up * 0 \n) by (cluster_id, namespace, container)",
+                  "format": "table",
+                  "hide": false,
+                  "instant": true,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "",
+                  "refId": "cpu_requests"
+                }
+              ],
+              "timeFrom": "1M",
+              "title": "Container cost  & allocation analysis",
+              "transformations": [
+                {
+                  "id": "merge",
+                  "options": {
+                    "reducers": []
+                  }
+                }
+              ],
+              "type": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "This graph attempts to show you CPU use of your application vs its requests",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "stepAfter",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 8
+              },
+              "id": 94,
+              "links": [],
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "pluginVersion": "9.1.0-beta1",
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "avg(rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (cluster_id, namespace, container_name)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{ cluster_id }}/{{container_name}} (usage)",
+                  "metric": "container_cpu",
+                  "refId": "usage",
+                  "step": 10
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "exemplar": true,
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
+                  "legendFormat": "{{ cluster_id }}/{{ container }} (request)",
+                  "range": true,
+                  "refId": "requests"
+                }
+              ],
+              "timeFrom": "",
+              "title": "CPU Usage vs Requested",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "This graph attempts to show you RAM use of your application vs its requests",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "stepAfter",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "bytes"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 7,
+                "w": 24,
+                "x": 0,
+                "y": 15
+              },
+              "id": 96,
+              "links": [],
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "pluginVersion": "9.1.0-beta1",
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "avg(avg_over_time(container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[5m])) by (cluster_id, namespace, container_name)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{ cluster_id }}/{{ container_name }} (usage)",
+                  "metric": "container_cpu",
+                  "refId": "A",
+                  "step": 10
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "PBFA97CFB590B2093"
+                  },
+                  "editorMode": "code",
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "intervalFactor": 1,
+                  "legendFormat": "{{ cluster_id }}/{{ container }} (requested)",
+                  "refId": "B"
+                }
+              ],
+              "timeFrom": "",
+              "title": "RAM Usage vs Requested",
+              "type": "timeseries"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "palette-classic"
+                  },
+                  "custom": {
+                    "axisLabel": "",
+                    "axisPlacement": "auto",
+                    "barAlignment": 0,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
+                    "gradientMode": "none",
+                    "hideFrom": {
+                      "legend": false,
+                      "tooltip": false,
+                      "viz": false
+                    },
+                    "lineInterpolation": "stepAfter",
+                    "lineWidth": 2,
+                    "pointSize": 5,
+                    "scaleDistribution": {
+                      "type": "linear"
+                    },
+                    "showPoints": "never",
+                    "spanNulls": true,
+                    "stacking": {
+                      "group": "A",
+                      "mode": "none"
+                    },
+                    "thresholdsStyle": {
+                      "mode": "off"
+                    }
+                  },
+                  "mappings": [],
+                  "min": 0,
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  },
+                  "unit": "none"
+                },
+                "overrides": []
+              },
+              "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 22
+              },
+              "id": 99,
+              "links": [],
+              "options": {
+                "legend": {
+                  "calcs": [],
+                  "displayMode": "list",
+                  "placement": "bottom",
+                  "showLegend": true
+                },
+                "tooltip": {
+                  "mode": "multi",
+                  "sort": "desc"
+                }
+              },
+              "pluginVersion": "9.1.0-beta1",
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "editorMode": "code",
+                  "expr": "100\n  * sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))\n  / sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))",
+                  "format": "time_series",
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{ cluster_id }}/{{container_name}}",
+                  "refId": "B"
+                }
+              ],
+              "timeFrom": "",
+              "title": "CPU throttle percent",
+              "type": "timeseries"
+            }
+          ],
+          "refresh": false,
+          "schemaVersion": 36,
+          "style": "dark",
+          "tags": [
+            "cost",
+            "utilization",
+            "metrics",
+            "kubecost"
+          ],
+          "templating": {
+            "list": [
+              {
+                "current": {
+                  "selected": true,
+                  "text": "Thanos",
+                  "value": "Thanos"
+                },
+                "hide": 0,
+                "includeAll": false,
+                "multi": false,
+                "name": "datasource",
+                "options": [],
+                "query": "prometheus",
+                "queryValue": "",
+                "refresh": 1,
+                "regex": "",
+                "skipUrlSync": false,
+                "type": "datasource"
+              },
+              {
+                "current": {
+                  "selected": false,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_namespace_labels, cluster_id)",
+                "hide": 0,
+                "includeAll": true,
+                "label": "",
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_namespace_labels, cluster_id)",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "kubecost",
+                  "value": "kubecost"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                "hide": 0,
+                "includeAll": true,
+                "label": "",
+                "multi": false,
+                "name": "namespace",
+                "options": [],
+                "query": {
+                  "query": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+              },
+              {
+                "current": {
+                  "selected": true,
+                  "text": "All",
+                  "value": "$__all"
+                },
+                "datasource": {
+                  "type": "prometheus",
+                  "uid": "${datasource}"
+                },
+                "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
+                "hide": 0,
+                "includeAll": true,
+                "multi": false,
+                "name": "container",
+                "options": [],
+                "query": {
+                  "query": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
+                  "refId": "StandardVariableQuery"
+                },
+                "refresh": 2,
+                "regex": "",
+                "skipUrlSync": false,
+                "sort": 5,
+                "type": "query"
+              }
+            ]
+          },
+          "time": {
+            "from": "now-7d",
+            "to": "now"
+          },
+          "timepicker": {
+            "hidden": false,
+            "refresh_intervals": [
+              "10s",
+              "30s",
+              "1m",
+              "5m",
+              "15m",
+              "30m",
+              "1h",
+              "2h",
+              "1d"
+            ],
+            "time_options": [
+              "5m",
+              "15m",
+              "1h",
+              "6h",
+              "12h",
+              "24h",
+              "2d",
+              "7d",
+              "30d"
+            ]
+          },
+          "timezone": "browser",
+          "title": "Pod cost & utilization metrics(multi-cluster)",
+          "uid": "at-cost-analysis-pod2",
+          "version": 2,
+          "weekStart": ""
+        }
+---
 # Source: cost-analyzer/charts/prometheus/templates/server-pvc.yaml
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -17855,7 +19843,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
+  namespace: kubecost
 spec:
   accessModes:
     - ReadWriteOnce
@@ -17868,10 +19858,13 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 spec:
   accessModes:
@@ -17888,6 +19881,7 @@ metadata:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
   name: kubecost-grafana-clusterrole
 rules:
 - apiGroups: [""] # "" indicates the core API group
@@ -17900,6 +19894,8 @@ kind: ClusterRole
 metadata:
   labels:
     app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: kubecost
   name: kubecost-kube-state-metrics
 rules:
@@ -18023,6 +20019,7 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
 rules:
   - apiGroups:
@@ -18060,9 +20057,11 @@ kind: ClusterRole
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 rules:
   - apiGroups:
@@ -18130,9 +20129,9 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
+  - apiGroups: 
       - storage.k8s.io
-    resources:
+    resources: 
       - storageclasses
     verbs:
       - get
@@ -18156,6 +20155,7 @@ metadata:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
 subjects:
   - kind: ServiceAccount
     name: kubecost-grafana
@@ -18171,6 +20171,8 @@ kind: ClusterRoleBinding
 metadata:
   labels:
     app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: kubecost
   name: kubecost-kube-state-metrics
 roleRef:
@@ -18191,6 +20193,7 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
 subjects:
   - kind: ServiceAccount
@@ -18207,9 +20210,11 @@ kind: ClusterRoleBinding
 metadata:
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -18225,9 +20230,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
+    heritage: Helm
     release: kubecost
 rules:
 - apiGroups:      ['extensions']
@@ -18242,12 +20249,14 @@ metadata:
   namespace: kubecost
   name: kubecost-cost-analyzer
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 rules:
-- apiGroups:
+- apiGroups: 
     - ''
   resources:
     - "pods/log"
@@ -18261,10 +20270,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: kubecost-cost-analyzer-psp
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
   annotations:
 rules:
@@ -18279,9 +20291,11 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
+    heritage: Helm
     release: kubecost
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -18296,10 +20310,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -18315,9 +20332,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
     name: kubecost-cost-analyzer-psp
+    namespace: kubecost
     labels:
+      
       app.kubernetes.io/name: cost-analyzer
+      helm.sh/chart: cost-analyzer-1.100.0
       app.kubernetes.io/instance: kubecost
+      app.kubernetes.io/managed-by: Helm
       app: cost-analyzer
 roleRef:
     apiGroup: rbac.authorization.k8s.io
@@ -18333,10 +20354,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
 spec:
   type: ClusterIP
   ports:
@@ -18357,7 +20380,9 @@ metadata:
   namespace: kubecost
   labels:
     app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: "kube-state-metrics-2.7.2"
     app.kubernetes.io/instance: "kubecost"
+    app.kubernetes.io/managed-by: "Helm"
   annotations:
     prometheus.io/scrape: 'true'
 spec:
@@ -18382,7 +20407,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-node-exporter
+  namespace: kubecost
 spec:
   clusterIP: None
   ports:
@@ -18405,7 +20432,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
+  namespace: kubecost
 spec:
   ports:
     - name: http
@@ -18424,14 +20453,17 @@ kind: Service
 apiVersion: v1
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 spec:
   selector:
-
+    
     app.kubernetes.io/name: cost-analyzer
     app.kubernetes.io/instance: kubecost
     app: cost-analyzer
@@ -18453,7 +20485,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-node-exporter
+  namespace: kubecost
 spec:
   selector:
     matchLabels:
@@ -18469,6 +20503,7 @@ spec:
         app: prometheus
         release: kubecost
         chart: prometheus-11.0.2
+        heritage: Helm
     spec:
       serviceAccountName: kubecost-prometheus-node-exporter
       containers:
@@ -18507,10 +20542,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubecost-grafana
+  namespace: kubecost
   labels:
     app: grafana
     chart: grafana-1.17.2
     release: kubecost
+    heritage: Helm
 spec:
   replicas: 1
   selector:
@@ -18518,7 +20555,7 @@ spec:
       app: grafana
       release: kubecost
   strategy:
-    type: RollingUpdate
+    type: RollingUpdate    
   template:
     metadata:
       labels:
@@ -18546,7 +20583,7 @@ spec:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
         - name: grafana
-          image: "grafana/grafana:9.0.2"
+          image: "grafana/grafana:9.3.1"
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: config
@@ -18565,7 +20602,7 @@ spec:
               subPath: provider.yaml
             - name: storage
               mountPath: "/var/lib/grafana"
-              subPath:
+              subPath: 
           ports:
             - name: service
               containerPort: 80
@@ -18623,7 +20660,9 @@ metadata:
   namespace: kubecost
   labels:
     app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: "kube-state-metrics-2.7.2"
     app.kubernetes.io/instance: "kubecost"
+    app.kubernetes.io/managed-by: "Helm"
 spec:
   selector:
     matchLabels:
@@ -18743,7 +20782,9 @@ metadata:
     app: prometheus
     release: kubecost
     chart: prometheus-11.0.2
+    heritage: Helm
   name: kubecost-prometheus-server
+  namespace: kubecost
 spec:
   selector:
     matchLabels:
@@ -18760,6 +20801,7 @@ spec:
         app: prometheus
         release: kubecost
         chart: prometheus-11.0.2
+        heritage: Helm
     spec:
       serviceAccountName: kubecost-prometheus-server
       containers:
@@ -18833,10 +20875,13 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubecost-cost-analyzer
+  namespace: kubecost
   labels:
-
+    
     app.kubernetes.io/name: cost-analyzer
+    helm.sh/chart: cost-analyzer-1.100.0
     app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
 spec:
   replicas: 1
@@ -18854,7 +20899,7 @@ spec:
   template:
     metadata:
       labels:
-
+        
         app.kubernetes.io/name: cost-analyzer
         app.kubernetes.io/instance: kubecost
         app: cost-analyzer
@@ -18866,6 +20911,8 @@ spec:
       restartPolicy: Always
       serviceAccountName: kubecost-cost-analyzer
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -18877,8 +20924,8 @@ spec:
             claimName: kubecost-cost-analyzer
       initContainers:
       containers:
-        - image: gcr.io/kubecost1/cost-model:prod-1.98.0
-
+        - image: gcr.io/kubecost1/cost-model:prod-1.100.0
+        
           name: cost-model
           imagePullPolicy: Always
           ports:
@@ -18906,7 +20953,7 @@ spec:
             - name: GRAFANA_ENABLED
               value: "true"
             - name: HELM_VALUES
-              value: eyJhZmZpbml0eSI6e30sImF3c3N0b3JlIjp7ImNyZWF0ZVNlcnZpY2VBY2NvdW50IjpmYWxzZSwidXNlQXdzU3RvcmUiOmZhbHNlfSwiZXh0cmFWb2x1bWVNb3VudHMiOltdLCJleHRyYVZvbHVtZXMiOltdLCJmZWRlcmF0ZWRFVEwiOnsiZmVkZXJhdGVkQ2x1c3RlciI6ZmFsc2UsInByaW1hcnlDbHVzdGVyIjpmYWxzZSwicmVkaXJlY3RTM0JhY2t1cCI6ZmFsc2UsInVzZUV4aXN0aW5nUzNDb25maWciOmZhbHNlfSwiZ2xvYmFsIjp7ImFkZGl0aW9uYWxMYWJlbHMiOnt9LCJncmFmYW5hIjp7ImRvbWFpbk5hbWUiOiJjb3N0LWFuYWx5emVyLWdyYWZhbmEuZGVmYXVsdC5zdmMiLCJlbmFibGVkIjp0cnVlLCJwcm94eSI6dHJ1ZSwic2NoZW1lIjoiaHR0cCJ9LCJub3RpZmljYXRpb25zIjp7fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImZxZG4iOiJodHRwOi8vY29zdC1hbmFseXplci1wcm9tZXRoZXVzLXNlcnZlci5kZWZhdWx0LnN2YyJ9fSwiZ3JhZmFuYSI6eyJhZG1pblBhc3N3b3JkIjoic3Ryb25ncGFzc3dvcmQiLCJhZG1pblVzZXIiOiJhZG1pbiIsImFmZmluaXR5Ijp7fSwiZGFzaGJvYXJkUHJvdmlkZXJzIjp7fSwiZGFzaGJvYXJkcyI6e30sImRhc2hib2FyZHNDb25maWdNYXBzIjp7fSwiZGF0YXNvdXJjZXMiOnsiZGF0YXNvdXJjZXMueWFtbCI6eyJhcGlWZXJzaW9uIjoxLCJkYXRhc291cmNlcyI6W3siYWNjZXNzIjoicHJveHkiLCJpc0RlZmF1bHQiOmZhbHNlLCJuYW1lIjoicHJvbWV0aGV1cy1rdWJlY29zdCIsInR5cGUiOiJwcm9tZXRoZXVzIiwidXJsIjoiaHR0cDovL2t1YmVjb3N0LXByb21ldGhldXMtc2VydmVyLmt1YmVjb3N0LnN2Yy5jbHVzdGVyLmxvY2FsIn1dfX0sImRlcGxveW1lbnRTdHJhdGVneSI6IlJvbGxpbmdVcGRhdGUiLCJkb3dubG9hZERhc2hib2FyZHNJbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImN1cmxpbWFnZXMvY3VybCIsInRhZyI6ImxhdGVzdCJ9LCJlbnYiOnt9LCJlbnZGcm9tU2VjcmV0IjoiIiwiZXh0cmFTZWNyZXRNb3VudHMiOltdLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJncmFmYW5hLmluaSI6eyJhbmFseXRpY3MiOnsiY2hlY2tfZm9yX3VwZGF0ZXMiOnRydWV9LCJhdXRoLmFub255bW91cyI6eyJlbmFibGVkIjp0cnVlLCJvcmdfbmFtZSI6Ik1haW4gT3JnLiIsIm9yZ19yb2xlIjoiRWRpdG9yIn0sImdyYWZhbmFfbmV0Ijp7InVybCI6Imh0dHBzOi8vZ3JhZmFuYS5uZXQifSwibG9nIjp7Im1vZGUiOiJjb25zb2xlIn0sInBhdGhzIjp7ImRhdGEiOiIvdmFyL2xpYi9ncmFmYW5hL2RhdGEiLCJsb2dzIjoiL3Zhci9sb2cvZ3JhZmFuYSIsInBsdWdpbnMiOiIvdmFyL2xpYi9ncmFmYW5hL3BsdWdpbnMiLCJwcm92aXNpb25pbmciOiIvZXRjL2dyYWZhbmEvcHJvdmlzaW9uaW5nIn0sInNlcnZlciI6eyJyb290X3VybCI6IiUocHJvdG9jb2wpczovLyUoZG9tYWluKXM6JShodHRwX3BvcnQpcy9ncmFmYW5hIn19LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImdyYWZhbmEvZ3JhZmFuYSIsInRhZyI6IjkuMC4yIn0sImxkYXAiOnsiY29uZmlnIjoiIiwiZXhpc3RpbmdTZWNyZXQiOiIifSwibGl2ZW5lc3NQcm9iZSI6eyJmYWlsdXJlVGhyZXNob2xkIjoxMCwiaHR0cEdldCI6eyJwYXRoIjoiL2FwaS9oZWFsdGgiLCJwb3J0IjozMDAwfSwiaW5pdGlhbERlbGF5U2Vjb25kcyI6NjAsInRpbWVvdXRTZWNvbmRzIjozMH0sIm5vZGVTZWxlY3RvciI6e30sInBsdWdpbnMiOltdLCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZSwicHNwRW5hYmxlZCI6dHJ1ZSwicHNwVXNlQXBwQXJtb3IiOnRydWV9LCJyZWFkaW5lc3NQcm9iZSI6eyJodHRwR2V0Ijp7InBhdGgiOiIvYXBpL2hlYWx0aCIsInBvcnQiOjMwMDB9fSwicmVwbGljYXMiOjEsInJlc291cmNlcyI6e30sInNlY3VyaXR5Q29udGV4dCI6eyJmc0dyb3VwIjo0NzIsInJ1bkFzVXNlciI6NDcyfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxhYmVscyI6e30sInBvcnQiOjgwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImNyZWF0ZSI6dHJ1ZX0sInNpZGVjYXIiOnsiZGFzaGJvYXJkcyI6eyJhbm5vdGF0aW9ucyI6e30sImVuYWJsZWQiOnRydWUsImVycm9yX3Rocm90dGxlX3NsZWVwIjowLCJmb2xkZXIiOiIvdG1wL2Rhc2hib2FyZHMiLCJsYWJlbCI6ImdyYWZhbmFfZGFzaGJvYXJkIn0sImltYWdlIjoia2l3aWdyaWQvazhzLXNpZGVjYXI6MS4xOS4yIiwiaW1hZ2VQdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVzb3VyY2VzIjpudWxsfSwic210cCI6eyJleGlzdGluZ1NlY3JldCI6IiJ9LCJ0b2xlcmF0aW9ucyI6W119LCJpbml0Q2hvd25EYXRhIjp7InJlc291cmNlcyI6e319LCJpbml0Q2hvd25EYXRhSW1hZ2UiOiJidXN5Ym94Iiwia3ViZWNvc3REZXBsb3ltZW50Ijp7InJlcGxpY2FzIjoxfSwia3ViZWNvc3RGcm9udGVuZCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvZnJvbnRlbmQiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJpcHY2Ijp7ImVuYWJsZWQiOnRydWV9LCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMTBtIiwibWVtb3J5IjoiNTVNaSJ9fX0sImt1YmVjb3N0TWV0cmljcyI6e30sImt1YmVjb3N0TW9kZWwiOnsiZXRsIjp0cnVlLCJldGxEYWlseVN0b3JlRHVyYXRpb25EYXlzIjo5MSwiZXRsRmlsZVN0b3JlRW5hYmxlZCI6dHJ1ZSwiZXRsSG91cmx5U3RvcmVEdXJhdGlvbkhvdXJzIjo0OSwiZXRsUmVhZE9ubHlNb2RlIjpmYWxzZSwiZXh0cmFBcmdzIjpbXSwiaW1hZ2UiOiJnY3IuaW8va3ViZWNvc3QxL2Nvc3QtbW9kZWwiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJtYXhRdWVyeUNvbmN1cnJlbmN5Ijo1LCJvdXRPZkNsdXN0ZXJQcm9tTWV0cmljc0VuYWJsZWQiOmZhbHNlLCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMjAwbSIsIm1lbW9yeSI6IjU1TWkifX0sIndhcm1DYWNoZSI6ZmFsc2UsIndhcm1TYXZpbmdzQ2FjaGUiOnRydWV9LCJrdWJlY29zdFRva2VuIjpudWxsLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImRiU2l6ZSI6IjMyLjBHaSIsImVuYWJsZWQiOnRydWUsInNpemUiOiIzMkdpIn0sInBvZFNlY3VyaXR5UG9saWN5Ijp7ImVuYWJsZWQiOnRydWV9LCJwcm9tZXRoZXVzIjp7ImFsZXJ0UmVsYWJlbENvbmZpZ3MiOm51bGwsImFsZXJ0bWFuYWdlckZpbGVzIjp7ImFsZXJ0bWFuYWdlci55bWwiOnsiZ2xvYmFsIjp7fSwicmVjZWl2ZXJzIjpbeyJuYW1lIjoiZGVmYXVsdC1yZWNlaXZlciJ9XSwicm91dGUiOnsiZ3JvdXBfaW50ZXJ2YWwiOiI1bSIsImdyb3VwX3dhaXQiOiIxMHMiLCJyZWNlaXZlciI6ImRlZmF1bHQtcmVjZWl2ZXIiLCJyZXBlYXRfaW50ZXJ2YWwiOiIzaCJ9fX0sImNvbmZpZ21hcFJlbG9hZCI6eyJhbGVydG1hbmFnZXIiOnsiZW5hYmxlZCI6dHJ1ZSwiZXh0cmFBcmdzIjp7fSwiZXh0cmFDb25maWdtYXBNb3VudHMiOltdLCJleHRyYVZvbHVtZURpcnMiOltdLCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImppbW1pZHlzb24vY29uZmlnbWFwLXJlbG9hZCIsInRhZyI6InYwLjcuMSJ9LCJuYW1lIjoiY29uZmlnbWFwLXJlbG9hZCIsInJlc291cmNlcyI6e319LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImV4dHJhQXJncyI6e30sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVEaXJzIjpbXSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJqaW1taWR5c29uL2NvbmZpZ21hcC1yZWxvYWQiLCJ0YWciOiJ2MC43LjEifSwibmFtZSI6ImNvbmZpZ21hcC1yZWxvYWQiLCJyZXNvdXJjZXMiOnt9fX0sImV4dHJhU2NyYXBlQ29uZmlncyI6Ii0gam9iX25hbWU6IGt1YmVjb3N0XG4gIGhvbm9yX2xhYmVsczogdHJ1ZVxuICBzY3JhcGVfaW50ZXJ2YWw6IDFtXG4gIHNjcmFwZV90aW1lb3V0OiA2MHNcbiAgbWV0cmljc19wYXRoOiAvbWV0cmljc1xuICBzY2hlbWU6IGh0dHBcbiAgZG5zX3NkX2NvbmZpZ3M6XG4gIC0gbmFtZXM6XG4gICAgLSB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIuc2VydmljZU5hbWVcIiAuIH19XG4gICAgdHlwZTogJ0EnXG4gICAgcG9ydDogOTAwM1xuLSBqb2JfbmFtZToga3ViZWNvc3QtbmV0d29ya2luZ1xuICBrdWJlcm5ldGVzX3NkX2NvbmZpZ3M6XG4gICAgLSByb2xlOiBwb2RcbiAgcmVsYWJlbF9jb25maWdzOlxuICAjIFNjcmFwZSBvbmx5IHRoZSB0aGUgdGFyZ2V0cyBtYXRjaGluZyB0aGUgZm9sbG93aW5nIG1ldGFkYXRhXG4gICAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfcG9kX2xhYmVsX2FwcF1cbiAgICAgIGFjdGlvbjoga2VlcFxuICAgICAgcmVnZXg6ICB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIubmV0d29ya0Nvc3RzTmFtZVwiIC4gfX1cbiIsImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImltYWdlUHVsbFNlY3JldHMiOm51bGwsImt1YmUtc3RhdGUtbWV0cmljcyI6eyJhZmZpbml0eSI6e30sImNvbGxlY3RvcnMiOnsiY2VydGlmaWNhdGVzaWduaW5ncmVxdWVzdHMiOnRydWUsImNvbmZpZ21hcHMiOnRydWUsImNyb25qb2JzIjp0cnVlLCJkYWVtb25zZXRzIjp0cnVlLCJkZXBsb3ltZW50cyI6dHJ1ZSwiZW5kcG9pbnRzIjp0cnVlLCJob3Jpem9udGFscG9kYXV0b3NjYWxlcnMiOnRydWUsImluZ3Jlc3NlcyI6dHJ1ZSwiam9icyI6dHJ1ZSwibGltaXRyYW5nZXMiOnRydWUsIm11dGF0aW5nd2ViaG9va2NvbmZpZ3VyYXRpb25zIjpmYWxzZSwibmFtZXNwYWNlcyI6dHJ1ZSwibmV0d29ya3BvbGljaWVzIjpmYWxzZSwibm9kZXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVjbGFpbXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVzIjp0cnVlLCJwb2RkaXNydXB0aW9uYnVkZ2V0cyI6dHJ1ZSwicG9kcyI6dHJ1ZSwicmVwbGljYXNldHMiOnRydWUsInJlcGxpY2F0aW9uY29udHJvbGxlcnMiOnRydWUsInJlc291cmNlcXVvdGFzIjp0cnVlLCJzZWNyZXRzIjpmYWxzZSwic2VydmljZXMiOnRydWUsInN0YXRlZnVsc2V0cyI6dHJ1ZSwic3RvcmFnZWNsYXNzZXMiOnRydWUsInZhbGlkYXRpbmd3ZWJob29rY29uZmlndXJhdGlvbnMiOmZhbHNlLCJ2ZXJ0aWNhbHBvZGF1dG9zY2FsZXJzIjpmYWxzZSwidm9sdW1lYXR0YWNobWVudHMiOmZhbHNlfSwiY3VzdG9tTGFiZWxzIjp7fSwiZGlzYWJsZWQiOmZhbHNlLCJlbmFibGVkIjp0cnVlLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJob3N0TmV0d29yayI6ZmFsc2UsImltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoiazhzLmdjci5pby9rdWJlLXN0YXRlLW1ldHJpY3Mva3ViZS1zdGF0ZS1tZXRyaWNzIiwidGFnIjoidjEuOS44In0sIm5hbWVzcGFjZU92ZXJyaWRlIjoiIiwibm9kZVNlbGVjdG9yIjp7fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwcm9tZXRoZXVzIjp7fSwicHJvbWV0aGV1c1NjcmFwZSI6dHJ1ZSwicmJhYyI6eyJjcmVhdGUiOnRydWV9LCJyZXBsaWNhcyI6MSwic2VjdXJpdHlDb250ZXh0Ijp7ImVuYWJsZWQiOnRydWUsImZzR3JvdXAiOjY1NTM0LCJydW5Bc1VzZXIiOjY1NTM0fSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxvYWRCYWxhbmNlcklQIjoiIiwibm9kZVBvcnQiOjAsInBvcnQiOjgwODAsInR5cGUiOiJDbHVzdGVySVAifSwic2VydmljZUFjY291bnQiOnsiY3JlYXRlIjp0cnVlLCJpbWFnZVB1bGxTZWNyZXRzIjpbXX0sInRvbGVyYXRpb25zIjpbXX0sImt1YmVTdGF0ZU1ldHJpY3MiOnsiZW5hYmxlZCI6dHJ1ZX0sIm5vZGVFeHBvcnRlciI6eyJlbmFibGVkIjp0cnVlLCJleHRyYUFyZ3MiOnt9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhSG9zdFBhdGhNb3VudHMiOltdLCJob3N0TmV0d29yayI6dHJ1ZSwiaG9zdFBJRCI6dHJ1ZSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJwcm9tL25vZGUtZXhwb3J0ZXIiLCJ0YWciOiJ2MS4zLjAifSwibmFtZSI6Im5vZGUtZXhwb3J0ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwb2QiOnsibGFiZWxzIjp7fX0sInBvZEFubm90YXRpb25zIjp7fSwicG9kU2VjdXJpdHlQb2xpY3kiOnsiYW5ub3RhdGlvbnMiOnt9fSwicHJpb3JpdHlDbGFzc05hbWUiOiIiLCJyZXNvdXJjZXMiOnt9LCJzZWN1cml0eUNvbnRleHQiOnt9LCJzZXJ2aWNlIjp7ImFubm90YXRpb25zIjp7InByb21ldGhldXMuaW8vc2NyYXBlIjoidHJ1ZSJ9LCJjbHVzdGVySVAiOiJOb25lIiwiZXh0ZXJuYWxJUHMiOltdLCJob3N0UG9ydCI6OTEwMCwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6OTEwMCwidHlwZSI6IkNsdXN0ZXJJUCJ9LCJ0b2xlcmF0aW9ucyI6W10sInVwZGF0ZVN0cmF0ZWd5Ijp7InR5cGUiOiJSb2xsaW5nVXBkYXRlIn19LCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZX0sInNlcnZlciI6eyJhZmZpbml0eSI6e30sImFsZXJ0bWFuYWdlcnMiOltdLCJiYXNlVVJMIjoiIiwiY29uZmlnTWFwT3ZlcnJpZGVOYW1lIjoiIiwiY29uZmlnUGF0aCI6Ii9ldGMvY29uZmlnL3Byb21ldGhldXMueW1sIiwiZW1wdHlEaXIiOnsic2l6ZUxpbWl0IjoiIn0sImVuYWJsZWQiOnRydWUsImVudiI6W10sImV4dHJhQXJncyI6eyJxdWVyeS5tYXgtY29uY3VycmVuY3kiOjEsInF1ZXJ5Lm1heC1zYW1wbGVzIjoxMDAwMDAwMDB9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhRmxhZ3MiOlsid2ViLmVuYWJsZS1saWZlY3ljbGUiXSwiZXh0cmFIb3N0UGF0aE1vdW50cyI6W10sImV4dHJhSW5pdENvbnRhaW5lcnMiOltdLCJleHRyYVNlY3JldE1vdW50cyI6W10sImV4dHJhVm9sdW1lTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVzIjpbXSwiZ2xvYmFsIjp7ImV2YWx1YXRpb25faW50ZXJ2YWwiOiIxbSIsImV4dGVybmFsX2xhYmVscyI6eyJjbHVzdGVyX2lkIjoiY2x1c3Rlci1vbmUifSwic2NyYXBlX2ludGVydmFsIjoiMW0iLCJzY3JhcGVfdGltZW91dCI6IjEwcyJ9LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6InF1YXkuaW8vcHJvbWV0aGV1cy9wcm9tZXRoZXVzIiwidGFnIjoidjIuMzUuMCJ9LCJsaXZlbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywibGl2ZW5lc3NQcm9iZUluaXRpYWxEZWxheSI6MzAsImxpdmVuZXNzUHJvYmVTdWNjZXNzVGhyZXNob2xkIjoxLCJsaXZlbmVzc1Byb2JlVGltZW91dCI6MzAsIm5hbWUiOiJzZXJ2ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImFjY2Vzc01vZGVzIjpbIlJlYWRXcml0ZU9uY2UiXSwiYW5ub3RhdGlvbnMiOnt9LCJlbmFibGVkIjp0cnVlLCJleGlzdGluZ0NsYWltIjoiIiwibW91bnRQYXRoIjoiL2RhdGEiLCJzaXplIjoiMzJHaSIsInN1YlBhdGgiOiIifSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwb2RMYWJlbHMiOnt9LCJwb2RTZWN1cml0eVBvbGljeSI6eyJhbm5vdGF0aW9ucyI6e319LCJwcmVmaXhVUkwiOiIiLCJwcmlvcml0eUNsYXNzTmFtZSI6IiIsInJlYWRpbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywicmVhZGluZXNzUHJvYmVJbml0aWFsRGVsYXkiOjMwLCJyZWFkaW5lc3NQcm9iZVN1Y2Nlc3NUaHJlc2hvbGQiOjEsInJlYWRpbmVzc1Byb2JlVGltZW91dCI6MzAsInJlbW90ZVJlYWQiOnt9LCJyZW1vdGVXcml0ZSI6e30sInJlcGxpY2FDb3VudCI6MSwicmVzb3VyY2VzIjp7fSwicmV0ZW50aW9uIjoiMTVkIiwic2VjdXJpdHlDb250ZXh0Ijp7ImZzR3JvdXAiOjEwMDEsInJ1bkFzR3JvdXAiOjEwMDEsInJ1bkFzTm9uUm9vdCI6dHJ1ZSwicnVuQXNVc2VyIjoxMDAxfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImNsdXN0ZXJJUCI6IiIsImV4dGVybmFsSVBzIjpbXSwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6ODAsInNlc3Npb25BZmZpbml0eSI6Ik5vbmUiLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNpZGVjYXJDb250YWluZXJzIjpudWxsLCJzdHJhdGVneSI6eyJ0eXBlIjoiUmVjcmVhdGUifSwidGVybWluYXRpb25HcmFjZVBlcmlvZFNlY29uZHMiOjMwMCwidG9sZXJhdGlvbnMiOltdfSwic2VydmVyRmlsZXMiOnsiYWxlcnRpbmdfcnVsZXMueW1sIjp7fSwiYWxlcnRzIjp7fSwicHJvbWV0aGV1cy55bWwiOnsicnVsZV9maWxlcyI6WyIvZXRjL2NvbmZpZy9yZWNvcmRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvYWxlcnRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvcnVsZXMiLCIvZXRjL2NvbmZpZy9hbGVydHMiXSwic2NyYXBlX2NvbmZpZ3MiOlt7ImpvYl9uYW1lIjoicHJvbWV0aGV1cyIsInN0YXRpY19jb25maWdzIjpbeyJ0YXJnZXRzIjpbImxvY2FsaG9zdDo5MDkwIl19XX0seyJiZWFyZXJfdG9rZW5fZmlsZSI6Ii92YXIvcnVuL3NlY3JldHMva3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC90b2tlbiIsImpvYl9uYW1lIjoia3ViZXJuZXRlcy1ub2Rlcy1jYWR2aXNvciIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6Im5vZGUifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx8Y29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2Vycm9yc190b3RhbHxjb250YWluZXJfbmV0d29ya190cmFuc21pdF9lcnJvcnNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9wYWNrZXRzX2Ryb3BwZWRfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfcGFja2V0c19kcm9wcGVkX3RvdGFsfGNvbnRhaW5lcl9tZW1vcnlfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2NwdV9jZnNfdGhyb3R0bGVkX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2NwdV9jZnNfcGVyaW9kc190b3RhbHxjb250YWluZXJfZnNfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2ZzX2xpbWl0X2J5dGVzfGNvbnRhaW5lcl9jcHVfY2ZzX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfY3B1X2Nmc190aHJvdHRsZWRfcGVyaW9kc190b3RhbHxjb250YWluZXJfY3B1X2Nmc19wZXJpb2RzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfc3BlY19jcHVfc2hhcmVzfGNvbnRhaW5lcl9zcGVjX21lbW9yeV9saW1pdF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc19yZWFkc19ieXRlc190b3RhbHxjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc193cml0ZXNfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX3JlYWRzX2J5dGVzX3RvdGFsfGNhZHZpc29yX3ZlcnNpb25faW5mb3xrdWJlY29zdF9wdl9pbmZvKSIsInNvdXJjZV9sYWJlbHMiOlsiX19uYW1lX18iXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoLispIiwic291cmNlX2xhYmVscyI6WyJjb250YWluZXIiXSwidGFyZ2V0X2xhYmVsIjoiY29udGFpbmVyX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbInBvZCJdLCJ0YXJnZXRfbGFiZWwiOiJwb2RfbmFtZSJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfbm9kZV9sYWJlbF8oLispIn0seyJyZXBsYWNlbWVudCI6Imt1YmVybmV0ZXMuZGVmYXVsdC5zdmM6NDQzIiwidGFyZ2V0X2xhYmVsIjoiX19hZGRyZXNzX18ifSx7InJlZ2V4IjoiKC4rKSIsInJlcGxhY2VtZW50IjoiL2FwaS92MS9ub2Rlcy8kMS9wcm94eS9tZXRyaWNzL2NhZHZpc29yIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9XSwic2NoZW1lIjoiaHR0cHMiLCJ0bHNfY29uZmlnIjp7ImNhX2ZpbGUiOiIvdmFyL3J1bi9zZWNyZXRzL2t1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvY2EuY3J0IiwiaW5zZWN1cmVfc2tpcF92ZXJpZnkiOnRydWV9fSx7ImJlYXJlcl90b2tlbl9maWxlIjoiL3Zhci9ydW4vc2VjcmV0cy9rdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3Rva2VuIiwiam9iX25hbWUiOiJrdWJlcm5ldGVzLW5vZGVzIiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoibm9kZSJ9XSwibWV0cmljX3JlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4IjoiKGt1YmVsZXRfdm9sdW1lX3N0YXRzX3VzZWRfYnl0ZXMpIiwic291cmNlX2xhYmVscyI6WyJfX25hbWVfXyJdfV0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoibGFiZWxtYXAiLCJyZWdleCI6Il9fbWV0YV9rdWJlcm5ldGVzX25vZGVfbGFiZWxfKC4rKSJ9LHsicmVwbGFjZW1lbnQiOiJrdWJlcm5ldGVzLmRlZmF1bHQuc3ZjOjQ0MyIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJyZWdleCI6IiguKykiLCJyZXBsYWNlbWVudCI6Ii9hcGkvdjEvbm9kZXMvJDEvcHJveHkvbWV0cmljcyIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfbm9kZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Il9fbWV0cmljc19wYXRoX18ifV0sInNjaGVtZSI6Imh0dHBzIiwidGxzX2NvbmZpZyI6eyJjYV9maWxlIjoiL3Zhci9ydW4vc2VjcmV0cy9rdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L2NhLmNydCIsImluc2VjdXJlX3NraXBfdmVyaWZ5Ijp0cnVlfX0seyJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtc2VydmljZS1lbmRwb2ludHMiLCJrdWJlcm5ldGVzX3NkX2NvbmZpZ3MiOlt7InJvbGUiOiJlbmRwb2ludHMifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X2FsbG9jYXRpb258Y29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFsfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfZnNfd3JpdGVzX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9ncHVfYWxsb2NhdGlvbnxjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXN8Y29udGFpbmVyX21lbW9yeV91c2FnZV9ieXRlc3xjb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8RENHTV9GSV9ERVZfR1BVX1VUSUx8ZGVwbG95bWVudF9tYXRjaF9sYWJlbHN8a3ViZV9kYWVtb25zZXRfc3RhdHVzX2Rlc2lyZWRfbnVtYmVyX3NjaGVkdWxlZHxrdWJlX2RhZW1vbnNldF9zdGF0dXNfbnVtYmVyX3JlYWR5fGt1YmVfZGVwbG95bWVudF9zcGVjX3JlcGxpY2FzfGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXN8a3ViZV9kZXBsb3ltZW50X3N0YXR1c19yZXBsaWNhc19hdmFpbGFibGV8a3ViZV9qb2Jfc3RhdHVzX2ZhaWxlZHxrdWJlX25hbWVzcGFjZV9hbm5vdGF0aW9uc3xrdWJlX25hbWVzcGFjZV9sYWJlbHN8a3ViZV9ub2RlX2luZm98a3ViZV9ub2RlX2xhYmVsc3xrdWJlX25vZGVfc3RhdHVzX2FsbG9jYXRhYmxlfGt1YmVfbm9kZV9zdGF0dXNfYWxsb2NhdGFibGVfY3B1X2NvcmVzfGt1YmVfbm9kZV9zdGF0dXNfYWxsb2NhdGFibGVfbWVtb3J5X2J5dGVzfGt1YmVfbm9kZV9zdGF0dXNfY2FwYWNpdHl8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9jcHVfY29yZXN8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9tZW1vcnlfYnl0ZXN8a3ViZV9ub2RlX3N0YXR1c19jb25kaXRpb258a3ViZV9wZXJzaXN0ZW50dm9sdW1lX2NhcGFjaXR5X2J5dGVzfGt1YmVfcGVyc2lzdGVudHZvbHVtZV9zdGF0dXNfcGhhc2V8a3ViZV9wZXJzaXN0ZW50dm9sdW1lY2xhaW1faW5mb3xrdWJlX3BlcnNpc3RlbnR2b2x1bWVjbGFpbV9yZXNvdXJjZV9yZXF1ZXN0c19zdG9yYWdlX2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9pbmZvfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX2xpbWl0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX2xpbWl0c19tZW1vcnlfYnl0ZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX21lbW9yeV9ieXRlc3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Jlc3RhcnRzX3RvdGFsfGt1YmVfcG9kX2NvbnRhaW5lcl9zdGF0dXNfcnVubmluZ3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Rlcm1pbmF0ZWRfcmVhc29ufGt1YmVfcG9kX2xhYmVsc3xrdWJlX3BvZF9vd25lcnxrdWJlX3BvZF9zdGF0dXNfcGhhc2V8a3ViZV9yZXBsaWNhc2V0X293bmVyfGt1YmVfc3RhdGVmdWxzZXRfcmVwbGljYXN8a3ViZV9zdGF0ZWZ1bHNldF9zdGF0dXNfcmVwbGljYXN8a3ViZWNvc3RfY2x1c3Rlcl9pbmZvfGt1YmVjb3N0X2NsdXN0ZXJfbWFuYWdlbWVudF9jb3N0fGt1YmVjb3N0X2NsdXN0ZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzfGt1YmVjb3N0X2xvYWRfYmFsYW5jZXJfY29zdHxrdWJlY29zdF9uZXR3b3JrX2ludGVybmV0X2VncmVzc19jb3N0fGt1YmVjb3N0X25ldHdvcmtfcmVnaW9uX2VncmVzc19jb3N0fGt1YmVjb3N0X25ldHdvcmtfem9uZV9lZ3Jlc3NfY29zdHxrdWJlY29zdF9ub2RlX2lzX3Nwb3R8a3ViZWNvc3RfcG9kX25ldHdvcmtfZWdyZXNzX2J5dGVzX3RvdGFsfG5vZGVfY3B1X2hvdXJseV9jb3N0fG5vZGVfY3B1X3NlY29uZHNfdG90YWx8bm9kZV9kaXNrX3JlYWRzX2NvbXBsZXRlZHxub2RlX2Rpc2tfcmVhZHNfY29tcGxldGVkX3RvdGFsfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkX3RvdGFsfG5vZGVfZmlsZXN5c3RlbV9kZXZpY2VfZXJyb3J8bm9kZV9ncHVfY291bnR8bm9kZV9ncHVfaG91cmx5X2Nvc3R8bm9kZV9tZW1vcnlfQnVmZmVyc19ieXRlc3xub2RlX21lbW9yeV9DYWNoZWRfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtQXZhaWxhYmxlX2J5dGVzfG5vZGVfbWVtb3J5X01lbUZyZWVfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtVG90YWxfYnl0ZXN8bm9kZV9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfG5vZGVfcmFtX2hvdXJseV9jb3N0fG5vZGVfdG90YWxfaG91cmx5X2Nvc3R8cG9kX3B2Y19hbGxvY2F0aW9ufHB2X2hvdXJseV9jb3N0fHNlcnZpY2Vfc2VsZWN0b3JfbGFiZWxzfHN0YXRlZnVsU2V0X21hdGNoX2xhYmVsc3xrdWJlY29zdF9wdl9pbmZvfHVwKSIsInNvdXJjZV9sYWJlbHMiOlsiX19uYW1lX18iXX1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGUiXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoaHR0cHM/KSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NoZW1lIl0sInRhcmdldF9sYWJlbCI6Il9fc2NoZW1lX18ifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BhdGgiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKFteOl0rKSg/OjpcXGQrKT87KFxcZCspIiwicmVwbGFjZW1lbnQiOiIkMTokMiIsInNvdXJjZV9sYWJlbHMiOlsiX19hZGRyZXNzX18iLCJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wb3J0Il0sInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19uYW1lc3BhY2UiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lc3BhY2UifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3BvZF9ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19ub2RlIn1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlLWVuZHBvaW50cy1zbG93Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoiZW5kcG9pbnRzIn1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGVfc2xvdyJdfSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IihodHRwcz8pIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY2hlbWUiXSwidGFyZ2V0X2xhYmVsIjoiX19zY2hlbWVfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKC4rKSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcGF0aCJdLCJ0YXJnZXRfbGFiZWwiOiJfX21ldHJpY3NfcGF0aF9fIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoW146XSspKD86OlxcZCspPzsoXFxkKykiLCJyZXBsYWNlbWVudCI6IiQxOiQyIiwic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyIsIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BvcnQiXSwidGFyZ2V0X2xhYmVsIjoiX19hZGRyZXNzX18ifSx7ImFjdGlvbiI6ImxhYmVsbWFwIiwicmVnZXgiOiJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2xhYmVsXyguKykifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbmFtZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfcG9kX25vZGVfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25vZGUifV0sInNjcmFwZV9pbnRlcnZhbCI6IjVtIiwic2NyYXBlX3RpbWVvdXQiOiIzMHMifSx7Imhvbm9yX2xhYmVscyI6dHJ1ZSwiam9iX25hbWUiOiJwcm9tZXRoZXVzLXB1c2hnYXRld2F5Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoic2VydmljZSJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiJwdXNoZ2F0ZXdheSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcHJvYmUiXX1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlcyIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6InNlcnZpY2UifV0sIm1ldHJpY3NfcGF0aCI6Ii9wcm9iZSIsInBhcmFtcyI6eyJtb2R1bGUiOlsiaHR0cF8yeHgiXX0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4Ijp0cnVlLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3Byb2JlIl19LHsic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyJdLCJ0YXJnZXRfbGFiZWwiOiJfX3BhcmFtX3RhcmdldCJ9LHsicmVwbGFjZW1lbnQiOiJibGFja2JveCIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fcGFyYW1fdGFyZ2V0Il0sInRhcmdldF9sYWJlbCI6Imluc3RhbmNlIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lIn1dfV19LCJyZWNvcmRpbmdfcnVsZXMueW1sIjp7fSwicnVsZXMiOnsiZ3JvdXBzIjpbeyJuYW1lIjoiQ1BVIiwicnVsZXMiOlt7ImV4cHIiOiJzdW0ocmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkpIiwicmVjb3JkIjoiY2x1c3RlcjpjcHVfdXNhZ2U6cmF0ZTVtIn0seyJleHByIjoicmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkiLCJyZWNvcmQiOiJjbHVzdGVyOmNwdV91c2FnZV9ub3N1bTpyYXRlNW0ifSx7ImV4cHIiOiJhdmcoaXJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLCBjb250YWluZXJfbmFtZSE9XCJcIn1bNW1dKSkgYnkgKGNvbnRhaW5lcl9uYW1lLHBvZF9uYW1lLG5hbWVzcGFjZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9jb250YWluZXJfY3B1X3VzYWdlX2lyYXRlIn0seyJleHByIjoic3VtKGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN7Y29udGFpbmVyX25hbWUhPVwiUE9EXCIsY29udGFpbmVyX25hbWUhPVwiXCJ9KSBieSAoY29udGFpbmVyX25hbWUscG9kX25hbWUsbmFtZXNwYWNlKSIsInJlY29yZCI6Imt1YmVjb3N0X2NvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifSx7ImV4cHIiOiJzdW0oY29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3tjb250YWluZXJfbmFtZSE9XCJQT0RcIixjb250YWluZXJfbmFtZSE9XCJcIn0pIiwicmVjb3JkIjoia3ViZWNvc3RfY2x1c3Rlcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifV19LHsibmFtZSI6IlNhdmluZ3MiLCJydWxlcyI6W3siZXhwciI6InN1bShhdmcoa3ViZV9wb2Rfb3duZXJ7b3duZXJfa2luZCE9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIiwibGFiZWxzIjp7ImRhZW1vbnNldCI6ImZhbHNlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQ9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIC8gc3VtKGt1YmVfbm9kZV9pbmZvKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJ0cnVlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQhPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJmYWxzZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn0seyJleHByIjoic3VtKGF2ZyhrdWJlX3BvZF9vd25lcntvd25lcl9raW5kPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSAvIHN1bShrdWJlX25vZGVfaW5mbykiLCJsYWJlbHMiOnsiZGFlbW9uc2V0IjoidHJ1ZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn1dfV19fSwic2VydmljZUFjY291bnRzIjp7ImFsZXJ0bWFuYWdlciI6eyJjcmVhdGUiOnRydWV9LCJub2RlRXhwb3J0ZXIiOnsiY3JlYXRlIjp0cnVlfSwicHVzaGdhdGV3YXkiOnsiY3JlYXRlIjp0cnVlfSwic2VydmVyIjp7ImNyZWF0ZSI6dHJ1ZX19fSwicmVtb3RlV3JpdGUiOnt9LCJyZXBvcnRpbmciOnsiZXJyb3JSZXBvcnRpbmciOnRydWUsImxvZ0NvbGxlY3Rpb24iOnRydWUsInByb2R1Y3RBbmFseXRpY3MiOnRydWUsInZhbHVlc1JlcG9ydGluZyI6dHJ1ZX0sInNlcnZpY2UiOnsiYW5ub3RhdGlvbnMiOnt9LCJsYWJlbHMiOnt9LCJwb3J0Ijo5MDkwLCJ0YXJnZXRQb3J0Ijo5MDkwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImFubm90YXRpb25zIjp7fSwiY3JlYXRlIjp0cnVlfSwic2lnVjRQcm94eSI6eyJleHRyYUVudiI6bnVsbCwiaG9zdCI6ImFwcy13b3Jrc3BhY2VzLnVzLXdlc3QtMi5hbWF6b25hd3MuY29tIiwiaW1hZ2UiOiJwdWJsaWMuZWNyLmF3cy9hd3Mtb2JzZXJ2YWJpbGl0eS9hd3Mtc2lndjQtcHJveHk6bGF0ZXN0IiwiaW1hZ2VQdWxsUG9saWN5IjoiQWx3YXlzIiwibmFtZSI6ImFwcyIsInBvcnQiOjgwMDUsInJlZ2lvbiI6InVzLXdlc3QtMiJ9LCJzdXBwb3J0TkZTIjpmYWxzZSwidG9sZXJhdGlvbnMiOltdfQ==
+              value: eyJhZmZpbml0eSI6e30sImF3c3N0b3JlIjp7ImNyZWF0ZVNlcnZpY2VBY2NvdW50IjpmYWxzZSwidXNlQXdzU3RvcmUiOmZhbHNlfSwiZXh0cmFWb2x1bWVNb3VudHMiOltdLCJleHRyYVZvbHVtZXMiOltdLCJmZWRlcmF0ZWRFVEwiOnsiZmVkZXJhdGVkQ2x1c3RlciI6ZmFsc2UsInByaW1hcnlDbHVzdGVyIjpmYWxzZSwicmVkaXJlY3RTM0JhY2t1cCI6ZmFsc2UsInVzZUV4aXN0aW5nUzNDb25maWciOmZhbHNlfSwiZ2xvYmFsIjp7ImFkZGl0aW9uYWxMYWJlbHMiOnt9LCJncmFmYW5hIjp7ImRvbWFpbk5hbWUiOiJjb3N0LWFuYWx5emVyLWdyYWZhbmEuZGVmYXVsdC5zdmMiLCJlbmFibGVkIjp0cnVlLCJwcm94eSI6dHJ1ZSwic2NoZW1lIjoiaHR0cCJ9LCJub3RpZmljYXRpb25zIjp7fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImZxZG4iOiJodHRwOi8vY29zdC1hbmFseXplci1wcm9tZXRoZXVzLXNlcnZlci5kZWZhdWx0LnN2YyJ9fSwiZ3JhZmFuYSI6eyJhZG1pblBhc3N3b3JkIjoic3Ryb25ncGFzc3dvcmQiLCJhZG1pblVzZXIiOiJhZG1pbiIsImFmZmluaXR5Ijp7fSwiZGFzaGJvYXJkUHJvdmlkZXJzIjp7fSwiZGFzaGJvYXJkcyI6e30sImRhc2hib2FyZHNDb25maWdNYXBzIjp7fSwiZGF0YXNvdXJjZXMiOnsiZGF0YXNvdXJjZXMueWFtbCI6eyJhcGlWZXJzaW9uIjoxLCJkYXRhc291cmNlcyI6W3siYWNjZXNzIjoicHJveHkiLCJpc0RlZmF1bHQiOmZhbHNlLCJuYW1lIjoicHJvbWV0aGV1cy1rdWJlY29zdCIsInR5cGUiOiJwcm9tZXRoZXVzIiwidXJsIjoiaHR0cDovL2t1YmVjb3N0LXByb21ldGhldXMtc2VydmVyLmt1YmVjb3N0LnN2Yy5jbHVzdGVyLmxvY2FsIn1dfX0sImRlcGxveW1lbnRTdHJhdGVneSI6IlJvbGxpbmdVcGRhdGUiLCJkb3dubG9hZERhc2hib2FyZHNJbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImN1cmxpbWFnZXMvY3VybCIsInRhZyI6ImxhdGVzdCJ9LCJlbnYiOnt9LCJlbnZGcm9tU2VjcmV0IjoiIiwiZXh0cmFTZWNyZXRNb3VudHMiOltdLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJncmFmYW5hLmluaSI6eyJhbmFseXRpY3MiOnsiY2hlY2tfZm9yX3VwZGF0ZXMiOnRydWV9LCJhdXRoLmFub255bW91cyI6eyJlbmFibGVkIjp0cnVlLCJvcmdfbmFtZSI6Ik1haW4gT3JnLiIsIm9yZ19yb2xlIjoiRWRpdG9yIn0sImdyYWZhbmFfbmV0Ijp7InVybCI6Imh0dHBzOi8vZ3JhZmFuYS5uZXQifSwibG9nIjp7Im1vZGUiOiJjb25zb2xlIn0sInBhdGhzIjp7ImRhdGEiOiIvdmFyL2xpYi9ncmFmYW5hL2RhdGEiLCJsb2dzIjoiL3Zhci9sb2cvZ3JhZmFuYSIsInBsdWdpbnMiOiIvdmFyL2xpYi9ncmFmYW5hL3BsdWdpbnMiLCJwcm92aXNpb25pbmciOiIvZXRjL2dyYWZhbmEvcHJvdmlzaW9uaW5nIn0sInNlcnZlciI6eyJyb290X3VybCI6IiUocHJvdG9jb2wpczovLyUoZG9tYWluKXM6JShodHRwX3BvcnQpcy9ncmFmYW5hIiwic2VydmVfZnJvbV9zdWJfcGF0aCI6dHJ1ZX19LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImdyYWZhbmEvZ3JhZmFuYSIsInRhZyI6IjkuMy4xIn0sImxkYXAiOnsiY29uZmlnIjoiIiwiZXhpc3RpbmdTZWNyZXQiOiIifSwibGl2ZW5lc3NQcm9iZSI6eyJmYWlsdXJlVGhyZXNob2xkIjoxMCwiaHR0cEdldCI6eyJwYXRoIjoiL2FwaS9oZWFsdGgiLCJwb3J0IjozMDAwfSwiaW5pdGlhbERlbGF5U2Vjb25kcyI6NjAsInRpbWVvdXRTZWNvbmRzIjozMH0sIm5vZGVTZWxlY3RvciI6e30sInBsdWdpbnMiOltdLCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZSwicHNwRW5hYmxlZCI6dHJ1ZSwicHNwVXNlQXBwQXJtb3IiOnRydWV9LCJyZWFkaW5lc3NQcm9iZSI6eyJodHRwR2V0Ijp7InBhdGgiOiIvYXBpL2hlYWx0aCIsInBvcnQiOjMwMDB9fSwicmVwbGljYXMiOjEsInJlc291cmNlcyI6e30sInNlY3VyaXR5Q29udGV4dCI6eyJmc0dyb3VwIjo0NzIsInJ1bkFzVXNlciI6NDcyfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxhYmVscyI6e30sInBvcnQiOjgwLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNlcnZpY2VBY2NvdW50Ijp7ImNyZWF0ZSI6dHJ1ZX0sInNpZGVjYXIiOnsiZGFzaGJvYXJkcyI6eyJhbm5vdGF0aW9ucyI6e30sImVuYWJsZWQiOnRydWUsImVycm9yX3Rocm90dGxlX3NsZWVwIjowLCJmb2xkZXIiOiIvdG1wL2Rhc2hib2FyZHMiLCJsYWJlbCI6ImdyYWZhbmFfZGFzaGJvYXJkIn0sImltYWdlIjoia2l3aWdyaWQvazhzLXNpZGVjYXI6MS4yMS4wIiwiaW1hZ2VQdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVzb3VyY2VzIjpudWxsfSwic210cCI6eyJleGlzdGluZ1NlY3JldCI6IiJ9LCJ0b2xlcmF0aW9ucyI6W119LCJpbml0Q2hvd25EYXRhIjp7InJlc291cmNlcyI6e319LCJpbml0Q2hvd25EYXRhSW1hZ2UiOiJidXN5Ym94Iiwia3ViZWNvc3REZXBsb3ltZW50Ijp7InJlcGxpY2FzIjoxfSwia3ViZWNvc3RGcm9udGVuZCI6eyJpbWFnZSI6Imdjci5pby9rdWJlY29zdDEvZnJvbnRlbmQiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJpcHY2Ijp7ImVuYWJsZWQiOnRydWV9LCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMTBtIiwibWVtb3J5IjoiNTVNaSJ9fX0sImt1YmVjb3N0TWV0cmljcyI6e30sImt1YmVjb3N0TW9kZWwiOnsiYWxsb2NhdGlvbiI6bnVsbCwiZXRsIjp0cnVlLCJldGxEYWlseVN0b3JlRHVyYXRpb25EYXlzIjo5MSwiZXRsRmlsZVN0b3JlRW5hYmxlZCI6dHJ1ZSwiZXRsSG91cmx5U3RvcmVEdXJhdGlvbkhvdXJzIjo0OSwiZXRsUmVhZE9ubHlNb2RlIjpmYWxzZSwiZXh0cmFBcmdzIjpbXSwiaW1hZ2UiOiJnY3IuaW8va3ViZWNvc3QxL2Nvc3QtbW9kZWwiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJtYXhRdWVyeUNvbmN1cnJlbmN5Ijo1LCJvdXRPZkNsdXN0ZXJQcm9tTWV0cmljc0VuYWJsZWQiOmZhbHNlLCJyZXNvdXJjZXMiOnsicmVxdWVzdHMiOnsiY3B1IjoiMjAwbSIsIm1lbW9yeSI6IjU1TWkifX0sIndhcm1DYWNoZSI6ZmFsc2UsIndhcm1TYXZpbmdzQ2FjaGUiOnRydWV9LCJrdWJlY29zdFRva2VuIjpudWxsLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImRiU2l6ZSI6IjMyLjBHaSIsImVuYWJsZWQiOnRydWUsInNpemUiOiIzMkdpIn0sInBvZFNlY3VyaXR5UG9saWN5Ijp7ImVuYWJsZWQiOnRydWV9LCJwcm9tZXRoZXVzIjp7ImFsZXJ0UmVsYWJlbENvbmZpZ3MiOm51bGwsImFsZXJ0bWFuYWdlckZpbGVzIjp7ImFsZXJ0bWFuYWdlci55bWwiOnsiZ2xvYmFsIjp7fSwicmVjZWl2ZXJzIjpbeyJuYW1lIjoiZGVmYXVsdC1yZWNlaXZlciJ9XSwicm91dGUiOnsiZ3JvdXBfaW50ZXJ2YWwiOiI1bSIsImdyb3VwX3dhaXQiOiIxMHMiLCJyZWNlaXZlciI6ImRlZmF1bHQtcmVjZWl2ZXIiLCJyZXBlYXRfaW50ZXJ2YWwiOiIzaCJ9fX0sImNvbmZpZ21hcFJlbG9hZCI6eyJhbGVydG1hbmFnZXIiOnsiZW5hYmxlZCI6dHJ1ZSwiZXh0cmFBcmdzIjp7fSwiZXh0cmFDb25maWdtYXBNb3VudHMiOltdLCJleHRyYVZvbHVtZURpcnMiOltdLCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6ImppbW1pZHlzb24vY29uZmlnbWFwLXJlbG9hZCIsInRhZyI6InYwLjcuMSJ9LCJuYW1lIjoiY29uZmlnbWFwLXJlbG9hZCIsInJlc291cmNlcyI6e319LCJwcm9tZXRoZXVzIjp7ImVuYWJsZWQiOnRydWUsImV4dHJhQXJncyI6e30sImV4dHJhQ29uZmlnbWFwTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVEaXJzIjpbXSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJqaW1taWR5c29uL2NvbmZpZ21hcC1yZWxvYWQiLCJ0YWciOiJ2MC43LjEifSwibmFtZSI6ImNvbmZpZ21hcC1yZWxvYWQiLCJyZXNvdXJjZXMiOnt9fX0sImV4dHJhU2NyYXBlQ29uZmlncyI6Ii0gam9iX25hbWU6IGt1YmVjb3N0XG4gIGhvbm9yX2xhYmVsczogdHJ1ZVxuICBzY3JhcGVfaW50ZXJ2YWw6IDFtXG4gIHNjcmFwZV90aW1lb3V0OiA2MHNcbiAgbWV0cmljc19wYXRoOiAvbWV0cmljc1xuICBzY2hlbWU6IGh0dHBcbiAgZG5zX3NkX2NvbmZpZ3M6XG4gIC0gbmFtZXM6XG4gICAgLSB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIuc2VydmljZU5hbWVcIiAuIH19XG4gICAgdHlwZTogJ0EnXG4gICAgcG9ydDogOTAwM1xuLSBqb2JfbmFtZToga3ViZWNvc3QtbmV0d29ya2luZ1xuICBrdWJlcm5ldGVzX3NkX2NvbmZpZ3M6XG4gICAgLSByb2xlOiBwb2RcbiAgcmVsYWJlbF9jb25maWdzOlxuICAjIFNjcmFwZSBvbmx5IHRoZSB0aGUgdGFyZ2V0cyBtYXRjaGluZyB0aGUgZm9sbG93aW5nIG1ldGFkYXRhXG4gICAgLSBzb3VyY2VfbGFiZWxzOiBbX19tZXRhX2t1YmVybmV0ZXNfcG9kX2xhYmVsX2FwcF1cbiAgICAgIGFjdGlvbjoga2VlcFxuICAgICAgcmVnZXg6ICB7eyB0ZW1wbGF0ZSBcImNvc3QtYW5hbHl6ZXIubmV0d29ya0Nvc3RzTmFtZVwiIC4gfX1cbiIsImdsb2JhbCI6eyJhZGRpdGlvbmFsTGFiZWxzIjp7fSwiZ3JhZmFuYSI6eyJkb21haW5OYW1lIjoiY29zdC1hbmFseXplci1ncmFmYW5hLmRlZmF1bHQuc3ZjIiwiZW5hYmxlZCI6dHJ1ZSwicHJveHkiOnRydWUsInNjaGVtZSI6Imh0dHAifSwibm90aWZpY2F0aW9ucyI6e30sInBvZEFubm90YXRpb25zIjp7fSwicHJvbWV0aGV1cyI6eyJlbmFibGVkIjp0cnVlLCJmcWRuIjoiaHR0cDovL2Nvc3QtYW5hbHl6ZXItcHJvbWV0aGV1cy1zZXJ2ZXIuZGVmYXVsdC5zdmMifX0sImltYWdlUHVsbFNlY3JldHMiOm51bGwsImt1YmUtc3RhdGUtbWV0cmljcyI6eyJhZmZpbml0eSI6e30sImNvbGxlY3RvcnMiOnsiY2VydGlmaWNhdGVzaWduaW5ncmVxdWVzdHMiOnRydWUsImNvbmZpZ21hcHMiOnRydWUsImNyb25qb2JzIjp0cnVlLCJkYWVtb25zZXRzIjp0cnVlLCJkZXBsb3ltZW50cyI6dHJ1ZSwiZW5kcG9pbnRzIjp0cnVlLCJob3Jpem9udGFscG9kYXV0b3NjYWxlcnMiOnRydWUsImluZ3Jlc3NlcyI6dHJ1ZSwiam9icyI6dHJ1ZSwibGltaXRyYW5nZXMiOnRydWUsIm11dGF0aW5nd2ViaG9va2NvbmZpZ3VyYXRpb25zIjpmYWxzZSwibmFtZXNwYWNlcyI6dHJ1ZSwibmV0d29ya3BvbGljaWVzIjpmYWxzZSwibm9kZXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVjbGFpbXMiOnRydWUsInBlcnNpc3RlbnR2b2x1bWVzIjp0cnVlLCJwb2RkaXNydXB0aW9uYnVkZ2V0cyI6dHJ1ZSwicG9kcyI6dHJ1ZSwicmVwbGljYXNldHMiOnRydWUsInJlcGxpY2F0aW9uY29udHJvbGxlcnMiOnRydWUsInJlc291cmNlcXVvdGFzIjp0cnVlLCJzZWNyZXRzIjpmYWxzZSwic2VydmljZXMiOnRydWUsInN0YXRlZnVsc2V0cyI6dHJ1ZSwic3RvcmFnZWNsYXNzZXMiOnRydWUsInZhbGlkYXRpbmd3ZWJob29rY29uZmlndXJhdGlvbnMiOmZhbHNlLCJ2ZXJ0aWNhbHBvZGF1dG9zY2FsZXJzIjpmYWxzZSwidm9sdW1lYXR0YWNobWVudHMiOmZhbHNlfSwiY3VzdG9tTGFiZWxzIjp7fSwiZGlzYWJsZWQiOmZhbHNlLCJlbmFibGVkIjp0cnVlLCJnbG9iYWwiOnsiYWRkaXRpb25hbExhYmVscyI6e30sImdyYWZhbmEiOnsiZG9tYWluTmFtZSI6ImNvc3QtYW5hbHl6ZXItZ3JhZmFuYS5kZWZhdWx0LnN2YyIsImVuYWJsZWQiOnRydWUsInByb3h5Ijp0cnVlLCJzY2hlbWUiOiJodHRwIn0sIm5vdGlmaWNhdGlvbnMiOnt9LCJwb2RBbm5vdGF0aW9ucyI6e30sInByb21ldGhldXMiOnsiZW5hYmxlZCI6dHJ1ZSwiZnFkbiI6Imh0dHA6Ly9jb3N0LWFuYWx5emVyLXByb21ldGhldXMtc2VydmVyLmRlZmF1bHQuc3ZjIn19LCJob3N0TmV0d29yayI6ZmFsc2UsImltYWdlIjp7InB1bGxQb2xpY3kiOiJJZk5vdFByZXNlbnQiLCJyZXBvc2l0b3J5IjoiazhzLmdjci5pby9rdWJlLXN0YXRlLW1ldHJpY3Mva3ViZS1zdGF0ZS1tZXRyaWNzIiwidGFnIjoidjEuOS44In0sIm5hbWVzcGFjZU92ZXJyaWRlIjoiIiwibm9kZVNlbGVjdG9yIjp7fSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwcm9tZXRoZXVzIjp7fSwicHJvbWV0aGV1c1NjcmFwZSI6dHJ1ZSwicmJhYyI6eyJjcmVhdGUiOnRydWV9LCJyZXBsaWNhcyI6MSwic2VjdXJpdHlDb250ZXh0Ijp7ImVuYWJsZWQiOnRydWUsImZzR3JvdXAiOjY1NTM0LCJydW5Bc1VzZXIiOjY1NTM0fSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxvYWRCYWxhbmNlcklQIjoiIiwibm9kZVBvcnQiOjAsInBvcnQiOjgwODAsInR5cGUiOiJDbHVzdGVySVAifSwic2VydmljZUFjY291bnQiOnsiY3JlYXRlIjp0cnVlLCJpbWFnZVB1bGxTZWNyZXRzIjpbXX0sInRvbGVyYXRpb25zIjpbXX0sImt1YmVTdGF0ZU1ldHJpY3MiOnsiZW5hYmxlZCI6dHJ1ZX0sIm5vZGVFeHBvcnRlciI6eyJlbmFibGVkIjp0cnVlLCJleHRyYUFyZ3MiOnt9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhSG9zdFBhdGhNb3VudHMiOltdLCJob3N0TmV0d29yayI6dHJ1ZSwiaG9zdFBJRCI6dHJ1ZSwiaW1hZ2UiOnsicHVsbFBvbGljeSI6IklmTm90UHJlc2VudCIsInJlcG9zaXRvcnkiOiJwcm9tL25vZGUtZXhwb3J0ZXIiLCJ0YWciOiJ2MS4zLjAifSwibmFtZSI6Im5vZGUtZXhwb3J0ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwb2QiOnsibGFiZWxzIjp7fX0sInBvZEFubm90YXRpb25zIjp7fSwicG9kU2VjdXJpdHlQb2xpY3kiOnsiYW5ub3RhdGlvbnMiOnt9fSwicHJpb3JpdHlDbGFzc05hbWUiOiIiLCJyZXNvdXJjZXMiOnt9LCJzZWN1cml0eUNvbnRleHQiOnt9LCJzZXJ2aWNlIjp7ImFubm90YXRpb25zIjp7InByb21ldGhldXMuaW8vc2NyYXBlIjoidHJ1ZSJ9LCJjbHVzdGVySVAiOiJOb25lIiwiZXh0ZXJuYWxJUHMiOltdLCJob3N0UG9ydCI6OTEwMCwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6OTEwMCwidHlwZSI6IkNsdXN0ZXJJUCJ9LCJ0b2xlcmF0aW9ucyI6W10sInVwZGF0ZVN0cmF0ZWd5Ijp7InR5cGUiOiJSb2xsaW5nVXBkYXRlIn19LCJyYmFjIjp7ImNyZWF0ZSI6dHJ1ZX0sInNlcnZlciI6eyJhZmZpbml0eSI6e30sImFsZXJ0bWFuYWdlcnMiOltdLCJiYXNlVVJMIjoiIiwiY29uZmlnTWFwT3ZlcnJpZGVOYW1lIjoiIiwiY29uZmlnUGF0aCI6Ii9ldGMvY29uZmlnL3Byb21ldGhldXMueW1sIiwiZW1wdHlEaXIiOnsic2l6ZUxpbWl0IjoiIn0sImVuYWJsZWQiOnRydWUsImVudiI6W10sImV4dHJhQXJncyI6eyJxdWVyeS5tYXgtY29uY3VycmVuY3kiOjEsInF1ZXJ5Lm1heC1zYW1wbGVzIjoxMDAwMDAwMDB9LCJleHRyYUNvbmZpZ21hcE1vdW50cyI6W10sImV4dHJhRmxhZ3MiOlsid2ViLmVuYWJsZS1saWZlY3ljbGUiXSwiZXh0cmFIb3N0UGF0aE1vdW50cyI6W10sImV4dHJhSW5pdENvbnRhaW5lcnMiOltdLCJleHRyYVNlY3JldE1vdW50cyI6W10sImV4dHJhVm9sdW1lTW91bnRzIjpbXSwiZXh0cmFWb2x1bWVzIjpbXSwiZ2xvYmFsIjp7ImV2YWx1YXRpb25faW50ZXJ2YWwiOiIxbSIsImV4dGVybmFsX2xhYmVscyI6eyJjbHVzdGVyX2lkIjoiY2x1c3Rlci1vbmUifSwic2NyYXBlX2ludGVydmFsIjoiMW0iLCJzY3JhcGVfdGltZW91dCI6IjYwcyJ9LCJpbWFnZSI6eyJwdWxsUG9saWN5IjoiSWZOb3RQcmVzZW50IiwicmVwb3NpdG9yeSI6InF1YXkuaW8vcHJvbWV0aGV1cy9wcm9tZXRoZXVzIiwidGFnIjoidjIuMzUuMCJ9LCJsaXZlbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywibGl2ZW5lc3NQcm9iZUluaXRpYWxEZWxheSI6MzAsImxpdmVuZXNzUHJvYmVTdWNjZXNzVGhyZXNob2xkIjoxLCJsaXZlbmVzc1Byb2JlVGltZW91dCI6MzAsIm5hbWUiOiJzZXJ2ZXIiLCJub2RlU2VsZWN0b3IiOnt9LCJwZXJzaXN0ZW50Vm9sdW1lIjp7ImFjY2Vzc01vZGVzIjpbIlJlYWRXcml0ZU9uY2UiXSwiYW5ub3RhdGlvbnMiOnt9LCJlbmFibGVkIjp0cnVlLCJleGlzdGluZ0NsYWltIjoiIiwibW91bnRQYXRoIjoiL2RhdGEiLCJzaXplIjoiMzJHaSIsInN1YlBhdGgiOiIifSwicG9kQW5ub3RhdGlvbnMiOnt9LCJwb2RMYWJlbHMiOnt9LCJwb2RTZWN1cml0eVBvbGljeSI6eyJhbm5vdGF0aW9ucyI6e319LCJwcmVmaXhVUkwiOiIiLCJwcmlvcml0eUNsYXNzTmFtZSI6IiIsInJlYWRpbmVzc1Byb2JlRmFpbHVyZVRocmVzaG9sZCI6MywicmVhZGluZXNzUHJvYmVJbml0aWFsRGVsYXkiOjMwLCJyZWFkaW5lc3NQcm9iZVN1Y2Nlc3NUaHJlc2hvbGQiOjEsInJlYWRpbmVzc1Byb2JlVGltZW91dCI6MzAsInJlbW90ZVJlYWQiOnt9LCJyZW1vdGVXcml0ZSI6e30sInJlcGxpY2FDb3VudCI6MSwicmVzb3VyY2VzIjp7fSwicmV0ZW50aW9uIjoiMTVkIiwic2VjdXJpdHlDb250ZXh0Ijp7ImZzR3JvdXAiOjEwMDEsInJ1bkFzR3JvdXAiOjEwMDEsInJ1bkFzTm9uUm9vdCI6dHJ1ZSwicnVuQXNVc2VyIjoxMDAxfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImNsdXN0ZXJJUCI6IiIsImV4dGVybmFsSVBzIjpbXSwibGFiZWxzIjp7fSwibG9hZEJhbGFuY2VySVAiOiIiLCJsb2FkQmFsYW5jZXJTb3VyY2VSYW5nZXMiOltdLCJzZXJ2aWNlUG9ydCI6ODAsInNlc3Npb25BZmZpbml0eSI6Ik5vbmUiLCJ0eXBlIjoiQ2x1c3RlcklQIn0sInNpZGVjYXJDb250YWluZXJzIjpudWxsLCJzdHJhdGVneSI6eyJ0eXBlIjoiUmVjcmVhdGUifSwidGVybWluYXRpb25HcmFjZVBlcmlvZFNlY29uZHMiOjMwMCwidG9sZXJhdGlvbnMiOltdfSwic2VydmVyRmlsZXMiOnsiYWxlcnRpbmdfcnVsZXMueW1sIjp7fSwiYWxlcnRzIjp7fSwicHJvbWV0aGV1cy55bWwiOnsicnVsZV9maWxlcyI6WyIvZXRjL2NvbmZpZy9yZWNvcmRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvYWxlcnRpbmdfcnVsZXMueW1sIiwiL2V0Yy9jb25maWcvcnVsZXMiLCIvZXRjL2NvbmZpZy9hbGVydHMiXSwic2NyYXBlX2NvbmZpZ3MiOlt7ImpvYl9uYW1lIjoicHJvbWV0aGV1cyIsInN0YXRpY19jb25maWdzIjpbeyJ0YXJnZXRzIjpbImxvY2FsaG9zdDo5MDkwIl19XX0seyJiZWFyZXJfdG9rZW5fZmlsZSI6Ii92YXIvcnVuL3NlY3JldHMva3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC90b2tlbiIsImpvYl9uYW1lIjoia3ViZXJuZXRlcy1ub2Rlcy1jYWR2aXNvciIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6Im5vZGUifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx8Y29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2Vycm9yc190b3RhbHxjb250YWluZXJfbmV0d29ya190cmFuc21pdF9lcnJvcnNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfcmVjZWl2ZV9wYWNrZXRzX2Ryb3BwZWRfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfcGFja2V0c19kcm9wcGVkX3RvdGFsfGNvbnRhaW5lcl9tZW1vcnlfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2NwdV9jZnNfdGhyb3R0bGVkX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2NwdV9jZnNfcGVyaW9kc190b3RhbHxjb250YWluZXJfZnNfdXNhZ2VfYnl0ZXN8Y29udGFpbmVyX2ZzX2xpbWl0X2J5dGVzfGNvbnRhaW5lcl9jcHVfY2ZzX3BlcmlvZHNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfY3B1X2Nmc190aHJvdHRsZWRfcGVyaW9kc190b3RhbHxjb250YWluZXJfY3B1X2Nmc19wZXJpb2RzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX2lub2Rlc19mcmVlfGNvbnRhaW5lcl9mc19pbm9kZXNfdG90YWx8Y29udGFpbmVyX2ZzX3VzYWdlX2J5dGVzfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfc3BlY19jcHVfc2hhcmVzfGNvbnRhaW5lcl9zcGVjX21lbW9yeV9saW1pdF9ieXRlc3xjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc19yZWFkc19ieXRlc190b3RhbHxjb250YWluZXJfbmV0d29ya19yZWNlaXZlX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9mc193cml0ZXNfYnl0ZXNfdG90YWx8Y29udGFpbmVyX2ZzX3JlYWRzX2J5dGVzX3RvdGFsfGNhZHZpc29yX3ZlcnNpb25faW5mb3xrdWJlY29zdF9wdl9pbmZvKSIsInNvdXJjZV9sYWJlbHMiOlsiX19uYW1lX18iXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoLispIiwic291cmNlX2xhYmVscyI6WyJjb250YWluZXIiXSwidGFyZ2V0X2xhYmVsIjoiY29udGFpbmVyX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbInBvZCJdLCJ0YXJnZXRfbGFiZWwiOiJwb2RfbmFtZSJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfbm9kZV9sYWJlbF8oLispIn0seyJyZXBsYWNlbWVudCI6Imt1YmVybmV0ZXMuZGVmYXVsdC5zdmM6NDQzIiwidGFyZ2V0X2xhYmVsIjoiX19hZGRyZXNzX18ifSx7InJlZ2V4IjoiKC4rKSIsInJlcGxhY2VtZW50IjoiL2FwaS92MS9ub2Rlcy8kMS9wcm94eS9tZXRyaWNzL2NhZHZpc29yIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9XSwic2NoZW1lIjoiaHR0cHMiLCJ0bHNfY29uZmlnIjp7ImNhX2ZpbGUiOiIvdmFyL3J1bi9zZWNyZXRzL2t1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvY2EuY3J0IiwiaW5zZWN1cmVfc2tpcF92ZXJpZnkiOnRydWV9fSx7ImJlYXJlcl90b2tlbl9maWxlIjoiL3Zhci9ydW4vc2VjcmV0cy9rdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3Rva2VuIiwiam9iX25hbWUiOiJrdWJlcm5ldGVzLW5vZGVzIiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoibm9kZSJ9XSwibWV0cmljX3JlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4IjoiKGt1YmVsZXRfdm9sdW1lX3N0YXRzX3VzZWRfYnl0ZXMpIiwic291cmNlX2xhYmVscyI6WyJfX25hbWVfXyJdfV0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoibGFiZWxtYXAiLCJyZWdleCI6Il9fbWV0YV9rdWJlcm5ldGVzX25vZGVfbGFiZWxfKC4rKSJ9LHsicmVwbGFjZW1lbnQiOiJrdWJlcm5ldGVzLmRlZmF1bHQuc3ZjOjQ0MyIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJyZWdleCI6IiguKykiLCJyZXBsYWNlbWVudCI6Ii9hcGkvdjEvbm9kZXMvJDEvcHJveHkvbWV0cmljcyIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfbm9kZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Il9fbWV0cmljc19wYXRoX18ifV0sInNjaGVtZSI6Imh0dHBzIiwidGxzX2NvbmZpZyI6eyJjYV9maWxlIjoiL3Zhci9ydW4vc2VjcmV0cy9rdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L2NhLmNydCIsImluc2VjdXJlX3NraXBfdmVyaWZ5Ijp0cnVlfX0seyJqb2JfbmFtZSI6Imt1YmVybmV0ZXMtc2VydmljZS1lbmRwb2ludHMiLCJrdWJlcm5ldGVzX3NkX2NvbmZpZ3MiOlt7InJvbGUiOiJlbmRwb2ludHMifV0sIm1ldHJpY19yZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6Iihjb250YWluZXJfY3B1X2FsbG9jYXRpb258Y29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFsfGNvbnRhaW5lcl9mc19saW1pdF9ieXRlc3xjb250YWluZXJfZnNfd3JpdGVzX2J5dGVzX3RvdGFsfGNvbnRhaW5lcl9ncHVfYWxsb2NhdGlvbnxjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXN8Y29udGFpbmVyX21lbW9yeV91c2FnZV9ieXRlc3xjb250YWluZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzfGNvbnRhaW5lcl9uZXR3b3JrX3JlY2VpdmVfYnl0ZXNfdG90YWx8Y29udGFpbmVyX25ldHdvcmtfdHJhbnNtaXRfYnl0ZXNfdG90YWx8RENHTV9GSV9ERVZfR1BVX1VUSUx8ZGVwbG95bWVudF9tYXRjaF9sYWJlbHN8a3ViZV9kYWVtb25zZXRfc3RhdHVzX2Rlc2lyZWRfbnVtYmVyX3NjaGVkdWxlZHxrdWJlX2RhZW1vbnNldF9zdGF0dXNfbnVtYmVyX3JlYWR5fGt1YmVfZGVwbG95bWVudF9zcGVjX3JlcGxpY2FzfGt1YmVfZGVwbG95bWVudF9zdGF0dXNfcmVwbGljYXN8a3ViZV9kZXBsb3ltZW50X3N0YXR1c19yZXBsaWNhc19hdmFpbGFibGV8a3ViZV9qb2Jfc3RhdHVzX2ZhaWxlZHxrdWJlX25hbWVzcGFjZV9hbm5vdGF0aW9uc3xrdWJlX25hbWVzcGFjZV9sYWJlbHN8a3ViZV9ub2RlX2luZm98a3ViZV9ub2RlX2xhYmVsc3xrdWJlX25vZGVfc3RhdHVzX2FsbG9jYXRhYmxlfGt1YmVfbm9kZV9zdGF0dXNfYWxsb2NhdGFibGVfY3B1X2NvcmVzfGt1YmVfbm9kZV9zdGF0dXNfYWxsb2NhdGFibGVfbWVtb3J5X2J5dGVzfGt1YmVfbm9kZV9zdGF0dXNfY2FwYWNpdHl8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9jcHVfY29yZXN8a3ViZV9ub2RlX3N0YXR1c19jYXBhY2l0eV9tZW1vcnlfYnl0ZXN8a3ViZV9ub2RlX3N0YXR1c19jb25kaXRpb258a3ViZV9wZXJzaXN0ZW50dm9sdW1lX2NhcGFjaXR5X2J5dGVzfGt1YmVfcGVyc2lzdGVudHZvbHVtZV9zdGF0dXNfcGhhc2V8a3ViZV9wZXJzaXN0ZW50dm9sdW1lY2xhaW1faW5mb3xrdWJlX3BlcnNpc3RlbnR2b2x1bWVjbGFpbV9yZXNvdXJjZV9yZXF1ZXN0c19zdG9yYWdlX2J5dGVzfGt1YmVfcG9kX2NvbnRhaW5lcl9pbmZvfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9saW1pdHN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX2xpbWl0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX2xpbWl0c19tZW1vcnlfYnl0ZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzfGt1YmVfcG9kX2NvbnRhaW5lcl9yZXNvdXJjZV9yZXF1ZXN0c19jcHVfY29yZXN8a3ViZV9wb2RfY29udGFpbmVyX3Jlc291cmNlX3JlcXVlc3RzX21lbW9yeV9ieXRlc3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Jlc3RhcnRzX3RvdGFsfGt1YmVfcG9kX2NvbnRhaW5lcl9zdGF0dXNfcnVubmluZ3xrdWJlX3BvZF9jb250YWluZXJfc3RhdHVzX3Rlcm1pbmF0ZWRfcmVhc29ufGt1YmVfcG9kX2xhYmVsc3xrdWJlX3BvZF9vd25lcnxrdWJlX3BvZF9zdGF0dXNfcGhhc2V8a3ViZV9yZXBsaWNhc2V0X293bmVyfGt1YmVfc3RhdGVmdWxzZXRfcmVwbGljYXN8a3ViZV9zdGF0ZWZ1bHNldF9zdGF0dXNfcmVwbGljYXN8a3ViZWNvc3RfY2x1c3Rlcl9pbmZvfGt1YmVjb3N0X2NsdXN0ZXJfbWFuYWdlbWVudF9jb3N0fGt1YmVjb3N0X2NsdXN0ZXJfbWVtb3J5X3dvcmtpbmdfc2V0X2J5dGVzfGt1YmVjb3N0X2xvYWRfYmFsYW5jZXJfY29zdHxrdWJlY29zdF9uZXR3b3JrX2ludGVybmV0X2VncmVzc19jb3N0fGt1YmVjb3N0X25ldHdvcmtfcmVnaW9uX2VncmVzc19jb3N0fGt1YmVjb3N0X25ldHdvcmtfem9uZV9lZ3Jlc3NfY29zdHxrdWJlY29zdF9ub2RlX2lzX3Nwb3R8a3ViZWNvc3RfcG9kX25ldHdvcmtfZWdyZXNzX2J5dGVzX3RvdGFsfG5vZGVfY3B1X2hvdXJseV9jb3N0fG5vZGVfY3B1X3NlY29uZHNfdG90YWx8bm9kZV9kaXNrX3JlYWRzX2NvbXBsZXRlZHxub2RlX2Rpc2tfcmVhZHNfY29tcGxldGVkX3RvdGFsfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkfG5vZGVfZGlza193cml0ZXNfY29tcGxldGVkX3RvdGFsfG5vZGVfZmlsZXN5c3RlbV9kZXZpY2VfZXJyb3J8bm9kZV9ncHVfY291bnR8bm9kZV9ncHVfaG91cmx5X2Nvc3R8bm9kZV9tZW1vcnlfQnVmZmVyc19ieXRlc3xub2RlX21lbW9yeV9DYWNoZWRfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtQXZhaWxhYmxlX2J5dGVzfG5vZGVfbWVtb3J5X01lbUZyZWVfYnl0ZXN8bm9kZV9tZW1vcnlfTWVtVG90YWxfYnl0ZXN8bm9kZV9uZXR3b3JrX3RyYW5zbWl0X2J5dGVzX3RvdGFsfG5vZGVfcmFtX2hvdXJseV9jb3N0fG5vZGVfdG90YWxfaG91cmx5X2Nvc3R8cG9kX3B2Y19hbGxvY2F0aW9ufHB2X2hvdXJseV9jb3N0fHNlcnZpY2Vfc2VsZWN0b3JfbGFiZWxzfHN0YXRlZnVsU2V0X21hdGNoX2xhYmVsc3xrdWJlY29zdF9wdl9pbmZvfHVwKSIsInNvdXJjZV9sYWJlbHMiOlsiX19uYW1lX18iXX1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGUiXX0seyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiIoa3ViZWNvc3Qta3ViZS1zdGF0ZS1tZXRyaWNzfGt1YmVjb3N0LXByb21ldGhldXMtbm9kZS1leHBvcnRlcnxrdWJlY29zdC1uZXR3b3JrLWNvc3RzKSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfZW5kcG9pbnRzX25hbWUiXX0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoaHR0cHM/KSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fc2NoZW1lIl0sInRhcmdldF9sYWJlbCI6Il9fc2NoZW1lX18ifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IiguKykiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BhdGgiXSwidGFyZ2V0X2xhYmVsIjoiX19tZXRyaWNzX3BhdGhfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKFteOl0rKSg/OjpcXGQrKT87KFxcZCspIiwicmVwbGFjZW1lbnQiOiIkMTokMiIsInNvdXJjZV9sYWJlbHMiOlsiX19hZGRyZXNzX18iLCJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19wb3J0Il0sInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19uYW1lc3BhY2UiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lc3BhY2UifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWUifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3BvZF9ub2RlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19ub2RlIn1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlLWVuZHBvaW50cy1zbG93Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoiZW5kcG9pbnRzIn1dLCJyZWxhYmVsX2NvbmZpZ3MiOlt7ImFjdGlvbiI6ImtlZXAiLCJyZWdleCI6dHJ1ZSwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY3JhcGVfc2xvdyJdfSx7ImFjdGlvbiI6InJlcGxhY2UiLCJyZWdleCI6IihodHRwcz8pIiwic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2Fubm90YXRpb25fcHJvbWV0aGV1c19pb19zY2hlbWUiXSwidGFyZ2V0X2xhYmVsIjoiX19zY2hlbWVfXyJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInJlZ2V4IjoiKC4rKSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcGF0aCJdLCJ0YXJnZXRfbGFiZWwiOiJfX21ldHJpY3NfcGF0aF9fIn0seyJhY3Rpb24iOiJyZXBsYWNlIiwicmVnZXgiOiIoW146XSspKD86OlxcZCspPzsoXFxkKykiLCJyZXBsYWNlbWVudCI6IiQxOiQyIiwic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyIsIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3BvcnQiXSwidGFyZ2V0X2xhYmVsIjoiX19hZGRyZXNzX18ifSx7ImFjdGlvbiI6ImxhYmVsbWFwIiwicmVnZXgiOiJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX2xhYmVsXyguKykifSx7ImFjdGlvbiI6InJlcGxhY2UiLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9uYW1lIl0sInRhcmdldF9sYWJlbCI6Imt1YmVybmV0ZXNfbmFtZSJ9LHsiYWN0aW9uIjoicmVwbGFjZSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfcG9kX25vZGVfbmFtZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25vZGUifV0sInNjcmFwZV9pbnRlcnZhbCI6IjVtIiwic2NyYXBlX3RpbWVvdXQiOiIzMHMifSx7Imhvbm9yX2xhYmVscyI6dHJ1ZSwiam9iX25hbWUiOiJwcm9tZXRoZXVzLXB1c2hnYXRld2F5Iiwia3ViZXJuZXRlc19zZF9jb25maWdzIjpbeyJyb2xlIjoic2VydmljZSJ9XSwicmVsYWJlbF9jb25maWdzIjpbeyJhY3Rpb24iOiJrZWVwIiwicmVnZXgiOiJwdXNoZ2F0ZXdheSIsInNvdXJjZV9sYWJlbHMiOlsiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9hbm5vdGF0aW9uX3Byb21ldGhldXNfaW9fcHJvYmUiXX1dfSx7ImpvYl9uYW1lIjoia3ViZXJuZXRlcy1zZXJ2aWNlcyIsImt1YmVybmV0ZXNfc2RfY29uZmlncyI6W3sicm9sZSI6InNlcnZpY2UifV0sIm1ldHJpY3NfcGF0aCI6Ii9wcm9iZSIsInBhcmFtcyI6eyJtb2R1bGUiOlsiaHR0cF8yeHgiXX0sInJlbGFiZWxfY29uZmlncyI6W3siYWN0aW9uIjoia2VlcCIsInJlZ2V4Ijp0cnVlLCJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX3NlcnZpY2VfYW5ub3RhdGlvbl9wcm9tZXRoZXVzX2lvX3Byb2JlIl19LHsic291cmNlX2xhYmVscyI6WyJfX2FkZHJlc3NfXyJdLCJ0YXJnZXRfbGFiZWwiOiJfX3BhcmFtX3RhcmdldCJ9LHsicmVwbGFjZW1lbnQiOiJibGFja2JveCIsInRhcmdldF9sYWJlbCI6Il9fYWRkcmVzc19fIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fcGFyYW1fdGFyZ2V0Il0sInRhcmdldF9sYWJlbCI6Imluc3RhbmNlIn0seyJhY3Rpb24iOiJsYWJlbG1hcCIsInJlZ2V4IjoiX19tZXRhX2t1YmVybmV0ZXNfc2VydmljZV9sYWJlbF8oLispIn0seyJzb3VyY2VfbGFiZWxzIjpbIl9fbWV0YV9rdWJlcm5ldGVzX25hbWVzcGFjZSJdLCJ0YXJnZXRfbGFiZWwiOiJrdWJlcm5ldGVzX25hbWVzcGFjZSJ9LHsic291cmNlX2xhYmVscyI6WyJfX21ldGFfa3ViZXJuZXRlc19zZXJ2aWNlX25hbWUiXSwidGFyZ2V0X2xhYmVsIjoia3ViZXJuZXRlc19uYW1lIn1dfV19LCJyZWNvcmRpbmdfcnVsZXMueW1sIjp7fSwicnVsZXMiOnsiZ3JvdXBzIjpbeyJuYW1lIjoiQ1BVIiwicnVsZXMiOlt7ImV4cHIiOiJzdW0ocmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkpIiwicmVjb3JkIjoiY2x1c3RlcjpjcHVfdXNhZ2U6cmF0ZTVtIn0seyJleHByIjoicmF0ZShjb250YWluZXJfY3B1X3VzYWdlX3NlY29uZHNfdG90YWx7Y29udGFpbmVyX25hbWUhPVwiXCJ9WzVtXSkiLCJyZWNvcmQiOiJjbHVzdGVyOmNwdV91c2FnZV9ub3N1bTpyYXRlNW0ifSx7ImV4cHIiOiJhdmcoaXJhdGUoY29udGFpbmVyX2NwdV91c2FnZV9zZWNvbmRzX3RvdGFse2NvbnRhaW5lcl9uYW1lIT1cIlBPRFwiLCBjb250YWluZXJfbmFtZSE9XCJcIn1bNW1dKSkgYnkgKGNvbnRhaW5lcl9uYW1lLHBvZF9uYW1lLG5hbWVzcGFjZSkiLCJyZWNvcmQiOiJrdWJlY29zdF9jb250YWluZXJfY3B1X3VzYWdlX2lyYXRlIn0seyJleHByIjoic3VtKGNvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXN7Y29udGFpbmVyX25hbWUhPVwiUE9EXCIsY29udGFpbmVyX25hbWUhPVwiXCJ9KSBieSAoY29udGFpbmVyX25hbWUscG9kX25hbWUsbmFtZXNwYWNlKSIsInJlY29yZCI6Imt1YmVjb3N0X2NvbnRhaW5lcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifSx7ImV4cHIiOiJzdW0oY29udGFpbmVyX21lbW9yeV93b3JraW5nX3NldF9ieXRlc3tjb250YWluZXJfbmFtZSE9XCJQT0RcIixjb250YWluZXJfbmFtZSE9XCJcIn0pIiwicmVjb3JkIjoia3ViZWNvc3RfY2x1c3Rlcl9tZW1vcnlfd29ya2luZ19zZXRfYnl0ZXMifV19LHsibmFtZSI6IlNhdmluZ3MiLCJydWxlcyI6W3siZXhwciI6InN1bShhdmcoa3ViZV9wb2Rfb3duZXJ7b3duZXJfa2luZCE9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIiwibGFiZWxzIjp7ImRhZW1vbnNldCI6ImZhbHNlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQ9XCJEYWVtb25TZXRcIn0pIGJ5IChwb2QpICogc3VtKGNvbnRhaW5lcl9jcHVfYWxsb2NhdGlvbikgYnkgKHBvZCkpIC8gc3VtKGt1YmVfbm9kZV9pbmZvKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJ0cnVlIn0sInJlY29yZCI6Imt1YmVjb3N0X3NhdmluZ3NfY3B1X2FsbG9jYXRpb24ifSx7ImV4cHIiOiJzdW0oYXZnKGt1YmVfcG9kX293bmVye293bmVyX2tpbmQhPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSIsImxhYmVscyI6eyJkYWVtb25zZXQiOiJmYWxzZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn0seyJleHByIjoic3VtKGF2ZyhrdWJlX3BvZF9vd25lcntvd25lcl9raW5kPVwiRGFlbW9uU2V0XCJ9KSBieSAocG9kKSAqIHN1bShjb250YWluZXJfbWVtb3J5X2FsbG9jYXRpb25fYnl0ZXMpIGJ5IChwb2QpKSAvIHN1bShrdWJlX25vZGVfaW5mbykiLCJsYWJlbHMiOnsiZGFlbW9uc2V0IjoidHJ1ZSJ9LCJyZWNvcmQiOiJrdWJlY29zdF9zYXZpbmdzX21lbW9yeV9hbGxvY2F0aW9uX2J5dGVzIn1dfV19fSwic2VydmljZUFjY291bnRzIjp7ImFsZXJ0bWFuYWdlciI6eyJjcmVhdGUiOnRydWV9LCJub2RlRXhwb3J0ZXIiOnsiY3JlYXRlIjp0cnVlfSwicHVzaGdhdGV3YXkiOnsiY3JlYXRlIjp0cnVlfSwic2VydmVyIjp7ImFubm90YXRpb25zIjp7fSwiY3JlYXRlIjp0cnVlfX19LCJyZW1vdGVXcml0ZSI6e30sInJlcG9ydGluZyI6eyJlcnJvclJlcG9ydGluZyI6dHJ1ZSwibG9nQ29sbGVjdGlvbiI6dHJ1ZSwicHJvZHVjdEFuYWx5dGljcyI6dHJ1ZSwidmFsdWVzUmVwb3J0aW5nIjp0cnVlfSwic2VydmljZSI6eyJhbm5vdGF0aW9ucyI6e30sImxhYmVscyI6e30sInBvcnQiOjkwOTAsInRhcmdldFBvcnQiOjkwOTAsInR5cGUiOiJDbHVzdGVySVAifSwic2VydmljZUFjY291bnQiOnsiYW5ub3RhdGlvbnMiOnt9LCJjcmVhdGUiOnRydWV9LCJzaWdWNFByb3h5Ijp7ImV4dHJhRW52IjpudWxsLCJob3N0IjoiYXBzLXdvcmtzcGFjZXMudXMtd2VzdC0yLmFtYXpvbmF3cy5jb20iLCJpbWFnZSI6InB1YmxpYy5lY3IuYXdzL2F3cy1vYnNlcnZhYmlsaXR5L2F3cy1zaWd2NC1wcm94eTpsYXRlc3QiLCJpbWFnZVB1bGxQb2xpY3kiOiJBbHdheXMiLCJuYW1lIjoiYXBzIiwicG9ydCI6ODAwNSwicmVnaW9uIjoidXMtd2VzdC0yIn0sInN1cHBvcnRORlMiOmZhbHNlLCJ0b2xlcmF0aW9ucyI6W119
             - name: READ_ONLY
               value: "false"
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -18915,7 +20962,7 @@ spec:
                   name: kubecost-cost-analyzer
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
-              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             - name: CONFIG_PATH
               value: /var/configs/
             - name: DB_PATH
@@ -18991,7 +21038,7 @@ spec:
             - name: MAX_QUERY_CONCURRENCY
               value: "5"
             - name: UTC_OFFSET
-              value:
+              value: 
             - name: CLUSTER_ID
               value: cluster-one
             - name: SQL_ADDRESS
@@ -19010,13 +21057,15 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.98.0
-
+        - image: gcr.io/kubecost1/frontend:prod-1.100.0
+        
           env:
             - name: GET_HOSTS_FROM
               value: dns
           name: cost-analyzer-frontend
           volumeMounts:
+            - name: tmp
+              mountPath: /tmp
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
           resources:

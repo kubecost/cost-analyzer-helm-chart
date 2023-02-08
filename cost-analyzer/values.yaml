@@ -344,6 +344,14 @@ kubecostModel:
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
+  allocation:
+    # Enables or disables adding node labels to allocation data (i.e. workloads).
+    # Defaults to "true" and starts with a sensible includeList for basics like
+    # topology (e.g. zone, region) and instance type labels.
+    # nodeLabels:
+    #   enabled: true
+    #   includeList: "node.kubernetes.io/instance-type,topology.kubernetes.io/region,topology.kubernetes.io/zone"
+
   # Enables or disables the ContainerStats pipeline, used for quantile-based
   # queries like for request sizing recommendations.
   # ContainerStats provides support for quantile-based request right-sizing
@@ -590,7 +598,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v16.3
+  image: gcr.io/kubecost1/kubecost-network-costs:v16.4
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -713,7 +721,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.5.0
+  image: gcr.io/kubecost1/cluster-controller:v0.6.1
   imagePullPolicy: Always
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
@@ -788,6 +796,7 @@ grafana:
 #  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
     server:
+      serve_from_sub_path: true
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
@@ -816,6 +825,9 @@ federatedETL:
     # federator.clusters is an optional whitelist of clusters by cluster id.
     # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
+
+kubecostAdmissionController:
+  enabled: false
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 

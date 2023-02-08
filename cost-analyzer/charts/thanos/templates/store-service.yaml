@@ -4,6 +4,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-grpc
+  namespace: {{ .Release.Namespace }}
   {{- with .Values.store.grpc.service.annotations }}
   annotations: {{ toYaml . | nindent 4 }}
   {{- end }}
@@ -35,6 +36,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ include "thanos.componentname" (list $ "store") }}-http
+  namespace: {{ .Release.Namespace }}
   {{- with .Values.store.http.service.annotations }}
   annotations: {{ toYaml .| nindent 4 }}
   {{- end }}
