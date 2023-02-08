@@ -1,4 +1,4 @@
-{{- if not .Values.agent }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
 {{- if .Values.saml.enabled }}
