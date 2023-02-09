@@ -80,6 +80,8 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- define "kubecost.kubeMetricsName" -}}
 {{- if .Values.agent }}
 {{- printf "%s-%s" .Release.Name "agent" -}}
+{{- else if .Values.cloudAgent }}
+{{- printf "%s-%s" .Release.Name "cloud-agent" -}}
 {{- else }}
 {{- printf "%s-%s" .Release.Name "metrics" -}}
 {{- end }}
