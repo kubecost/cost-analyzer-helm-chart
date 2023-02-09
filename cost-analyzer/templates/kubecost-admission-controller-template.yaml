@@ -7,6 +7,11 @@ metadata:
 webhooks:
   - name: "kubecost-deployment-validation.kubecost.svc"
     failurePolicy: Ignore
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [ "kubecost" ]
     rules:
       - operations: [ "CREATE", "UPDATE" ]
         apiGroups: [ "apps" ]
