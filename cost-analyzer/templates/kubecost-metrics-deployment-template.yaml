@@ -1,10 +1,11 @@
 {{- if .Values.kubecostMetrics }}
 {{- if .Values.kubecostMetrics.exporter }}
-{{- if or .Values.kubecostMetrics.exporter.enabled .Values.agent }}
+{{- if or (or .Values.kubecostMetrics.exporter.enabled .Values.agent) .Values.cloudAgent }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
@@ -38,13 +39,37 @@ spec:
 {{- end }}
 {{- end }}
     spec:
+      {{- if .Values.kubecostFrontend.tls }}
+      {{- if .Values.kubecostFrontend.tls.enabled }}
+      securityContext:
+        runAsUser: 0
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
         {{- if .Values.agent }}
         - name: config-store
+          {{- if .Values.agentCsi.enabled }}
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ .Values.agentCsi.secretProvider.name }}"
+          {{- else }}
           secret:
             secretName: {{ .Values.agentKeySecretName }}
+          {{- end }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
@@ -161,11 +186,11 @@ spec:
             - name: gcp-key-secret
               mountPath: /var/secrets
             {{- end }}
-            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret}}
+            {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret}}
+            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             - name: cloud-integration
               mountPath: /var/cloud-integration
             {{- end }}
@@ -175,7 +200,11 @@ spec:
             {{- end }}
             {{- end }}
           args:
+            {{- if .Values.cloudAgent }}
+            - cloud-agent
+            {{- else }}
             - agent
+            {{- end }}
             {{- if .Values.kubecostMetrics.exporter.extraArgs }}
             {{ toYaml .Values.kubecostMetrics.exporter.extraArgs | nindent 12 }}
             {{- end }}
@@ -185,6 +214,12 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            {{- if .Values.cloudAgent }}
+            - name: CLOUD_AGENT_KEY
+              value: {{ .Values.cloudAgentKey }}
+            - name: CLOUD_REPORTING_SERVER
+              value: {{ .Values.cloudReportingServer }}
+            {{- end }}
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             {{- if .Values.kubecostProductConfigs }}
@@ -238,7 +273,10 @@ spec:
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
-            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
+            {{- if .Values.cloudAgentClusterId }}
+            - name: CLUSTER_ID 
+              value: {{ .Values.cloudAgentClusterId }}
+            {{- else if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
             {{- end }}
@@ -253,10 +291,17 @@ spec:
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
             {{- end }}
+            - name: PV_ENABLED
+              value: {{ (quote .Values.persistentVolume.enabled) | default (quote true) }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: KUBECOST_TOKEN
               valueFrom:
                 configMapKeyRef:

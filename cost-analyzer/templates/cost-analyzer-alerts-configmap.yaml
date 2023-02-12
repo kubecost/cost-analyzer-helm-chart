@@ -3,6 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ default "alert-configs" .Values.alertConfigmapName }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:

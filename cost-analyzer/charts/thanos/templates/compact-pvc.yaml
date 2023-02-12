@@ -7,6 +7,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ .Values.compact.dataVolume.persistentVolumeClaim.claimName }}
+  namespace: {{ .Release.Namespace }}
 spec:
   accessModes:
     - ReadWriteOnce

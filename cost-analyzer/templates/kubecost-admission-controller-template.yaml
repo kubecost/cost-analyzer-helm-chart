@@ -1,0 +1,31 @@
+{{- if .Values.kubecostAdmissionController -}}
+{{- if .Values.kubecostAdmissionController.enabled -}}
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: kubecost-deployment-validation
+webhooks:
+  - name: "kubecost-deployment-validation.kubecost.svc"
+    failurePolicy: Ignore
+    namespaceSelector:
+      matchExpressions:
+        - key: kubernetes.io/metadata.name
+          operator: In
+          values: [ "kubecost" ]
+    rules:
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: [ "apps" ]
+        apiVersions: [ "v1" ]
+        resources: [ "deployments" ]
+        scope: "*"
+    clientConfig:
+      service:
+        namespace: kubecost
+        name: webhook-server
+        path: "/validate"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCRENDQWV5Z0F3SUJBZ0lVR3E2YkdOaEowVjRsb0NiWHhUa0pocWkwUnB3d0RRWUpLb1pJaHZjTkFRRUwKQlFBd0pqRWtNQ0lHQTFVRUF3d2JkMlZpYUc5dmF5MXpaWEoyWlhJdWEzVmlaV052YzNRdWMzWmpNQjRYRFRJegpNREl3T1RFNU1UVTFNbG9YRFRJME1EWXlNekU1TVRVMU1sb3dKakVrTUNJR0ExVUVBd3diZDJWaWFHOXZheTF6ClpYSjJaWEl1YTNWaVpXTnZjM1F1YzNaak1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0MKQVFFQXpvU2JBejBhZFJTdEN3eVRPSGd2S2VuQ29GbWE2OC9nYTFHZjVST2dXeGJhamhQRTZKbEtBcENwK1pzKwo2bHJzL2J3bkx5SDdoMUFJa1NmZ25EYlNadDJjdHRFSmhSd25vKy90WElMYk84WndRQTErYXpUQzVtSkluZVF3CktRMkErYy9CUnk3N3B0SnZIRStkTEllcWhRelV2M25nWUwvSDZaMUZPa20xUCtlR0FwSWxyVHVPV1ozUVhRYkMKemhOQXppRWNjL3o3RERBdlFBMlpIQ1I2OGl1V0ptd0RYZEdjWmEwenNVb1hDbGIvWXdiWFgvMlp2dklIbkdtawp5VTlZdEhxNVpscFZjT0V5MTVBWFVEOFZVUU1jVXQ5NkJvVThMMXJKbTZJK0E0YmFySEs5QjlxcjdzRmFaY2wvCnBncHZGd0NBaHZHYUM2VzA5UnM3T0NrdXh3SURBUUFCb3lvd0tEQW1CZ05WSFJFRUh6QWRnaHQzWldKb2IyOXIKTFhObGNuWmxjaTVyZFdKbFkyOXpkQzV6ZG1Nd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFDdVhNcUgzYmhsVApGKzlRUFplS2xiUTZlWSs0NlhMVGtEdlZzenAyZysweWhlMVNRRHZRUTVad1l6MnMwODNqb2loTXVzeFZ1TmFGCk1LdE9vbGY2bitsaUZFcEw4OU9XZ1VjdzJRdFdqVWUraU1zby91dWN0eGVPTzZLam9JcUVrUlg5YXh1cGxxVm0KakZRaGZtNlRYZ2pxWmttUVNsbHdLVkcxSFJZTkRveFpFa0JHK1l6RWF5QmdQdXl4bW5iTDdlck5IOVJQSVZtbAoxaWFnS1NVVG5vN0hJY3IwdHYzT3JEWDZRN3VJUGdWanBRSHMzNXBZSWlBYjVNR0RjWFZvY050SEZ0YnluREhzCi80WGhYMjFhOXdnSVF6dUF3ck0zQ0VDRnVocHJzWlZmQjBKQ1dBOG1aVEZneTVBL0tLUjJmTXRMRWRQS1ZsSXUKZjc1MjB3T3JzME09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    timeoutSeconds: 5
+{{- end -}}
+{{- end -}}

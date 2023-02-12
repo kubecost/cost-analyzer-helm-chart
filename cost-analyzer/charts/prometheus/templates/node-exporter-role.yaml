@@ -5,6 +5,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ template "prometheus.nodeExporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "prometheus.nodeExporter.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}

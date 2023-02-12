@@ -1,10 +1,11 @@
-{{- if not .Values.agent }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
 {{- $servicePort := .Values.service.port | default 9090 -}}
 kind: Service
 apiVersion: v1
 metadata:
   name: {{ template "cost-analyzer.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.service.labels }}

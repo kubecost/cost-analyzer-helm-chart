@@ -1,9 +1,10 @@
-{{- if not .Values.agent }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $nginxPort := int .Values.service.port | default 9090 -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.kubecostDeployment }}
@@ -86,11 +87,21 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- /*
+          If Thanos is enabled, then enable ETL backups by default.
+          To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
+        */}}
+        {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
+            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
+        {{- end }}
+        {{- if $etlBackupBucketSecret }}
         - name: etl-bucket-config
           secret:
            defaultMode: 420
-           secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+           secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
@@ -361,7 +372,7 @@ spec:
             # Extra volume mount(s)
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
-            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- if $etlBackupBucketSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
@@ -500,9 +511,10 @@ spec:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
             - name: CLOUD_PROVIDER_API_KEY
-              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
+
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             {{- end }}
@@ -643,7 +655,7 @@ spec:
             - name: ETL_READ_ONLY
               value: "true"
             {{- end }}
-            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- if $etlBackupBucketSecret }}
             - name: ETL_TO_DISK_ENABLED
               value: "false"
             - name: ETL_BUCKET_CONFIG
@@ -712,6 +724,18 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
               value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+            {{- if .Values.kubecostModel }}
+            {{- if .Values.kubecostModel.allocation }}
+            {{- if .Values.kubecostModel.allocation.nodeLabels }}
+            {{- with .Values.kubecostModel.allocation.nodeLabels }}
+            - name: ALLOCATION_NODE_LABELS_ENABLED
+              value: {{ (quote .enabled) | default (quote true) }}
+            - name: ALLOCATION_NODE_LABELS_INCLUDE_LIST
+              value: {{ (quote .includeList) }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
             {{- with .Values.kubecostModel.cloudCost }}
             - name: CLOUD_COST_ENABLED
               value: {{ (quote .enabled) | default (quote false) }}
