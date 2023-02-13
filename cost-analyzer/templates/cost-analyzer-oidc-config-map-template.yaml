@@ -24,22 +24,9 @@ data:
           {
             "roleName": "{{ $g.name }}",
             "enabled": {{ $g.enabled }},
-            "baseRole": "{{ $g.baseRole }}",
-            "assertionName": "{{ $g.assertionName }}",
-            "routeBlacklist": [
-            {{- range $j, $v := $g.routeBlacklist }}
-            {{- if ne $j 0 }},{{- end }}
-              "{{ $v }}"
-            {{- end }}
-            ],
-            "routeWhitelist": [
-            {{- range $j, $v := $g.routeWhitelist }}
-            {{- if ne $j 0 }},{{- end }}
-              "{{ $v }}"
-            {{- end }}
-            ],
-            "assertionValues": [
-            {{- range $j, $v := $g.assertionValues }}
+            "claimName": "{{ $g.claimName }}",
+            "claimValues": [
+            {{- range $j, $v := $g.claimValues }}
             {{- if ne $j 0 }},{{- end }}
               "{{ $v }}"
             {{- end }}
