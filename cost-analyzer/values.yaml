@@ -221,18 +221,18 @@ oidc:
       groups:
         - name: admin
           enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
-          assertionName: "http://schemas.auth0.com/userType" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
+          assertionName: "preferred_username" # field used for role matching in the OIDC access token
           assertionValues:
             - "admin"
             - "superusers"
         - name: readonly
           enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
-          assertionName:  "http://schemas.auth0.com/userType"
+          assertionName:  "preferred_username"
           assertionValues:
             - "readonly"
         - name: editor
-          enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
-          assertionName: "http://schemas.auth0.com/userType"
+          enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+          assertionName: "preferred_username"
           assertionValues:
             - "editor"
 
