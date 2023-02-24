@@ -92,6 +92,12 @@ spec:
           To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
         */}}
         {{- $etlBackupBucketSecret := "" }}
+        {{- if .Values.global.containerSecuritycontext }}
+        - name: tmp
+          emptyDir: { }
+        - name: cache
+          emptyDir: { }
+        {{- end }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
@@ -360,6 +366,19 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          {{- end }}
+          {{- if .Values.global.containerSecuritycontext }}
+          securityContext:
+          {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- if .Values.hosted }}
             - name: config-store
@@ -971,6 +990,12 @@ spec:
               mountPath: /tmp
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
+            {{- if .Values.global.containerSecuritycontext }}
+            - mountPath: /var/cache/nginx
+              name: cache
+            - mountPath: /var/run
+              name: tmp
+            {{- end }}
             {{- if .Values.kubecostFrontend.tls }}
             {{- if .Values.kubecostFrontend.tls.enabled }}
             - name: tls
@@ -991,6 +1016,19 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: {{ .Values.kubecostFrontend.livenessProbe.initialDelaySeconds  }}
+            periodSeconds: {{ .Values.kubecostFrontend.livenessProbe.periodSeconds  }}
+            failureThreshold: {{ .Values.kubecostFrontend.livenessProbe.failureThreshold  }}
+          {{- end }}
+          {{- if .Values.global.containerSecuritycontext }}
+          securityContext:
+          {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
+          {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
