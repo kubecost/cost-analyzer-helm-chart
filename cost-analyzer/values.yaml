@@ -162,6 +162,9 @@ global:
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
 
+  containerSecuritycontext: {}
+    # readOnlyRootFilesystem: true
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken: # ""
 
@@ -243,6 +246,11 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 200
   ipv6:
     enabled: true # disable if the cluster does not support ipv6
 #  api:
@@ -374,6 +382,11 @@ kubecostModel:
     #limits:
     #  cpu: "800m"
     #  memory: "256Mi"
+  livenessProbe:
+    enabled: false
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 200
   extraArgs: []
 
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/master/ingress-examples.md
@@ -721,7 +734,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.6.1
+  image: gcr.io/kubecost1/cluster-controller:v0.6.2
   imagePullPolicy: Always
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
