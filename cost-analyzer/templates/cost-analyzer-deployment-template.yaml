@@ -186,6 +186,20 @@ spec:
               path: kc.key
         {{- end }}
         {{- end }}
+        {{- if .Values.kubecostAdmissionController }}
+        {{- if .Values.kubecostAdmissionController.enabled }}
+        {{- if .Values.kubecostAdmissionController.secretName }}
+        - name: webhook-server-tls
+          secret:
+            secretName: {{ .Values.kubecostAdmissionController.secretName }}
+            items:
+            - key: tls.crt
+              path: tls.crt
+            - key: tls.key
+              path: tls.key
+        {{- end }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
         {{- if .Values.saml.secretName }}
@@ -384,6 +398,14 @@ spec:
             - name: federated-storage-config
               mountPath: /var/configs/etl/federated
               readOnly: true
+            {{- end }}
+            {{- if .Values.kubecostAdmissionController }}
+            {{- if .Values.kubecostAdmissionController.enabled }}
+            {{- if .Values.kubecostAdmissionController.secretName }}
+            - name: {{ .Values.kubecostAdmissionController.secretName }}
+              mountPath: /certs
+            {{- end }}
+            {{- end }}
             {{- end }}
             {{- if .Values.federatedETL }}
             {{- if .Values.federatedETL.federator.enabled }}
