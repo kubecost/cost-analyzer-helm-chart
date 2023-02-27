@@ -611,7 +611,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v16.4
+  image: gcr.io/kubecost1/kubecost-network-costs:v16.5
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -662,6 +662,14 @@ networkCosts:
       # Cross Region contains a list of address/range that will be
       # classified as non-internet egress from one region to another.
       cross-region: []
+
+      # Internet contains a list of address/range that will be
+      # classified as internet traffic. This is synonymous with traffic
+      # that cannot be classified within the cluster. 
+      # NOTE: Internet classification filters are executed _after_ 
+      # NOTE: direct-classification, but before in-zone, in-region,
+      # NOTE: and cross-region. 
+      internet: []
 
       # Direct Classification specifically maps an ip address or range
       # to a region (required) and/or zone (optional). This classification
