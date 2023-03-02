@@ -1,5 +1,14 @@
 # Kubecost running as an Agent is designed for external hosting. The current setup deploys a
 # kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter.
+networkCosts:
+  enabled: false
+  # config:
+  #   services:
+  #     amazon-web-services: true
+  #     google-cloud-services: true
+  #     azure-cloud-services: true
+
+
 global:
   thanos:
     enabled: false
@@ -12,6 +21,7 @@ agentCsi:
 # with enhancements designed for external hosting.
 agent: true
 # agentKeySecretName: kubecost-agent-object-store
+
 
 # No Grafana configuration is required.
 grafana:
@@ -37,18 +47,17 @@ prometheus:
     enabled: false
     disabled: true
   extraScrapeConfigs: |
-    - job_name: kubecost
+    - job_name: kubecost-agent
       honor_labels: true
       scrape_interval: 1m
       scrape_timeout: 60s
       metrics_path: /metrics
-      kubernetes_sd_configs:
-        - role: pod
-      relabel_configs:
-      # Scrape only the the targets matching the following metadata
-        - source_labels: [__meta_kubernetes_pod_label_app]
-          action: keep
-          regex:  kubecost-agent-agent
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - kubecost-agent-agent
+        type: 'A'
+        port: 9005
     - job_name: kubecost-networking
       kubernetes_sd_configs:
         - role: pod
