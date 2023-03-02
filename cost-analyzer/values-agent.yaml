@@ -31,6 +31,8 @@ kubecostMetrics:
 # Prometheus defaults to low retention (10h), disables KSM, and attaches a thanos-sidecar
 # for exporting metrics.
 prometheus:
+  nodeExporter:
+    enabled: false
   kube-state-metrics:
     enabled: false
     disabled: true
