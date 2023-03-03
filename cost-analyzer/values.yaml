@@ -108,7 +108,9 @@ global:
       - title: "Example Saved Report 0"
         window: "today"
         aggregateBy: "namespace"
+        chartDisplay: "category"
         idle: "separate"
+        rate: "cumulative"
         accumulate: false # daily resolution
         filters:
           - property: "cluster"
@@ -118,7 +120,9 @@ global:
       - title: "Example Saved Report 1"
         window: "month"
         aggregateBy: "controllerKind"
+        chartDisplay: "category"
         idle: "share"
+        rate: "monthly"
         accumulate: false
         filters:
           - property: "label"
@@ -128,7 +132,9 @@ global:
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
         aggregateBy: "service"
+        chartDisplay: "category"
         idle: "hide"
+        rate: "daily"
         accumulate: true # entire window resolution
         filters: [] # if no filters, specify empty array
 
