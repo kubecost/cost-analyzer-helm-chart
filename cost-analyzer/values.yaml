@@ -857,6 +857,13 @@ federatedETL:
 kubecostAdmissionController:
   enabled: false
 
+# Enables or disables the Cost Event Audit pipeline, which tracks recent changes at cluster level
+# and provides an estimated cost impact via the Kubecost Predict API.
+#
+# It is disabled by default to avoid problems in high-scale environments.
+costEventsAudit:
+  enabled: false
+
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
 # These configs can also be set from the Settings page in the Kubecost product UI
