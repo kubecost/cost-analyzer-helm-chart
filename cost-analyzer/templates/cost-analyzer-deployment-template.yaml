@@ -581,6 +581,10 @@ spec:
             - name: INGEST_POD_UID
               value: {{ (quote .Values.kubecostProductConfigs.ingestPodUID) }}
             {{- end }}
+            {{- if .Values.kubecostProductConfigs.regionOverrides }}
+            - name: REGION_OVERRIDE_LIST
+              value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
+            {{- end }}
             {{- end }}
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
