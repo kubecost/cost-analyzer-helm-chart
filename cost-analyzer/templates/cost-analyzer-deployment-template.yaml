@@ -933,6 +933,10 @@ spec:
             - name: GOOGLE_ANALYTICS_TAG
               value: {{ .Values.reporting.googleAnalyticsTag }}
             {{- end }}
+            {{- if .Values.costEventsAudit }}
+            - name: COST_EVENTS_AUDIT_ENABLED
+              value: {{ (quote .Values.costEventsAudit.enabled) | default (quote false) }}
+            {{- end }}
             {{- /*
               Leader/Follower has baseline requirements before enabling:
                 * ETL FileStore Enabled
