@@ -853,6 +853,8 @@ federatedETL:
     # federator.clusters is an optional whitelist of clusters by cluster id.
     # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
+    # federator.primaryClusterID is an optional parameter that should be used when reconciliation is expected to occur on the Primary.
+    # primaryClusterID: "cluster_id" 
 
 kubecostAdmissionController:
   enabled: false
