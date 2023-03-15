@@ -117,7 +117,7 @@ spec:
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.productKey }}
-        {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+        {{- if and .Values.kubecostProductConfigs.productKey.enabled .Values.kubecostProductConfigs.productKey.secretname }}
         - name: productkey-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
