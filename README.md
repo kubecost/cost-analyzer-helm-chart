@@ -40,6 +40,7 @@ Parameter | Description | Default
 `persistentVolume.storageClass` | Define storage class for cost-analyzer's persistent volume  | `-`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`
+`ingress.className` | Ingress class name | `{}`
 `ingress.paths` | Ingress paths | `["/"]`
 `ingress.hosts` | Ingress hostnames | `[cost-analyzer.local]`
 `ingress.tls` | Ingress TLS configuration (YAML) | `[]`
