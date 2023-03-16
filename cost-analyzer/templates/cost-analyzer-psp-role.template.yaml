@@ -1,3 +1,4 @@
+{{- if .Capabilities.APIVersions.Has "policy/v1beta1/PodSecurityPolicy" }}
 {{- if .Values.podSecurityPolicy }}
 {{- if .Values.podSecurityPolicy.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
@@ -17,5 +18,6 @@ rules:
   verbs: ['use']
   resourceNames:
   - {{ template "cost-analyzer.fullname" . }}-psp
+{{- end }}
 {{- end }}
 {{- end }}
