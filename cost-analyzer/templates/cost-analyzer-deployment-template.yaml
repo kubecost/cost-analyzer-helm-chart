@@ -763,6 +763,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
+            - name: ETL_WEEKLY_STORE_DURATION_WEEKS
+              value: {{ (quote .Values.kubecostModel.etlWeeklyStoreDurationWeeks) | default (quote 53) }}
             - name: ETL_FILE_STORE_ENABLED
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
