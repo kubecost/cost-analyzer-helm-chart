@@ -15,8 +15,6 @@ global:
   grafana:
     enabled: false
     proxy: false
-agentCsi:
-  enabled: false
 # Agent enables specific features designed to enhance the metrics exporter deployment
 # with enhancements designed for external hosting.
 agent: true
@@ -73,10 +71,10 @@ prometheus:
           action: keep
           regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
+    retention: 14d
     extraArgs:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
-      storage.tsdb.retention: 10h
     securityContext:
       runAsNonRoot: true
       runAsUser: 1001
@@ -88,7 +86,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.29.0
+      image: thanosio/thanos:v0.30.2
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001
