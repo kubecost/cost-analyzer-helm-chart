@@ -206,6 +206,7 @@ Parameter | Description | Default
 `initChownData.resources` | init-chown-data pod resource requests & limits | `{}`
 `kube-state-metrics.disabled` | If false, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `false`
 `nodeExporter.enabled` | If true, create node-exporter | `true`
+`nodeExporter.dnsPolicy` | node-exporter dns policy | `ClusterFirstWithHostNet`
 `nodeExporter.name` | node-exporter container name | `node-exporter`
 `nodeExporter.image.repository` | node-exporter container image repository| `prom/node-exporter`
 `nodeExporter.image.tag` | node-exporter container image tag | `v0.18.1`

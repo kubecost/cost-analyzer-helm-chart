@@ -406,6 +406,10 @@ nodeExporter:
   ##
   hostPID: true
 
+  ## node-exporter dns policy
+  ##
+  dnsPolicy: ClusterFirstWithHostNet
+
   ## node-exporter container name
   ##
   name: node-exporter
