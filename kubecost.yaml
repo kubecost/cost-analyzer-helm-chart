@@ -20233,11 +20233,6 @@ metadata:
     chart: grafana-1.17.2
     heritage: Helm
     release: kubecost
-rules:
-- apiGroups:      ['extensions']
-  resources:      ['podsecuritypolicies']
-  verbs:          ['use']
-  resourceNames:  [kubecost-grafana]
 ---
 # Source: cost-analyzer/templates/cost-analyzer-cluster-role-template.yaml
 apiVersion: rbac.authorization.k8s.io/v1
