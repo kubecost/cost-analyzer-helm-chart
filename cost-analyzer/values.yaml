@@ -423,6 +423,9 @@ kubecostModel:
 ingress:
   enabled: false
   # className: nginx
+  labels:
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
   annotations:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
