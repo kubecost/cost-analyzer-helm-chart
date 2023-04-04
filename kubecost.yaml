@@ -1,3 +1,11 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    kubernetes.io/metadata.name: kubecost
+    app.kubernetes.io/instance: kubecost
+    app: kubecost
+  name: kubecost
 ---
 # Source: cost-analyzer/charts/grafana/templates/serviceaccount.yaml
 apiVersion: v1
@@ -58,7 +66,6 @@ metadata:
   name: kubecost-cost-analyzer
   namespace: kubecost
   labels:
-
     app.kubernetes.io/name: cost-analyzer
     helm.sh/chart: cost-analyzer-1.102.0
     app.kubernetes.io/instance: kubecost
@@ -20255,27 +20262,6 @@ rules:
     - list
     - watch
 ---
-# Source: cost-analyzer/templates/cost-analyzer-psp-role.template.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: kubecost-cost-analyzer-psp
-  namespace: kubecost
-  labels:
-
-    app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.101.3
-    app.kubernetes.io/instance: kubecost
-    app.kubernetes.io/managed-by: Helm
-    app: cost-analyzer
-  annotations:
-rules:
-- apiGroups: ['extensions']
-  resources: ['podsecuritypolicies']
-  verbs: ['use']
-  resourceNames:
-  - kubecost-cost-analyzer-psp
----
 # Source: cost-analyzer/charts/grafana/templates/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -20316,28 +20302,6 @@ subjects:
   - kind: ServiceAccount
     name: kubecost-cost-analyzer
     namespace: kubecost
----
-# Source: cost-analyzer/templates/cost-analyzer-psp-rolebinding.template.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-    name: kubecost-cost-analyzer-psp
-    namespace: kubecost
-    labels:
-
-      app.kubernetes.io/name: cost-analyzer
-      helm.sh/chart: cost-analyzer-1.101.3
-      app.kubernetes.io/instance: kubecost
-      app.kubernetes.io/managed-by: Helm
-      app: cost-analyzer
-roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: Role
-    name: kubecost-cost-analyzer-psp
-subjects:
-- kind: ServiceAccount
-  name: kubecost-cost-analyzer
-  namespace: kubecost
 ---
 # Source: cost-analyzer/charts/grafana/templates/service.yaml
 apiVersion: v1
