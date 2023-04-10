@@ -78,7 +78,7 @@ data:
     defaultIdle: "{{ .Values.kubecostProductConfigs.defaultIdle }}"
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.sharedNamespaces }}
-    sharedNamespaces: "{{ .Values.kubecostProductConfigs.sharedNamespaces }}"
+    sharedNamespaces: {{ .Values.kubecostProductConfigs.sharedNamespaces }}
   {{- end -}}
   {{- if .Values.kubecostProductConfigs.sharedOverhead }}
     sharedOverhead: "{{ .Values.kubecostProductConfigs.sharedOverhead }}"
