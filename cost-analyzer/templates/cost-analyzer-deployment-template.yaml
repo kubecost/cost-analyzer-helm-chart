@@ -213,6 +213,16 @@ spec:
           secret:
             secretName: {{ .Values.saml.secretName }}
         {{- end }}
+        {{- if .Values.saml.encryptionCertSecret }}
+        - name: saml-encryption-cert
+          secret:
+            secretName: {{ .Values.saml.encryptionCertSecret }}
+        {{- end }}
+        {{- if .Values.saml.decryptionKeySecret }}
+        - name: saml-decryption-key
+          secret:
+            secretName: {{ .Values.saml.decryptionKeySecret }}
+        {{- end }}
         {{- if .Values.saml.metadataSecretName }}
         - name: metadata-secret-volume
           secret:
@@ -473,6 +483,14 @@ spec:
             {{- if .Values.saml.secretName }}
             - name: secret-volume
               mountPath: /var/configs/secret-volume
+            {{- end }}
+            {{- if .Values.saml.encryptionCertSecret }}
+            - name: saml-encryption-cert
+              mountPath: /var/configs/saml-encryption-cert
+            {{- end }}
+            {{- if .Values.saml.decryptionKeySecret }}
+            - name: saml-decryption-key
+              mountPath: /var/configs/saml-decryption-key
             {{- end }}
             {{- if .Values.saml.metadataSecretName }}
             - name: metadata-secret-volume
@@ -899,6 +917,10 @@ spec:
             - name: SAML_RBAC_ENABLED
               value: "true"
             {{- end }}
+            {{- if and .Values.saml.encryptionCertSecret .Values.saml.decryptionKeySecret }}
+            - name: SAML_RESPONSE_ENCRYPTED
+              value: "true"
+            {{- end}}
             {{- end }}
             {{- end }}
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
