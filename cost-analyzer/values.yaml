@@ -611,15 +611,15 @@ prometheus:
       groups:
         - name: CPU
           rules:
-            - expr: sum(rate(container_cpu_usage_seconds_total{container_name!=""}[5m]))
+            - expr: sum(rate(container_cpu_usage_seconds_total{container!=""}[5m]))
               record: cluster:cpu_usage:rate5m
-            - expr: rate(container_cpu_usage_seconds_total{container_name!=""}[5m])
+            - expr: rate(container_cpu_usage_seconds_total{container!=""}[5m])
               record: cluster:cpu_usage_nosum:rate5m
-            - expr: avg(irate(container_cpu_usage_seconds_total{container_name!="POD", container_name!=""}[5m])) by (container_name,pod_name,namespace)
+            - expr: avg(irate(container_cpu_usage_seconds_total{container!="POD", container!=""}[5m])) by (container,pod,namespace)
               record: kubecost_container_cpu_usage_irate
-            - expr: sum(container_memory_working_set_bytes{container_name!="POD",container_name!=""}) by (container_name,pod_name,namespace)
+            - expr: sum(container_memory_working_set_bytes{container!="POD",container!=""}) by (container,pod,namespace)
               record: kubecost_container_memory_working_set_bytes
-            - expr: sum(container_memory_working_set_bytes{container_name!="POD",container_name!=""})
+            - expr: sum(container_memory_working_set_bytes{container!="POD",container!=""})
               record: kubecost_cluster_memory_working_set_bytes
         - name: Savings
           rules:
@@ -700,10 +700,10 @@ networkCosts:
 
       # Internet contains a list of address/range that will be
       # classified as internet traffic. This is synonymous with traffic
-      # that cannot be classified within the cluster. 
-      # NOTE: Internet classification filters are executed _after_ 
+      # that cannot be classified within the cluster.
+      # NOTE: Internet classification filters are executed _after_
       # NOTE: direct-classification, but before in-zone, in-region,
-      # NOTE: and cross-region. 
+      # NOTE: and cross-region.
       internet: []
 
       # Direct Classification specifically maps an ip address or range
@@ -882,7 +882,7 @@ federatedETL:
     # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     clusters: []
     # federator.primaryClusterID is an optional parameter that should be used when reconciliation is expected to occur on the Primary.
-    # primaryClusterID: "cluster_id" 
+    # primaryClusterID: "cluster_id"
 
 kubecostAdmissionController:
   enabled: false
