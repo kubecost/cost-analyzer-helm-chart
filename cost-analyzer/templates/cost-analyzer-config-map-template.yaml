@@ -15,7 +15,9 @@ data:
   {{ else }}
     prometheus-alertmanager-endpoint: {{ .Values.global.notifications.alertmanager.fqdn }}
   {{- end -}}
-  {{if .Values.global.amp.enabled }}
+  {{ if .Values.global.gmp.enabled }}
+    prometheus-server-endpoint: {{ .Values.global.gmp.prometheusServerEndpoint }}
+  {{- else if .Values.global.amp.enabled }}
     prometheus-server-endpoint: {{ .Values.global.amp.prometheusServerEndpoint }}
   {{- else if .Values.global.prometheus.enabled }}
   {{- if .Values.global.zone }}

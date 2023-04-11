@@ -22,6 +22,22 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
 
+  # Google Cloud Managed Service for Prometheus
+  gmp:
+  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs. 
+  # Learn more at https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
+  # --set prometheus.server.image.repository="gke.gcr.io/prometheus-engine/prometheus" \
+  # --set prometheus.server.image.tag="v2.35.0-gmp.2-gke.0"
+    enabled: false # If true, kubecost will be configured to use GMP Prometheus image and query from Google Cloud Managed Service for Prometheus.
+    prometheusServerEndpoint: http://localhost:8085/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
+    gmpProxy:
+      enabled: false
+      image: gke.gcr.io/prometheus-engine/frontend:v0.4.1-gke.0 # GMP Prometheus proxy image that serve as an endpoint to query metrics from GMP
+      imagePullPolicy: Always
+      name: gmp-proxy
+      port: 8085
+      projectId: YOUR_PROJECT_ID # example GCP project ID
+
   # Amazon Managed Service for Prometheus
   amp:
     enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
