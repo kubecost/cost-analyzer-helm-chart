@@ -24,7 +24,8 @@ global:
 
   # Google Cloud Managed Service for Prometheus
   gmp:
-  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs. 
+  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
+  # If enabling GMP, it is highly recommended to utilize Google's distribution of Prometheus.
   # Learn more at https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
   # --set prometheus.server.image.repository="gke.gcr.io/prometheus-engine/prometheus" \
   # --set prometheus.server.image.tag="v2.35.0-gmp.2-gke.0"
