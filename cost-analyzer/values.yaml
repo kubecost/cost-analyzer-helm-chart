@@ -22,6 +22,10 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
 
+  # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent    
+  gcpstore:
+    enabled: false
+
   # Amazon Managed Service for Prometheus
   amp:
     enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
@@ -893,6 +897,11 @@ kubecostAdmissionController:
 # It is disabled by default to avoid problems in high-scale environments.
 costEventsAudit:
   enabled: false
+
+# Reporting Secret for GCP Marketplace integration.
+# The value will be replaced automatically when Kubecost is deployed following GCP MP instructions.
+# Do not change the value manually.
+reportingSecret: "kubecost-reporting-secret"
 
 # readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
