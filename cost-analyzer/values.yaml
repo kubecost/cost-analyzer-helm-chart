@@ -182,6 +182,19 @@ global:
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
 
+  # Set saved Cloud Cost report(s) accessible from /reports
+  # Ref: http://docs.kubecost.com/saved-reports
+  cloudCostReports:
+    enabled: false # If true, overwrites report parameters set through UI
+    reports:
+      - title: "Cloud Cost Report 0"
+        window: "today"
+        aggregateBy: "type"
+        accumulate: false # daily resolution
+        filters:
+          - property: "cluster"
+            value: "cluster-one"
+
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
