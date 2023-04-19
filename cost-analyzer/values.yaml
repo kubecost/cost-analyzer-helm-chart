@@ -25,6 +25,23 @@ global:
   # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent    
   gcpstore:
     enabled: false
+  
+  # Google Cloud Managed Service for Prometheus
+  gmp:
+  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
+  # If enabling GMP, it is highly recommended to utilize Google's distribution of Prometheus.
+  # Learn more at https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
+  # --set prometheus.server.image.repository="gke.gcr.io/prometheus-engine/prometheus" \
+  # --set prometheus.server.image.tag="v2.35.0-gmp.2-gke.0"
+    enabled: false # If true, kubecost will be configured to use GMP Prometheus image and query from Google Cloud Managed Service for Prometheus.
+    prometheusServerEndpoint: http://localhost:8085/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the GMP Prom proxy side car to the GMP database.
+    gmpProxy:
+      enabled: false
+      image: gke.gcr.io/prometheus-engine/frontend:v0.4.1-gke.0 # GMP Prometheus proxy image that serve as an endpoint to query metrics from GMP
+      imagePullPolicy: Always
+      name: gmp-proxy
+      port: 8085
+      projectId: YOUR_PROJECT_ID # example GCP project ID
 
   # Amazon Managed Service for Prometheus
   amp:
@@ -168,6 +185,19 @@ global:
           value: "cluster-one"
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
+
+  # Set saved Cloud Cost report(s) accessible from /reports
+  # Ref: http://docs.kubecost.com/saved-reports
+  cloudCostReports:
+    enabled: false # If true, overwrites report parameters set through UI
+    reports:
+      - title: "Cloud Cost Report 0"
+        window: "today"
+        aggregateBy: "type"
+        accumulate: false # daily resolution
+        filters:
+          - property: "cluster"
+            value: "cluster-one"
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
@@ -509,6 +539,8 @@ persistentVolume:
   enabled: true # Note that setting this to false means configurations will be wiped out on pod restart.
   # storageClass: "-" #
   # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
+  labels: {}
+  annotations: {}
 
 service:
   type: ClusterIP

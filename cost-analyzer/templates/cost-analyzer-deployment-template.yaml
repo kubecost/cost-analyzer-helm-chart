@@ -323,6 +323,29 @@ spec:
             runAsUser: 0
 {{ end }}
       containers:
+        {{- if .Values.global.gmp.enabled }}
+        - name: {{ .Values.global.gmp.gmpProxy.name }}
+          image: {{ .Values.global.gmp.gmpProxy.image }}
+          {{- if .Values.global.gmp.gmpProxy.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.global.gmp.gmpProxy.imagePullPolicy }}
+          {{- else }}
+          imagePullPolicy: Always
+          {{- end }}
+          args:
+          - "--web.listen-address=:{{ .Values.global.gmp.gmpProxy.port }}"
+          - "--query.project-id={{ .Values.global.gmp.gmpProxy.projectId }}"
+          ports:
+          - name: web
+            containerPort: {{ .Values.global.gmp.gmpProxy.port | int }}
+          readinessProbe:
+            httpGet:
+              path: /-/ready
+              port: web
+          livenessProbe:
+            httpGet:
+              path: /-/healthy
+              port: web
+        {{- end }}
         {{- if .Values.global.amp.enabled }}
         - name: sigv4proxy
           image: {{ .Values.sigV4Proxy.image }}
@@ -572,6 +595,10 @@ spec:
             {{- if .Values.assetReportConfigmapName }}
             - name: ASSET_REPORT_CONFIGMAP_NAME
               value: {{ .Values.assetReportConfigmapName }}
+            {{- end }}
+            {{- if .Values.cloudCostReportConfigmapName }}
+              - name: CLOUD_COST_REPORT_CONFIGMAP_NAME
+                value: {{ .Values.cloudCostReportConfigmapName }}
             {{- end }}
             {{- if .Values.savedReportConfigmapName }}
             - name: SAVED_REPORT_CONFIGMAP_NAME

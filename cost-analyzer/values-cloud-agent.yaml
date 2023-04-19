@@ -34,3 +34,15 @@ prometheus:
   kube-state-metrics:
     enabled: false
     disabled: true
+  extraScrapeConfigs: |
+    - job_name: kubecost-cloud-agent
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - {{ .Release.Name }}-cloud-agent
+        type: 'A'
+        port: 9005
