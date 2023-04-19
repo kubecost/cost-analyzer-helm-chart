@@ -363,12 +363,12 @@ spec:
           - name: AGENT_ENCODED_KEY
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.reportingSecret }}
+                name: {{ default "kubecost-reporting-secret" .Values.reportingSecret }}
                 key: reporting-key
           - name: AGENT_CONSUMER_ID
             valueFrom:
               secretKeyRef:
-                name: {{ .Values.reportingSecret }}
+                name: {{ default "kubecost-reporting-secret" .Values.reportingSecret }}
                 key: consumer-id
           volumeMounts:
           - name: ubbagent-config
