@@ -73,6 +73,11 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+      {{- if .Values.global.gcpstore.enabled }}
+        - name: ubbagent-config
+          configMap:
+            name: ubbagent-config
+      {{- end }}
       {{- if .Values.hosted }}
         - name: config-store
           secret:
@@ -369,6 +374,28 @@ spec:
           env:
           {{- toYaml .Values.sigV4Proxy.extraEnv | nindent 10 }}
           {{- end }}
+        {{- end }}
+        {{- if .Values.global.gcpstore.enabled }}
+        - name: ubbagent
+          image: gcr.io/kubecost1/gcp-mp/ent/cost-model/ubbagent:1.0
+          env:
+          - name: AGENT_CONFIG_FILE
+            value: "/etc/ubbagent/config.yaml"
+          - name: AGENT_LOCAL_PORT
+            value: "6080"
+          - name: AGENT_ENCODED_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ default "kubecost-reporting-secret" .Values.reportingSecret }}
+                key: reporting-key
+          - name: AGENT_CONSUMER_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ default "kubecost-reporting-secret" .Values.reportingSecret }}
+                key: consumer-id
+          volumeMounts:
+          - name: ubbagent-config
+            mountPath: /etc/ubbagent
         {{- end }}
         {{- if .Values.kubecostModel }}
         {{- if .Values.kubecostModel.openSourceOnly }}
