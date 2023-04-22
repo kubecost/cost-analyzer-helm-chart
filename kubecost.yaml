@@ -20457,7 +20457,7 @@ spec:
       serviceAccountName: kubecost-prometheus-node-exporter
       containers:
         - name: prometheus-node-exporter
-          image: "prom/node-exporter:v1.3.0"
+          image: "prom/node-exporter:v1.5.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --path.procfs=/host/proc
@@ -20532,7 +20532,7 @@ spec:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
         - name: grafana
-          image: "grafana/grafana:9.4.3"
+          image: "grafana/grafana:9.4.7"
           imagePullPolicy: IfNotPresent
           volumeMounts:
             - name: config
