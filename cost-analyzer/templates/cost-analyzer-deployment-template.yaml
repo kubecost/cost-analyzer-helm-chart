@@ -98,7 +98,7 @@ spec:
         */}}
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.global.containerSecuritycontext }}
-        - name: tmp
+        - name: var-run
           emptyDir: { }
         - name: cache
           emptyDir: { }
@@ -1102,7 +1102,7 @@ spec:
             - mountPath: /var/cache/nginx
               name: cache
             - mountPath: /var/run
-              name: tmp
+              name: var-run
             {{- end }}
             {{- if .Values.kubecostFrontend.tls }}
             {{- if .Values.kubecostFrontend.tls.enabled }}
