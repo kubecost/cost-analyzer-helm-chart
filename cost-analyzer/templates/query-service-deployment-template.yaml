@@ -1,0 +1,107 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
+{{- if gt .Values.kubecostDeployment.queryServiceReplicas 0 }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "query-service.fullname" . }}
+  namespace: {{ .Release.Name }}
+  labels:
+    {{ include "query-service.commonLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.kubecostDeployment.queryServiceReplicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: query-service
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: query-service
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: query-service
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: query-service
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ template "query-service.serviceAccountName" . }}
+      volumes:
+        - name: persistent-configs
+          emptyDir: {}
+        - name: persistent-db
+          emptyDir: {}
+        {{- $etlBackupBucketSecret := "" }}
+        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
+            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
+        {{- end }}
+        {{- if $etlBackupBucketSecret }}
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ $etlBackupBucketSecret }}
+        {{- end }}
+      initContainers:
+        - name: config-db-perms-fix
+          image: busybox
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: persistent-db
+              mountPath: /var/db
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: query-service
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
+          image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          imagePullPolicy: Always
+          args: ["query-service"]
+          ports:
+            - name: tcp-model
+              containerPort: 9003
+              protocol: TCP
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+            - name: persistent-db
+              mountPath: /var/db
+          env:
+            - name: CONFIG_PATH
+              value: /var/configs/
+            - name: DB_PATH
+              value: /var/db/
+            - name: ETL_FILE_STORE_ENABLED
+              value: "true"
+            {{- if $etlBackupBucketSecret }}
+            - name: ETL_BUCKET_CONFIG
+              value: "/var/configs/etl/object-store.yaml"
+            {{- end }}
+            - name: ETL_TO_DISK_ENABLED
+              value: "true"
+            - name: ETL_PATH_PREFIX
+              value: "/var/db"
+            - name: CLOUD_PROVIDER_API_KEY
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+{{- end }}
+{{- end }}
