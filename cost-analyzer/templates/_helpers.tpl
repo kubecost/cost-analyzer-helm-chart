@@ -5,6 +5,9 @@ Expand the name of the chart.
 {{- define "cost-analyzer.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "query-service.name" -}}
+{{- default "query-service" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -22,6 +25,10 @@ If release name contains chart name it will be used as a full name.
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{- define "query-service.fullname" -}}
+{{- printf "%s-%s" .Release.Name "query-service" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -96,6 +103,12 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+{{- define "kubecost.queryService.chartLabels" -}}
+app.kubernetes.io/name: {{ include "query-service.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
 
 
 {{/*
@@ -115,6 +128,13 @@ Create the name of the service account
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+{{- define "query-service.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Create the common labels.
@@ -126,6 +146,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app: cost-analyzer
 {{- end -}}
+{{- define "query-service.commonLabels" -}}
+{{ include "kubecost.queryService.chartLabels" . }}
+app: query-service
+{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -134,6 +158,11 @@ Create the selector labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
+{{- end -}}
+{{- define "query-service.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "query-service.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: query-service
 {{- end -}}
 
 {{/*
