@@ -899,6 +899,9 @@ networkCosts:
 ## Used for HA mode in Business & Enterprise tier
 ##
 kubecostDeployment:
+  # Instead of a kubecost-analyzer Deployment, you can set it to be a StatefulSet as for volumeClaimTemplates usage and real stateful behaviour
+  statefulSet:
+    enabled: false
   replicas: 1
   leaderFollower:
     enabled: false
