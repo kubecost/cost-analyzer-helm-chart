@@ -809,6 +809,7 @@ kubecostDeployment:
   #     maxSurge: 1
   #     maxUnavailable: 1
   #   type: RollingUpdate
+  queryServiceReplicas: 0
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
