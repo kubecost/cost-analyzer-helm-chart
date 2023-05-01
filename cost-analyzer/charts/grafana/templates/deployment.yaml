@@ -73,8 +73,8 @@ spec:
       containers:
 {{- if .Values.sidecar.dashboards.enabled }}
         - name: {{ template "grafana.name" . }}-sc-dashboard
-          image: "{{ .Values.sidecar.image }}"
-          imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
+          image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
           env:
             - name: LABEL
               value: "{{ .Values.sidecar.dashboards.label }}"
@@ -90,8 +90,8 @@ spec:
 {{- end}}
 {{- if .Values.sidecar.datasources.enabled }}
         - name: {{ template "grafana.name" . }}-sc-datasources
-          image: "{{ .Values.sidecar.image }}"
-          imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
+          image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
           env:
             - name: LABEL
               value: "{{ .Values.sidecar.datasources.label }}"
