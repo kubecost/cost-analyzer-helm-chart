@@ -294,6 +294,34 @@ spec:
                 repeat:
                   type: string
                   enum: [none, daily, weekly]
+            status:
+              type: object
+              properties:
+                state:
+                  type: string
+                lastUpdated:
+                  format: date-time
+                  type: string
+                current:
+                  type: string
+                scaleDownId:
+                  type: string
+                nextScaleDownTime:
+                  format: date-time
+                  type: string
+                scaleDownMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
+                scaleUpID:
+                  type: string
+                nextScaleUpTime:
+                  format: date-time
+                  type: string
+                scaleUpMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
       additionalPrinterColumns:
       - name: State
         type: string
