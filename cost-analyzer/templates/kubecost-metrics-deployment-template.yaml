@@ -192,7 +192,7 @@ spec:
             {{- end }}
             {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             - name: cloud-integration
-              mountPath: /var/cloud-integration
+              mountPath: /var/configs/cloud-integration
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
