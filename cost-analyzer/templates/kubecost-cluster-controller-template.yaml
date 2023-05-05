@@ -184,6 +184,9 @@ spec:
       labels:
         app: {{ template "kubecost.clusterControllerName" . }}
     spec:
+      {{- if .Values.clusterController.priorityClassName }}
+      priorityClassName: "{{ .Values.clusterController.priorityClassName }}"
+      {{- end }}
       containers:
       - name: {{ template "kubecost.clusterControllerName" . }}
         image: {{ .Values.clusterController.image }}
