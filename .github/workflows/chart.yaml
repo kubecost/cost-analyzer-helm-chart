@@ -39,7 +39,7 @@ jobs:
           echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
           echo "k8s_version=v1.23.7" >> $GITHUB_ENV
 
-      - uses: azure/setup-kubectl@v2.0
+      - uses: azure/setup-kubectl@v3.0
         with:
           version: ${{ env.k8s_version }}
 

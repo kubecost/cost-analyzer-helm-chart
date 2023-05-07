@@ -212,12 +212,8 @@ spec:
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
           value: {{ template "kubecost.clusterControllerName" . }}
-        {{- if .Values.kubecostProductConfigs }}
-        {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
-        {{- end }}
-        {{- end }}
         - name: CC_LOG_LEVEL
           value: {{ .Values.clusterController.logLevel | default "info" }}
         - name: CC_KUBESCALER_COST_MODEL_PATH
@@ -298,6 +294,34 @@ spec:
                 repeat:
                   type: string
                   enum: [none, daily, weekly]
+            status:
+              type: object
+              properties:
+                state:
+                  type: string
+                lastUpdated:
+                  format: date-time
+                  type: string
+                current:
+                  type: string
+                scaleDownId:
+                  type: string
+                nextScaleDownTime:
+                  format: date-time
+                  type: string
+                scaleDownMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
+                scaleUpID:
+                  type: string
+                nextScaleUpTime:
+                  format: date-time
+                  type: string
+                scaleUpMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
       additionalPrinterColumns:
       - name: State
         type: string

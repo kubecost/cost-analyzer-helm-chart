@@ -1,12 +1,22 @@
 # Kubecost running as an Agent is designed for external hosting. The current setup deploys a
 # kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter.
+networkCosts:
+  enabled: false
+  # config:
+  #   services:
+  #     amazon-web-services: true
+  #     google-cloud-services: true
+  #     azure-cloud-services: true
+
+
 global:
   thanos:
     enabled: false
   grafana:
     enabled: false
     proxy: false
-
+agentCsi:
+  enabled: false
 # Agent enables specific features designed to enhance the metrics exporter deployment
 # with enhancements designed for external hosting.
 agent: true
@@ -17,6 +27,7 @@ agentCsi:
     name: kubecost-agent-object-store-secretprovider
     provider:
     parameters: {}
+
 
 # No Grafana configuration is required.
 grafana:
@@ -33,13 +44,34 @@ kubecostMetrics:
     exportClusterInfo: true
     exportClusterCache: true
 
-# Prometheus defaults to low rentention (10h), disables KSM, and attaches a thanos-sidecar
+# Prometheus defaults to low retention (10h), disables KSM, and attaches a thanos-sidecar
 # for exporting metrics.
 prometheus:
+  nodeExporter:
+    enabled: false
   kube-state-metrics:
     enabled: false
     disabled: true
-
+  extraScrapeConfigs: |
+    - job_name: kubecost-agent
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - kubecost-agent-agent
+        type: 'A'
+        port: 9005
+    - job_name: kubecost-networking
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
     extraArgs:
       storage.tsdb.min-block-duration: 2h
@@ -56,7 +88,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.22.0
+      image: thanosio/thanos:v0.29.0
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001

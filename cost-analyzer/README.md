@@ -26,6 +26,7 @@ Parameter | Description | Default
 `persistentVolume.dbSize` | Define PVC size for cost-analyzer's flat file database  | `32.0Gi`
 `ingress.enabled` | If true, Ingress will be created | `false`
 `ingress.annotations` | Ingress annotations | `{}`
+`ingress.className` | Ingress class name | `{}`
 `ingress.paths` | Ingress paths | `["/"]`
 `ingress.hosts` | Ingress hostnames | `[cost-analyzer.local]`
 `ingress.tls` | Ingress TLS configuration (YAML) | `[]`

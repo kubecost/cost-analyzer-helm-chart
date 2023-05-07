@@ -39,6 +39,11 @@ If applicable, add screenshots to help explain your problem.
 - Run `kubectl logs <kubecost-cost-analyzer pod name> -n kubecost -c cost-model` and paste the output here:
 - Run `kubectl logs <kubecost-cost-analyzer pod name> -n kubecost -c cost-analyzer-frontend` and paste the output here:
 
+**Please share the support case, if any**  
+This is most commonly a Zendesk ticket number or link.
+
+**What impact will this have on your ability to get value out of Kubecost?**
+
 ---
 # For feature requests, please provide the following:
 
@@ -51,4 +56,9 @@ A clear and concise description of what you want to happen.
 **Describe alternatives you've considered**  
 A clear and concise description of any alternative solutions or features you've considered.
 
+**Please share the support case, if any**  
+This is most commonly a Zendesk ticket number or link.
+
 **How would users interact with this feature?**
+
+**What impact will this have on your ability to get value out of Kubecost?**

@@ -43,7 +43,7 @@ alertmanager:
   ##
   image:
     repository: quay.io/prometheus/alertmanager
-    tag: v0.23.0
+    tag: v0.25.0
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -406,6 +406,10 @@ nodeExporter:
   ##
   hostPID: true
 
+  ## node-exporter dns policy
+  ##
+  dnsPolicy: ClusterFirstWithHostNet
+
   ## node-exporter container name
   ##
   name: node-exporter
@@ -414,7 +418,7 @@ nodeExporter:
   ##
   image:
     repository: prom/node-exporter
-    tag: v1.3.0
+    tag: v1.5.0
     pullPolicy: IfNotPresent
 
   ## Specify if a Pod Security Policy for node-exporter must be created
@@ -922,7 +926,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.4.2
+    tag: v1.5.1
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
@@ -1289,7 +1293,7 @@ serverFiles:
             regex: true
           - source_labels: [__meta_kubernetes_endpoints_name]
             action: keep
-            regex: (kubecost-kube-state-metrics|kubecost-prometheus-node-exporter|kubecost-network-costs)
+            regex: (.*kube-state-metrics|.*prometheus-node-exporter|kubecost-network-costs)
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
             action: replace
             target_label: __scheme__

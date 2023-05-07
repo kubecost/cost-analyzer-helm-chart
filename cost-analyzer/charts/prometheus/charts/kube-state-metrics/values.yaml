@@ -1,7 +1,7 @@
 # Default values for kube-state-metrics.
 prometheusScrape: true
 image:
-  repository: k8s.gcr.io/kube-state-metrics/kube-state-metrics
+  repository: registry.k8s.io/kube-state-metrics/kube-state-metrics
   tag: v1.9.8
   pullPolicy: IfNotPresent
 
@@ -89,14 +89,14 @@ podAnnotations: {}
 # Available collectors for kube-state-metrics. By default all available
 # collectors are enabled.
 collectors:
-  certificatesigningrequests: true
+  certificatesigningrequests: false
   configmaps: true
   cronjobs: true
   daemonsets: true
   deployments: true
   endpoints: true
   horizontalpodautoscalers: true
-  ingresses: true
+  ingresses: false
   jobs: true
   limitranges: true
   mutatingwebhookconfigurations: false
