@@ -165,6 +165,14 @@ subjects:
     name: {{ template "kubecost.clusterControllerName" . }}
     namespace: {{ .Release.Namespace }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-turndown-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -237,6 +245,9 @@ spec:
           # partially or fully initialize based on the presence of these keys
           # and their validity.
           optional: true
+      - name: cluster-controller-turndown-conf
+        configMap:
+          name: cluster-controller-turndown-conf
 ---
 apiVersion: v1
 kind: Service
