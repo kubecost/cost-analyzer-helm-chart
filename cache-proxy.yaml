@@ -19,7 +19,7 @@ data:
             proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
             proxy_ignore_headers Set-Cookie;
             proxy_cache big_cache;
-            proxy_cache_valid 6h;
+            proxy_cache_valid 1h;
             proxy_cache_methods GET POST;
             proxy_pass http://kubecost-cost-analyzer:9090/;
         }
@@ -46,7 +46,7 @@ spec:
         image: nginxinc/nginx-unprivileged
         imagePullPolicy: IfNotPresent
         ports:
-        - name: kubecost-cache-proxy
+        - name: cache-proxy
           containerPort: 9090
           protocol: TCP
         resources: {}
@@ -68,7 +68,7 @@ metadata:
   name: kubecost-cache-proxy
 spec:
   ports:
-    - name: kubecost-cache-proxy
+    - name: cache-proxy
       protocol: TCP
       port: 9090
       targetPort: 9090
