@@ -245,9 +245,6 @@ spec:
           # partially or fully initialize based on the presence of these keys
           # and their validity.
           optional: true
-      - name: cluster-controller-turndown-conf
-        configMap:
-          name: cluster-controller-turndown-conf
 ---
 apiVersion: v1
 kind: Service
