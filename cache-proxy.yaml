@@ -10,8 +10,13 @@ data:
     gzip_static  on;
     gzip on;
     gzip_min_length 50000;
+    log_format  jsonlog escape=json
+        '   {\"bytes_sent\":\"$bytes_sent\",\"date_gmt\":\"$date_gmt\",\"host\":\"$host\",\"query_string\":\"$query_string\",\"request_time\":\"$request_time\",\"request_uri\":\"$request_uri\",\"upstream_cache_status\":\"$upstream_cache_status\",\"uri\":\"$uri\"}';
 
     server {
+        listen       9090;
+        # error_log /tmp/error.log notice;
+        access_log  /dev/stdout  jsonlog;
         listen       9090;
         # cache everything
         location / {
@@ -21,6 +26,7 @@ data:
             proxy_cache big_cache;
             proxy_cache_valid 1h;
             proxy_cache_methods GET POST;
+            # below must match service name of kubecost
             proxy_pass http://kubecost-cost-analyzer:9090/;
         }
     }
