@@ -17,7 +17,6 @@ data:
         listen       9090;
         # error_log /tmp/error.log notice;
         access_log  /dev/stdout  jsonlog;
-        listen       9090;
         # cache everything
         location / {
             proxy_buffering on;
