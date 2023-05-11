@@ -165,6 +165,14 @@ subjects:
     name: {{ template "kubecost.clusterControllerName" . }}
     namespace: {{ .Release.Namespace }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-continuous-cluster-sizing
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
