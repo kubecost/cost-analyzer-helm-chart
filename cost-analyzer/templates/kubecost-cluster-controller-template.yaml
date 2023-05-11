@@ -168,7 +168,7 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster-controller-turndown-config
+  name: cluster-controller-nsturndown-config
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
