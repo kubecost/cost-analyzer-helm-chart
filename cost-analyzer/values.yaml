@@ -361,10 +361,8 @@ kubecostMetrics:
     serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
-      networkCosts:
-        enabled: false
-        scrapeTimeout: 10s
-        additionalLabels: {}
+      metricRelabelings: []
+      relabelings: []
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
     priorityClassName: ""
@@ -847,10 +845,14 @@ reporting:
 serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
   additionalLabels: {}
+  metricRelabelings: []
+  relabelings: []
   networkCosts:
     enabled: false
     scrapeTimeout: 10s
     additionalLabels: {}
+    metricRelabelings: []
+    relabelings: []
 
 prometheusRule:
   enabled: false
