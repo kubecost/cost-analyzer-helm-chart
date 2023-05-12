@@ -367,7 +367,7 @@ kubecostMetrics:
         additionalLabels: {}
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-    priorityClassName: []
+    priorityClassName: ""
     additionalLabels: {}
     nodeSelector: {}
     extraArgs: []
@@ -558,6 +558,9 @@ remoteWrite:
     initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally
+    ## PriorityClassName
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+    priorityClassName: ""
     persistentVolume:
       size: 200Gi
     auth:
@@ -790,7 +793,7 @@ networkCosts:
 
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-  priorityClassName: []
+  priorityClassName: ""
   ## PodMonitor
   ## Allows scraping of network metrics from a dedicated prometheus operator setup
   podMonitor:
@@ -818,6 +821,9 @@ clusterController:
   enabled: false
   image: gcr.io/kubecost1/cluster-controller:v0.7.0
   imagePullPolicy: Always
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.
@@ -859,7 +865,6 @@ initChownData:
     #  cpu: "50m"
     #  memory: "20Mi"
 
-
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
@@ -900,6 +905,9 @@ serviceAccount:
 awsstore:
   useAwsStore: false
   createServiceAccount: false
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
 
 federatedETL:
   # federatedCluster indicates whether this cluster should push data to the Federated store

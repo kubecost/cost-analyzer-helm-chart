@@ -277,3 +277,7 @@ sidecar:
     enabled: false
     # label that the configmaps with datasources are marked with
     label: grafana_datasource
+
+## PriorityClassName
+## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+priorityClassName: ""
