@@ -333,7 +333,6 @@ configmapReload:
     ##
     extraVolumeDirs: []
 
-
     ## Additional configmap-reload mounts
     ##
     extraConfigmapMounts: []
@@ -343,11 +342,14 @@ configmapReload:
       #   configMap: prometheus-alerts
       #   readOnly: true
 
-
     ## configmap-reload resource requests and limits
     ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
     ##
     resources: {}
+
+    ## configmap-reload container securityContext
+    containerSecurityContext: {}
+
   alertmanager:
     ## If false, the configmap-reload container will not be deployed
     ##
@@ -870,6 +872,8 @@ server:
     runAsNonRoot: true
     runAsGroup: 1001
     fsGroup: 1001
+
+  containerSecurityContext: {}
 
   service:
     annotations: {}
