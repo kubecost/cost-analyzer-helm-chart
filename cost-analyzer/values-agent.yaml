@@ -7,8 +7,9 @@ networkCosts:
   #     amazon-web-services: true
   #     google-cloud-services: true
   #     azure-cloud-services: true
-
-
+# Network Costs PSP
+  podSecurityPolicy:
+    enabled: false
 global:
   thanos:
     enabled: false
@@ -18,6 +19,15 @@ global:
 # Agent enables specific features designed to enhance the metrics exporter deployment
 # with enhancements designed for external hosting.
 agent: true
+podSecurityPolicy:
+    enabled: false
+prometheus:
+  podSecurityPolicy:
+    enabled: false
+grafana:
+  rbac:
+    pspEnabled: false
+
 # agentKeySecretName: kubecost-agent-object-store
 agentCsi:
   enabled: false
