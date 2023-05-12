@@ -65,6 +65,16 @@ rules:
       - ''
     resources:
       - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
       - namespaces
       - persistentvolumeclaims
       - persistentvolumes
@@ -168,6 +178,14 @@ subjects:
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  name: cluster-controller-continuous-cluster-sizing
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
   name: cluster-controller-nsturndown-config
   namespace: {{ .Release.Namespace }}
   labels:
@@ -225,6 +243,8 @@ spec:
         - name: CC_LOG_LEVEL
           value: {{ .Values.clusterController.logLevel | default "info" }}
         - name: CC_KUBESCALER_COST_MODEL_PATH
+          value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
+        - name: CC_CCL_COST_MODEL_PATH
           value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
         {{- if .Values.clusterController.kubescaler }}
         - name: CC_KUBESCALER_DEFAULT_RESIZE_ALL
