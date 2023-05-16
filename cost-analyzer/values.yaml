@@ -294,7 +294,11 @@ systemProxy:
 # - name: "image-pull-secret"
 
 cacheProxy:
+# This caching proxy is considered alpha.
+# Benefit: It should dramatically increase performance for commonly used queries
+# Consideration: data will be cached for the configured cacheDuration, keep this in mind when querying for newly deployed workloads
   enabled: false
+  cacheDuration: 1h
   resources:
     requests:
       cpu: "10m"

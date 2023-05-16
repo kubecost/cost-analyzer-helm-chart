@@ -36,7 +36,7 @@ data:
                 proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
                 proxy_ignore_headers Set-Cookie;
                 proxy_cache big_cache;
-                proxy_cache_valid 1h;
+                proxy_cache_valid {{ .Values.cacheProxy.cacheDuration }};
                 proxy_cache_methods GET POST;
                 # below must match service name of kubecost
                 proxy_pass http://kubecost-frontend/;
