@@ -22,10 +22,10 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
 
-  # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent    
+  # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent
   gcpstore:
     enabled: false
-  
+
   # Google Cloud Managed Service for Prometheus
   gmp:
   # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
@@ -293,6 +293,12 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
+cacheProxy:
+  enabled: false
+  resources:
+    requests:
+      cpu: "10m"
+      memory: "55Mi"
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always

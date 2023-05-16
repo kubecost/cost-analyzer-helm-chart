@@ -1,0 +1,26 @@
+{{- if .Values.cacheProxy.enabled }}
+{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
+{{- $servicePort := .Values.service.port | default 9090 -}}
+kind: Service
+apiVersion: v1
+metadata:
+  name: nginx-cache-proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
+{{- end }}
+{{- if .Values.service.annotations }}
+  annotations:
+{{ toYaml .Values.service.annotations | indent 4 }}
+a{{- end }}
+spec:
+  selector:
+    app.kubernetes.io/name: nginx-cache-proxy
+  type: ClusterIP
+  ports:
+    - name: tcp-cache-proxy
+      port: {{ $nginxPort }}
+      targetPort: {{ $nginxPort }}
+{{- end }}

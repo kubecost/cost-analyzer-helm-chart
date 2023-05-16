@@ -1,0 +1,41 @@
+{{- if .Values.cacheProxy.enabled }}
+{{- $nginxPort := int .Values.service.port | default 9090 -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubecost-nginx-cache-proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: nginx-cache-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+        app.kubernetes.io/name: nginx-cache-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: nginx-cache-proxy
+    spec:
+      containers:
+      - name: kubecost-cache-proxy
+        image: nginxinc/nginx-unprivileged
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: cache-proxy
+          containerPort: {{ $nginxPort }}
+          protocol: TCP
+        resources:
+{{ toYaml .Values.cacheProxy.resources | indent 12 }}
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: nginx-cache-proxy
+          readOnly: true
+      volumes:
+      - name: nginx-cache-proxy
+        configMap:
+          name: nginx-cache-proxy
+          items:
+          - key: default.conf
+            path: default.conf
+{{- end }}
