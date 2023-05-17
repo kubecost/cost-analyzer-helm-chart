@@ -35,7 +35,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ""
+      - ''
       - events.k8s.io
     resources:
       - events
@@ -85,6 +85,16 @@ rules:
       - get 
       - list
       - watch
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+    resourceNames:
+      - 'cluster-controller-nsturndown-config'
+    verbs:
+      - get
+      - create
+      - update
   - apiGroups:
       - extensions
     resources:
