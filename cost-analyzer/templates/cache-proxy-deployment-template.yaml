@@ -19,8 +19,8 @@ spec:
     spec:
       containers:
       - name: kubecost-cache-proxy
-        image: nginxinc/nginx-unprivileged
-        imagePullPolicy: IfNotPresent
+        image: {{ .Values.cacheProxy.image }}
+        imagePullPolicy: {{ .Values.cacheProxy.imagePullPolicy }}
         ports:
         - name: cache-proxy
           containerPort: {{ $nginxPort }}

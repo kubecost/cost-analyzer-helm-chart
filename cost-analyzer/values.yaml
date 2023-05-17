@@ -300,6 +300,8 @@ cacheProxy:
 # Note that savings calculations may not match depending on when they were cached
   enabled: false
   cacheDuration: 1h
+  image: nginxinc/nginx-unprivileged
+  imagePullPolicy: IfNotPresent
   targetPort: 9090
   resources:
     requests:
