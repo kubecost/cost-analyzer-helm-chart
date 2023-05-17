@@ -56,15 +56,16 @@ global:
       # profile: PROFILE # AWS profile
 
   # Mimir Proxy to help Kubecost to query metrics from multi-tenant Grafana Mimir.
-  # Set `global.mimirProxy.enabled=true` to enable Mimir Proxy. 
-  # You also need to set `global.prometheus.fqdn=https://localhost:8085/`
+  # Set `global.mimirProxy.enabled=true` and `global.prometheus.enabled=false` to enable Mimir Proxy. 
+  # You also need to set `global.prometheus.fqdn=http://kubecost-cost-analyzer-mimir-proxy.kubecost.svc:8085/prometheus` 
+  # or `global.prometheus.fqdn=http://{{ template "cost-analyzer.fullname" . }}-mimir-proxy.{{ .Release.Namespace }}.svc:8085/prometheus'
   # Learn more at https://grafana.com/docs/mimir/latest/operators-guide/secure/authentication-and-authorization/#without-an-authenticating-reverse-proxy
   mimirProxy:
     enabled: false
     name: mimir-proxy
     image: nginxinc/nginx-unprivileged
     port: 8085
-    mimirEndpoint: $mimir_endpoint #Your Mimir query endpoint
+    mimirEndpoint: $mimir_endpoint #Your Mimir query endpoint. If your Mimir query endpoint is http://example.com/prometheus, replace $mimir_endpoint with http://example.com/
     orgIdentifier: $your_tenant_ID #Your Grafana Mimir tenant ID
 
 
