@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: nginx-cache-proxy
+  name: {{ template "cache-proxy.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
@@ -24,7 +24,7 @@ data:
         }
 
         server {
-            listen       {{ $nginxPort }};
+            listen      {{ $nginxPort }};
 {{- if .Values.kubecostFrontend.ipv6.enabled }}
             listen [::]:{{ $nginxPort }};
 {{- end }}

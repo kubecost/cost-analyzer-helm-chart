@@ -297,12 +297,23 @@ cacheProxy:
 # This caching proxy is considered alpha.
 # Benefit: It should dramatically increase performance for commonly used queries
 # Consideration: data will be cached for the configured cacheDuration, keep this in mind when querying for newly deployed workloads
+# Note that savings calculations may not match depending on when they were cached
   enabled: false
   cacheDuration: 1h
+  targetPort: 9090
   resources:
     requests:
       cpu: "10m"
       memory: "55Mi"
+  ingress:
+    enabled: false
+    ingressClassName: nginx
+    labels:
+    annotations:
+      # cert-manager.io/cluster-issuer: letsencrypt-http # also set tls: true
+    hostname: kubecost.cache.proxy
+    tls: false
+
 kubecostFrontend:
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always

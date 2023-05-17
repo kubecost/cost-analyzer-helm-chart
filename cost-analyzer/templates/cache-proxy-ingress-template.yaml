@@ -1,0 +1,39 @@
+{{- if .Values.cacheProxy.enabled }}
+{{- if .Values.cacheProxy.ingress.enabled -}}
+{{- $nginxPort := .Values.cacheProxy.targetPort | default 9090 -}}
+{{- $hostname := .Values.cacheProxy.ingress.hostname  -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ template "cache-proxy.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.cacheProxy.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.cacheProxy.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.cacheProxy.ingress.ingressClassName | quote }}
+  {{- if .Values.cacheProxy.ingress.tls }}
+  tls:
+  - hosts:
+    - {{ $hostname }}
+    secretName: {{ template "cache-proxy.fullname" . }}-tls
+  {{- end }}
+  rules:
+  - host: {{ $hostname }}
+    http:
+      paths:
+      - path: /
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: {{ template "cache-proxy.fullname" . }}
+            port:
+              number: {{ $nginxPort }}
+{{- end }}
+{{- end }}
