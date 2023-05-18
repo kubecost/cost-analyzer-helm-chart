@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
 {{ include "query-service.selectorLabels" . | nindent 4 }}
-  type: "LoadBalancer"
+  type: "ClusterIP"
   ports:
     - name: tcp-query-service
       port: 9003
