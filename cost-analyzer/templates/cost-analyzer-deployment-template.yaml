@@ -857,7 +857,7 @@ spec:
             {{- end }}
             {{- with .Values.kubecostModel.cloudCost }}
             - name: CLOUD_COST_ENABLED
-              value: {{ (quote .enabled) | default (quote false) }}
+              value: {{ (quote .enabled) | default (quote true) }}
             {{- with .labelList }}
             - name: CLOUD_COST_IS_INCLUDE_LIST
               value: {{ (quote .IsIncludeList) | default (quote false) }}
