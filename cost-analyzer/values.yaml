@@ -297,7 +297,8 @@ cacheProxy:
 # This caching proxy is considered alpha.
 # Benefit: It should dramatically increase performance for commonly used queries
 # Consideration: data will be cached for the configured cacheDuration, keep this in mind when querying for newly deployed workloads
-# Note that savings calculations may not match depending on when they were cached
+# Note that short-term costs (<1h) and savings calculations may not match exactly depending on when they were cached
+# monitor pod logs: kubectl logs -l app.kubernetes.io/name=kubecost-cache-proxy --tail -1  |grep upstream_cache_status | grep -E 'static|savings|assets|allocation'|jq -r "[.upstream_cache_status,.request_time,.uri,.args]|@tsv"
   enabled: false
   cacheDuration: 1h
   image: nginxinc/nginx-unprivileged
@@ -384,13 +385,11 @@ kubecostMetrics:
     serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
-      networkCosts:
-        enabled: false
-        scrapeTimeout: 10s
-        additionalLabels: {}
+      metricRelabelings: []
+      relabelings: []
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-    priorityClassName: []
+    priorityClassName: ""
     additionalLabels: {}
     nodeSelector: {}
     extraArgs: []
@@ -546,7 +545,7 @@ networkPolicy:
     #     - namespaceSelector: {}
 
 podSecurityPolicy:
-  enabled: true
+  enabled: false
 
 ## @param extraVolumes A list of volumes to be added to the pod
 ##
@@ -581,12 +580,17 @@ remoteWrite:
     initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally
+    ## PriorityClassName
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+    priorityClassName: ""
     persistentVolume:
       size: 200Gi
     auth:
       password: admin # change me
 
 prometheus:
+  podSecurityPolicy:
+    enabled: false
   extraScrapeConfigs: |
     - job_name: kubecost
       honor_labels: true
@@ -811,7 +815,7 @@ networkCosts:
 
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-  priorityClassName: []
+  priorityClassName: ""
   ## PodMonitor
   ## Allows scraping of network metrics from a dedicated prometheus operator setup
   podMonitor:
@@ -837,8 +841,11 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.7.0
+  image: gcr.io/kubecost1/cluster-controller:v0.8.0
   imagePullPolicy: Always
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.
@@ -862,10 +869,14 @@ reporting:
 serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
   additionalLabels: {}
+  metricRelabelings: []
+  relabelings: []
   networkCosts:
     enabled: false
     scrapeTimeout: 10s
     additionalLabels: {}
+    metricRelabelings: []
+    relabelings: []
 
 prometheusRule:
   enabled: false
@@ -880,13 +891,12 @@ initChownData:
     #  cpu: "50m"
     #  memory: "20Mi"
 
-
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
   rbac:
     # Manage the Grafana Pod Security Policy
-    pspEnabled: true
+    pspEnabled: false
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -921,6 +931,9 @@ serviceAccount:
 awsstore:
   useAwsStore: false
   createServiceAccount: false
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
 
 federatedETL:
   # federatedCluster indicates whether this cluster should push data to the Federated store

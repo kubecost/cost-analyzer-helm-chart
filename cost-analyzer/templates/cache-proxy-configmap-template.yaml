@@ -17,7 +17,7 @@ data:
         gzip on;
         gzip_min_length 50000;
         log_format  jsonlog escape=json
-            '   {\"bytes_sent\":\"$bytes_sent\",\"date_gmt\":\"$date_gmt\",\"host\":\"$host\",\"query_string\":\"$query_string\",\"request_time\":\"$request_time\",\"request_uri\":\"$request_uri\",\"upstream_cache_status\":\"$upstream_cache_status\",\"uri\":\"$uri\"}';
+            '   {\"upstream_cache_status\":\"$upstream_cache_status\",\"bytes_sent\":\"$bytes_sent\",\"date_gmt\":\"$date_gmt\",\"host\":\"$host\",\"query_string\":\"$query_string\",\"args\":\"$args\",\"request_time\":\"$request_time\",\"request_uri\":\"$request_uri\",\"uri\":\"$uri\"}';
 
         upstream kubecost-frontend {
             server {{ $serviceName }}.{{ .Release.Namespace }}:{{ $nginxPort }};
@@ -30,16 +30,52 @@ data:
 {{- end }}
             # error_log /tmp/error.log notice;
             access_log  /dev/stdout  jsonlog;
-            # cache everything
+            # do not cache unless matching specific location block below
             location / {
+                proxy_pass http://kubecost-frontend;
+                add_header X-Cache-Status $upstream_cache_status;
+            }
+
+            location /model/allocation {
                 proxy_buffering on;
                 proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
                 proxy_ignore_headers Set-Cookie;
                 proxy_cache big_cache;
-                proxy_cache_valid {{ .Values.cacheProxy.cacheDuration }};
-                proxy_cache_methods GET POST;
-                # below must match service name of kubecost
-                proxy_pass http://kubecost-frontend/;
+                proxy_cache_valid any {{ .Values.cacheProxy.cacheDuration }};
+                proxy_cache_methods HEAD GET POST;
+                proxy_pass http://kubecost-frontend;
+                add_header X-Cache-Status $upstream_cache_status;
+            }
+
+            location /model/assets {
+                proxy_buffering on;
+                proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
+                proxy_ignore_headers Set-Cookie;
+                proxy_cache big_cache;
+                proxy_cache_valid any {{ .Values.cacheProxy.cacheDuration }};
+                proxy_cache_methods HEAD GET POST;
+                proxy_pass http://kubecost-frontend;
+                add_header X-Cache-Status $upstream_cache_status;
+            }
+            location /model/savings {
+                proxy_buffering on;
+                proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
+                proxy_ignore_headers Set-Cookie;
+                proxy_cache big_cache;
+                proxy_cache_valid any {{ .Values.cacheProxy.cacheDuration }};
+                proxy_cache_methods HEAD GET POST;
+                proxy_pass http://kubecost-frontend;
+                add_header X-Cache-Status $upstream_cache_status;
+            }
+            location /static {
+                proxy_buffering on;
+                proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
+                proxy_ignore_headers Set-Cookie;
+                proxy_cache big_cache;
+                proxy_cache_valid any {{ .Values.cacheProxy.cacheDuration }};
+                proxy_cache_methods HEAD GET POST;
+                proxy_pass http://kubecost-frontend;
+                add_header X-Cache-Status $upstream_cache_status;
             }
         }
 {{- end }}

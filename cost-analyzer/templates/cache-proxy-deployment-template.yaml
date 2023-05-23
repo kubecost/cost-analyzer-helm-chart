@@ -7,11 +7,12 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app.kubernetes.io/name: kubecost-cache-proxy
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-        app.kubernetes.io/name: kubecost-cache-proxy
+      app.kubernetes.io/name: kubecost-cache-proxy
   template:
     metadata:
       labels:
@@ -25,8 +26,10 @@ spec:
         - name: cache-proxy
           containerPort: {{ $nginxPort }}
           protocol: TCP
+        {{- if .Values.cacheProxy.resources }}
         resources:
-{{ toYaml .Values.cacheProxy.resources | indent 12 }}
+        {{- toYaml .Values.cacheProxy.resources | nindent 12 }}
+        {{- end }}
         volumeMounts:
         - mountPath: /etc/nginx/conf.d
           name: kubecost-cache-proxy
