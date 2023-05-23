@@ -170,63 +170,17 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
-      - ''
-    resources:
-      - namespaces
+  # Used for namespace turndown 
+  # When cleaning a namespace, we need the ability to remove
+  # arbitrary resources (since we helm uninstall all releases in that NS first)
+  {{- if .Values.clusterController.namespaceTurndown.rbac.enabled }}
+  - apiGroups: ["*"]
+    resources: ["*"]
     verbs:
       - list
+      - get
       - delete
-  - apiGroups:
-      - ''
-    resources:
-      - secrets
-    verbs:
-      - list
-      - delete
-      - update
-  - apiGroups:
-      - ''
-    resources:
-      - serviceaccounts
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - persistentvolumeclaims
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - clusterroles
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - clusterrolebindings
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - roles
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - rolebindings
-    verbs:
-      - delete
-  - apiGroups:
-      - ''
-    resources:
-      - services
-    verbs:
-      - delete
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
