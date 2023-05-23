@@ -60,6 +60,10 @@ spec:
           {{- end }}
           resources:
 {{ toYaml .Values.configmapReload.prometheus.resources | indent 12 }}
+          {{- with .Values.configmapReload.prometheus.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- if .Values.selfsignedCertConfigMapName }}
             - name: {{ .Values.selfsignedCertConfigMapName }}
@@ -123,6 +127,10 @@ spec:
             successThreshold: {{ .Values.server.livenessProbeSuccessThreshold }}
           resources:
 {{ toYaml .Values.server.resources | indent 12 }}
+          {{- with .Values.server.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config

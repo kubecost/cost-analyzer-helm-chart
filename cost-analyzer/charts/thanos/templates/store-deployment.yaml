@@ -46,6 +46,9 @@ spec:
       imagePullSecrets:
        {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
+    {{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
+    {{- end }}
       containers:
       - name: thanos-store
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

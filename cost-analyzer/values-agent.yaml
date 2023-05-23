@@ -15,8 +15,6 @@ global:
   grafana:
     enabled: false
     proxy: false
-agentCsi:
-  enabled: false
 # Agent enables specific features designed to enhance the metrics exporter deployment
 # with enhancements designed for external hosting.
 agent: true
@@ -27,6 +25,7 @@ agentCsi:
     name: kubecost-agent-object-store-secretprovider
     provider:
     parameters: {}
+    secretObjects: {}
 
 
 # No Grafana configuration is required.

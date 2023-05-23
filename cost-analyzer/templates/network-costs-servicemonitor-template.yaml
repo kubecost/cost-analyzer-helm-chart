@@ -17,6 +17,12 @@ spec:
       scrapeTimeout: {{ .Values.serviceMonitor.networkCosts.scrapeTimeout }}
       path: /metrics
       scheme: http
+      {{- with .Values.serviceMonitor.networkCosts.metricRelabelings }}
+      metricRelabelings: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.serviceMonitor.networkCosts.relabelings }}
+      relabelings: {{ toYaml . | nindent 8 }}
+      {{- end }}
   namespaceSelector:
     matchNames:
       - {{ .Release.Namespace }}

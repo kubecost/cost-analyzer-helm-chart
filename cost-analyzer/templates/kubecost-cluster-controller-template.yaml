@@ -35,7 +35,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ""
+      - ''
       - events.k8s.io
     resources:
       - events
@@ -65,6 +65,16 @@ rules:
       - ''
     resources:
       - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
       - namespaces
       - persistentvolumeclaims
       - persistentvolumes
@@ -75,6 +85,16 @@ rules:
       - get 
       - list
       - watch
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+    resourceNames:
+      - 'cluster-controller-nsturndown-config'
+    verbs:
+      - get
+      - create
+      - update
   - apiGroups:
       - extensions
     resources:
@@ -165,6 +185,22 @@ subjects:
     name: {{ template "kubecost.clusterControllerName" . }}
     namespace: {{ .Release.Namespace }}
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-continuous-cluster-sizing
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-nsturndown-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -186,6 +222,9 @@ spec:
       labels:
         app: {{ template "kubecost.clusterControllerName" . }}
     spec:
+      {{- if .Values.clusterController.priorityClassName }}
+      priorityClassName: "{{ .Values.clusterController.priorityClassName }}"
+      {{- end }}
       containers:
       - name: {{ template "kubecost.clusterControllerName" . }}
         image: {{ .Values.clusterController.image }}
@@ -217,6 +256,8 @@ spec:
         - name: CC_LOG_LEVEL
           value: {{ .Values.clusterController.logLevel | default "info" }}
         - name: CC_KUBESCALER_COST_MODEL_PATH
+          value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
+        - name: CC_CCL_COST_MODEL_PATH
           value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
         {{- if .Values.clusterController.kubescaler }}
         - name: CC_KUBESCALER_DEFAULT_RESIZE_ALL

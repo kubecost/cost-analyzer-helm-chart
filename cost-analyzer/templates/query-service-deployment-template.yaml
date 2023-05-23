@@ -1,10 +1,10 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
-{{- if gt .Values.kubecostDeployment.queryServiceReplicas 0 }}
+{{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "query-service.fullname" . }}
-  namespace: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "query-service.commonLabels" . | nindent 4 }}
 spec:

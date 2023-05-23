@@ -440,6 +440,16 @@ kubecostModel:
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
+  ## Feature to view your out-of-cluster costs and their k8s utilization
+  ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
+  cloudCost:
+    enabled: false
+    labelList:
+      IsIncludeList: false
+      # format labels as comma separated string (ex. "label1,label2,label3")
+      labels: ""
+    topNItems: 1000
+
   allocation:
     # Enables or disables adding node labels to allocation data (i.e. workloads).
     # Defaults to "true" and starts with a sensible includeList for basics like
@@ -841,7 +851,7 @@ kubecostDeployment:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.8.0
+  image: gcr.io/kubecost1/cluster-controller:v0.9.0
   imagePullPolicy: Always
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
