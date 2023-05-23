@@ -71,6 +71,7 @@ rules:
       - watch
       - update
       - patch
+      - delete
   - apiGroups:
       - ''
     resources:
@@ -169,6 +170,63 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - ''
+    resources:
+      - namespaces
+    verbs:
+      - list
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - list
+      - delete
+      - update
+  - apiGroups:
+      - ''
+    resources:
+      - serviceaccounts
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - persistentvolumeclaims
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - clusterroles
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - clusterrolebindings
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - roles
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - rolebindings
+    verbs:
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - services
+    verbs:
+      - delete
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
