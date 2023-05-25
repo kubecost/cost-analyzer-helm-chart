@@ -34,6 +34,14 @@ data:
             location / {
                 proxy_pass http://kubecost-frontend;
                 add_header X-Cache-Status $upstream_cache_status;
+                {{- if .Values.cacheProxy.cacheAll }}
+                proxy_buffering on;
+                proxy_ignore_headers Expires Cache-Control X-Accel-Expires;
+                proxy_ignore_headers Set-Cookie;
+                proxy_cache big_cache;
+                proxy_cache_valid any {{ .Values.cacheProxy.cacheDuration }};
+                proxy_cache_methods HEAD GET POST;
+                {{- end }}
             }
 
             location /model/allocation {

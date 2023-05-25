@@ -300,6 +300,7 @@ cacheProxy:
 # Note that short-term costs (<1h) and savings calculations may not match exactly depending on when they were cached
 # monitor pod logs: kubectl logs -l app.kubernetes.io/name=kubecost-cache-proxy --tail -1  |grep upstream_cache_status | grep -E 'static|savings|assets|allocation'|jq -r "[.upstream_cache_status,.request_time,.uri,.args]|@tsv"
   enabled: false
+  cacheAll: false
   cacheDuration: 1h
   image: nginxinc/nginx-unprivileged
   imagePullPolicy: IfNotPresent
