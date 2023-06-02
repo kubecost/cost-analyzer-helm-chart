@@ -1,7 +1,7 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- not recommended or supported for most users, please read: https://docs.kubecost.com/install-and-configure/install/custom-prom
+    enabled: true # If false, Prometheus will not be installed -- Not Recommended. Comprehensive support also limited to paid support plans: https://docs.kubecost.com/install-and-configure/install/custom-prom
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
