@@ -33,18 +33,30 @@ data:
       name: Thanos
       type: prometheus
       url: http://{{ .Release.Name }}-thanos-query-http.{{ .Release.Namespace }}.svc:{{ .Values.thanos.query.http.port }}
+      jsonData:
+        timeInterval: 1m
 {{- else if .Values.global.prometheus.enabled }}
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace }}.svc
+      jsonData:
+        httpMethod: POST
+        prometheusType: Prometheus
+        prometheusVersion: 2.35.0
+        timeInterval: 1m
 {{- else }}
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: {{ .Values.global.prometheus.fqdn }}
+      jsonData:
+        httpMethod: POST
+        prometheusType: Prometheus
+        prometheusVersion: 2.35.0
+        timeInterval: 1m
 {{- end -}}
 
 {{- if .Values.dashboardProviders }}
