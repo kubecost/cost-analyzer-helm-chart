@@ -59,6 +59,7 @@ Parameter | Description | Default
 `affinity` | pod affinity | `{}`
 `extraVolumes` | A list of volumes to be added to the pod | `[]`|
 `extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
+`extraManifests` | A list of Kubernetes resources to add. Useful for secrets/configmaps/etc | `[]`
 
 ## Adjusting Log Output
 The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables.
