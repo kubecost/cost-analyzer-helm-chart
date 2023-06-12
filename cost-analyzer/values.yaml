@@ -823,6 +823,11 @@ kubecostDeployment:
   #     maxUnavailable: 1
   #   type: RollingUpdate
   queryServiceReplicas: 0
+  queryService:
+    # default storage class
+    storageClass: ""
+    databaseVolumeSize: 100Gi
+    configVolumeSize: 1Gi
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
