@@ -810,6 +810,21 @@ networkCosts:
   additionalLabels: {}
   nodeSelector: {}
   annotations: {}
+  healthCheckProbes: {}
+    # readinessProbe:
+    #   tcpSocket:
+    #     port: 3001
+    #   initialDelaySeconds: 5
+    #   periodSeconds: 10
+    #   failureThreshold: 5
+    # livenessProbe:
+    #   tcpSocket:
+    #     port: 3001
+    #   initialDelaySeconds: 5
+    #   periodSeconds: 10
+    #   failureThreshold: 5
+  additionalSecurityContext: {}
+    # readOnlyRootFilesystem: true
 
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
