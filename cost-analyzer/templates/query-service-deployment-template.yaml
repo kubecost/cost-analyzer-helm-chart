@@ -9,6 +9,7 @@ metadata:
     {{ include "query-service.commonLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.kubecostDeployment.queryServiceReplicas }}
+  serviceName: "query-service"
   selector:
     matchLabels:
       app.kubernetes.io/name: query-service
@@ -16,21 +17,21 @@ spec:
       app: query-service
   volumeClaimTemplates:
   - metadata:
-      name: storage
+      name: database-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "gp2"
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
       resources:
         requests:
-          storage: 200Gi
+          storage:  {{ .Values.kubecostDeployment.queryService.databaseVolumeSize }}
   - metadata:
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: "gp2"
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
       resources:
         requests:
-          storage: 10Gi
+          storage: {{ .Values.kubecostDeployment.queryService.configVolumeSize }}
   template:
     metadata:
       labels:
@@ -39,6 +40,7 @@ spec:
         app: query-service
     spec:
       restartPolicy: Always
+      
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -62,7 +64,7 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: storage
+            - name: database-storage
               mountPath: /var/db
           securityContext:
             runAsUser: 0
@@ -99,7 +101,7 @@ spec:
               mountPath: /var/configs
             - name: etl-bucket-config
               mountPath: /var/configs/etl
-            - name: storage
+            - name: database-storage
               mountPath: /var/db
           env:
             - name: CONFIG_PATH
