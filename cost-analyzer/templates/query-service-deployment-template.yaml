@@ -1,7 +1,7 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
 {{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "query-service.fullname" . }}
   namespace: {{ .Release.Namespace }}
@@ -14,6 +14,23 @@ spec:
       app.kubernetes.io/name: query-service
       app.kubernetes.io/instance: {{ .Release.Name }}
       app: query-service
+  volumeClaimTemplates:
+  - metadata:
+      name: storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "gp2"
+      resources:
+        requests:
+          storage: 200Gi
+  - metadata:
+      name: persistent-configs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: "gp2"
+      resources:
+        requests:
+          storage: 10Gi
   template:
     metadata:
       labels:
@@ -24,12 +41,10 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:
-        - name: persistent-configs
-          emptyDir: {}
-        - name: persistent-db
-          emptyDir: {}
         {{- $etlBackupBucketSecret := "" }}
-        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- if .Values.kubecostModel.queryServiceConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.queryServiceConfigSecret }}
+        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
             {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
@@ -47,7 +62,7 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: persistent-db
+            - name: storage
               mountPath: /var/db
           securityContext:
             runAsUser: 0
@@ -84,7 +99,7 @@ spec:
               mountPath: /var/configs
             - name: etl-bucket-config
               mountPath: /var/configs/etl
-            - name: persistent-db
+            - name: storage
               mountPath: /var/db
           env:
             - name: CONFIG_PATH
