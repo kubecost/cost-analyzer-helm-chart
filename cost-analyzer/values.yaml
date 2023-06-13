@@ -954,6 +954,8 @@ federatedETL:
   redirectS3Backup: false
   # useExistingS3Config will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
   useExistingS3Config: false
+  # useMultiClusterDB should be set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
+  useMultiClusterDB: false
   federator:
     # federationCutoffDate is an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator.
     # If this is not set, the Federator will process all files regardless of date.
