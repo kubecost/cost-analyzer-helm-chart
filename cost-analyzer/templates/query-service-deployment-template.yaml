@@ -120,6 +120,8 @@ spec:
               value: "/var/configs/etl/federated-store.yaml"
             - name: CLUSTER_ID
               value: "combined"
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated-store.yaml"
             - name: FEDERATED_CLUSTER
               value: "true"
             - name: FEDERATED_PRIMARY_CLUSTER
