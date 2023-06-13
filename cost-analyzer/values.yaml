@@ -1,7 +1,7 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true # If false, Prometheus will not be installed -- please read this before disabling: https://github.com/kubecost/docs/blob/main/custom-prom.md
+    enabled: true # If false, Prometheus will not be installed -- Warning: Before changing this setting, please read to understand this setting https://docs.kubecost.com/install-and-configure/install/custom-prom
     fqdn: http://cost-analyzer-prometheus-server.default.svc #example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify : false # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
@@ -263,24 +263,24 @@ oidc:
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
 #  hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
-      enabled: false
-      groups:
-        - name: admin
-          enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
-          assertionName: "preferred_username" # field used for role matching in the OIDC access token
-          assertionValues:
-            - "admin"
-            - "superusers"
-        - name: readonly
-          enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
-          assertionName:  "preferred_username"
-          assertionValues:
-            - "readonly"
-        - name: editor
-          enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
-          assertionName: "preferred_username"
-          assertionValues:
-            - "editor"
+    enabled: false
+    groups:
+      - name: admin
+        enabled: false # if admin is disabled, all authenticated users will be able to make configuration changes to the kubecost frontend
+        claimName: "roles" # Kubecost matches this string against the JWT's payload key containing RBAC info (this value is unique across identity providers)
+        claimValues: # Kubecost matches these strings with the roles created in your identity provider
+          - "admin"
+          - "superusers"
+      - name: readonly
+        enabled: false # if readonly is disabled, all authenticated users will default to readonly
+        claimName:  "roles"
+        claimValues:
+          - "readonly"
+      - name: editor
+        enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+        claimName: "roles"
+        claimValues:
+          - "editor"
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
@@ -361,13 +361,11 @@ kubecostMetrics:
     serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
-      networkCosts:
-        enabled: false
-        scrapeTimeout: 10s
-        additionalLabels: {}
+      metricRelabelings: []
+      relabelings: []
     ## PriorityClassName
     ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-    priorityClassName: []
+    priorityClassName: ""
     additionalLabels: {}
     nodeSelector: {}
     extraArgs: []
@@ -417,6 +415,16 @@ kubecostModel:
   etlWeeklyStoreDurationWeeks: 53
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
+
+  ## Feature to view your out-of-cluster costs and their k8s utilization
+  ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
+  cloudCost:
+    enabled: true
+    labelList:
+      IsIncludeList: false
+      # format labels as comma separated string (ex. "label1,label2,label3")
+      labels: ""
+    topNItems: 1000
 
   allocation:
     # Enables or disables adding node labels to allocation data (i.e. workloads).
@@ -523,7 +531,7 @@ networkPolicy:
     #     - namespaceSelector: {}
 
 podSecurityPolicy:
-  enabled: true
+  enabled: false
 
 ## @param extraVolumes A list of volumes to be added to the pod
 ##
@@ -558,12 +566,17 @@ remoteWrite:
     initImagePullPolicy: Always
     installLocal: true
     remotePostgresAddress: "" # ignored if installing locally
+    ## PriorityClassName
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+    priorityClassName: ""
     persistentVolume:
       size: 200Gi
     auth:
       password: admin # change me
 
 prometheus:
+  podSecurityPolicy:
+    enabled: false
   extraScrapeConfigs: |
     - job_name: kubecost
       honor_labels: true
@@ -788,7 +801,7 @@ networkCosts:
 
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-  priorityClassName: []
+  priorityClassName: ""
   ## PodMonitor
   ## Allows scraping of network metrics from a dedicated prometheus operator setup
   podMonitor:
@@ -797,6 +810,21 @@ networkCosts:
   additionalLabels: {}
   nodeSelector: {}
   annotations: {}
+  healthCheckProbes: {}
+    # readinessProbe:
+    #   tcpSocket:
+    #     port: 3001
+    #   initialDelaySeconds: 5
+    #   periodSeconds: 10
+    #   failureThreshold: 5
+    # livenessProbe:
+    #   tcpSocket:
+    #     port: 3001
+    #   initialDelaySeconds: 5
+    #   periodSeconds: 10
+    #   failureThreshold: 5
+  additionalSecurityContext: {}
+    # readOnlyRootFilesystem: true
 
 # Kubecost Deployment Configuration
 # Used for HA mode in Business & Enterprise tier
@@ -810,17 +838,28 @@ kubecostDeployment:
   #     maxUnavailable: 1
   #   type: RollingUpdate
   queryServiceReplicas: 0
+  queryService:
+    # default storage class
+    storageClass: ""
+    databaseVolumeSize: 100Gi
+    configVolumeSize: 1Gi
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.7.0
+  image: gcr.io/kubecost1/cluster-controller:v0.11.0
   imagePullPolicy: Always
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.
     defaultResizeAll: false
 #  fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local:9731
+  namespaceTurndown:
+    rbac: 
+      enabled: true
 
 reporting:
   # Kubecost bug report feature: Logs access/collection limited to .Release.Namespace
@@ -839,10 +878,14 @@ reporting:
 serviceMonitor: # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
   additionalLabels: {}
+  metricRelabelings: []
+  relabelings: []
   networkCosts:
     enabled: false
     scrapeTimeout: 10s
     additionalLabels: {}
+    metricRelabelings: []
+    relabelings: []
 
 prometheusRule:
   enabled: false
@@ -857,13 +900,12 @@ initChownData:
     #  cpu: "50m"
     #  memory: "20Mi"
 
-
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
   rbac:
     # Manage the Grafana Pod Security Policy
-    pspEnabled: true
+    pspEnabled: false
   datasources:
     datasources.yaml:
       apiVersion: 1
@@ -898,6 +940,9 @@ serviceAccount:
 awsstore:
   useAwsStore: false
   createServiceAccount: false
+  ## PriorityClassName
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+  priorityClassName: ""
 
 federatedETL:
   # federatedCluster indicates whether this cluster should push data to the Federated store
@@ -932,12 +977,12 @@ costEventsAudit:
   enabled: false
 
 
-# readonly: false # disable updates to kubecost from the frontend UI and via POST request
+#readonly: false # disable updates to kubecost from the frontend UI and via POST request
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
-# kubecostProductConfigs:
+#kubecostProductConfigs:
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.
 # Ref: https://github.com/kubecost/docs/blob/main/multi-cluster.md
@@ -1044,3 +1089,22 @@ costEventsAudit:
 #  enabled: true
 #  secretName: webhook-server-tls
 #  caBundle: ${CA_BUNDLE}
+
+# -- Array of extra K8s manifests to deploy
+## Note: Supports use of custom Helm templates
+extraObjects: []
+#- apiVersion: networking.istio.io/v1alpha3
+#  kind: VirtualService
+#  metadata:
+#    name: my-virtualservice
+#  spec:
+#    hosts:
+#    - kubecost.myorg.com
+#    gateways:
+#    - my-gateway
+#    http:
+#    - route:
+#      - destination:
+#          host: kubecost.kubecost.svc.cluster.local
+#          port:
+#            number: 80

@@ -22,6 +22,9 @@ spec:
       labels:
         app: adapter
     spec:
+      {{- if .Values.remoteWrite.postgres.priorityClassName }}
+      priorityClassName: "{{ .Values.remoteWrite.postgres.priorityClassName }}"
+      {{- end }}
       initContainers:
         - name: kubecost-sql-init
           image: {{ .Values.remoteWrite.postgres.initImage }}:prod-{{ $.Chart.AppVersion }}

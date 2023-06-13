@@ -1,19 +1,37 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
-{{- if gt .Values.kubecostDeployment.queryServiceReplicas 0 }}
+{{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ template "query-service.fullname" . }}
-  namespace: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{ include "query-service.commonLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.kubecostDeployment.queryServiceReplicas }}
+  serviceName: "query-service"
   selector:
     matchLabels:
       app.kubernetes.io/name: query-service
       app.kubernetes.io/instance: {{ .Release.Name }}
       app: query-service
+  volumeClaimTemplates:
+  - metadata:
+      name: database-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostDeployment.queryService.databaseVolumeSize }}
+  - metadata:
+      name: persistent-configs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.kubecostDeployment.queryService.configVolumeSize }}
   template:
     metadata:
       labels:
@@ -22,14 +40,13 @@ spec:
         app: query-service
     spec:
       restartPolicy: Always
+      
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:
-        - name: persistent-configs
-          emptyDir: {}
-        - name: persistent-db
-          emptyDir: {}
         {{- $etlBackupBucketSecret := "" }}
-        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- if .Values.kubecostModel.queryServiceConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.queryServiceConfigSecret }}
+        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
             {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
@@ -47,7 +64,7 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: persistent-db
+            - name: database-storage
               mountPath: /var/db
           securityContext:
             runAsUser: 0
@@ -84,7 +101,7 @@ spec:
               mountPath: /var/configs
             - name: etl-bucket-config
               mountPath: /var/configs/etl
-            - name: persistent-db
+            - name: database-storage
               mountPath: /var/db
           env:
             - name: CONFIG_PATH

@@ -21,12 +21,15 @@ spec:
       labels:
         app: awsstore
     spec:
-        serviceAccountName: awsstore-serviceaccount
-        containers:
-            - image: {{ .Values.awsstore.imageNameAndVersion }}
-              name: awsstore
-              # Just sleep forever
-              command: [ "sleep" ]
-              args: [ "infinity" ]
+      serviceAccountName: awsstore-serviceaccount
+      {{- if .Values.awsstore.priorityClassName }}
+      priorityClassName: "{{ .Values.awsstore.priorityClassName }}"
+      {{- end }}
+      containers:
+        - image: {{ .Values.awsstore.imageNameAndVersion }}
+          name: awsstore
+          # Just sleep forever
+          command: [ "sleep" ]
+          args: [ "infinity" ]
 {{- end }}
 {{- end }}

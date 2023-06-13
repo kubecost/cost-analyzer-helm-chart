@@ -177,9 +177,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
-            proxy_connect_timeout       180;
-            proxy_send_timeout          180;
-            proxy_read_timeout          180;
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -294,9 +294,9 @@ data:
 
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
         location /model/allocation {
-            proxy_connect_timeout       180;
-            proxy_send_timeout          180;
-            proxy_read_timeout          180;
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://queryservice/allocation;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -306,9 +306,9 @@ data:
         }
 
         location /model/assets {
-            proxy_connect_timeout       180;
-            proxy_send_timeout          180;
-            proxy_read_timeout          180;
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://queryservice/assets;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -317,5 +317,10 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
+        {{- if .Values.kubecostFrontend.trendsDisabled }}
+        location /model/allocation/trends {
+            return 204 'endpoint disabled';
+        }
+        {{ end }}
     }
 {{- end }}

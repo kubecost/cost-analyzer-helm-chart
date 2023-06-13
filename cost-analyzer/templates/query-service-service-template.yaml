@@ -1,5 +1,5 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
-{{- if gt .Values.kubecostDeployment.queryServiceReplicas 0 }}
+{{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
 {{ include "query-service.selectorLabels" . | nindent 4 }}
-  type: "LoadBalancer"
+  type: "ClusterIP"
   ports:
     - name: tcp-query-service
       port: 9003
