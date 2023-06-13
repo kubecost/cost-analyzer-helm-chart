@@ -20873,7 +20873,7 @@ spec:
         - name: persistent-configs
           persistentVolumeClaim:
             claimName: kubecost-cost-analyzer
-      initContainers:
+      initContainers: []
       containers:
         - image: gcr.io/kubecost1/cost-model:prod-1.103.2
 
