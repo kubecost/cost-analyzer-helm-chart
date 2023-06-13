@@ -40,7 +40,7 @@ spec:
         app: query-service
     spec:
       restartPolicy: Always
-      
+
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -48,6 +48,8 @@ spec:
             {{- $etlBackupBucketSecret = .Values.kubecostModel.queryServiceConfigSecret }}
         {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
             {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
@@ -112,7 +114,17 @@ spec:
               value: "true"
             {{- if $etlBackupBucketSecret }}
             - name: ETL_BUCKET_CONFIG
+              {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
               value: "/var/configs/etl/object-store.yaml"
+              {{- else  }}
+              value: "/var/configs/etl/federated-store.yaml"
+            - name: CLUSTER_ID
+              value: "combined"
+            - name: FEDERATED_CLUSTER
+              value: "true"
+            - name: FEDERATED_PRIMARY_CLUSTER
+              value: "true"
+              {{- end }}
             {{- end }}
             - name: ETL_TO_DISK_ENABLED
               value: "true"
