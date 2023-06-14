@@ -46,10 +46,10 @@ spec:
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.queryServiceConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.queryServiceConfigSecret }}
-        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
-            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
             {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
