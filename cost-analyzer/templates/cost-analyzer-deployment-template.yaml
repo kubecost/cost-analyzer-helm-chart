@@ -137,7 +137,7 @@ spec:
           secret:
             secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
             items:
-            - key: compute-viewer-kubecost-key.json
+            - key: {{ .Values.kubecostProductConfigs.gcpSecretKeyName | default "compute-viewer-kubecost-key.json" }}
               path: service-key.json
         {{- end }}
         {{- end -}}
