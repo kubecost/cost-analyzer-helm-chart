@@ -22,10 +22,10 @@ global:
     proxy: true # If true, the kubecost frontend will route to your grafana through its service endpoint
 #    fqdn: cost-analyzer-grafana.default.svc
 
-  # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent    
+  # Enable only when you are using GCP Marketplace ENT listing. Learn more at https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent
   gcpstore:
     enabled: false
-  
+
   # Google Cloud Managed Service for Prometheus
   gmp:
   # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
@@ -858,7 +858,7 @@ clusterController:
     defaultResizeAll: false
 #  fqdn: kubecost-cluster-controller.kubecost.svc.cluster.local:9731
   namespaceTurndown:
-    rbac: 
+    rbac:
       enabled: true
 
 reporting:
@@ -1092,19 +1092,31 @@ costEventsAudit:
 
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates
-extraObjects: []
-#- apiVersion: networking.istio.io/v1alpha3
-#  kind: VirtualService
-#  metadata:
-#    name: my-virtualservice
-#  spec:
-#    hosts:
-#    - kubecost.myorg.com
-#    gateways:
-#    - my-gateway
-#    http:
-#    - route:
-#      - destination:
-#          host: kubecost.kubecost.svc.cluster.local
-#          port:
-#            number: 80
+# extraObjects:
+# Cloud Billing Integration:
+#   - apiVersion: v1
+#     kind: Secret
+#     metadata:
+#       name: cloud-integration
+#       namespace: kubecost
+#     type: Opaque
+#     data:
+#       cloud-integration.json: BASE64_SECRET
+#  Istio:
+#   - apiVersion: networking.istio.io/v1alpha3
+#     kind: VirtualService
+#     metadata:
+#       name: my-virtualservice
+#     spec:
+#       hosts:
+#       - kubecost.myorg.com
+#       gateways:
+#       - my-gateway
+#       http:
+#       - route:
+#         - destination:
+#             host: kubecost.kubecost.svc.cluster.local
+#             port:
+#               number: 80
+
+
