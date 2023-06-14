@@ -805,6 +805,10 @@ spec:
             - name: FEDERATED_FEDERATOR_ENABLED
               value: "true"
             {{- end}}
+            {{- if .Values.federatedETL.federator.useMultiClusterDB }}
+            - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
+              value: "true"
+            {{- end}}
             - name: ETL_STORE_READ_ONLY
               value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
             - name : ETL_CLOUD_USAGE_ENABLED
