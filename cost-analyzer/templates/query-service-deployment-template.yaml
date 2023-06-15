@@ -126,6 +126,8 @@ spec:
               value: "true"
             - name: FEDERATED_PRIMARY_CLUSTER
               value: "true"
+            - name: FEDERATED_REDIRECT_BACKUP
+              value: "true"
               {{- end }}
             {{- end }}
             - name: ETL_TO_DISK_ENABLED
