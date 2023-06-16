@@ -717,8 +717,8 @@ networkCosts:
       cpu: 500m # can be less, will depend on cluster size
       # memory: it is not recommended to set a memory limit
     requests:
-     cpu: 50m
-     memory: 20Mi
+      cpu: 50m
+      memory: 20Mi
   extraArgs: []
   config:
     # Configuration for traffic destinations, including specific classification
@@ -839,10 +839,6 @@ kubecostDeployment:
   #   type: RollingUpdate
   queryServiceReplicas: 0
   queryService:
-    resources:
-      requests:
-        cpu: 1000m
-        memory: 25Gi
     # default storage class
     storageClass: ""
     databaseVolumeSize: 100Gi
