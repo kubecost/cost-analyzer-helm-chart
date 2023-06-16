@@ -138,5 +138,31 @@ spec:
               value: "/var/db"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.kubecostDeployment.queryServiceReplicas.priority }}
+      {{- if .Values.kubecostDeployment.queryServiceReplicas.priority.enabled }}
+      {{- if gt (len .Values.kubecostDeployment.queryServiceReplicas.priority.name) 0 }}
+      priorityClassName: {{ .Values.kubecostDeployment.queryServiceReplicas.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-qsr-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryServiceReplicas.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryServiceReplicas.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryServiceReplicas.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
 {{- end }}
 {{- end }}
