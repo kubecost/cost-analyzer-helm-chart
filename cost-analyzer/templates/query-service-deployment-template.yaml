@@ -98,6 +98,8 @@ spec:
             - name: tcp-model
               containerPort: 9003
               protocol: TCP
+          resources:
+{{ toYaml .Values.kubecostDeployment.queryServiceReplicas.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
