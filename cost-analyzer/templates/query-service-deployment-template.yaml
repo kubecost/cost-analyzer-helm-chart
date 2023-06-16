@@ -142,24 +142,24 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
-      {{- if .Values.kubecostDeployment.queryServiceReplicas.priority }}
-      {{- if .Values.kubecostDeployment.queryServiceReplicas.priority.enabled }}
-      {{- if gt (len .Values.kubecostDeployment.queryServiceReplicas.priority.name) 0 }}
-      priorityClassName: {{ .Values.kubecostDeployment.queryServiceReplicas.priority.name }}
+      {{- if .Values.kubecostDeployment.queryService.priority }}
+      {{- if .Values.kubecostDeployment.queryService.priority.enabled }}
+      {{- if gt (len .Values.kubecostDeployment.queryService.priority.name) 0 }}
+      priorityClassName: {{ .Values.kubecostDeployment.queryService.priority.name }}
       {{- else }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-qsr-priority
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.queryServiceReplicas.nodeSelector }}
+      {{- with .Values.kubecostDeployment.queryService.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.queryServiceReplicas.tolerations }}
+      {{- with .Values.kubecostDeployment.queryService.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.queryServiceReplicas.affinity }}
+      {{- with .Values.kubecostDeployment.queryService.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
