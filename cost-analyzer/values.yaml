@@ -837,12 +837,16 @@ kubecostDeployment:
   #     maxSurge: 1
   #     maxUnavailable: 1
   #   type: RollingUpdate
+
+  # QueryServiceReplicas
+  # Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
   queryServiceReplicas: 0
   queryService:
     resources: 
-      requests:
+      requests: 
+        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours. 
         cpu: 1000m
-        memory: 25Gi
+        memory: 500Mi
     # default storage class
     storageClass: ""
     databaseVolumeSize: 100Gi
