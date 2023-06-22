@@ -1,0 +1,18 @@
+{{- if .Values.global.mimirProxy }}
+{{- if .Values.global.mimirProxy.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-mimir-proxy
+  namespace: {{ .Release.Namespace }}
+data:
+  default.conf: |
+    server {
+        listen {{ .Values.global.mimirProxy.port }};
+        location / {
+          proxy_pass  {{ .Values.global.mimirProxy.mimirEndpoint }};
+          proxy_set_header  X-Scope-OrgID "{{ .Values.global.mimirProxy.orgIdentifier }}";
+        }
+    }
+{{- end }}
+{{- end }}
