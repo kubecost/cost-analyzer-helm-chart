@@ -857,6 +857,10 @@ kubecostDeployment:
     storageClass: ""
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
+    busyBoxImage:
+      repository: busybox
+      tag: stable
+      pullPolicy: IfNotPresent
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

@@ -61,7 +61,8 @@ spec:
         {{- end }}
       initContainers:
         - name: config-db-perms-fix
-          image: busybox
+          image: "{{ .Values.kubecostDeployment.queryService.busyBoxImage.repository }}:{{ .Values.kubecostDeployment.queryService.busyBoxImage.tag }}"
+          imagePullPolicy: "{{ .Values.kubecostDeployment.queryService.busyBoxImage.pullPolicy }}"
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           volumeMounts:
             - name: persistent-configs
