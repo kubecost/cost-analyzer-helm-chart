@@ -144,7 +144,7 @@ spec:
     {{- end }}
       {{- if .Values.kubecostDeployment.queryService.priority }}
       {{- if .Values.kubecostDeployment.queryService.priority.enabled }}
-      {{- if gt (len .Values.kubecostDeployment.queryService.priority.name) 0 }}
+      {{- if .Values.kubecostDeployment.queryService.priority.name }}
       priorityClassName: {{ .Values.kubecostDeployment.queryService.priority.name }}
       {{- else }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-qsr-priority
