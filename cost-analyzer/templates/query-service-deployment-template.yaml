@@ -98,6 +98,8 @@ spec:
             - name: tcp-model
               containerPort: 9003
               protocol: TCP
+          resources:
+{{ toYaml .Values.kubecostDeployment.queryService.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
@@ -136,5 +138,31 @@ spec:
               value: "/var/db"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.kubecostDeployment.queryService.priority }}
+      {{- if .Values.kubecostDeployment.queryService.priority.enabled }}
+      {{- if .Values.kubecostDeployment.queryService.priority.name }}
+      priorityClassName: {{ .Values.kubecostDeployment.queryService.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-qsr-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
 {{- end }}
 {{- end }}
