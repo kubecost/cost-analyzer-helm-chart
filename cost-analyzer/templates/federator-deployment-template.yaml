@@ -1,0 +1,77 @@
+{{- if .Values.federatedETL.useExistingS3Config -}}
+{{- fail "ERROR: You are using a deprecated configuration `.Values.federatedETL.useExistingS3Config`. Please use `.Values.kubecostModel.federatedStorageConfigSecret` instead." -}}
+{{- end -}}
+
+{{- if .Values.federatedETL.federator }}
+{{- if .Values.federatedETL.federator.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "federator.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "federator.commonLabels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{ include "federator.selectorLabels" . | nindent 6}}
+  template:
+    metadata:
+      labels:
+        {{ include "federator.selectorLabels" . | nindent 8}}
+    spec:
+      containers:
+        - name: federator
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          imagePullPolicy: Always
+          args: ["federator"]
+          ports:
+            - name: tcp-model
+              containerPort: 9001
+              protocol: TCP
+          volumeMounts:
+            - name: federator-config
+              mountPath: /var/configs/federator
+            - name: federated-storage-config
+              mountPath: /var/configs/etl/federated
+              readOnly: true
+          readinessProbe:
+            httpGet:
+            path: /healthz
+            port: 9001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          env:
+            - name: CONFIG_PATH
+              value: /var/configs/
+            - name: DB_PATH
+              value: /var/db/
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated/federated-store.yaml"
+            {{- end }}
+      restartPolicy: Always
+      volumes: 
+        - name: federator-config
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-federator
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        - name: federated-storage-config
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- end }}
+{{- end }}
+{{- end }}

@@ -8,6 +8,9 @@ Expand the name of the chart.
 {{- define "query-service.name" -}}
 {{- default "query-service" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "federator.name" -}}
+{{- default "federator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -29,6 +32,10 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "query-service.fullname" -}}
 {{- printf "%s-%s" .Release.Name "query-service" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "federator.fullname" -}}
+{{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -113,6 +120,12 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+{{- define "kubecost.federator.chartLabels" -}}
+app.kubernetes.io/name: {{ include "federator.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
 
 
 {{/*
@@ -154,6 +167,10 @@ app: cost-analyzer
 {{ include "kubecost.queryService.chartLabels" . }}
 app: query-service
 {{- end -}}
+{{- define "federator.commonLabels" -}}
+{{ include "kubecost.federator.chartLabels" . }}
+app: federator
+{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -167,6 +184,11 @@ app: cost-analyzer
 app.kubernetes.io/name: {{ include "query-service.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: query-service
+{{- end -}}
+{{- define "federator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "federator.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: federator
 {{- end -}}
 
 {{/*
