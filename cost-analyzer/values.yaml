@@ -56,8 +56,8 @@ global:
       # profile: PROFILE # AWS profile
 
   # Mimir Proxy to help Kubecost to query metrics from multi-tenant Grafana Mimir.
-  # Set `global.mimirProxy.enabled=true` and `global.prometheus.enabled=false` to enable Mimir Proxy. 
-  # You also need to set `global.prometheus.fqdn=http://kubecost-cost-analyzer-mimir-proxy.kubecost.svc:8085/prometheus` 
+  # Set `global.mimirProxy.enabled=true` and `global.prometheus.enabled=false` to enable Mimir Proxy.
+  # You also need to set `global.prometheus.fqdn=http://kubecost-cost-analyzer-mimir-proxy.kubecost.svc:8085/prometheus`
   # or `global.prometheus.fqdn=http://{{ template "cost-analyzer.fullname" . }}-mimir-proxy.{{ .Release.Namespace }}.svc:8085/prometheus'
   # Learn more at https://grafana.com/docs/mimir/latest/operators-guide/secure/authentication-and-authorization/#without-an-authenticating-reverse-proxy
   mimirProxy:
@@ -329,6 +329,13 @@ kubecostFrontend:
     failureThreshold: 200
   ipv6:
     enabled: true # disable if the cluster does not support ipv6
+  # allow customizing nginx-conf server block
+  extraServerConfig: |-
+    proxy_busy_buffers_size   512k;
+    proxy_buffers   4 512k;
+    proxy_buffer_size   256k;
+    large_client_header_buffers 4 64k;
+
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:

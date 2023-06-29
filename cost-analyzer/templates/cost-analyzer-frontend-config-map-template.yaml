@@ -111,8 +111,17 @@ data:
         server_name _;
         root /var/www;
         index index.html;
-        large_client_header_buffers 4 32k;
+
         add_header Cache-Control "must-revalidate";
+
+        {{- if.Values.kubecostFrontend.extraServerConfig }}
+        {{- .Values.kubecostFrontend.extraServerConfig | toString | nindent 8 -}}
+        {{- else }}
+        proxy_busy_buffers_size   512k;
+        proxy_buffers   4 512k;
+        proxy_buffer_size   256k;
+        large_client_header_buffers 4 64k;
+        {{- end }}
 
         error_page 504 /custom_504.html;
         location = /custom_504.html {
