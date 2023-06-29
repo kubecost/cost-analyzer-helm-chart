@@ -319,7 +319,7 @@ kubecostFrontend:
     requests:
       cpu: "10m"
       memory: "55Mi"
-adjust buffers for OIDC / add ability to configure    # limits:
+    # limits:
     #   cpu: "100m"
     #   memory: "256Mi"
   livenessProbe:
