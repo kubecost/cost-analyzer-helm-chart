@@ -319,9 +319,9 @@ kubecostFrontend:
     requests:
       cpu: "10m"
       memory: "55Mi"
-    #limits:
-    #  cpu: "100m"
-    #  memory: "256Mi"
+adjust buffers for OIDC / add ability to configure    # limits:
+    #   cpu: "100m"
+    #   memory: "256Mi"
   livenessProbe:
     enabled: true
     initialDelaySeconds: 30
@@ -330,11 +330,11 @@ kubecostFrontend:
   ipv6:
     enabled: true # disable if the cluster does not support ipv6
   # allow customizing nginx-conf server block
-  extraServerConfig: |-
-    proxy_busy_buffers_size   512k;
-    proxy_buffers   4 512k;
-    proxy_buffer_size   256k;
-    large_client_header_buffers 4 64k;
+  # extraServerConfig: |-
+  #   proxy_busy_buffers_size   512k;
+  #   proxy_buffers   4 512k;
+  #   proxy_buffer_size   256k;
+  #   large_client_header_buffers 4 64k;
 
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
