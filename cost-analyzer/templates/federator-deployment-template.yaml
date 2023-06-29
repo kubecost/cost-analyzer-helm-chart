@@ -48,8 +48,8 @@ spec:
               readOnly: true
           readinessProbe:
             httpGet:
-            path: /healthz
-            port: 9001
+              path: /healthz
+              port: 9001
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
