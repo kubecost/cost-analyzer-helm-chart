@@ -1032,7 +1032,7 @@ costEventsAudit:
 #       pass: admin
 #   - name: "Cluster B"
 #     address: http://cluster-b.kubecost.com:9090
-#  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters
+#  defaultModelPricing: # default monthly resource prices, used predominately for on-prem clusters. Use quotes if setting "0.00" for any item.
 #    CPU: 28.0
 #    spotCPU: 4.86
 #    RAM: 3.09
