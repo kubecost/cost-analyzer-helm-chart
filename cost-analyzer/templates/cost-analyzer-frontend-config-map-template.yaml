@@ -117,7 +117,7 @@ data:
         {{- if.Values.kubecostFrontend.extraServerConfig }}
         {{- .Values.kubecostFrontend.extraServerConfig | toString | nindent 8 -}}
         {{- else }}
-        large_client_header_buffers 4 32k
+        large_client_header_buffers 4 32k;
         {{- end }}
 
         error_page 504 /custom_504.html;
