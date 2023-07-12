@@ -207,11 +207,11 @@ global:
     reports:
       - title: "Cloud Cost Report 0"
         window: "today"
-        aggregateBy: "type"
-        accumulate: false # daily resolution
-        filters:
-          - property: "cluster"
-            value: "cluster-one"
+        aggregateBy: "service"
+        accumulate: false  # daily resolution
+        # filters:
+        #   - property: "service"
+        #     value: "service1" # corresponds to a value to filter cloud cost aggregate by service data on.
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
