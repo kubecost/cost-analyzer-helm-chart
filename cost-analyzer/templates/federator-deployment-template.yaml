@@ -2,24 +2,23 @@
 {{- fail "ERROR: You are using a deprecated configuration `.Values.federatedETL.useExistingS3Config`. Please use `.Values.kubecostModel.federatedStorageConfigSecret` instead." -}}
 {{- end -}}
 
-{{- if .Values.federatedETL.federator }}
-{{- if .Values.federatedETL.federator.enabled }}
+{{- if and (.Values.federatedETL.federator) (.Values.federatedETL.federator.enabled) (.Values.federatedETL.federator.deployment) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "federator.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "federator.commonLabels" . | nindent 4 }}
+    {{- include "federator.commonLabels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{ include "federator.selectorLabels" . | nindent 6}}
+      {{- include "federator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{ include "federator.selectorLabels" . | nindent 8}}
+        {{- include "federator.selectorLabels" . | nindent 8 }}
     spec:
       containers:
         - name: federator
@@ -30,10 +29,10 @@ spec:
           image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
           {{- else }}
           image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-          {{ end }}
+          {{- end }}
           {{- else }}
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-          {{ end }}
+          {{- end }}
           imagePullPolicy: Always
           args: ["federator"]
           ports:
@@ -73,5 +72,4 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
-{{- end }}
 {{- end }}
