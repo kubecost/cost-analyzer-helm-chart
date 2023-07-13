@@ -252,11 +252,6 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
-        {{- if and (.Values.federatedETL.federator) (.Values.federatedETL.federator.enabled) (not .Values.federatedETL.federator.deployment) }}
-        - name: federator-config
-          configMap:
-            name: {{ template "cost-analyzer.fullname" . }}-federator
-        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -483,10 +478,6 @@ spec:
               mountPath: /certs
             {{- end }}
             {{- end }}
-            {{- end }}
-            {{- if and (.Values.federatedETL.federator) (.Values.federatedETL.federator.enabled) (not .Values.federatedETL.federator.deployment) }}
-            - name: federator-config
-              mountPath: /var/configs/federator
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.productKey }}
@@ -791,18 +782,6 @@ spec:
             {{- end}}
             {{- if .Values.federatedETL.redirectS3Backup }}
             - name: FEDERATED_REDIRECT_BACKUP
-              value: "true"
-            {{- end}}
-            {{- if .Values.federatedETL.useExistingS3Config }}
-            - name: FEDERATED_USE_EXISTING_CONFIG
-              value: "true"
-            {{- end}}
-            {{- if and (.Values.federatedETL.federator.enabled) (not .Values.federatedETL.federator.deployment) }}
-            - name: FEDERATED_FEDERATOR_ENABLED
-              value: "true"
-            {{- end}}
-            {{- if .Values.federatedETL.federator.useMultiClusterDB }}
-            - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
             {{- end}}
             - name: ETL_STORE_READ_ONLY
