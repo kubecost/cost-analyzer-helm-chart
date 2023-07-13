@@ -56,8 +56,8 @@ global:
       # profile: PROFILE # AWS profile
 
   # Mimir Proxy to help Kubecost to query metrics from multi-tenant Grafana Mimir.
-  # Set `global.mimirProxy.enabled=true` and `global.prometheus.enabled=false` to enable Mimir Proxy. 
-  # You also need to set `global.prometheus.fqdn=http://kubecost-cost-analyzer-mimir-proxy.kubecost.svc:8085/prometheus` 
+  # Set `global.mimirProxy.enabled=true` and `global.prometheus.enabled=false` to enable Mimir Proxy.
+  # You also need to set `global.prometheus.fqdn=http://kubecost-cost-analyzer-mimir-proxy.kubecost.svc:8085/prometheus`
   # or `global.prometheus.fqdn=http://{{ template "cost-analyzer.fullname" . }}-mimir-proxy.{{ .Release.Namespace }}.svc:8085/prometheus'
   # Learn more at https://grafana.com/docs/mimir/latest/operators-guide/secure/authentication-and-authorization/#without-an-authenticating-reverse-proxy
   mimirProxy:
@@ -856,9 +856,9 @@ kubecostDeployment:
   # Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
   queryServiceReplicas: 0
   queryService:
-    resources: 
-      requests: 
-        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours. 
+    resources:
+      requests:
+        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi
     # default storage class
@@ -967,28 +967,17 @@ awsstore:
   priorityClassName: ""
 
 federatedETL:
-  # federatedCluster indicates whether this cluster should push data to the Federated store
-  federatedCluster: false
-  # primaryCluster indicates whether this cluster should load data from the combined section of the Federated store
-  primaryCluster: false
-  # redirectS3Backup changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL
-  # Note S3 backup should be enabled separately for this.
-  redirectS3Backup: false
-  # useExistingS3Config will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
-  useExistingS3Config: false
-  # useMultiClusterDB should be set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
-  useMultiClusterDB: false
+  federatedCluster: false # whether this cluster should push data to the Federated store
+  primaryCluster: false # whether this cluster should load data from the combined section of the Federated store
+  useExistingS3Config: false # will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
+  redirectS3Backup: false # changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL. Note S3 backup should be enabled separately for this.
+  useMultiClusterDB: false # set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
   federator:
-    # federationCutoffDate is an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator.
-    # If this is not set, the Federator will process all files regardless of date.
-    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
-    # federator.enabled enables the federator to run inside the costmodel container, federating the data in the Federated store
-    enabled: false
-    # federator.clusters is an optional whitelist of clusters by cluster id.
-    # If not set, the federator will attempt to federated all clusters pushing to the federated storage.
-    clusters: []
-    # federator.primaryClusterID is an optional parameter that should be used when reconciliation is expected to occur on the Primary.
-    # primaryClusterID: "cluster_id"
+    enabled: false # enables the federator to run inside the costmodel container, federating the data in the Federated store
+    deployment: false # when true, will run the federator in a separate deployment outside of `deployment/kubecost-cost-analyzer`.
+    clusters: [] # optional. Whitelist of clusters by cluster id. If not set, the federator will attempt to federated all clusters pushing to the federated storage.
+    # primaryClusterID: "cluster_id" # optional. Used when reconciliation is expected to occur on the Primary.
+    # federationCutoffDate: "2022-10-18T00:00:00.000Z" # an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator. If this is not set, the Federator will process all files regardless of date.
 
 kubecostAdmissionController:
   enabled: false
