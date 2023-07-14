@@ -981,7 +981,6 @@ federatedETL:
   useMultiClusterDB: false # set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
   federator:
     enabled: false # enables the federator to run inside the costmodel container, federating the data in the Federated store
-    deployment: false # when true, will run the federator in a separate deployment outside of `deployment/kubecost-cost-analyzer`.
     clusters: [] # optional. Whitelist of clusters by cluster id. If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     # primaryClusterID: "cluster_id" # optional. Used when reconciliation is expected to occur on the Primary.
     # federationCutoffDate: "2022-10-18T00:00:00.000Z" # an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator. If this is not set, the Federator will process all files regardless of date.
