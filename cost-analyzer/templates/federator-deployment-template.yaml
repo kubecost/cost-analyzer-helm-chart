@@ -2,7 +2,7 @@
 {{- fail "ERROR: You are using a deprecated configuration `.Values.federatedETL.useExistingS3Config`. Please use `.Values.kubecostModel.federatedStorageConfigSecret` instead." -}}
 {{- end -}}
 
-{{- if and (.Values.federatedETL.federator) (.Values.federatedETL.federator.enabled) (.Values.federatedETL.federator.deployment) }}
+{{- if and (.Values.federatedETL.federator) (.Values.federatedETL.federator.enabled) }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,7 +62,8 @@ spec:
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
       restartPolicy: Always
-      volumes: 
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
+      volumes:
         - name: federator-config
           configMap:
             name: {{ template "cost-analyzer.fullname" . }}-federator
