@@ -62,7 +62,8 @@ spec:
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
       restartPolicy: Always
-      volumes: 
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
+      volumes:
         - name: federator-config
           configMap:
             name: {{ template "cost-analyzer.fullname" . }}-federator
