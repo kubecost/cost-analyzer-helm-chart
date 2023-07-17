@@ -1297,7 +1297,7 @@ serverFiles:
             regex: true
           - source_labels: [__meta_kubernetes_endpoints_name]
             action: keep
-            regex: (.*kube-state-metrics|.*prometheus-node-exporter|kubecost-network-costs)
+            regex: (.*kube-state-metrics|.*node-exporter|kubecost-network-costs)
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
             action: replace
             target_label: __scheme__
