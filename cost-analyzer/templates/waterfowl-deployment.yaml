@@ -1,0 +1,189 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) }}
+{{- if gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0 }}
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "waterfowl.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "waterfowl.commonLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.kubecostDeployment.waterfowl.replicas }}
+  serviceName: "waterfowl"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: waterfowl
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: waterfowl
+  volumeClaimTemplates:
+  - metadata:
+      name: database-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.waterfowl.dbStorage.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostDeployment.waterfowl.dbStorage.storageRequest }}
+  - metadata:
+      name: persistent-configs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.waterfowl.persistentConfigsStorage.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.kubecostDeployment.waterfowl.persistentConfigsStorage.storageRequest }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: waterfowl
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: waterfowl
+    spec:
+      restartPolicy: Always
+
+      serviceAccountName: {{ template "waterfowl.serviceAccountName" . }}
+      volumes:
+        {{- $etlBackupBucketSecret := "" }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
+            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
+        {{- end }}
+        {{- if $etlBackupBucketSecret }}
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ $etlBackupBucketSecret }}
+        {{- end }}
+      initContainers:
+        - name: config-db-perms-fix
+          image: busybox
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: database-storage
+              mountPath: /var/configs/db/duckdb
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: waterfowl
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
+          {{- fail "Waterfowl cannot be used with open source only" }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 200
+          imagePullPolicy: Always
+          args: ["waterfowl"]
+          ports:
+            - name: tcp-api
+              containerPort: 9003
+              protocol: TCP
+          resources:
+{{ toYaml .Values.kubecostDeployment.waterfowl.resources | indent 12 }}
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+            - name: database-storage
+              mountPath: /var/configs/db/duckdb
+          env:
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
+            - name: CLUSTER_ID
+              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- end }}
+            {{- if .Values.prometheus.server.clusterIDConfigmap }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
+                  key: CLUSTER_ID
+            {{- end }}
+
+            - name: CONFIG_PATH
+              value: /var/configs/
+            - name: ETL_ENABLED
+              value: "false" # this pod should never run KC's concept of "ETL"
+            - name: ETL_READ_ONLY
+
+            - name: CLOUD_PROVIDER_API_KEY
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+              value: "true" # just in case, not sure if necessary
+
+            # TODO (michaelmdresser): Figure out the correct minimal bucket
+            # config here to avoid confusion. Should also double check the
+            # volume mounts etc.
+            {{- if $etlBackupBucketSecret }}
+            - name: ETL_BUCKET_CONFIG
+              {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
+              value: "/var/configs/etl/object-store.yaml"
+              {{- else  }}
+              value: "/var/configs/etl/federated-store.yaml"
+            # - name: CLUSTER_ID
+            #   value: "combined"
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated-store.yaml"
+            # - name: FEDERATED_CLUSTER
+            #   value: "true"
+            # - name: FEDERATED_PRIMARY_CLUSTER
+            #   value: "true"
+            # - name: FEDERATED_REDIRECT_BACKUP
+            #   value: "true"
+              {{- end }}
+            {{- end }}
+
+            # TODO (michaelmdresser):
+            # - SAML configs?
+            # - Product key configs?
+
+            {{- range $key, $value := .Values.kubecostDeployment.waterfowl.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.kubecostDeployment.waterfowl.priority }}
+      {{- if .Values.kubecostDeployment.waterfowl.priority.enabled }}
+      {{- if .Values.kubecostDeployment.waterfowl.priority.name }}
+      priorityClassName: {{ .Values.kubecostDeployment.waterfowl.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-waterfowl-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.waterfowl.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.waterfowl.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.waterfowl.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,20 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) }}
+{{- if gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0 }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "waterfowl.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "waterfowl.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "waterfowl.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: tcp-api
+      port: 9003
+      targetPort: 9003
+{{- end }}
+{{- end }}

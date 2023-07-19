@@ -11,6 +11,9 @@ Expand the name of the chart.
 {{- define "federator.name" -}}
 {{- default "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "waterfowl.name" -}}
+{{- default "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -36,6 +39,10 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "federator.fullname" -}}
 {{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "waterfowl.fullname" -}}
+{{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -84,6 +91,10 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "waterfowl.serviceName" -}}
+{{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
@@ -126,6 +137,12 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+{{- define "kubecost.waterfowl.chartLabels" -}}
+app.kubernetes.io/name: {{ include "waterfowl.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
 
 
 {{/*
@@ -152,6 +169,13 @@ Create the name of the service account
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
+{{- define "waterfowl.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "waterfowl.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Create the common labels.
@@ -171,6 +195,10 @@ app: query-service
 {{ include "kubecost.federator.chartLabels" . }}
 app: federator
 {{- end -}}
+{{- define "waterfowl.commonLabels" -}}
+{{ include "kubecost.queryService.chartLabels" . }}
+app: waterfowl
+{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -189,6 +217,11 @@ app: query-service
 app.kubernetes.io/name: {{ include "federator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: federator
+{{- end -}}
+{{- define "waterfowl.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "waterfowl.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: waterfowl
 {{- end -}}
 
 {{/*
