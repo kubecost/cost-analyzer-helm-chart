@@ -989,6 +989,8 @@ spec:
             - name: COST_EVENTS_AUDIT_ENABLED
               value: {{ (quote .Values.costEventsAudit.enabled) | default (quote false) }}
             {{- end }}
+            - name: ASSET_MODE_BREAKDOWN_ENABLED
+              value: {{ (quote .Values.kubecostModel.assetModeBreakdownEnabled) | default (quote false) }}
             {{- /*
               Leader/Follower has baseline requirements before enabling:
                 * ETL FileStore Enabled
