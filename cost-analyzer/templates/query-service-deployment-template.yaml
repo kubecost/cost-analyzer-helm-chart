@@ -132,8 +132,6 @@ spec:
               value: "true"
               {{- end }}
             {{- end }}
-            - name: ETL_TO_DISK_ENABLED
-              value: "true"
             - name: ETL_PATH_PREFIX
               value: "/var/db"
             - name: CLOUD_PROVIDER_API_KEY

@@ -760,13 +760,8 @@ spec:
               value: "true"
             {{- end }}
             {{- if $etlBackupBucketSecret }}
-            - name: ETL_TO_DISK_ENABLED
-              value: "false"
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
-            {{- else }}
-            - name: ETL_TO_DISK_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlToDisk) | default (quote true) }}
             {{- end }}
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
