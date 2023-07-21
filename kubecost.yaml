@@ -20950,8 +20950,6 @@ spec:
               value: "true"
             - name: ETL_ENABLED
               value: "true"
-            - name: ETL_TO_DISK_ENABLED
-              value: "true"
             - name: ETL_STORE_READ_ONLY
               value: "false"
             - name : ETL_CLOUD_USAGE_ENABLED
