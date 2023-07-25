@@ -891,7 +891,11 @@ kubecostDeployment:
       # default storage class
       storageClass: ""
       storageRequest: 1Gi
-    dbStorage:
+    waterfowlStorage:
+      # default storage class
+      storageClass: ""
+      storageRequest: 20Gi
+    waterfowlDbStorage:
       # default storage class
       storageClass: ""
       storageRequest: 128G

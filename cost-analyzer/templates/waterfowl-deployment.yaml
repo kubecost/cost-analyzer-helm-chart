@@ -18,14 +18,6 @@ spec:
       app: waterfowl
   volumeClaimTemplates:
   - metadata:
-      name: database-storage
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostDeployment.waterfowl.dbStorage.storageClass }}
-      resources:
-        requests:
-          storage:  {{ .Values.kubecostDeployment.waterfowl.dbStorage.storageRequest }}
-  - metadata:
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
@@ -33,6 +25,24 @@ spec:
       resources:
         requests:
           storage: {{ .Values.kubecostDeployment.waterfowl.persistentConfigsStorage.storageRequest }}
+  - metadata:
+      name: waterfowl-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.waterfowl.waterfowlStorage.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostDeployment.waterfowl.waterfowlStorage.storageRequest }}
+  {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+  - metadata:
+      name: waterfowl-db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.waterfowl.waterfowlDbStorage.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostDeployment.waterfowl.waterfowlDbStorage.storageRequest }}
+  {{- end }}
   template:
     metadata:
       labels:
@@ -41,21 +51,16 @@ spec:
         app: waterfowl
     spec:
       restartPolicy: Always
-
       serviceAccountName: {{ template "waterfowl.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
-            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
-        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
-            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
         {{- if $etlBackupBucketSecret }}
-        - name: etl-bucket-config
+        - name: bucket-config
           secret:
-           defaultMode: 420
+           defaultMode: 400
            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
       initContainers:
@@ -65,8 +70,12 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: database-storage
-              mountPath: /var/configs/db/duckdb
+            - name: waterfowl-storage
+              mountPath: /var/configs/waterfowl
+            {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+            - name: waterfowl-db-storage
+              mountPath: /var/configs/waterfowl/duckdb
+            {{- end }}
           securityContext:
             runAsUser: 0
       containers:
@@ -87,7 +96,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 9003
+              port: 9004
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 200
@@ -95,17 +104,21 @@ spec:
           args: ["waterfowl"]
           ports:
             - name: tcp-api
-              containerPort: 9003
+              containerPort: 9004
               protocol: TCP
           resources:
 {{ toYaml .Values.kubecostDeployment.waterfowl.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: etl-bucket-config
+            - name: bucket-config
               mountPath: /var/configs/etl
-            - name: database-storage
-              mountPath: /var/configs/db/duckdb
+            - name: waterfowl-storage
+              mountPath: /var/configs/waterfowl
+            {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+            - name: waterfowl-db-storage
+              mountPath: /var/configs/waterfowl/duckdb
+            {{- end }}
           env:
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
@@ -123,31 +136,20 @@ spec:
               value: /var/configs/
             - name: ETL_ENABLED
               value: "false" # this pod should never run KC's concept of "ETL"
-            - name: ETL_READ_ONLY
-
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
               value: "true" # just in case, not sure if necessary
 
-            # TODO (michaelmdresser): Figure out the correct minimal bucket
-            # config here to avoid confusion. Should also double check the
-            # volume mounts etc.
             {{- if $etlBackupBucketSecret }}
+            # If this isn't set, we pretty much have to be in a read only state,
+            # initialization will probably fail otherwise.
             - name: ETL_BUCKET_CONFIG
               {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
               value: "/var/configs/etl/object-store.yaml"
               {{- else  }}
               value: "/var/configs/etl/federated-store.yaml"
-            # - name: CLUSTER_ID
-            #   value: "combined"
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
-            # - name: FEDERATED_CLUSTER
-            #   value: "true"
-            # - name: FEDERATED_PRIMARY_CLUSTER
-            #   value: "true"
-            # - name: FEDERATED_REDIRECT_BACKUP
-            #   value: "true"
               {{- end }}
             {{- end }}
 
