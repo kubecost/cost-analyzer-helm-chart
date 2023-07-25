@@ -873,32 +873,32 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
 
-  waterfowl:
-    replicas: 0
-    resources:
-      requests:
-        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
-        cpu: 1000m
-        memory: 2Gi
-      limits:
-        cpu: 1000m
-        memory: 2Gi
-    env:
-      "DB_READ_ONLY": "true" # TODO switch to false
-      "DB_MEMORY_LIMIT": "1700MB" # this should match or be below the memory limit of the pod
-      "LOG_LEVEL": "info"
-    persistentConfigsStorage:
-      # default storage class
-      storageClass: ""
-      storageRequest: 1Gi
-    waterfowlStorage:
-      # default storage class
-      storageClass: ""
-      storageRequest: 20Gi
-    waterfowlDbStorage:
-      # default storage class
-      storageClass: ""
-      storageRequest: 128G
+waterfowl:
+  replicas: 0
+  resources:
+    requests:
+      # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
+      cpu: 1000m
+      memory: 2Gi
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+  env:
+    "DB_READ_ONLY": "true" # TODO switch to false
+    "DB_MEMORY_LIMIT": "1700MB" # this should match or be below the memory limit of the pod
+    "LOG_LEVEL": "info"
+  persistentConfigsStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 1Gi
+  waterfowlStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 20Gi
+  waterfowlDbStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 128G
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

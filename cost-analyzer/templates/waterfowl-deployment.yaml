@@ -1,5 +1,5 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) }}
-{{- if gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0 }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.waterfowl) }}
+{{- if gt (.Values.waterfowl.replicas | toString | atoi) 0 }}
 
 apiVersion: apps/v1
 kind: StatefulSet
@@ -9,7 +9,7 @@ metadata:
   labels:
     {{ include "waterfowl.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.kubecostDeployment.waterfowl.replicas }}
+  replicas: {{ .Values.waterfowl.replicas }}
   serviceName: "waterfowl"
   selector:
     matchLabels:
@@ -21,27 +21,27 @@ spec:
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostDeployment.waterfowl.persistentConfigsStorage.storageClass }}
+      storageClassName: {{ .Values.waterfowl.persistentConfigsStorage.storageClass }}
       resources:
         requests:
-          storage: {{ .Values.kubecostDeployment.waterfowl.persistentConfigsStorage.storageRequest }}
+          storage: {{ .Values.waterfowl.persistentConfigsStorage.storageRequest }}
   - metadata:
       name: waterfowl-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostDeployment.waterfowl.waterfowlStorage.storageClass }}
+      storageClassName: {{ .Values.waterfowl.waterfowlStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.kubecostDeployment.waterfowl.waterfowlStorage.storageRequest }}
-  {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+          storage:  {{ .Values.waterfowl.waterfowlStorage.storageRequest }}
+  {{- if .Values.waterfowl.waterfowlDbStorage }}
   - metadata:
       name: waterfowl-db-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostDeployment.waterfowl.waterfowlDbStorage.storageClass }}
+      storageClassName: {{ .Values.waterfowl.waterfowlDbStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.kubecostDeployment.waterfowl.waterfowlDbStorage.storageRequest }}
+          storage:  {{ .Values.waterfowl.waterfowlDbStorage.storageRequest }}
   {{- end }}
   template:
     metadata:
@@ -72,7 +72,7 @@ spec:
               mountPath: /var/configs
             - name: waterfowl-storage
               mountPath: /var/configs/waterfowl
-            {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+            {{- if .Values.waterfowl.waterfowlDbStorage }}
             - name: waterfowl-db-storage
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
@@ -107,7 +107,7 @@ spec:
               containerPort: 9004
               protocol: TCP
           resources:
-{{ toYaml .Values.kubecostDeployment.waterfowl.resources | indent 12 }}
+{{ toYaml .Values.waterfowl.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
@@ -115,7 +115,7 @@ spec:
               mountPath: /var/configs/etl
             - name: waterfowl-storage
               mountPath: /var/configs/waterfowl
-            {{- if .Values.kubecostDeployment.waterfowl.waterfowlDbStorage }}
+            {{- if .Values.waterfowl.waterfowlDbStorage }}
             - name: waterfowl-db-storage
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
@@ -157,7 +157,7 @@ spec:
             # - SAML configs?
             # - Product key configs?
 
-            {{- range $key, $value := .Values.kubecostDeployment.waterfowl.env }}
+            {{- range $key, $value := .Values.waterfowl.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
@@ -166,24 +166,24 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
-      {{- if .Values.kubecostDeployment.waterfowl.priority }}
-      {{- if .Values.kubecostDeployment.waterfowl.priority.enabled }}
-      {{- if .Values.kubecostDeployment.waterfowl.priority.name }}
-      priorityClassName: {{ .Values.kubecostDeployment.waterfowl.priority.name }}
+      {{- if .Values.waterfowl.priority }}
+      {{- if .Values.waterfowl.priority.enabled }}
+      {{- if .Values.waterfowl.priority.name }}
+      priorityClassName: {{ .Values.waterfowl.priority.name }}
       {{- else }}
       priorityClassName: {{ template "cost-analyzer.fullname" . }}-waterfowl-priority
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.waterfowl.nodeSelector }}
+      {{- with .Values.waterfowl.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.waterfowl.tolerations }}
+      {{- with .Values.waterfowl.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.kubecostDeployment.waterfowl.affinity }}
+      {{- with .Values.waterfowl.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}

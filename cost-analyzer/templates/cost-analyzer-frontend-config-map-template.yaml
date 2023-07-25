@@ -107,7 +107,7 @@ data:
     }
   {{- end }}
 
-  {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) (gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0) }}
+  {{- if and (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
     upstream waterfowl {
         server {{ .Release.Name }}-waterfowl.{{ .Release.Namespace }}:9003;
     }
@@ -307,7 +307,7 @@ data:
     # Query Service Replicas (QSR) proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
 
-      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) (gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0) }}
+      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
       {{- fail "Query Service Replicas should not be used at the same time as Waterfowl" }}
       {{- end }}
 
@@ -336,7 +336,7 @@ data:
         }
     {{- end }}
 
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.waterfowl) (gt (.Values.kubecostDeployment.waterfowl.replicas | toString | atoi) 0) }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
 
     # Waterfowl proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
