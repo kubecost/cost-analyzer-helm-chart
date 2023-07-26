@@ -14,7 +14,7 @@ spec:
   type: "ClusterIP"
   ports:
     - name: tcp-api
-      port: 9003
-      targetPort: 9003
+      port: 9004
+      targetPort: 9004
 {{- end }}
 {{- end }}

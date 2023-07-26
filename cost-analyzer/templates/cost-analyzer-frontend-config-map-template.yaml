@@ -109,7 +109,7 @@ data:
 
   {{- if and (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
     upstream waterfowl {
-        server {{ .Release.Name }}-waterfowl.{{ .Release.Namespace }}:9003;
+        server {{ .Release.Name }}-waterfowl.{{ .Release.Namespace }}:9004;
     }
   {{- end }}
 
