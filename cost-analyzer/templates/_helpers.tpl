@@ -31,7 +31,11 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 
 {{- define "query-service.fullname" -}}
+{{- if .Values.queryServiceFullnameOverride -}}
+{{- .Values.queryServiceFullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
 {{- printf "%s-%s" .Release.Name "query-service" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "federator.fullname" -}}
