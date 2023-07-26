@@ -884,8 +884,8 @@ waterfowl:
       cpu: 1000m
       memory: 2Gi
   env:
-    "DB_READ_ONLY": "true" # TODO switch to false
-    "DB_MEMORY_LIMIT": "1700MB" # this should match or be below the memory limit of the pod
+    # "DB_READ_ONLY": "true" # TODO switch to false
+    # "DB_MEMORY_LIMIT": "1700MB" # this should match or be below the memory limit of the pod
     "LOG_LEVEL": "info"
   persistentConfigsStorage:
     # default storage class

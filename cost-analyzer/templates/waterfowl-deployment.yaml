@@ -60,7 +60,7 @@ spec:
         {{- if $etlBackupBucketSecret }}
         - name: bucket-config
           secret:
-           defaultMode: 400
+           defaultMode: 420
            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
       initContainers:
@@ -152,6 +152,10 @@ spec:
               value: "/var/configs/etl/federated-store.yaml"
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
+            - name: FEDERATED_PRIMARY_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
+              value: "true"
+            - name: FEDERATED_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
+              value: "true"
               {{- end }}
             {{- end }}
 
