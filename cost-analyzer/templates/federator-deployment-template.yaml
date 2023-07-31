@@ -52,6 +52,8 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             failureThreshold: 200
+          resources:
+{{ toYaml .Values.federatedETL.federator.resources | indent 12}} 
           env:
             - name: CONFIG_PATH
               value: /var/configs/

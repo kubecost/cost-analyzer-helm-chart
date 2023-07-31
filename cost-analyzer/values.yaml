@@ -984,6 +984,10 @@ federatedETL:
     clusters: [] # optional. Whitelist of clusters by cluster id. If not set, the federator will attempt to federated all clusters pushing to the federated storage.
     # primaryClusterID: "cluster_id" # optional. Used when reconciliation is expected to occur on the Primary.
     # federationCutoffDate: "2022-10-18T00:00:00.000Z" # an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator. If this is not set, the Federator will process all files regardless of date.
+    resources: {} # you can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
+      # requests:
+      #   cpu: 100m
+      #   memory: 500Mi
 
 kubecostAdmissionController:
   enabled: false
