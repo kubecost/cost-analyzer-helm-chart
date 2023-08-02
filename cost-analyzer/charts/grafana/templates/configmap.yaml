@@ -53,16 +53,16 @@ data:
         prometheusVersion: 2.35.0
         timeInterval: 1m
 {{- else }}
-  - access: proxy
-    isDefault: true
-    name: Prometheus
-    type: prometheus
-    url: {{ .Values.global.prometheus.fqdn }}
-    jsonData:
-      httpMethod: POST
-      prometheusType: Prometheus
-      prometheusVersion: 2.35.0
-      timeInterval: 1m
+    - access: proxy
+      isDefault: true
+      name: Prometheus
+      type: prometheus
+      url: {{ .Values.global.prometheus.fqdn }}
+      jsonData:
+        httpMethod: POST
+        prometheusType: Prometheus
+        prometheusVersion: 2.35.0
+        timeInterval: 1m
 {{- end -}}
 
 {{- if .Values.dashboardProviders }}
