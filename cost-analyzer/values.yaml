@@ -944,6 +944,11 @@ grafana:
           url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
           access: proxy
           isDefault: false
+          jsonData:
+            httpMethod: POST
+            prometheusType: Prometheus
+            prometheusVersion: 2.35.0
+            timeInterval: 1m
   sidecar:
     dashboards:
       enabled: true
