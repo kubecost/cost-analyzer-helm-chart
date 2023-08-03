@@ -1,3 +1,6 @@
+## These are the default values applied when installing Kubecost. We recommend 
+## only copying configurations that you are changing into your values.yaml file.
+
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
