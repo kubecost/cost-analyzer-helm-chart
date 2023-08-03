@@ -935,6 +935,15 @@ grafana:
   rbac:
     # Manage the Grafana Pod Security Policy
     pspEnabled: false
+  datasources:
+    datasources.yaml:
+      apiVersion: 1
+      datasources:
+        - name: prometheus-kubecost
+          type: prometheus
+          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+          access: proxy
+          isDefault: false
   sidecar:
     dashboards:
       enabled: true

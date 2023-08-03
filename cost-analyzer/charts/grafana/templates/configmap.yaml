@@ -27,9 +27,11 @@ data:
 {{ toYaml $value | trim | indent 4 }}
   {{- end -}}
 {{- end }}
+{{- if not .Values.datasources }}
   datasources.yaml: |
     apiVersion: 1
     datasources:
+{{- end }}
 {{- if .Values.global.thanos.enabled }}
     - access: proxy
       isDefault: true
