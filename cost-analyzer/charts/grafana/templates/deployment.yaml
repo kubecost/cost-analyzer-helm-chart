@@ -135,7 +135,7 @@ spec:
               mountPath: "/var/lib/grafana/dashboards/{{ . }}"
   {{- end }}
 {{- end }}
-{{- if or .Values.global.grafana.enabled  }}
+{{- if or .Values.datasources .Values.global.grafana.enabled }}
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: datasources.yaml
