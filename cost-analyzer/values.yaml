@@ -217,6 +217,8 @@ global:
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
 
+  securityContext: {}
+    # seccompProfile: {type: RuntimeDefault}
   containerSecuritycontext: {}
     # readOnlyRootFilesystem: true
 
@@ -863,9 +865,9 @@ kubecostDeployment:
   # Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
   queryServiceReplicas: 0
   queryService:
-    resources: 
-      requests: 
-        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours. 
+    resources:
+      requests:
+        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi
     # default storage class
