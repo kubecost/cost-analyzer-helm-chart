@@ -39,6 +39,8 @@ securityContext:
   runAsUser: 472
   fsGroup: 472
 
+containerSecurityContext: {}
+
 downloadDashboardsImage:
   repository: curlimages/curl
   tag: latest

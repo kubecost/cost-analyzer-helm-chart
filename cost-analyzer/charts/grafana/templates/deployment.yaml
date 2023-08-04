@@ -23,7 +23,7 @@ spec:
     type: {{ .Values.deploymentStrategy }}
   {{- if ne .Values.deploymentStrategy "RollingUpdate" }}
     rollingUpdate: null
-  {{- end }}    
+  {{- end }}
   template:
     metadata:
       labels:
@@ -54,6 +54,10 @@ spec:
           image: "{{ .Values.downloadDashboardsImage.repository }}:{{ .Values.downloadDashboardsImage.tag }}"
           imagePullPolicy: {{ .Values.downloadDashboardsImage.pullPolicy }}
           command: ["sh", "/etc/grafana/download_dashboards.sh"]
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: "/etc/grafana/download_dashboards.sh"
@@ -87,6 +91,10 @@ spec:
               value: "{{ .Values.sidecar.dashboards.error_throttle_sleep }}"
           resources:
 {{ toYaml .Values.sidecar.resources | indent 12 }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: sc-dashboard-volume
               mountPath: {{ .Values.sidecar.dashboards.folder | quote }}
@@ -104,6 +112,10 @@ spec:
               value: "{{ .Values.sidecar.datasources.error_throttle_sleep }}"
           resources:
 {{ toYaml .Values.sidecar.resources | indent 12 }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: sc-datasources-volume
               mountPath: "/etc/grafana/provisioning/datasources"
@@ -216,6 +228,10 @@ spec:
 {{ toYaml .Values.readinessProbe | indent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

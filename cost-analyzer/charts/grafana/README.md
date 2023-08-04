@@ -36,6 +36,7 @@ The command removes all the Kubernetes components associated with the chart and 
 | `livenessProbe`            | Liveness Probe settings                           | `{ "httpGet": { "path": "/api/health", "port": 3000 } "initialDelaySeconds": 60, "timeoutSeconds": 30, "failureThreshold": 10 }` |
 | `readinessProbe`            | Rediness Probe settings                           | `{ "httpGet": { "path": "/api/health", "port": 3000 } }`|
 | `securityContext`               | Deployment securityContext                    | `{"runAsUser": 472, "fsGroup": 472}`                    |
+| `containerSecurityContext`      | Container securityContext                     | `{}`                                                    |
 | `image.repository`              | Image repository                              | `grafana/grafana`                                       |
 | `image.tag`                     | Image tag. (`Must be >= 5.0.0`)               | `5.3.1`                                                 |
 | `image.pullPolicy`              | Image pull policy                             | `IfNotPresent`                                          |
