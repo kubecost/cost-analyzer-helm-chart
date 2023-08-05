@@ -45,6 +45,9 @@ spec:
             - name: federated-storage-config
               mountPath: /var/configs/etl/federated
               readOnly: true
+            {{- if .Values.federatedETL.federator.extraVolumeMounts }}
+            {{- toYaml .Values.federatedETL.federator.extraVolumeMounts | nindent 12 }}
+            {{- end }}
           readinessProbe:
             httpGet:
               path: /healthz
@@ -53,7 +56,7 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
           resources:
-{{ toYaml .Values.federatedETL.federator.resources | indent 12}} 
+            {{- toYaml .Values.federatedETL.federator.resources | nindent 12 }}
           env:
             - name: CONFIG_PATH
               value: /var/configs/
@@ -62,6 +65,9 @@ spec:
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
+            {{- end }}
+            {{- if .Values.federatedETL.federator.extraEnv }}
+            {{- toYaml .Values.federatedETL.federator.extraEnv | nindent 12 }}
             {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
@@ -74,5 +80,8 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- end }}
+        {{- if .Values.federatedETL.federator.extraVolumes }}
+        {{- toYaml .Values.federatedETL.federator.extraVolumes | nindent 8 }}
         {{- end }}
 {{- end }}
