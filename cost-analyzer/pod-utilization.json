@@ -615,8 +615,8 @@
       {
         "current": {
           "selected": true,
-          "text": "Thanos",
-          "value": "Thanos"
+          "text": "Prometheus",
+          "value": "Prometheus"
         },
         "hide": 0,
         "includeAll": false,
@@ -630,6 +630,12 @@
         "skipUrlSync": false,
         "type": "datasource"
       },
+      {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "uid": "${datasource}"
         },
@@ -654,11 +660,6 @@
         "useTags": false
       },
       {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
         "datasource": {
           "uid": "${datasource}"
         },
@@ -683,11 +684,6 @@
         "useTags": false
       },
       {
-        "current": {
-          "selected": false,
-          "text": "currencyservice-86f65c677b-nzrzz",
-          "value": "currencyservice-86f65c677b-nzrzz"
-        },
         "datasource": {
           "uid": "${datasource}"
         },
@@ -740,7 +736,7 @@
     ]
   },
   "time": {
-    "from": "now-2d",
+    "from": "now-1d",
     "to": "now"
   },
   "timepicker": {
