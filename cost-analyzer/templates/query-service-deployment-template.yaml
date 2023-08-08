@@ -59,6 +59,9 @@ spec:
            defaultMode: 420
            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
+        {{- if .Values.kubecostDeployment.queryService.extraVolumes }}
+        {{- toYaml .Values.kubecostDeployment.queryService.extraVolumes | nindent 8 }}
+        {{- end }}
       initContainers:
         - name: config-db-perms-fix
           image: busybox
@@ -99,7 +102,7 @@ spec:
               containerPort: 9003
               protocol: TCP
           resources:
-{{ toYaml .Values.kubecostDeployment.queryService.resources | indent 12 }}
+            {{- toYaml .Values.kubecostDeployment.queryService.resources | nindent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
@@ -107,6 +110,9 @@ spec:
               mountPath: /var/configs/etl
             - name: database-storage
               mountPath: /var/db
+            {{- if .Values.kubecostDeployment.queryService.extraVolumeMounts }}
+            {{- toYaml .Values.kubecostDeployment.queryService.extraVolumeMounts | nindent 12 }}
+            {{- end }}
           env:
             - name: CONFIG_PATH
               value: /var/configs/
@@ -136,6 +142,9 @@ spec:
               value: "/var/db"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+            {{- if .Values.kubecostDeployment.queryService.extraEnv }}
+            {{- toYaml .Values.kubecostDeployment.queryService.extraEnv | nindent 12 }}
+            {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
