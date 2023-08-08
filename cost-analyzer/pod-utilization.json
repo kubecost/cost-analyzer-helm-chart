@@ -26,7 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": 8,
+  "id": 7,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -35,7 +35,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "This graph attempts to show you CPU use of your application vs its requests",
+      "description": "Maximum CPU Core Usage vs Requested",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -55,14 +55,14 @@
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": true,
+            "showPoints": "auto",
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -100,7 +100,9 @@
       "links": [],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
@@ -143,7 +145,7 @@
         }
       ],
       "timeFrom": "",
-      "title": "CPU Usage vs Requested",
+      "title": "CPU Core Usage vs Requested",
       "type": "timeseries"
     },
     {
@@ -171,14 +173,14 @@
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": true,
+            "showPoints": "auto",
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -216,14 +218,16 @@
       "links": [],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "max"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
         },
         "tooltip": {
           "mode": "multi",
-          "sort": "desc"
+          "sort": "asc"
         }
       },
       "pluginVersion": "9.4.7",
@@ -249,12 +253,12 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
+          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "{{ container }} (requested)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (requested)",
           "refId": "B"
         }
       ],
@@ -293,8 +297,8 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": true,
+            "showPoints": "auto",
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -333,7 +337,7 @@
         "legend": {
           "calcs": [
             "mean",
-            "lastNotNull"
+            "max"
           ],
           "displayMode": "list",
           "placement": "bottom",
@@ -525,14 +529,14 @@
               "tooltip": false,
               "viz": false
             },
-            "lineInterpolation": "stepAfter",
+            "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": true,
+            "showPoints": "auto",
+            "spanNulls": 1800000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -587,7 +591,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100\n  * sum by(cluster_id, namespace, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[5m]))\n  / sum by(cluster_id, namespace, container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[5m]))",
+          "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -614,7 +618,7 @@
     "list": [
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "Prometheus",
           "value": "Prometheus"
         },
@@ -660,6 +664,11 @@
         "useTags": false
       },
       {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "uid": "${datasource}"
         },
@@ -684,6 +693,11 @@
         "useTags": false
       },
       {
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
         "datasource": {
           "uid": "${datasource}"
         },
@@ -767,5 +781,6 @@
   "timezone": "browser",
   "title": "Pod cost & utilization metrics",
   "uid": "at-cost-analysis-pod",
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }
