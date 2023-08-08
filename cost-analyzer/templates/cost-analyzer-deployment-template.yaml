@@ -92,17 +92,17 @@ spec:
             items:
               - key: nginx.conf
                 path: default.conf
-        {{- /*
-          If Thanos is enabled, then enable ETL backups by default.
-          To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
-        */}}
-        {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.global.containerSecuritycontext }}
         - name: var-run
           emptyDir: { }
         - name: cache
           emptyDir: { }
         {{- end }}
+        {{- /*
+          If Thanos is enabled, then enable ETL backups by default.
+          To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
+        */}}
+        {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
         {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
