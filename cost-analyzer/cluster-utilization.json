@@ -613,7 +613,7 @@
         "pluginVersion": "8.3.2",
         "targets": [
           {
-            "expr": "SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
+            "expr": "SUM(container_memory_working_set_bytes{name!=\"POD\", container!=\"\", namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
             "format": "time_series",
             "interval": "",
             "intervalFactor": 1,
