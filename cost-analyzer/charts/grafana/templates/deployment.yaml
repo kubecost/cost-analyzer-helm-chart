@@ -23,7 +23,7 @@ spec:
     type: {{ .Values.deploymentStrategy }}
   {{- if ne .Values.deploymentStrategy "RollingUpdate" }}
     rollingUpdate: null
-  {{- end }}    
+  {{- end }}
   template:
     metadata:
       labels:
@@ -135,7 +135,7 @@ spec:
               mountPath: "/var/lib/grafana/dashboards/{{ . }}"
   {{- end }}
 {{- end }}
-{{- if .Values.datasources }}
+{{- if or .Values.datasources .Values.global.grafana.enabled }}
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: datasources.yaml
