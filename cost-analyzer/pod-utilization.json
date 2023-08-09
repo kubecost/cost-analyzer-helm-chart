@@ -26,7 +26,7 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": 7,
+  "id": 6,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -120,7 +120,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (\r\n  container_cpu_usage_seconds_total\r\n    {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "max (irate (\r\n  container_cpu_usage_seconds_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by ( namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -138,7 +138,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\", unit=\"core\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}\r\n  ) \r\nby (cluster_id, namespace, pod, container)",
+          "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby ( namespace, pod, container)",
           "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (requested)",
           "range": true,
           "refId": "B"
@@ -237,7 +237,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (max_over_time (\r\n  container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}[$__rate_interval])) by (cluster_id, namespace, pod, container)",
+          "expr": "max (max_over_time (\r\n  container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}[$__rate_interval])) \r\nby (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -253,7 +253,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, pod, container)",
+          "expr": "avg(\n  kube_pod_container_resource_requests\n  {resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}\n  )\nby (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -355,7 +355,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (container_network_receive_bytes_total{cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}[$__rate_interval])) by (cluster_id, namespace, pod)",
+          "expr": "max (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -371,7 +371,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- max (irate (container_network_transmit_bytes_total{cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod_name=~\"$pod\"}[$__rate_interval])) by (cluster_id, namespace, pod)",
+          "expr": "- max (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod_name=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -474,7 +474,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (container_fs_writes_bytes_total\r\n    {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "max (irate (container_fs_writes_bytes_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -490,7 +490,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- max (irate (container_fs_reads_bytes_total\r\n    {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "- max (irate (container_fs_reads_bytes_total\r\n    {cnamespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -591,7 +591,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))",
+          "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -636,51 +636,22 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "selected": true,
+          "text": "kubecost",
+          "value": "kubecost"
         },
         "datasource": {
           "uid": "${datasource}"
         },
-        "definition": "label_values(cluster_id)",
+        "definition": "label_values(kube_namespace_labels, namespace) ",
         "hide": 0,
-        "includeAll": true,
-        "label": "",
-        "multi": false,
-        "name": "cluster",
-        "options": [],
-        "query": {
-          "query": "label_values(cluster_id)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "tagValuesQuery": "",
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "uid": "${datasource}"
-        },
-        "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
-        "hide": 0,
-        "includeAll": true,
+        "includeAll": false,
         "label": "",
         "multi": false,
         "name": "namespace",
         "options": [],
         "query": {
-          "query": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
+          "query": "label_values(kube_namespace_labels, namespace) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -701,7 +672,7 @@
         "datasource": {
           "uid": "${datasource}"
         },
-        "definition": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+        "definition": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
         "hide": 0,
         "includeAll": true,
         "label": "pod",
@@ -709,7 +680,7 @@
         "name": "pod",
         "options": [],
         "query": {
-          "query": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+          "query": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -731,14 +702,14 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+        "definition": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
         "hide": 0,
         "includeAll": true,
         "multi": false,
         "name": "container",
         "options": [],
         "query": {
-          "query": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+          "query": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -781,6 +752,6 @@
   "timezone": "browser",
   "title": "Pod cost & utilization metrics",
   "uid": "at-cost-analysis-pod",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
