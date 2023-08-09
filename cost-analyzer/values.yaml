@@ -869,7 +869,9 @@ kubecostDeployment:
   queryService:
     resources: 
       requests: 
-        ## You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours. 
+        ## You can use the Kubecost savings report for 'Right-size your 
+        ## container requests' to determine the recommended resource requests 
+        ## once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi
     ## default storage class
@@ -939,15 +941,20 @@ grafana:
   rbac:
     # Manage the Grafana Pod Security Policy
     pspEnabled: false
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: prometheus-kubecost
-          type: prometheus
-          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
-          access: proxy
-          isDefault: false
+  # datasources:
+  #   datasources.yaml:
+  #     apiVersion: 1
+  #     datasources:
+  #       - name: prometheus-kubecost
+  #         type: prometheus
+  #         url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+  #         access: proxy
+  #         isDefault: false
+  #         jsonData:
+  #           httpMethod: POST
+  #           prometheusType: Prometheus
+  #           prometheusVersion: 2.35.0
+  #           timeInterval: 1m
   sidecar:
     dashboards:
       enabled: true
