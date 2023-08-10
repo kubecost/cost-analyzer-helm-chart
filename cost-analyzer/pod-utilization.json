@@ -336,8 +336,7 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "max"
+            "mean"
           ],
           "displayMode": "list",
           "placement": "bottom",
@@ -455,8 +454,7 @@
       "options": {
         "legend": {
           "calcs": [
-            "mean",
-            "max"
+            "mean"
           ],
           "displayMode": "list",
           "placement": "bottom",
@@ -574,7 +572,9 @@
       "links": [],
       "options": {
         "legend": {
-          "calcs": [],
+          "calcs": [
+            "mean"
+          ],
           "displayMode": "list",
           "placement": "bottom",
           "showLegend": true
