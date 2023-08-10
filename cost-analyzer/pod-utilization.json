@@ -271,7 +271,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "Traffic in and out of this pod, as a sum of its containers",
+      "description": "Network traffic by pod",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -355,7 +355,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "sum (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=\"POD\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -371,7 +371,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- max (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod_name=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "- sum (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=\"POD\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -416,8 +416,8 @@
             "scaleDistribution": {
               "type": "linear"
             },
-            "showPoints": "never",
-            "spanNulls": true,
+            "showPoints": "auto",
+            "spanNulls": 3600000,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -456,7 +456,7 @@
         "legend": {
           "calcs": [
             "mean",
-            "lastNotNull"
+            "max"
           ],
           "displayMode": "list",
           "placement": "bottom",
@@ -474,7 +474,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (container_fs_writes_bytes_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "sum(irate (container_fs_writes_bytes_total\r\n    {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -490,7 +490,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- max (irate (container_fs_reads_bytes_total\r\n    {cnamespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -636,7 +636,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "kubecost",
           "value": "kubecost"
         },
@@ -721,7 +721,7 @@
     ]
   },
   "time": {
-    "from": "now-1d",
+    "from": "now-2d",
     "to": "now"
   },
   "timepicker": {
