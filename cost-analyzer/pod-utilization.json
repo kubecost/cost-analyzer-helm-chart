@@ -354,7 +354,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=\"POD\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "sum (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -370,7 +370,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=\"POD\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "- sum (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
