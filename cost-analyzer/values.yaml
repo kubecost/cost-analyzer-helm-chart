@@ -67,7 +67,9 @@ global:
     port: 8085
     mimirEndpoint: $mimir_endpoint #Your Mimir query endpoint. If your Mimir query endpoint is http://example.com/prometheus, replace $mimir_endpoint with http://example.com/
     orgIdentifier: $your_tenant_ID #Your Grafana Mimir tenant ID
-
+    # basicAuth:
+      # username: user
+      # password: pwd
 
   notifications:
     # Kubecost alerting configuration
