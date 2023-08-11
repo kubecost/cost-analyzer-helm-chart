@@ -31,7 +31,6 @@ data:
   datasources.yaml: |
     apiVersion: 1
     datasources:
-{{- end }}
 {{- if .Values.global.thanos.enabled }}
     - access: proxy
       isDefault: true
@@ -66,7 +65,8 @@ data:
         prometheusVersion: 2.35.0
         timeInterval: 1m
 {{- end -}}
-
+# end of if not .Values.datasources:
+{{- end }}
 {{- if .Values.dashboardProviders }}
   {{- range $key, $value := .Values.dashboardProviders }}
   {{ $key }}: |
