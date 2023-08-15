@@ -770,7 +770,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "max container usage vs avg request (multi-cluster)",
+  "title": "Pod utilization metrics (multi-cluster)",
   "uid": "at-cost-analysis-pod2",
   "version": 2,
   "weekStart": ""
