@@ -65,7 +65,6 @@ data:
         prometheusVersion: 2.35.0
         timeInterval: 1m
 {{- end -}}
-# end of if not .Values.datasources:
 {{- end }}
 {{- if .Values.dashboardProviders }}
   {{- range $key, $value := .Values.dashboardProviders }}
