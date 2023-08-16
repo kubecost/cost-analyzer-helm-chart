@@ -226,6 +226,7 @@ global:
     runAsUser: 65534
   containerSecurityContext:
     allowPrivilegeEscalation: false
+    privileged: false
     readOnlyRootFilesystem: true
     capabilities:
       drop:
