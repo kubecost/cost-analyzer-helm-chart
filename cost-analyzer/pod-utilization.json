@@ -21,12 +21,12 @@
       }
     ]
   },
-  "description": "Visualize your kubernetes costs at the pod level.",
+  "description": "",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": 6,
+  "id": 11,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -120,7 +120,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (irate (\r\n  container_cpu_usage_seconds_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by ( namespace, pod, container)",
+          "expr": "max(irate(\r\n  container_cpu_usage_seconds_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -138,8 +138,8 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby ( namespace, pod, container)",
-          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (requested)",
+          "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby (cluster_id, namespace, pod, container)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
           "range": true,
           "refId": "B"
         }
@@ -153,7 +153,7 @@
         "type": "prometheus",
         "uid": "${datasource}"
       },
-      "description": "This graph attempts to show you RAM use of your application vs its requests",
+      "description": "Max Memory usage vs avg requested",
       "fieldConfig": {
         "defaults": {
           "color": {
@@ -237,13 +237,13 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max (max_over_time (\r\n  container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}[$__rate_interval])) \r\nby (cluster_id, namespace, pod, container)",
+          "expr": "max(max_over_time(\r\n  container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (max usage)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (usage max)",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
@@ -253,17 +253,17 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(\n  kube_pod_container_resource_requests\n  {resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}\n  )\nby (cluster_id, namespace, pod, container)",
+          "expr": "avg(\n  kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\", container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (requested)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
           "refId": "B"
         }
       ],
       "timeFrom": "",
-      "title": "RAM Usage vs Requested",
+      "title": "Memory Usage vs Requested",
       "type": "timeseries"
     },
     {
@@ -354,7 +354,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum (irate (container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "sum(irate(container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -370,7 +370,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum (irate (container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "- sum(irate(container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -472,7 +472,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(irate (container_fs_writes_bytes_total\r\n    {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+          "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -558,7 +558,7 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -596,7 +596,7 @@
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{container_name}}",
+          "legendFormat": "__auto",
           "refId": "B"
         }
       ],
@@ -637,15 +637,15 @@
       {
         "current": {
           "selected": false,
-          "text": "kubecost",
-          "value": "kubecost"
+          "text": "All",
+          "value": "$__all"
         },
         "datasource": {
           "uid": "${datasource}"
         },
         "definition": "label_values(kube_namespace_labels, namespace) ",
         "hide": 0,
-        "includeAll": false,
+        "includeAll": true,
         "label": "",
         "multi": false,
         "name": "namespace",
@@ -750,7 +750,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Pod cost & utilization metrics",
+  "title": "Pod utilization metrics",
   "uid": "at-cost-analysis-pod",
   "version": 2,
   "weekStart": ""
