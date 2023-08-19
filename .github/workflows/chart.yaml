@@ -58,8 +58,3 @@ jobs:
         run: |
           kubectl create ns kubecost
           helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
-
-      - name: Cleanup k3s
-        if: always()
-        run: |
-          k3d cluster delete ${{ env.short_sha }}
