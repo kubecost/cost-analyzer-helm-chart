@@ -28,11 +28,17 @@ jobs:
         # Template the chart out for kubeval usage and also validates that it can 'build'
         run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
 
-      - name: Kubeval
+      - name: Kubeval test
         uses: instrumenta/kubeval-action@master
         with:
           files: ./cost-analyzer/full.yaml
           ignore_missing_schemas: false
+
+      - name: Kubeconform test
+        uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: '/kubeconform'
+          args: "-summary -output text ./cost-analyzer/full.yaml"
 
       # Setup a short sha to use for cluster naming to ensure we create and cleanup unique clusters and set the k8s version for
       # both kubectl and k3s
