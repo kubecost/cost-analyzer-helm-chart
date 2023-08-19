@@ -47,10 +47,10 @@ jobs:
       #     echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
       #     echo "k8s_version=v1.23.7" >> $GITHUB_ENV
 
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: ${{ env.k8s_version }}
+      # - name: Install kubectl
+      #   uses: azure/setup-kubectl@v3
+      #   with:
+      #     version: ${{ env.k8s_version }}
 
       # - name: Create k3d cluster
       #   uses: AbsaOSS/k3d-action@v2
