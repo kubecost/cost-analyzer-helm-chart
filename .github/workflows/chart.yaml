@@ -75,4 +75,4 @@ jobs:
         working-directory: ./cost-analyzer
         run: |
           kubectl create ns kubecost
-          helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
+          helm install --wait --wait-for-jobs kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
