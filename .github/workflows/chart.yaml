@@ -7,7 +7,7 @@ on:
       - develop
 
 jobs:
-  build-with-cost-model-develop:
+  test-chart:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,14 +25,7 @@ jobs:
 
       - name: Run helm template
         working-directory: ./cost-analyzer
-        # Template the chart out for kubeval usage and also validates that it can 'build'
         run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
-
-      # - name: Kubeval test
-      #   uses: instrumenta/kubeval-action@master
-      #   with:
-      #     files: ./cost-analyzer/full.yaml
-      #     ignore_missing_schemas: false
 
       - name: Kubeconform test
         uses: docker://ghcr.io/yannh/kubeconform:latest
@@ -40,33 +33,6 @@ jobs:
           entrypoint: '/kubeconform'
           args: "-summary -output text ./cost-analyzer/full.yaml"
 
-      # Setup a short sha to use for cluster naming to ensure we create and cleanup unique clusters and set the k8s version for
-      # both kubectl and k3s
-      # - name: Setup env
-      #   run: |
-      #     echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
-      #     echo "k8s_version=v1.23.7" >> $GITHUB_ENV
-
-      # - name: Install kubectl
-      #   uses: azure/setup-kubectl@v3
-      #   with:
-      #     version: ${{ env.k8s_version }}
-
-      # - name: Create k3d cluster
-      #   uses: AbsaOSS/k3d-action@v2
-      #   with:
-      #     cluster-name: ${{ env.short_sha }}
-      #     args: >-
-      #       --agents 1
-      #       --no-lb
-      #       --image docker.io/rancher/k3s:${{ env.k8s_version }}-k3s1
-      #       --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
-
-      # - name: Install Kubecost
-      #   working-directory: ./cost-analyzer
-      #   run: |
-      #     kubectl create ns kubecost
-      #     helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
 
   # Installs the chart across a matrix of modern Kubernetes versions
   deploy-chart:
@@ -87,7 +53,7 @@ jobs:
             version: v1.27.3
           - name: v1.28
             version: v1.28.0
-    needs: build-with-cost-model-develop
+    needs: test-chart
     name: ${{ matrix.k8s-version.name }} test
     steps:
       - name: Checkout repository
@@ -100,7 +66,12 @@ jobs:
           node_image: kindest/node:${{ matrix.k8s-version.version }}
           kubectl_version: ${{ matrix.k8s-version.version }}
 
-      - name: Install Kubecost
+      - name: Print tool versions
+        run: |
+          kubectl --version
+          helm --version
+  
+      - name: Install Kubecost Helm chart
         working-directory: ./cost-analyzer
         run: |
           kubectl create ns kubecost
