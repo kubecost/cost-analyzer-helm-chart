@@ -28,11 +28,11 @@ jobs:
         # Template the chart out for kubeval usage and also validates that it can 'build'
         run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
 
-      - name: Kubeval test
-        uses: instrumenta/kubeval-action@master
-        with:
-          files: ./cost-analyzer/full.yaml
-          ignore_missing_schemas: false
+      # - name: Kubeval test
+      #   uses: instrumenta/kubeval-action@master
+      #   with:
+      #     files: ./cost-analyzer/full.yaml
+      #     ignore_missing_schemas: false
 
       - name: Kubeconform test
         uses: docker://ghcr.io/yannh/kubeconform:latest
