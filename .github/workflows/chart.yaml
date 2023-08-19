@@ -68,7 +68,7 @@ jobs:
 
       - name: Print tool versions
         run: |
-          kubectl version
+          kubectl version --short
           helm version
   
       - name: Install Kubecost Helm chart
