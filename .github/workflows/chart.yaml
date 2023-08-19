@@ -68,8 +68,8 @@ jobs:
 
       - name: Print tool versions
         run: |
-          kubectl --version
-          helm --version
+          kubectl version
+          helm version
   
       - name: Install Kubecost Helm chart
         working-directory: ./cost-analyzer
