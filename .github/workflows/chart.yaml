@@ -11,18 +11,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Run helm lint
+      - name: Helm lint
         working-directory: ./cost-analyzer
         run: helm lint
 
-      - name: Run helm template
+      - name: Helm template
         working-directory: ./cost-analyzer
         run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
 
-      - name: Kubeconform test
+      - name: Kubeconform
         uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
           entrypoint: /kubeconform
@@ -51,17 +51,17 @@ jobs:
     needs: test-chart
     name: ${{ matrix.k8s-version.name }} test
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Create KinD Cluster
+      - name: Create KinD cluster
         uses: helm/kind-action@v1.8.0
         with:
           version: v0.20.0
           node_image: kindest/node:${{ matrix.k8s-version.version }}
           kubectl_version: ${{ matrix.k8s-version.version }}
   
-      - name: Install Kubecost Helm chart
+      - name: Install Kubecost chart
         working-directory: ./cost-analyzer
         run: |
           kubectl create ns kubecost
