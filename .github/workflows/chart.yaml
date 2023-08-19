@@ -42,25 +42,62 @@ jobs:
 
       # Setup a short sha to use for cluster naming to ensure we create and cleanup unique clusters and set the k8s version for
       # both kubectl and k3s
-      - name: Setup env
-        run: |
-          echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
-          echo "k8s_version=v1.23.7" >> $GITHUB_ENV
+      # - name: Setup env
+      #   run: |
+      #     echo "short_sha=${GITHUB_SHA::10}" >> $GITHUB_ENV
+      #     echo "k8s_version=v1.23.7" >> $GITHUB_ENV
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: ${{ env.k8s_version }}
 
-      - name: Create k3d cluster
-        uses: AbsaOSS/k3d-action@v2
+      # - name: Create k3d cluster
+      #   uses: AbsaOSS/k3d-action@v2
+      #   with:
+      #     cluster-name: ${{ env.short_sha }}
+      #     args: >-
+      #       --agents 1
+      #       --no-lb
+      #       --image docker.io/rancher/k3s:${{ env.k8s_version }}-k3s1
+      #       --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
+
+      # - name: Install Kubecost
+      #   working-directory: ./cost-analyzer
+      #   run: |
+      #     kubectl create ns kubecost
+      #     helm install kubecost . --namespace kubecost --set global.prometheus.enabled=false --set global.grafana.enabled=false
+
+  # Installs the chart across a matrix of modern Kubernetes versions
+  deploy-chart:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        k8s-version:
+          - name: v1.23
+            version: v1.23.17
+          - name: v1.24
+            version: v1.24.16
+          - name: v1.25
+            version: v1.25.12
+          - name: v1.26
+            version: v1.26.7
+          - name: v1.27
+            version: v1.27.4
+          - name: v1.28
+            version: v1.28.0
+    needs: build-with-cost-model-develop
+    name: ${{ matrix.k8s-version.name }} test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create KinD Cluster
+        uses: helm/kind-action@v1
         with:
-          cluster-name: ${{ env.short_sha }}
-          args: >-
-            --agents 1
-            --no-lb
-            --image docker.io/rancher/k3s:${{ env.k8s_version }}-k3s1
-            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
+          node_image: ${{ matrix.k8s-version.version }}
+          kubectl_version: ${{ matrix.k8s-version.version }}
 
       - name: Install Kubecost
         working-directory: ./cost-analyzer
