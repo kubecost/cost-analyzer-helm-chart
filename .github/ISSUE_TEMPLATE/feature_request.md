@@ -1,7 +1,7 @@
 name: "Feature Request"
 description: Suggest a new feature for the Kubecost chart. If you've found a reproducible bug please reach out to our technical support team via email at support@kubecost.com or Slack at https://kubecost.com/join-slack. There, we will triage the issue and work to resolve it.
 title: "[Feature] "
-labels: ["enhancement", "triage"]
+labels: ["enhancement", "needs-triage"]
 body:
   - type: markdown
     attributes:
