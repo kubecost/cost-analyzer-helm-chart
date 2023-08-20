@@ -21,5 +21,5 @@ Please use GithHub's closing keywords to link to any issue(s) this PR addresses.
 ## How was this PR tested?
 
 
-## Have you made an update to documentation?
+## Have you made an update to documentation? If so, please provide the corresponding PR.
 
