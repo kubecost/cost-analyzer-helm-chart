@@ -2,23 +2,21 @@
 
 Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
-To install via helm 3, run the following commands:
+To install via Helm, run the following command:
 
-```
+```sh
 helm upgrade --install kubecost --namespace kubecost --create-namespace \
   --repo https://kubecost.github.io/cost-analyzer/ cost-analyzer \
   --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
 ```
 
-While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed with a single-file manifest using the following command:<a name="manifest"></a>
+While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, these resources can alternatively be deployed with a single-file manifest using the following command:
 
-```
-kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/develop/kubecost.yaml --namespace kubecost
+```sh
+kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/develop/kubecost.yaml
 ```
 
-<br/><br/>
-<a name="config-options"></a>
-The following table lists commonly used configuration parameters for the Kubecost Helm chart and their default values.
+The following table lists commonly used configuration parameters for the Kubecost Helm chart and their default values. Please see the [values file](/cost-analyzer/values.yaml) for the complete set of definable values.
 
 Parameter | Description | Default
 --------- | ----------- | -------
@@ -61,13 +59,15 @@ Parameter | Description | Default
 `extraVolumeMounts` | A list of volume mounts to be added to the pod | `[]`
 
 ## Adjusting Log Output
+
 The log output can be adjusted while deploying through Helm by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables.
 
 For example, to set the log level to `trace` the following flag can be added to the helm command:
 
+```sh
+--set 'kubecostModel.extraEnv[0].name=LOG_LEVEL,kubecostModel.extraEnv[0].value=trace'
 ```
-    --set 'kubecostModel.extraEnv[0].name=LOG_LEVEL,kubecostModel.extraEnv[0].value=trace'
-```
+
 `LOG_FORMAT` options:
 
 `JSON` - A structured logging output: `{"level":"info","time":"2006-01-02T15:04:05.999999999Z07:00","message":"Starting cost-model (git commit \"1.91.0-rc.0\")"}`
