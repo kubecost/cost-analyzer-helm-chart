@@ -33,7 +33,7 @@ networkPolicy:
 podSecurityPolicy:
   enabled: false
 
-# Enable this flag if you need to install with specfic image tags
+# Enable this flag if you need to install with specific image tags
 # imageVersion: prod-1.97.0
 
 kubecostFrontend:
