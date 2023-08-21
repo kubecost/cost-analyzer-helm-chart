@@ -20,6 +20,10 @@ spec:
       labels:
         {{- include "federator.selectorLabels" . | nindent 8 }}
     spec:
+      {{- if .Values.global.securityContext }}
+      securityContext:
+      {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- end }}
       containers:
         - name: federator
           {{- if .Values.kubecostModel }}
@@ -34,6 +38,10 @@ spec:
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
           {{- end }}
           imagePullPolicy: Always
+          {{- if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+          {{- end }}
           args: ["federator"]
           ports:
             - name: tcp-model

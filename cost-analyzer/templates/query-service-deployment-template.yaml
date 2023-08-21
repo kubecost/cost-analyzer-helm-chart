@@ -6,7 +6,7 @@ metadata:
   name: {{ template "query-service.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "query-service.commonLabels" . | nindent 4 }}
+    {{- include "query-service.commonLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.kubecostDeployment.queryServiceReplicas }}
   serviceName: "query-service"
@@ -40,7 +40,13 @@ spec:
         app: query-service
     spec:
       restartPolicy: Always
-
+      {{- if .Values.kubecostDeployment.queryService.securityContext }}
+      securityContext:
+        {{- toYaml .Values.kubecostDeployment.queryService.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- end }}
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -96,6 +102,12 @@ spec:
             periodSeconds: 10
             failureThreshold: 200
           imagePullPolicy: Always
+          securityContext:
+          {{- if .Values.kubecostDeployment.queryService.containerSecurityContext }}
+            {{- toYaml .Values.kubecostDeployment.queryService.containerSecurityContext | nindent 12 -}}
+          {{- else if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+          {{- end }}
           args: ["query-service"]
           ports:
             - name: tcp-model

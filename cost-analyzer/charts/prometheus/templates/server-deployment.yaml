@@ -59,10 +59,15 @@ spec:
             - --volume-dir={{ . }}
           {{- end }}
           resources:
-{{ toYaml .Values.configmapReload.prometheus.resources | indent 12 }}
-          {{- with .Values.configmapReload.prometheus.containerSecurityContext }}
+          {{- toYaml .Values.configmapReload.prometheus.resources | nindent 12 }}
           securityContext:
-            {{- toYaml . | nindent 12 }}
+          {{- if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          {{- else if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          {{- else }}
+          securityContext:
+            {{- toYaml .Values.configmapReload.prometheus.containerSecurityContext | nindent 12 }}
           {{- end }}
           volumeMounts:
             {{- if .Values.selfsignedCertConfigMapName }}
@@ -129,10 +134,12 @@ spec:
             failureThreshold: {{ .Values.server.livenessProbeFailureThreshold }}
             successThreshold: {{ .Values.server.livenessProbeSuccessThreshold }}
           resources:
-{{ toYaml .Values.server.resources | indent 12 }}
-          {{- with .Values.server.containerSecurityContext }}
+          {{- toYaml .Values.server.resources | nindent 12 }}
           securityContext:
-            {{- toYaml . | nindent 12 }}
+          {{- if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          {{- else }}
+            {{- toYaml .Values.server.prometheus.containerSecurityContext | nindent 12 }}
           {{- end }}
           volumeMounts:
             - name: config-volume
@@ -170,11 +177,14 @@ spec:
     {{- end }}
     {{- if .Values.server.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.server.nodeSelector | indent 8 }}
+      {{- toYaml .Values.server.nodeSelector | nindent 8 }}
     {{- end }}
-    {{- if .Values.server.securityContext }}
+    {{- if .Values.global.securityContext }}
       securityContext:
-{{ toYaml .Values.server.securityContext | indent 8 }}
+    {{- toYaml .Values.global.securityContext | nindent 8 }}
+    {{- else if .Values.server.securityContext }}
+      securityContext2:
+    {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.server.tolerations }}
       tolerations:

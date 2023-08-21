@@ -219,8 +219,20 @@ global:
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
 
-  containerSecuritycontext: {}
-    # readOnlyRootFilesystem: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    fsGroup: 65534
+    runAsGroup: 65534
+    runAsUser: 65534
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+      - ALL
 
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken: # ""
@@ -869,10 +881,23 @@ kubecostDeployment:
   ##
   queryServiceReplicas: 0
   queryService:
-    resources: 
-      requests: 
-        ## You can use the Kubecost savings report for 'Right-size your 
-        ## container requests' to determine the recommended resource requests 
+    securityContext:
+      fsGroup: 65534
+      runAsGroup: 65534
+      runAsUser: 65534
+      runAsNonRoot: false
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: true
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+        - ALL
+    resources:
+      requests:
+        ## You can use the Kubecost savings report for 'Right-size your
+        ## container requests' to determine the recommended resource requests
         ## once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi

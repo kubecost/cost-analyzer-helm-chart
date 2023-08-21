@@ -64,6 +64,9 @@ spec:
       {{- else if lt $nginxPort 1025 }}
       securityContext:
         runAsUser: 0
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{- else }}
       securityContext:
         runAsUser: 1001
@@ -408,10 +411,12 @@ spec:
           args:
           {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
         {{- end }}
-        {{- if .Values.kubecostModel.securityContext }}
           securityContext:
+        {{- if .Values.kubecostModel.securityContext }}
             {{- toYaml .Values.kubecostModel.securityContext | nindent 12 -}}
-        {{ end }}
+        {{- else if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+        {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -1066,7 +1071,10 @@ spec:
         {{- if .Values.kubecostFrontend.securityContext }}
           securityContext:
             {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-        {{ end }}
+          {{- else if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp

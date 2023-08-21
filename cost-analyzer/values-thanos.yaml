@@ -7,7 +7,7 @@ global:
 # will greatly assist in reduction memory bloat in query.
 kubecostModel:
   maxQueryConcurrency: 5
-  # This configuration is applied to thanos only. Expresses the resolution to 
+  # This configuration is applied to thanos only. Expresses the resolution to
   # use for longer query ranges. Options: raw, 5m, 1h - Default: raw
   maxSourceResolution: 5m
 
@@ -30,8 +30,11 @@ prometheus:
     - name: thanos-sidecar
       image: thanosio/thanos:v0.29.0
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1001
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+          - ALL
       args:
       - sidecar
       - --log.level=debug
@@ -62,7 +65,7 @@ prometheus:
         subPath: ""
       - name: object-store-volume
         mountPath: /etc/config
-    
+
 thanos:
   store:
     enabled: true
@@ -73,10 +76,10 @@ thanos:
         value: "100"
       - name: GODEBUG
         value: "madvdontneed=1"
-    resources: 
+    resources:
       requests:
         memory: "2.5Gi"
-  query: 
+  query:
     enabled: true
     timeout: 3m
     # Maximum number of queries processed concurrently by query node.
@@ -99,7 +102,7 @@ thanos:
     compressResponses: true
     # Downstream Tripper Configuration
     downstreamTripper:
-      enabled: true 
+      enabled: true
       idleConnectionTimeout: 90s
       responseHeaderTimeout: 2m
       tlsHandshakeTimeout: 10s
@@ -108,10 +111,10 @@ thanos:
       maxIdleConnectionsPerHost: 100
       maxConnectionsPerHost: 0
     # Response Cache Configuration
-    # Configure either a max size constraint or max items. 
+    # Configure either a max size constraint or max items.
     responseCache:
       enabled: true
-      # Maximum memory size of the cache in bytes. A unit suffix (KB, MB, GB) may be applied.      
+      # Maximum memory size of the cache in bytes. A unit suffix (KB, MB, GB) may be applied.
       maxSize: 1.25GB
       # Maximum number of entries in the cache.
       maxSizeItems: 0
@@ -128,7 +131,7 @@ thanos:
 
   # Thanos Sidecar Service Discovery
   # Disabling removes the prometheus sidecar from querier store discovery. This ensures
-  # that all clusters read from the same data in remote store. 
+  # that all clusters read from the same data in remote store.
   sidecar:
     enabled: true
   bucket:
