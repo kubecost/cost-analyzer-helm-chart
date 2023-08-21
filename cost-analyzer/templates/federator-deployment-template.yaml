@@ -84,4 +84,29 @@ spec:
         {{- if .Values.federatedETL.federator.extraVolumes }}
         {{- toYaml .Values.federatedETL.federator.extraVolumes | nindent 8 }}
         {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.federatedETL.federator.priority }}
+      {{- if .Values.federatedETL.federator.priority.enabled }}
+      {{- if .Values.federatedETL.federator.priority.name }}
+      priorityClassName: {{ .Values.federatedETL.federator.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "federator.fullname" . }}-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.federatedETL.federator.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.federatedETL.federator.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.federatedETL.federator.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
