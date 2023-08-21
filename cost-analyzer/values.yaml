@@ -13,7 +13,7 @@ global:
     # queryService: http://kubecost-thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
     # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
     # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
-    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
+    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve synchronization on all cluster block stores
 
   grafana:
     enabled: true # If false, Grafana will not be installed
@@ -28,7 +28,7 @@ global:
 
   # Google Cloud Managed Service for Prometheus
   gmp:
-  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
+  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to utilize Kubecost scrape configs.
   # If enabling GMP, it is highly recommended to utilize Google's distribution of Prometheus.
   # Learn more at https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
   # --set prometheus.server.image.repository="gke.gcr.io/prometheus-engine/prometheus" \
@@ -283,8 +283,8 @@ saml:
 
 oidc:
   enabled: false
-  clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
-  clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
+  clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
+  clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
   secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
   authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
@@ -537,12 +537,12 @@ priority:
 networkPolicy:
   enabled: false
   denyEgress: true # create a network policy that denies egress from kubecost
-  sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
+  sameNamespace: true # Set to true if cost analyzer and prometheus are on the same namespace
 #  namespace: kubecost # Namespace where prometheus is installed
 
   # Cost-analyzer specific vars using the new template
   costAnalyzer:
-    enabled: false # If true, create a newtork policy for cost-analzyer
+    enabled: false # If true, create a network policy for cost-analyzer
     annotations: {} # annotations to be added to the network policy
     additionalLabels: {} # additional labels to be added to the network policy
     # Examples rules:
@@ -670,7 +670,7 @@ prometheus:
   # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     enabled: true
-  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibity, but can be disabled to save resources without concern to kubecost metrics
+  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibility, but can be disabled to save resources without concern to kubecost metrics
   kubeStateMetrics:
     enabled: true
   kube-state-metrics:
