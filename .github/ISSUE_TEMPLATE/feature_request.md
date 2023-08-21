@@ -1,25 +1,45 @@
----
-name: Feature request
-about: Suggest an idea for this project
-title: ''
-labels: enhancement
-assignees: ''
-
----
-
-<!--
-If you've found a reproducable bug please reach out to our technical support team via email (support@kubecost.com) or Slack (https://kubecost.com/join-slack). There, we will triage the issue and work to resolve it.
-
-If you have a feature request, please fill out the template below!
--->
-
-**What problem are you trying to solve?**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
-
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
-
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
-
-**How would users interact with this feature?**
+name: "Feature Request"
+description: Suggest a new feature for the Kubecost chart. If you've found a reproducible bug please reach out to our technical support team via email at support@kubecost.com or Slack at https://kubecost.com/join-slack. There, we will triage the issue and work to resolve it.
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please explain the new feature.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Describe the problem.
+      placeholder: A clear and concise description of the problem statement.
+      # value: "asdf"
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution Description
+      description: Describe the solution you'd like.
+      placeholder: A clear and concise description of what you want to happen.
+      # value: "asdf"
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives
+      description: Describe alternatives you've considered.
+      placeholder: A clear and concise description of any alternative solutions or features you've considered.
+      # value: "asdf"
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any additional context to this enhancement request.
+      placeholder: Add any other context or screenshots about the feature request here.
+      # value: "asdf"
+    validations:
+      required: false
