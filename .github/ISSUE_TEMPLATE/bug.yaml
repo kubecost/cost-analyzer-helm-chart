@@ -1,0 +1,119 @@
+name: "Bug Report"
+description: Report a bug with the Kubecost Helm chart.
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please tell us about the bug, but before doing so ensure you have read the [documentation](https://docs.kubecost.com/).
+  - type: dropdown
+    id: kubecost-version
+    attributes:
+      label: Kubecost Version
+      description: What version of Kubecost are you running?
+      options:
+        - "< 1.100"
+        - "1.100"
+        - "1.101"
+        - "1.102"
+        - "1.103"
+        - "1.104"
+        - "1.105"
+        - "1.106"
+    validations:
+      required: true
+  - type: dropdown
+    id: k8s-version
+    attributes:
+      label: Kubernetes Version
+      description: What version of Kubernetes are you running?
+      options:
+        - 1.20.x
+        - 1.21.x
+        - 1.22.x
+        - 1.23.x
+        - 1.24.x
+        - 1.25.x
+        - 1.26.x
+        - 1.27.x
+        - 1.28.x
+    validations:
+      required: true
+  - type: dropdown
+    id: k8s-platform
+    attributes:
+      label: Kubernetes Platform
+      description: What Kubernetes platform are you using?
+      options:
+        - EKS
+        - GKE
+        - AKS
+        - KinD
+        - Minikube
+        - K3d
+        - OpenShift
+        - VMware Tanzu (specify in description)
+        - Bare metal
+        - Other (specify in description)
+    validations:
+      required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Description
+      description: Describe what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: bug-reproduce-steps
+    attributes:
+      label: Steps to reproduce
+      description: >-
+        What are the exact steps needed to reproduce the bug you experienced?
+        Please provide any and all manifests needed to reproduce your issue.
+        GitHub supports [syntax highlighting](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks#syntax-highlighting) with code blocks.
+      value: |-
+        1. 
+    validations:
+      required: true
+  - type: textarea
+    id: bug-expectations
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: What impact will this have on your ability to get value out of Kubecost?
+    validations:
+      required: false
+  - type: textarea
+    id: bug-screenshots
+    attributes:
+      label: Screenshots
+      description: >-
+        If you have any screenshots that would help, please paste them below.
+        GitHub allows you to copy-and-paste directly from the clipboard into the text area.
+        **Please avoid taking screenshots of either log or terminal output**; paste any textual output in the logs section below.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: >-
+        Please copy and paste any relevant log output.
+        This will be automatically formatted into code, so no need for backticks.
+      render: Shell
+  - type: input
+    id: slack
+    attributes:
+      label: Slack discussion
+      description: >-
+        If this issue is the result of a discussion thread on Slack, please provide the link to the discussion for reference.
+    validations:
+      required: false
