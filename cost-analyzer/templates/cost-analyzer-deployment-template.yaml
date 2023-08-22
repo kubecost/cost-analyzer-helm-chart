@@ -792,7 +792,7 @@ spec:
             {{- else if kindIs "bool" .Values.kubecostModel.etlCloudAsset }}
               value: {{ (quote .Values.kubecostModel.etlCloudAsset) }}
             {{- else }}
-              value: "true"
+              value: "false"
             {{- end }}
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
