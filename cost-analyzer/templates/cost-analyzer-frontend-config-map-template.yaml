@@ -1,3 +1,4 @@
+{{- if .Values.kubecostFrontend.enabled }}
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
@@ -332,4 +333,5 @@ data:
         }
         {{ end }}
     }
+{{- end }}
 {{- end }}
