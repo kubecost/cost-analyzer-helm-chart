@@ -498,6 +498,7 @@ kubecostModel:
     failureThreshold: 200
   extraArgs: []
 
+  # creates an ingress directly to the model container, for API access
   ingress:
     enabled: false
     # className: nginx
