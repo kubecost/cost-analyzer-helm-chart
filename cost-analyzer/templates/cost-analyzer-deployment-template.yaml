@@ -349,6 +349,10 @@ spec:
           imagePullPolicy: {{ .Values.sigV4Proxy.imagePullPolicy }}
           {{- else }}
           imagePullPolicy: Always
+        {{- else if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+        {{- end }}
           {{- end }}
           args:
           - --name
