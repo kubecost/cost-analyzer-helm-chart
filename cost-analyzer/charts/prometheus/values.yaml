@@ -420,7 +420,7 @@ nodeExporter:
   ##
   image:
     repository: prom/node-exporter
-    tag: v1.5.0
+    tag: v1.6.1
     pullPolicy: IfNotPresent
 
   ## Specify if a Pod Security Policy for node-exporter must be created
