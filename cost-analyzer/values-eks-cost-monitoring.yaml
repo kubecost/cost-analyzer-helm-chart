@@ -152,7 +152,7 @@ prometheus:
       ##
       image:
         repository: public.ecr.aws/bitnami/configmap-reload
-        tag: 0.7.1
+        tag: 0.11.1
         pullPolicy: IfNotPresent
       ## Additional configmap-reload container arguments
       ##
