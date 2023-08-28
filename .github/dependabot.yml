@@ -5,3 +5,19 @@ updates:
     schedule:
       interval: weekly
     rebase-strategy: disabled
+  - package-ecosystem: docker
+    directory: /cost-analyzer
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/grafana
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/prometheus
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/thanos
+    schedule:
+      interval: weekly
