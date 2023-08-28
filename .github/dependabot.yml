@@ -1,23 +1,23 @@
 version: 2
 updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
-    rebase-strategy: "disabled"
-  - package-ecosystem: "docker"
-    directory: "/cost-analyzer"
+      interval: weekly
+    rebase-strategy: disabled
+  - package-ecosystem: docker
+    directory: /cost-analyzer
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/cost-analyzer/charts/grafana"
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/grafana
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/cost-analyzer/charts/prometheus"
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/prometheus
     schedule:
-      interval: "weekly"
-  - package-ecosystem: "docker"
-    directory: "/cost-analyzer/charts/thanos"
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /cost-analyzer/charts/thanos
     schedule:
-      interval: "weekly"
+      interval: weekly
