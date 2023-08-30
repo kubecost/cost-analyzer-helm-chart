@@ -333,14 +333,7 @@ spec:
           ports:
           - name: web
             containerPort: {{ .Values.global.gmp.gmpProxy.port | int }}
-          readinessProbe:
-            httpGet:
-              path: /-/ready
-              port: web
-          livenessProbe:
-            httpGet:
-              path: /-/healthy
-              port: web
+
         {{- end }}
         {{- if .Values.global.amp.enabled }}
         - name: sigv4proxy
@@ -435,22 +428,7 @@ spec:
             protocol: TCP
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          {{- end }}
+
           {{- if .Values.global.containerSecuritycontext }}
           securityContext:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
@@ -1103,22 +1081,7 @@ spec:
         {{- else }}
           imagePullPolicy: Always
         {{- end }}
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: {{ .Values.kubecostFrontend.livenessProbe.initialDelaySeconds  }}
-            periodSeconds: {{ .Values.kubecostFrontend.livenessProbe.periodSeconds  }}
-            failureThreshold: {{ .Values.kubecostFrontend.livenessProbe.failureThreshold  }}
-          {{- end }}
+
           {{- if .Values.global.containerSecuritycontext }}
           securityContext:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
