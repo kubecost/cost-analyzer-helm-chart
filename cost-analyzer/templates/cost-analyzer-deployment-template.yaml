@@ -76,25 +76,27 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-      {{- if .Values.global.gcpstore.enabled }}
+        {{- if .Values.global.gcpstore.enabled }}
         - name: ubbagent-config
           configMap:
             name: ubbagent-config
-      {{- end }}
-      {{- if .Values.hosted }}
+        {{- end }}
+        {{- if .Values.hosted }}
         - name: config-store
           secret:
             defaultMode: 420
             secretName: kubecost-thanos
-      {{- end }}
+        {{- end }}
         - name: tmp
           emptyDir: {}
+        {{- if .Values.kubecostFrontend.enabled }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
             items:
               - key: nginx.conf
                 path: default.conf
+        {{- end }}
         {{- if .Values.global.containerSecuritycontext }}
         - name: var-run
           emptyDir: { }
@@ -1047,6 +1049,7 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+        {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
@@ -1123,6 +1126,7 @@ spec:
           securityContext:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
           {{- end }}
+        {{ end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
