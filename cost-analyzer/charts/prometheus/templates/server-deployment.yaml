@@ -61,14 +61,7 @@ spec:
           resources:
           {{- toYaml .Values.configmapReload.prometheus.resources | nindent 12 }}
           securityContext:
-          {{- if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else }}
-          securityContext:
             {{- toYaml .Values.configmapReload.prometheus.containerSecurityContext | nindent 12 }}
-          {{- end }}
           volumeMounts:
             {{- if .Values.selfsignedCertConfigMapName }}
             - name: {{ .Values.selfsignedCertConfigMapName }}
@@ -136,11 +129,7 @@ spec:
           resources:
           {{- toYaml .Values.server.resources | nindent 12 }}
           securityContext:
-          {{- if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else }}
-            {{- toYaml .Values.server.prometheus.containerSecurityContext | nindent 12 }}
-          {{- end }}
+          {{- toYaml .Values.server.containerSecurityContext | nindent 12 }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
@@ -183,7 +172,7 @@ spec:
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
     {{- else if .Values.server.securityContext }}
-      securityContext2:
+      securityContext:
     {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.server.tolerations }}

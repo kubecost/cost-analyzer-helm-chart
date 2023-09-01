@@ -97,12 +97,10 @@ spec:
               - key: nginx.conf
                 path: default.conf
         {{- end }}
-        {{- if .Values.global.containerSecuritycontext }}
         - name: var-run
-          emptyDir: { }
+          emptyDir: {}
         - name: cache
-          emptyDir: { }
-        {{- end }}
+          emptyDir: {}
         {{- /*
           If Thanos is enabled, then enable ETL backups by default.
           To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
@@ -418,11 +416,7 @@ spec:
           {{- toYaml .Values.kubecostModel.extraArgs | nindent 12 }}
         {{- end }}
           securityContext:
-        {{- if .Values.kubecostModel.securityContext }}
             {{- toYaml .Values.kubecostModel.securityContext | nindent 12 -}}
-        {{- else if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
-        {{- end }}
         {{- if .Values.kubecostModel.imagePullPolicy }}
           imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
         {{- else }}
@@ -1075,24 +1069,17 @@ spec:
             {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
             {{- end }}
           name: cost-analyzer-frontend
-        {{- if .Values.kubecostFrontend.securityContext }}
           securityContext:
-            {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-          {{- else if .Values.global.containerSecurityContext }}
-          securityContext:
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- end }}
+            {{- toYaml .Values.kubecostFrontend.containerSecurityContext | nindent 12 }}
           volumeMounts:
             - name: tmp
               mountPath: /tmp
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
-            {{- if .Values.global.containerSecuritycontext }}
             - mountPath: /var/cache/nginx
               name: cache
             - mountPath: /var/run
               name: var-run
-            {{- end }}
             {{- if .Values.kubecostFrontend.tls }}
             {{- if .Values.kubecostFrontend.tls.enabled }}
             - name: tls
