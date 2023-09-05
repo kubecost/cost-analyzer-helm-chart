@@ -671,11 +671,14 @@ prometheus:
   # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     enabled: true
-  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibility, but can be disabled to save resources without concern to kubecost metrics
+
+  ## Default disabled since Kubecost already emits KSMv1 metrics.
+  ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
   kubeStateMetrics:
-    enabled: true
+    enabled: false
   kube-state-metrics:
-    disabled: false
+    disabled: true
+
   pushgateway:
     enabled: false
     persistentVolume:
