@@ -1097,6 +1097,7 @@ costEventsAudit:
 #  masterPayerARN: ""
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
+#  gcpSecretKeyName: compute-viewer-kubecost-key.json # Name of the secret's key containing the gcp service key
 #  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels or annotations used to designate different allocation concepts
 #    enabled: true
