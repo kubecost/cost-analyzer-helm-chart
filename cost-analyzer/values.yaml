@@ -534,21 +534,6 @@ ingress:
   #    hosts:
   #      - cost-analyzer.local
 
-apiIngress:
-  enabled: false
-  # className: nginx
-  annotations:
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  paths: ["/"] # There's no need to route specifically to the pods-- we have an nginx deployed that handles routing
-  pathType: ImplementationSpecific
-  hosts:
-    - cost-analyzer.local
-  tls: []
-  #  - secretName: cost-analyzer-tls
-  #    hosts:
-  #      - cost-analyzer.local
-
 nodeSelector: {}
 
 tolerations: []
