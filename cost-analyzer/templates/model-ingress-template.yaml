@@ -19,6 +19,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.kubecostModel.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   {{- with .Values.kubecostModel.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
