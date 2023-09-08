@@ -14,6 +14,9 @@ Expand the name of the chart.
 {{- define "waterfowl.name" -}}
 {{- default "waterfowl" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "cloudCost.name" -}}
+{{- default "cloud-cost" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -43,6 +46,10 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "waterfowl.fullname" -}}
 {{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "cloudCost.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "cloudCost.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -94,6 +101,37 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- define "waterfowl.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "cloudCost.serviceName" -}}
+{{ include "cloudCost.fullname" . }}
+{{- end -}}
+
+{{/*
+Create the name of the service account
+*/}}
+{{- define "cost-analyzer.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "query-service.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "waterfowl.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "waterfowl.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "cloudCost.serviceAccountName" -}}
+    {{ (include "cloudCost.fullname" .) }}
+{{- end -}}
 
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
@@ -117,8 +155,19 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- end -}}
 
 {{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "cost-analyzer.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create the chart labels.
 */}}
+{{- define "cost-analyzer.chartLabels" -}}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
 {{- define "kubecost.chartLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
@@ -146,38 +195,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "cost-analyzer.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create the name of the service account
-*/}}
-{{- define "cost-analyzer.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "query-service.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "waterfowl.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "waterfowl.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Create the common labels.
 */}}
 {{- define "cost-analyzer.commonLabels" -}}
@@ -196,8 +213,12 @@ app: query-service
 app: federator
 {{- end -}}
 {{- define "waterfowl.commonLabels" -}}
-{{ include "kubecost.queryService.chartLabels" . }}
+{{ include "kubecost.waterfowl.chartLabels" . }}
 app: waterfowl
+{{- end -}}
+{{- define "cloudCost.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+{{ include "cloudCost.selectorLabels" . }}
 {{- end -}}
 
 {{/*
@@ -222,6 +243,11 @@ app: federator
 app.kubernetes.io/name: {{ include "waterfowl.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: waterfowl
+{{- end -}}
+{{- define "cloudCost.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cloudCost.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "cloudCost.name" . }}
 {{- end -}}
 
 {{/*
