@@ -857,6 +857,7 @@ kubecostDeployment:
     storageClass: ""
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
+    initImage: {}
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
