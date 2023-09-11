@@ -930,7 +930,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.5.1
+    tag: v1.6.1
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
