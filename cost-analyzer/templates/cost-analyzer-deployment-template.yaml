@@ -656,11 +656,11 @@ spec:
               value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
             {{- end }}
             {{- end }}
-            - name: REMOTE_WRITE_PASSWORD
-              value: {{ .Values.remoteWrite.postgres.auth.password }}
             {{- if .Values.remoteWrite.postgres.enabled }}
             - name: REMOTE_WRITE_ENABLED
               value: "true"
+            - name: REMOTE_WRITE_PASSWORD
+              value: {{ .Values.remoteWrite.postgres.auth.password }}
             {{- end }}
             {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
             - name: MC_BASIC_AUTH_USERNAME
