@@ -779,6 +779,10 @@ spec:
             - name: FEDERATED_REDIRECT_BACKUP
               value: "true"
             {{- end}}
+            {{- if .Values.federatedETL.useMultiClusterDB }}
+            - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
+              value: "true"
+            {{- end }}
             - name: ETL_STORE_READ_ONLY
               value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
             - name : ETL_CLOUD_USAGE_ENABLED
