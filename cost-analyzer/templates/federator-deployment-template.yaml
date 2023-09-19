@@ -19,6 +19,10 @@ spec:
     metadata:
       labels:
         {{- include "federator.selectorLabels" . | nindent 8 }}
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.global.securityContext }}
       securityContext:
