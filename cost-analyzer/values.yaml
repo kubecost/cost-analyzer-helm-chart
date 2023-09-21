@@ -1057,8 +1057,8 @@ federatedETL:
   useMultiClusterDB: false
 
   ## The Federator is responsible for combining each cluster's ETL files located
-  ## in the federated storage bucket, and place results in the combined storage
-  ## bucket.
+  ## in the federated storage bucket, and placing results in the combined
+  ## storage bucket.
   federator:
     enabled: false
 
