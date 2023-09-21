@@ -1,5 +1,5 @@
 name: "Feature Request"
-description: Suggest a new feature for the Kubecost chart.
+description: Suggest a new feature for the Kubecost chart. Please read the issue guidelines to determine what is an appropriate feature request for this repository.
 title: "[Feature] "
 labels: ["enhancement", "needs-triage"]
 body:
@@ -12,7 +12,7 @@ body:
     attributes:
       label: Problem Statement
       description: Describe the problem.
-      placeholder: A clear and concise description of the problem statement. If you've found a reproducible bug please reach out to our technical support team via email at support@kubecost.com or Slack at https://kubecost.com/join-slack. There, we will triage the issue and work to resolve it.
+      placeholder: A clear and concise description of the problem statement.
       # value: "asdf"
     validations:
       required: true
@@ -43,3 +43,14 @@ body:
       # value: "asdf"
     validations:
       required: false
+  - type: checkboxes
+    id: troubleshooting
+    attributes:
+      label: Troubleshooting
+      description: >-
+        By submitting this issue, you agree to the following.
+      options:
+        - label: I have read and followed the [issue guidelines](ISSUE_GUIDELINES.md) and this is a feature request only for the Helm chart.
+          required: true
+        - label: I have searched other issues in this repository and mine is not recorded.
+          required: true
