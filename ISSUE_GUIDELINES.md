@@ -15,7 +15,7 @@ Bug reports for the Kubecost application stack should be directed to one of the 
 * Slack: The `support` channel on [Kubecost Slack](https://kubecost.com/join-slack)
 * Email: [support@kubecost.com](mailto:support@kubecost.com)
 
-## Examples of Helm requests
+## Examples of Helm Requests
 
 Find a couple examples of valid Helm feature and bug requests below.
 
@@ -31,7 +31,7 @@ In the following example of a feature request, a user is stating an issue relate
 
 "Surface a priorityClassName attr."
 
-### Helm Bug Reports
+### Examples of Helm Bug Reports
 
 In the following example of a bug report, a user is claiming that using an existing capability in the Helm chart's value file does not work in a specific configuration. Because `global.podAnnotations` does exist yet when used with multiple annotations causes a failure, this failure is directly attributable to the Helm chart's templating language and not a function of any of the Kubecost application components.
 
