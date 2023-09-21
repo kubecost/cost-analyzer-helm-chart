@@ -1,5 +1,5 @@
 name: "Bug Report"
-description: Report a bug with the Kubecost Helm chart. Please read the issue guidelines to determine what is an appropriate feature request for this repository.
+description: Report a bug with the Kubecost Helm chart. Please read the issue guidelines to determine what is an appropriate bug report for this repository.
 title: "[Bug] "
 labels: ["bug", "needs-triage"]
 body:
