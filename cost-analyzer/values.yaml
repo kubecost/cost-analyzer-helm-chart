@@ -1035,18 +1035,50 @@ awsstore:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: ""
 
+## Federated ETL Architecture
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
+## 
 federatedETL:
-  federatedCluster: false # whether this cluster should push data to the Federated store
-  primaryCluster: false # whether this cluster should load data from the combined section of the Federated store
-  useExistingS3Config: false # will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
-  redirectS3Backup: false # changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL. Note S3 backup should be enabled separately for this.
-  useMultiClusterDB: false # set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
+  ## If true, push ETL data to the federated storage bucket
+  federatedCluster: false
+
+  ## If true, load ETL data from the combined storage bucket to display data
+  ## from all monitored clusters. Note, if this is your first time setting up
+  ## Federated ETL, ensure you see federated ETL data in combined storage before
+  ## setting this config to true.
+  primaryCluster: false
+
+  ## If true, changes the dir of S3 backup to the Federated combined store.
+  ## Commonly used when transitioning from Thanos to Federated ETL architecture.
+  redirectS3Backup: false
+
+  ## If true, will query metrics from a central PromQL DB (e.g. Amazon Managed
+  ## Prometheus)
+  useMultiClusterDB: false
+
+  ## The Federator is responsible for combining each cluster's ETL files located
+  ## in the federated storage bucket, and placing results in the combined
+  ## storage bucket.
   federator:
-    enabled: false # enables the federator to run inside the costmodel container, federating the data in the Federated store
-    clusters: [] # optional. Whitelist of clusters by cluster id. If not set, the federator will attempt to federated all clusters pushing to the federated storage.
-    # primaryClusterID: "cluster_id" # optional. Used when reconciliation is expected to occur on the Primary.
-    # federationCutoffDate: "2022-10-18T00:00:00.000Z" # an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator. If this is not set, the Federator will process all files regardless of date.
-    resources: {} # you can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
+    enabled: false
+
+    ## Optional. Used when reconciliation is expected to occur on the Primary.
+    # primaryClusterID: "cluster_id"
+
+    ## Optional. Allowlist of which cluster_ids to federate. If not set, the
+    ## federator will attempt to federated all clusters pushing to the federated
+    ## storage.
+    clusters: []
+
+    ## Optional. An RFC 3339-formatted string. All ETL files with windows that
+    ## fall before this time are not processed by the Federator. If this is not
+    ## set, the Federator will process all files regardless of date.
+    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
+
+    ## Optional. You can use the Kubecost savings report for 'Right-size your
+    ## container requests' to determine the recommended resource requests once
+    ## the pod has run for 24 hours.
+    resources: {}
       # requests:
       #   cpu: 100m
       #   memory: 500Mi
@@ -1061,8 +1093,9 @@ kubecostAdmissionController:
 costEventsAudit:
   enabled: false
 
-
-#readonly: false # disable updates to kubecost from the frontend UI and via POST request
+## Disable updates to kubecost from the frontend UI and via POST request
+## 
+# readonly: false
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
