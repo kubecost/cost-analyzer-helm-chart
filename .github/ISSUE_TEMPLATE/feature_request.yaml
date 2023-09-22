@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please explain the new feature.
+        Please explain the feature you'd like to see in the Kubecost Helm chart.
   - type: textarea
     id: problem
     attributes:
