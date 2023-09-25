@@ -29,6 +29,10 @@ spec:
       {{- if .Values.awsstore.priorityClassName }}
       priorityClassName: "{{ .Values.awsstore.priorityClassName }}"
       {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - image: {{ .Values.awsstore.imageNameAndVersion }}
           name: awsstore
