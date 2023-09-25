@@ -1,9 +1,9 @@
-{{- if .Values.ingress -}}
-{{- if .Values.ingress.enabled -}}
+{{- if .Values.kubecostModel.ingress -}}
+{{- if .Values.kubecostModel.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
-{{- $ingressPaths := .Values.ingress.paths -}}
-{{- $ingressPathType := .Values.ingress.pathType -}}
+{{- $ingressPaths := .Values.kubecostModel.ingress.paths -}}
+{{- $ingressPathType := .Values.kubecostModel.ingress.pathType -}}
 {{- $apiV1 := false -}}
 {{- if and (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (semverCompare "^1.19-0" .Capabilities.KubeVersion.GitVersion) }}
 {{- $apiV1 = true -}}
@@ -15,24 +15,24 @@ apiVersion: extensions/v1beta1
 {{ end -}}
 kind: Ingress
 metadata:
-  name: {{ $fullName }}
+  name: {{ $fullName }}-model
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-    {{- with .Values.ingress.labels }}
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.kubecostModel.ingress.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.ingress.annotations }}
+  {{- with .Values.kubecostModel.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.ingress.className }}
-  ingressClassName: {{ .Values.ingress.className }}
+{{- if .Values.kubecostModel.ingress.className }}
+  ingressClassName: {{ .Values.kubecostModel.ingress.className }}
 {{- end }}
-{{- if .Values.ingress.tls }}
+{{- if .Values.kubecostModel.ingress.tls }}
   tls:
-  {{- range .Values.ingress.tls }}
+  {{- range .Values.kubecostModel.ingress.tls }}
     - hosts:
       {{- range .hosts }}
         - {{ . | quote }}
@@ -41,7 +41,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-  {{- range .Values.ingress.hosts }}
+  {{- range .Values.kubecostModel.ingress.hosts }}
     - host: {{ . | quote }}
       http:
         paths:
@@ -53,12 +53,12 @@ spec:
               service:
                 name: {{ $serviceName }}
                 port:
-                  name: tcp-frontend
+                  name: tcp-model
           {{- else }}
           - path: {{ . }}
             backend:
               serviceName: {{ $serviceName }}
-              servicePort: tcp-frontend
+              servicePort: tcp-model
           {{- end }}
         {{- end }}
   {{- end }}

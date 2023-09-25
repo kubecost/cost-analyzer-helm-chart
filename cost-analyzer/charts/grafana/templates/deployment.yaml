@@ -23,7 +23,7 @@ spec:
     type: {{ .Values.deploymentStrategy }}
   {{- if ne .Values.deploymentStrategy "RollingUpdate" }}
     rollingUpdate: null
-  {{- end }}    
+  {{- end }}
   template:
     metadata:
       labels:
@@ -41,9 +41,15 @@ spec:
 {{- if .Values.schedulerName }}
       schedulerName: "{{ .Values.schedulerName }}"
 {{- end }}
-{{- if .Values.securityContext }}
+{{- if .Values.global.securityContext }}
       securityContext:
-{{ toYaml .Values.securityContext | indent 8 }}
+{{- toYaml .Values.global.securityContext | nindent 8 }}
+{{- else if .Values.securityContext }}
+      securityContext:
+{{- toYaml .Values.securityContext | nindent 8 }}
+{{- end }}
+{{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
 {{- end }}
 {{- if .Values.dashboards }}
       initContainers:
@@ -51,6 +57,10 @@ spec:
           image: "{{ .Values.downloadDashboardsImage.repository }}:{{ .Values.downloadDashboardsImage.tag }}"
           imagePullPolicy: {{ .Values.downloadDashboardsImage.pullPolicy }}
           command: ["sh", "/etc/grafana/download_dashboards.sh"]
+          {{- with .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: "/etc/grafana/download_dashboards.sh"
@@ -73,8 +83,12 @@ spec:
       containers:
 {{- if .Values.sidecar.dashboards.enabled }}
         - name: {{ template "grafana.name" . }}-sc-dashboard
-          image: "{{ .Values.sidecar.image }}"
-          imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
+          image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+          {{- if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+          {{- end }}
           env:
             - name: LABEL
               value: "{{ .Values.sidecar.dashboards.label }}"
@@ -90,8 +104,12 @@ spec:
 {{- end}}
 {{- if .Values.sidecar.datasources.enabled }}
         - name: {{ template "grafana.name" . }}-sc-datasources
-          image: "{{ .Values.sidecar.image }}"
-          imagePullPolicy: {{ .Values.sidecar.imagePullPolicy }}
+          image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
+          imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
+          {{- with .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             - name: LABEL
               value: "{{ .Values.sidecar.datasources.label }}"
@@ -108,6 +126,10 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config
               mountPath: "/etc/grafana/grafana.ini"
@@ -132,7 +154,7 @@ spec:
               mountPath: "/var/lib/grafana/dashboards/{{ . }}"
   {{- end }}
 {{- end }}
-{{- if .Values.datasources }}
+{{- if or .Values.datasources .Values.global.grafana.enabled }}
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: datasources.yaml

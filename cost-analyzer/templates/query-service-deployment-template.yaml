@@ -1,0 +1,192 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
+{{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "query-service.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "query-service.commonLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.kubecostDeployment.queryServiceReplicas }}
+  serviceName: "query-service"
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: query-service
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app: query-service
+  volumeClaimTemplates:
+  - metadata:
+      name: database-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostDeployment.queryService.databaseVolumeSize }}
+  - metadata:
+      name: persistent-configs
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostDeployment.queryService.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.kubecostDeployment.queryService.configVolumeSize }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: query-service
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: query-service
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      restartPolicy: Always
+      {{- if .Values.kubecostDeployment.queryService.securityContext }}
+      securityContext:
+        {{- toYaml .Values.kubecostDeployment.queryService.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "query-service.serviceAccountName" . }}
+      volumes:
+        {{- $etlBackupBucketSecret := "" }}
+        {{- if .Values.kubecostModel.queryServiceConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.queryServiceConfigSecret }}
+        {{- else if .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
+            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
+        {{- end }}
+        {{- if $etlBackupBucketSecret }}
+        - name: etl-bucket-config
+          secret:
+           defaultMode: 420
+           secretName: {{ $etlBackupBucketSecret }}
+        {{- end }}
+        {{- if .Values.kubecostDeployment.queryService.extraVolumes }}
+        {{- toYaml .Values.kubecostDeployment.queryService.extraVolumes | nindent 8 }}
+        {{- end }}
+      initContainers:
+        - name: config-db-perms-fix
+          image: {{ .Values.kubecostDeployment.queryService.initImage.repository | default "busybox"}}:{{ .Values.kubecostDeployment.queryService.initImage.tag | default "stable"}}
+          imagePullPolicy: {{ .Values.kubecostDeployment.queryService.initImage.pullPolicy | default "IfNotPresent"}}
+          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: database-storage
+              mountPath: /var/db
+          securityContext:
+            runAsUser: 0
+      containers:
+        - name: query-service
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
+          image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9003
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 200
+          imagePullPolicy: Always
+          securityContext:
+          {{- if .Values.kubecostDeployment.queryService.containerSecurityContext }}
+            {{- toYaml .Values.kubecostDeployment.queryService.containerSecurityContext | nindent 12 -}}
+          {{- else if .Values.global.containerSecurityContext }}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+          {{- end }}
+          args: ["query-service"]
+          ports:
+            - name: tcp-model
+              containerPort: 9003
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.kubecostDeployment.queryService.resources | nindent 12 }}
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+            - name: database-storage
+              mountPath: /var/db
+            {{- if .Values.kubecostDeployment.queryService.extraVolumeMounts }}
+            {{- toYaml .Values.kubecostDeployment.queryService.extraVolumeMounts | nindent 12 }}
+            {{- end }}
+          env:
+            - name: CONFIG_PATH
+              value: /var/configs/
+            - name: DB_PATH
+              value: /var/db/
+            - name: ETL_FILE_STORE_ENABLED
+              value: "true"
+            {{- if $etlBackupBucketSecret }}
+            - name: ETL_BUCKET_CONFIG
+              {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
+              value: "/var/configs/etl/object-store.yaml"
+              {{- else  }}
+              value: "/var/configs/etl/federated-store.yaml"
+            - name: CLUSTER_ID
+              value: "combined"
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated-store.yaml"
+            - name: FEDERATED_CLUSTER
+              value: "true"
+            - name: FEDERATED_PRIMARY_CLUSTER
+              value: "true"
+            - name: FEDERATED_REDIRECT_BACKUP
+              value: "true"
+              {{- end }}
+            {{- end }}
+            - name: ETL_PATH_PREFIX
+              value: "/var/db"
+            - name: CLOUD_PROVIDER_API_KEY
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+            {{- if .Values.kubecostDeployment.queryService.extraEnv }}
+            {{- toYaml .Values.kubecostDeployment.queryService.extraEnv | nindent 12 }}
+            {{- end }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.kubecostDeployment.queryService.priority }}
+      {{- if .Values.kubecostDeployment.queryService.priority.enabled }}
+      {{- if .Values.kubecostDeployment.queryService.priority.name }}
+      priorityClassName: {{ .Values.kubecostDeployment.queryService.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-qsr-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostDeployment.queryService.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+{{- end }}
+{{- end }}

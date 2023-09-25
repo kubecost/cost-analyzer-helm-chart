@@ -12,6 +12,7 @@ data:
     oidc.json: |-
       {
         "enabled" : {{ .Values.oidc.enabled }},
+        "useIDToken" : {{ .Values.oidc.useIDToken | default "false" }},
         "clientID" : "{{ .Values.oidc.clientID }}",
         "secretName" : "{{ .Values.oidc.secretName }}",
         "authURL" : "{{ .Values.oidc.authURL }}",

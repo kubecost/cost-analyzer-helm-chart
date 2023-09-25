@@ -1,3 +1,4 @@
+{{- if .Values.kubecostFrontend.enabled }}
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
@@ -101,12 +102,24 @@ data:
     }
 {{- end }}
 
+  {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
+    upstream queryservice {
+        server {{ .Release.Name }}-query-service-load-balancer.{{ .Release.Namespace }}:9003;
+    }
+  {{- end }}
+
     server {
         server_name _;
         root /var/www;
         index index.html;
-        large_client_header_buffers 4 32k;
+
         add_header Cache-Control "must-revalidate";
+
+        {{- if.Values.kubecostFrontend.extraServerConfig }}
+        {{- .Values.kubecostFrontend.extraServerConfig | toString | nindent 8 -}}
+        {{- else }}
+        large_client_header_buffers 4 32k;
+        {{- end }}
 
         error_page 504 /custom_504.html;
         location = /custom_504.html {
@@ -171,15 +184,18 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
-            proxy_connect_timeout       180;
-            proxy_send_timeout          180;
-            proxy_read_timeout          180;
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+            {{- if .Values.kubecostFrontend.extraModelConfigs }}
+            {{- .Values.kubecostFrontend.extraModelConfigs | toString | nindent 12 -}}
+            {{- end }}
         }
 
         location ~ ^/(turndown|cluster)/ {
@@ -285,5 +301,37 @@ data:
             proxy_pass http://model/isAdminAuthenticated;
         }
     {{- end }}
+
+    {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
+        location /model/allocation {
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
+            proxy_pass http://queryservice/allocation;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        location /model/assets {
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
+            proxy_pass http://queryservice/assets;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    {{- end }}
+        {{- if .Values.kubecostFrontend.trendsDisabled }}
+        location /model/allocation/trends {
+            return 204 'endpoint disabled';
+        }
+        {{ end }}
     }
+{{- end }}
 {{- end }}

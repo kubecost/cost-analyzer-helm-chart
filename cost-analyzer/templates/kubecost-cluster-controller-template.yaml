@@ -35,7 +35,7 @@ rules:
       - update
       - delete
   - apiGroups:
-      - ""
+      - ''
       - events.k8s.io
     resources:
       - events
@@ -65,6 +65,17 @@ rules:
       - ''
     resources:
       - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
       - namespaces
       - persistentvolumeclaims
       - persistentvolumes
@@ -75,6 +86,16 @@ rules:
       - get 
       - list
       - watch
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+    resourceNames:
+      - 'cluster-controller-nsturndown-config'
+    verbs:
+      - get
+      - create
+      - update
   - apiGroups:
       - extensions
     resources:
@@ -149,6 +170,17 @@ rules:
       - get
       - list
       - watch
+  # Used for namespace turndown 
+  # When cleaning a namespace, we need the ability to remove
+  # arbitrary resources (since we helm uninstall all releases in that NS first)
+  {{- if .Values.clusterController.namespaceTurndown.rbac.enabled }}
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs:
+      - list
+      - get
+      - delete
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -164,6 +196,22 @@ subjects:
   - kind: ServiceAccount
     name: {{ template "kubecost.clusterControllerName" . }}
     namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-continuous-cluster-sizing
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-controller-nsturndown-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -186,6 +234,9 @@ spec:
       labels:
         app: {{ template "kubecost.clusterControllerName" . }}
     spec:
+      {{- if .Values.clusterController.priorityClassName }}
+      priorityClassName: "{{ .Values.clusterController.priorityClassName }}"
+      {{- end }}
       containers:
       - name: {{ template "kubecost.clusterControllerName" . }}
         image: {{ .Values.clusterController.image }}
@@ -212,15 +263,13 @@ spec:
           value: {{ .Release.Namespace }}
         - name: TURNDOWN_DEPLOYMENT
           value: {{ template "kubecost.clusterControllerName" . }}
-        {{- if .Values.kubecostProductConfigs }}
-        {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: GOOGLE_APPLICATION_CREDENTIALS
           value: /var/keys/service-key.json
-        {{- end }}
-        {{- end }}
         - name: CC_LOG_LEVEL
           value: {{ .Values.clusterController.logLevel | default "info" }}
         - name: CC_KUBESCALER_COST_MODEL_PATH
+          value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
+        - name: CC_CCL_COST_MODEL_PATH
           value: http://{{ $serviceName }}.{{ .Release.Namespace }}:{{ .Values.service.targetPort | default 9090 }}/model
         {{- if .Values.clusterController.kubescaler }}
         - name: CC_KUBESCALER_DEFAULT_RESIZE_ALL
@@ -298,6 +347,34 @@ spec:
                 repeat:
                   type: string
                   enum: [none, daily, weekly]
+            status:
+              type: object
+              properties:
+                state:
+                  type: string
+                lastUpdated:
+                  format: date-time
+                  type: string
+                current:
+                  type: string
+                scaleDownId:
+                  type: string
+                nextScaleDownTime:
+                  format: date-time
+                  type: string
+                scaleDownMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
+                scaleUpID:
+                  type: string
+                nextScaleUpTime:
+                  format: date-time
+                  type: string
+                scaleUpMetadata:
+                  additionalProperties:
+                    type: string
+                  type: object
       additionalPrinterColumns:
       - name: State
         type: string

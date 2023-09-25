@@ -181,6 +181,7 @@ Parameter | Description | Default
 `alertmanager.strategy` | Deployment strategy | `{ "type": "RollingUpdate" }`
 `alertmanagerFiles.alertmanager.yml` | Prometheus alertmanager configuration | example configuration
 `configmapReload.prometheus.enabled` | If false, the configmap-reload container for Prometheus will not be deployed | `true`
+`configmapReload.prometheus.containerSecurityContext` | securityContext for container | `{}`
 `configmapReload.prometheus.name` | configmap-reload container name | `configmap-reload`
 `configmapReload.prometheus.image.repository` | configmap-reload container image repository | `jimmidyson/configmap-reload`
 `configmapReload.prometheus.image.tag` | configmap-reload container image tag | `v0.5.0`
@@ -206,6 +207,7 @@ Parameter | Description | Default
 `initChownData.resources` | init-chown-data pod resource requests & limits | `{}`
 `kube-state-metrics.disabled` | If false, create kube-state-metrics sub-chart, see the [kube-state-metrics chart for configuration options](https://github.com/helm/charts/tree/master/stable/kube-state-metrics) | `false`
 `nodeExporter.enabled` | If true, create node-exporter | `true`
+`nodeExporter.dnsPolicy` | node-exporter dns policy | `ClusterFirstWithHostNet`
 `nodeExporter.name` | node-exporter container name | `node-exporter`
 `nodeExporter.image.repository` | node-exporter container image repository| `prom/node-exporter`
 `nodeExporter.image.tag` | node-exporter container image tag | `v0.18.1`
@@ -319,6 +321,7 @@ Parameter | Description | Default
 `server.persistentVolume.storageClass` | Prometheus server data Persistent Volume Storage Class |  `unset`
 `server.persistentVolume.volumeBindingMode` | Prometheus server data Persistent Volume Binding Mode | `unset`
 `server.persistentVolume.subPath` | Subdirectory of Prometheus server data Persistent Volume to mount | `""`
+`server.containerSecurityContext` | securityContext for container | `{}`
 `server.emptyDir.sizeLimit` | emptyDir sizeLimit if a Persistent Volume is not used | `""`
 `server.podAnnotations` | annotations to be added to Prometheus server pods | `{}`
 `server.podLabels` | labels to be added to Prometheus server pods | `{}`

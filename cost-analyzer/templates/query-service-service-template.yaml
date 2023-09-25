@@ -1,0 +1,19 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) }}
+{{- if gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0 }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "query-service.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "query-service.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "query-service.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: tcp-query-service
+      port: 9003
+      targetPort: 9003
+{{- end }}
+{{- end }}

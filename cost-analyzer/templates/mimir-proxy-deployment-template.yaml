@@ -1,0 +1,40 @@
+{{- if .Values.global.mimirProxy }}
+{{- if .Values.global.mimirProxy.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-mimir-proxy
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mimir-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mimir-proxy
+  template:
+    metadata:
+      labels:
+        app: mimir-proxy
+    spec:
+      containers:
+      - name: {{ .Values.global.mimirProxy.name }}
+        image: {{ .Values.global.mimirProxy.image }}
+        ports:
+          - containerPort: {{ .Values.global.mimirProxy.port }}
+            protocol: TCP
+        resources: {}
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /etc/nginx/conf.d
+          name: default-conf
+          readOnly: true
+      volumes:
+      - name: default-conf
+        configMap:
+          name: {{ template "cost-analyzer.fullname" . }}-mimir-proxy
+          items:
+            - key: default.conf
+              path: default.conf
+{{- end }}
+{{- end }}

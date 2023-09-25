@@ -1,6 +1,6 @@
 rbac:
   create: true
-  pspEnabled: true
+  pspEnabled: false
   pspUseAppArmor: true
 serviceAccount:
   create: true
@@ -25,7 +25,7 @@ livenessProbe:
 
 image:
   repository: grafana/grafana
-  tag: 9.3.1
+  tag: 9.4.7
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -256,8 +256,10 @@ smtp:
 ## Sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
 ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
 sidecar:
-  image: kiwigrid/k8s-sidecar:1.21.0
-  imagePullPolicy: IfNotPresent
+  image:
+    repository: kiwigrid/k8s-sidecar
+    tag: 1.25.1
+    pullPolicy: IfNotPresent
   resources:
 #   limits:
 #     cpu: 100m
@@ -275,3 +277,7 @@ sidecar:
     enabled: false
     # label that the configmaps with datasources are marked with
     label: grafana_datasource
+
+## PriorityClassName
+## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
+priorityClassName: ""

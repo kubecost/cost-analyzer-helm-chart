@@ -43,7 +43,7 @@ alertmanager:
   ##
   image:
     repository: quay.io/prometheus/alertmanager
-    tag: v0.23.0
+    tag: v0.25.0
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -323,7 +323,7 @@ configmapReload:
     ##
     image:
       repository: jimmidyson/configmap-reload
-      tag: v0.7.1
+      tag: v0.9.0
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -332,7 +332,6 @@ configmapReload:
     ## Additional configmap-reload volume directories
     ##
     extraVolumeDirs: []
-
 
     ## Additional configmap-reload mounts
     ##
@@ -343,11 +342,14 @@ configmapReload:
       #   configMap: prometheus-alerts
       #   readOnly: true
 
-
     ## configmap-reload resource requests and limits
     ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
     ##
     resources: {}
+
+    ## configmap-reload container securityContext
+    containerSecurityContext: {}
+
   alertmanager:
     ## If false, the configmap-reload container will not be deployed
     ##
@@ -361,7 +363,7 @@ configmapReload:
     ##
     image:
       repository: jimmidyson/configmap-reload
-      tag: v0.7.1
+      tag: v0.9.0
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -406,6 +408,10 @@ nodeExporter:
   ##
   hostPID: true
 
+  ## node-exporter dns policy
+  ##
+  dnsPolicy: ClusterFirstWithHostNet
+
   ## node-exporter container name
   ##
   name: node-exporter
@@ -414,7 +420,7 @@ nodeExporter:
   ##
   image:
     repository: prom/node-exporter
-    tag: v1.3.0
+    tag: v1.5.0
     pullPolicy: IfNotPresent
 
   ## Specify if a Pod Security Policy for node-exporter must be created
@@ -867,6 +873,8 @@ server:
     runAsGroup: 1001
     fsGroup: 1001
 
+  containerSecurityContext: {}
+
   service:
     annotations: {}
     labels: {}
@@ -922,7 +930,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.4.2
+    tag: v1.5.1
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
@@ -1289,7 +1297,7 @@ serverFiles:
             regex: true
           - source_labels: [__meta_kubernetes_endpoints_name]
             action: keep
-            regex: (.*kube-state-metrics|.*prometheus-node-exporter|kubecost-network-costs)
+            regex: (.*kube-state-metrics|.*node-exporter|kubecost-network-costs)
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
             action: replace
             target_label: __scheme__
@@ -1318,98 +1326,6 @@ serverFiles:
           - source_labels: [ __name__ ]
             regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_fs_writes_bytes_total|container_gpu_allocation|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|DCGM_FI_DEV_GPU_UTIL|deployment_match_labels|kube_daemonset_status_desired_number_scheduled|kube_daemonset_status_number_ready|kube_deployment_spec_replicas|kube_deployment_status_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_allocatable|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|kube_node_status_capacity|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_pod_container_info|kube_pod_container_resource_limits|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kube_replicaset_owner|kube_statefulset_replicas|kube_statefulset_status_replicas|kubecost_cluster_info|kubecost_cluster_management_cost|kubecost_cluster_memory_working_set_bytes|kubecost_load_balancer_cost|kubecost_network_internet_egress_cost|kubecost_network_region_egress_cost|kubecost_network_zone_egress_cost|kubecost_node_is_spot|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_count|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|node_total_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|kubecost_pv_info|up)
             action: keep
-
-      # Scrape config for slow service endpoints; same as above, but with a larger
-      # timeout and a larger interval
-      #
-      # The relabeling allows the actual service scrape endpoint to be configured
-      # via the following annotations:
-      #
-      # * `prometheus.io/scrape-slow`: Only scrape services that have a value of `true`
-      # * `prometheus.io/scheme`: If the metrics endpoint is secured then you will need
-      # to set this to `https` & most likely set the `tls_config` of the scrape config.
-      # * `prometheus.io/path`: If the metrics path is not `/metrics` override this.
-      # * `prometheus.io/port`: If the metrics are exposed on a different port to the
-      # service then set this appropriately.
-      - job_name: 'kubernetes-service-endpoints-slow'
-
-        scrape_interval: 5m
-        scrape_timeout: 30s
-
-        kubernetes_sd_configs:
-          - role: endpoints
-
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scrape_slow]
-            action: keep
-            regex: true
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
-            action: replace
-            target_label: __scheme__
-            regex: (https?)
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_path]
-            action: replace
-            target_label: __metrics_path__
-            regex: (.+)
-          - source_labels: [__address__, __meta_kubernetes_service_annotation_prometheus_io_port]
-            action: replace
-            target_label: __address__
-            regex: ([^:]+)(?::\d+)?;(\d+)
-            replacement: $1:$2
-          - action: labelmap
-            regex: __meta_kubernetes_service_label_(.+)
-          - source_labels: [__meta_kubernetes_namespace]
-            action: replace
-            target_label: kubernetes_namespace
-          - source_labels: [__meta_kubernetes_service_name]
-            action: replace
-            target_label: kubernetes_name
-          - source_labels: [__meta_kubernetes_pod_node_name]
-            action: replace
-            target_label: kubernetes_node
-
-      - job_name: 'prometheus-pushgateway'
-        honor_labels: true
-
-        kubernetes_sd_configs:
-          - role: service
-
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
-            action: keep
-            regex: pushgateway
-
-      # Example scrape config for probing services via the Blackbox Exporter.
-      #
-      # The relabeling allows the actual service scrape endpoint to be configured
-      # via the following annotations:
-      #
-      # * `prometheus.io/probe`: Only probe services that have a value of `true`
-      - job_name: 'kubernetes-services'
-
-        metrics_path: /probe
-        params:
-          module: [http_2xx]
-
-        kubernetes_sd_configs:
-          - role: service
-
-        relabel_configs:
-          - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_probe]
-            action: keep
-            regex: true
-          - source_labels: [__address__]
-            target_label: __param_target
-          - target_label: __address__
-            replacement: blackbox
-          - source_labels: [__param_target]
-            target_label: instance
-          - action: labelmap
-            regex: __meta_kubernetes_service_label_(.+)
-          - source_labels: [__meta_kubernetes_namespace]
-            target_label: kubernetes_namespace
-          - source_labels: [__meta_kubernetes_service_name]
-            target_label: kubernetes_name
 
 # adds additional scrape configs to prometheus.yml
 # must be a string so you have to add a | after extraScrapeConfigs:
