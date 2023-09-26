@@ -925,8 +925,8 @@ spec:
             {{- if .Values.oidc.enabled }}
             - name: OIDC_ENABLED
               value: "true"
-            - name: OIDC_SKIP_TOKEN_VALIDATION
-              value: {{ .Values.oidc.skipOnlineTokenValidation }}
+            - name: OIDC_SKIP_ONLINE_VALIDATION
+              value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
             {{- end}}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
