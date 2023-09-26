@@ -250,12 +250,12 @@ pricingCsv:
 # Ref: https://github.com/kubecost/docs/blob/main/user-management.md
 saml:
   enabled: false
-  secretName: "kubecost-authzero"
-  #metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
-  idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
-  appRootURL: "http://localhost:9090" # sample URL
-  authTimeout: 1440 # number of minutes the JWT will be valid
-  redirectURL: "https://dev-elu2z98r.auth0.com/v2/logout" # callback URL redirected to after logout
+  # secretName: "kubecost-authzero"
+  # metadataSecretName: "kubecost-authzero-metadata" # One of metadataSecretName or idpMetadataURL must be set. defaults to metadataURL if set
+  # idpMetadataURL: "https://dev-elu2z98r.auth0.com/samlp/metadata/c6nY4M37rBP0qSO1IYIqBPPyIPxLS8v2"
+  # appRootURL: "http://localhost:9090" # sample URL
+  # authTimeout: 1440 # number of minutes the JWT will be valid
+  # redirectURL: "https://dev-elu2z98r.auth0.com/v2/logout" # callback URL redirected to after logout
   # audienceURI: "http://localhost:9090" # by convention, the same as the appRootURL, but any string uniquely identifying kubecost to your samp IDP. Optional if you follow the convention
   # nameIDFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified" If your SAML provider requires a specific nameid format
   # isGLUUProvider: false # An additional URL parameter must be appended for GLUU providers
@@ -263,52 +263,52 @@ saml:
   # decryptionKeySecret: "kubecost-sank-decryption-key" # k8s secret where the private key associated with the encryptionCertSecret is stored
   rbac:
     enabled: false
-    groups:
-      - name: admin
-        enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
-        assertionName: "http://schemas.auth0.com/userType" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
-        assertionValues:
-          - "admin"
-          - "superusers"
-      - name: readonly
-        enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
-        assertionName:  "http://schemas.auth0.com/userType"
-        assertionValues:
-          - "readonly"
-      - name: editor
-        enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
-        assertionName: "http://schemas.auth0.com/userType"
-        assertionValues:
-          - "editor"
+    # groups:
+    #   - name: admin
+    #     enabled: false # if admin is disabled, all SAML users will be able to make configuration changes to the kubecost frontend
+    #     assertionName: "http://schemas.auth0.com/userType" # a SAML Assertion, one of whose elements has a value that matches on of the values in assertionValues
+    #     assertionValues:
+    #       - "admin"
+    #       - "superusers"
+    #   - name: readonly
+    #     enabled: false # if readonly is disabled, all users authorized on SAML will default to readonly
+    #     assertionName:  "http://schemas.auth0.com/userType"
+    #     assertionValues:
+    #       - "readonly"
+    #   - name: editor
+    #     enabled: true # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+    #     assertionName: "http://schemas.auth0.com/userType"
+    #     assertionValues:
+    #       - "editor"
 
 oidc:
   enabled: false
-  clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
-  clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
-  secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
-  authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
-  loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
-  discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
-#  hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
+  # clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
+  # clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
+  # secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
+  # authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
+  # loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
+  # discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
+  # hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
-    groups:
-      - name: admin
-        enabled: false # if admin is disabled, all authenticated users will be able to make configuration changes to the kubecost frontend
-        claimName: "roles" # Kubecost matches this string against the JWT's payload key containing RBAC info (this value is unique across identity providers)
-        claimValues: # Kubecost matches these strings with the roles created in your identity provider
-          - "admin"
-          - "superusers"
-      - name: readonly
-        enabled: false # if readonly is disabled, all authenticated users will default to readonly
-        claimName:  "roles"
-        claimValues:
-          - "readonly"
-      - name: editor
-        enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
-        claimName: "roles"
-        claimValues:
-          - "editor"
+    # groups:
+    #   - name: admin
+    #     enabled: false # if admin is disabled, all authenticated users will be able to make configuration changes to the kubecost frontend
+    #     claimName: "roles" # Kubecost matches this string against the JWT's payload key containing RBAC info (this value is unique across identity providers)
+    #     claimValues: # Kubecost matches these strings with the roles created in your identity provider
+    #       - "admin"
+    #       - "superusers"
+    #   - name: readonly
+    #     enabled: false # if readonly is disabled, all authenticated users will default to readonly
+    #     claimName:  "roles"
+    #     claimValues:
+    #       - "readonly"
+    #   - name: editor
+    #     enabled: false # if editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+    #     claimName: "roles"
+    #     claimValues:
+    #       - "editor"
 
 # Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
 # Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
@@ -1038,7 +1038,7 @@ awsstore:
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
-## 
+##
 federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
@@ -1095,7 +1095,7 @@ costEventsAudit:
   enabled: false
 
 ## Disable updates to kubecost from the frontend UI and via POST request
-## 
+##
 # readonly: false
 
 # These configs can also be set from the Settings page in the Kubecost product UI
