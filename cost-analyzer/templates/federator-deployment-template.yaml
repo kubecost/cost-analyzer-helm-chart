@@ -52,6 +52,8 @@ spec:
               containerPort: 9001
               protocol: TCP
           volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
             - name: federator-config
               mountPath: /var/configs/federator
             - name: federated-storage-config
@@ -76,7 +78,7 @@ spec:
               value: /var/db/
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
-              value: "/var/configs/etl/federated/federated-store.yaml"
+              value: /var/configs/etl/federated/federated-store.yaml
             {{- end }}
             {{- if .Values.federatedETL.federator.extraEnv }}
             {{- toYaml .Values.federatedETL.federator.extraEnv | nindent 12 }}
@@ -84,18 +86,25 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-        - name: federator-config
-          configMap:
-            name: {{ template "cost-analyzer.fullname" . }}-federator
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
-        - name: federated-storage-config
-          secret:
-            defaultMode: 420
-            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- end }}
-        {{- if .Values.federatedETL.federator.extraVolumes }}
-        {{- toYaml .Values.federatedETL.federator.extraVolumes | nindent 8 }}
-        {{- end }}
+      - name: persistent-configs
+      {{- if .Values.persistentVolume.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "federator.fullname" . }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      - name: federator-config
+        configMap:
+          name: {{ template "cost-analyzer.fullname" . }}-federator
+      {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+      - name: federated-storage-config
+        secret:
+          defaultMode: 420
+          secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+      {{- end }}
+      {{- if .Values.federatedETL.federator.extraVolumes }}
+      {{- toYaml .Values.federatedETL.federator.extraVolumes | nindent 8 }}
+      {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
