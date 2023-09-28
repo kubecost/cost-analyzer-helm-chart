@@ -1038,7 +1038,7 @@ awsstore:
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
-## 
+##
 federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
@@ -1059,9 +1059,16 @@ federatedETL:
 
   ## The Federator is responsible for combining each cluster's ETL files located
   ## in the federated storage bucket, and placing results in the combined
-  ## storage bucket.
+  ## storage bucket. The Federator uses the same image as the cost-model container.
+  ## This pod has a 32Gi PV by default.
   federator:
     enabled: false
+    persistentVolume:
+      enabled: true
+      size: 32Gi
+      storageClass: ""
+    labels: {}
+    annotations: {}
 
     ## Optional. Used when reconciliation is expected to occur on the Primary.
     # primaryClusterID: "cluster_id"
@@ -1095,7 +1102,7 @@ costEventsAudit:
   enabled: false
 
 ## Disable updates to kubecost from the frontend UI and via POST request
-## 
+##
 # readonly: false
 
 # These configs can also be set from the Settings page in the Kubecost product UI

@@ -87,7 +87,7 @@ spec:
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
       - name: persistent-configs
-      {{- if .Values.persistentVolume.enabled }}
+      {{- if .Values.federatedETL.federator.persistentVolume.enabled }}
         persistentVolumeClaim:
           claimName: {{ template "federator.fullname" . }}
       {{- else }}
