@@ -19,6 +19,7 @@ data:
         "loginRedirectURL" : "{{ .Values.oidc.loginRedirectURL }}",
         "discoveryURL" : "{{ .Values.oidc.discoveryURL }}",
         "hostedDomain" : "{{ .Values.oidc.hostedDomain }}",
+        "skipOnlineTokenValidation" : "{{ .Values.oidc.skipOnlineTokenValidation | default "false" }}",
         "rbac" : {
           "enabled" : {{ .Values.oidc.rbac.enabled }},
           "groups" : [
