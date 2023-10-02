@@ -275,6 +275,7 @@ oidc:
   authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
+  skipOnlineTokenValidation: false # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
 #  hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
