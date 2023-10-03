@@ -167,6 +167,8 @@ spec:
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
 
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
