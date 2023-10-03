@@ -496,6 +496,22 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/budget {
+            proxy_read_timeout          300;
+            proxy_pass http://waterfowl/budget;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/budgets {
+            proxy_read_timeout          300;
+            proxy_pass http://waterfowl/budgets;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
     {{- end }}
     {{- if .Values.waterfowl.cloudCost.enabled }}
         location = /model/cloudCost/status {
