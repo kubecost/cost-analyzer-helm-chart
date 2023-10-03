@@ -14,8 +14,8 @@ data:
         "enabled" : {{ .Values.oidc.enabled }},
         "useIDToken" : {{ .Values.oidc.useIDToken | default "false" }},
         "clientID" : "{{ .Values.oidc.clientID }}",
-        {{- if .Values.oidc.customSecret.enabled }}
-        "secretName" : "{{ .Values.oidc.customSecret.name }}",
+        {{- if .Values.oidc.existingCustomSecret.enabled }}
+        "secretName" : "{{ .Values.oidc.existingCustomSecret.name }}",
         {{- else }}
         "secretName" : "{{ .Values.oidc.secretName }}",
         {{- end }}
