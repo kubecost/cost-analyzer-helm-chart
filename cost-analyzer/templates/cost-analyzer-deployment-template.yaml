@@ -1043,6 +1043,10 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+            {{- if and (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
+            - name: WATERFOWL_ENABLED
+              value: "true"
+            {{- end }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
