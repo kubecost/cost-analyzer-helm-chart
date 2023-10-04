@@ -874,6 +874,8 @@ kubecostDeployment:
     configVolumeSize: 1Gi
 
 waterfowl:
+  cloudCost:
+    enabled: false
   replicas: 0
   resources:
     requests:
