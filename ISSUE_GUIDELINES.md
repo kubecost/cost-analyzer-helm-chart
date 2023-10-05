@@ -6,14 +6,11 @@ To help route you to the best location, see some examples of feature requests an
 
 ## Kubecost Feature Requests
 
-For all feature requests to Kubecost, please create an enhancement request in the [feature requests repository](https://github.com/kubecost/features-bugs).
+For all feature requests to Kubecost, please create an enhancement request in the [feature requests and bugs repository](https://github.com/kubecost/features-bugs).
 
 ## Kubecost Bug Reports
 
-Bug reports for the Kubecost application stack should be directed to one of the following locations, both of which will result in creation of a support ticket.
-
-* Slack: The `support` channel on [Kubecost Slack](https://kubecost.com/join-slack)
-* Email: [support@kubecost.com](mailto:support@kubecost.com)
+Bug reports for the Kubecost application stack should be directed to the [feature requests and bugs repository](https://github.com/kubecost/features-bugs).
 
 ## Examples of Helm Requests
 
