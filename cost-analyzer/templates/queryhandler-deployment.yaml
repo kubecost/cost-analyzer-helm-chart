@@ -1,57 +1,57 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.waterfowl) }}
-{{- if gt (.Values.waterfowl.replicas | toString | atoi) 0 }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostQueryHandler) }}
+{{- if gt (.Values.kubecostQueryHandler.replicas | toString | atoi) 0 }}
 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "waterfowl.fullname" . }}
+  name: {{ template "queryhandler.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "waterfowl.commonLabels" . | nindent 4 }}
+    {{ include "queryhandler.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.waterfowl.replicas }}
-  serviceName: "waterfowl"
+  replicas: {{ .Values.kubecostQueryHandler.replicas }}
+  serviceName: "queryhandler"
   selector:
     matchLabels:
-      app.kubernetes.io/name: waterfowl
+      app.kubernetes.io/name: queryhandler
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app: waterfowl
+      app: queryhandler
   volumeClaimTemplates:
   - metadata:
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.persistentConfigsStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostQueryHandler.persistentConfigsStorage.storageClass }}
       resources:
         requests:
-          storage: {{ .Values.waterfowl.persistentConfigsStorage.storageRequest }}
+          storage: {{ .Values.kubecostQueryHandler.persistentConfigsStorage.storageRequest }}
   - metadata:
-      name: waterfowl-storage
+      name: queryhandler-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.waterfowlStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostQueryHandler.queryHandlerStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.waterfowl.waterfowlStorage.storageRequest }}
-  {{- if .Values.waterfowl.waterfowlDbStorage }}
+          storage:  {{ .Values.kubecostQueryHandler.Storage.storageRequest }}
+  {{- if .Values.kubecostQueryHandler.queryHandlerDbStorage }}
   - metadata:
-      name: waterfowl-db-storage
+      name: queryhandler-db-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.waterfowlDbStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostQueryHandler.queryHandlerDbStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.waterfowl.waterfowlDbStorage.storageRequest }}
+          storage:  {{ .Values.kubecostQueryHandler.queryHandlerDbStorage.storageRequest }}
   {{- end }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: waterfowl
+        app.kubernetes.io/name: queryhandler
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app: waterfowl
+        app: queryhandler
     spec:
       restartPolicy: Always
-      serviceAccountName: {{ template "waterfowl.serviceAccountName" . }}
+      serviceAccountName: {{ template "queryhandler.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
@@ -70,21 +70,21 @@ spec:
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            - name: waterfowl-storage
+            - name: queryhandler-storage
               mountPath: /var/configs/waterfowl
-            {{- if .Values.waterfowl.waterfowlDbStorage }}
-            - name: waterfowl-db-storage
+            {{- if .Values.kubecostQueryHandler.queryHandlerDbStorage }}
+            - name: queryhandler-db-storage
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
           securityContext:
             runAsUser: 0
       containers:
-        - name: waterfowl
+        - name: queryhandler
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
-          {{- fail "Waterfowl cannot be used with open source only" }}
-          {{- else if .Values.waterfowl.fullImageName }}
-          image: {{ .Values.waterfowl.fullImageName }}
+          {{- fail "Kubecost Query Handler cannot be used with open source only" }}
+          {{- else if .Values.kubecostQueryHandler.fullImageName }}
+          image: {{ .Values.kubecostQueryHandler.fullImageName }}
           {{- else if .Values.kubecostModel.fullImageName }}
           image: {{ .Values.kubecostModel.fullImageName }}
           {{- else if .Values.imageVersion }}
@@ -109,16 +109,16 @@ spec:
               containerPort: 9004
               protocol: TCP
           resources:
-{{ toYaml .Values.waterfowl.resources | indent 12 }}
+{{ toYaml .Values.kubecostQueryHandler.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
             - name: bucket-config
               mountPath: /var/configs/etl
-            - name: waterfowl-storage
+            - name: queryhandler-storage
               mountPath: /var/configs/waterfowl
-            {{- if .Values.waterfowl.waterfowlDbStorage }}
-            - name: waterfowl-db-storage
+            {{- if .Values.kubecostQueryHandler.queryHandlerDbStorage }}
+            - name: queryhandler-db-storage
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
           env:
@@ -163,7 +163,7 @@ spec:
             # - SAML configs?
             # - Product key configs?
 
-            {{- range $key, $value := .Values.waterfowl.env }}
+            {{- range $key, $value := .Values.kubecostQueryHandler.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
@@ -174,24 +174,24 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
-      {{- if .Values.waterfowl.priority }}
-      {{- if .Values.waterfowl.priority.enabled }}
-      {{- if .Values.waterfowl.priority.name }}
-      priorityClassName: {{ .Values.waterfowl.priority.name }}
+      {{- if .Values.kubecostQueryHandler.priority }}
+      {{- if .Values.kubecostQueryHandler.priority.enabled }}
+      {{- if .Values.kubecostQueryHandler.priority.name }}
+      priorityClassName: {{ .Values.kubecostQueryHandler.priority.name }}
       {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-waterfowl-priority
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-queryhandler-priority
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- with .Values.waterfowl.nodeSelector }}
+      {{- with .Values.kubecostQueryHandler.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.tolerations }}
+      {{- with .Values.kubecostQueryHandler.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.affinity }}
+      {{- with .Values.kubecostQueryHandler.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}

@@ -1,4 +1,4 @@
-{{- if .Values.waterfowl.cloudCost.enabled }}
+{{- if .Values.kubecostQueryHandler.cloudCost.enabled }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -50,9 +50,9 @@ spec:
         - name: cloud-cost
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
-          {{- fail "Waterfowl cannot be used with open source only" }}
-          {{- else if .Values.waterfowl.fullImageName }}
-          image: {{ .Values.waterfowl.fullImageName }}
+          {{- fail "Kubecost Query Handler cannot be used with open source only" }}
+          {{- else if .Values.kubecostQueryHandler.fullImageName }}
+          image: {{ .Values.kubecostQueryHandler.fullImageName }}
           {{- else if .Values.kubecostModel.fullImageName }}
           image: {{ .Values.kubecostModel.fullImageName }}
           {{- else if .Values.imageVersion }}
@@ -77,7 +77,7 @@ spec:
               containerPort: 9005
               protocol: TCP
           resources:
-{{ toYaml .Values.waterfowl.cloudCost.resources | indent 12 }}
+{{ toYaml .Values.kubecostQueryHandler.cloudCost.resources | indent 12 }}
           volumeMounts:
           {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
@@ -106,7 +106,7 @@ spec:
             - name: FEDERATED_CLUSTER
               value: "true"
             {{- end}}
-            {{- range $key, $value := .Values.waterfowl.cloudCost.env }}
+            {{- range $key, $value := .Values.kubecostQueryHandler.cloudCost.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
@@ -116,24 +116,24 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
-      {{- if .Values.waterfowl.priority }}
-      {{- if .Values.waterfowl.priority.enabled }}
-      {{- if .Values.waterfowl.priority.name }}
-      priorityClassName: {{ .Values.waterfowl.priority.name }}
+      {{- if .Values.kubecostQueryHandler.priority }}
+      {{- if .Values.kubecostQueryHandler.priority.enabled }}
+      {{- if .Values.kubecostQueryHandler.priority.name }}
+      priorityClassName: {{ .Values.kubecostQueryHandler.priority.name }}
       {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-waterfowl-priority
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-query-handler-priority
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- with .Values.waterfowl.cloudCost.nodeSelector }}
+      {{- with .Values.kubecostQueryHandler.cloudCost.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.cloudCost.tolerations }}
+      {{- with .Values.kubecostQueryHandler.cloudCost.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.cloudCost.affinity }}
+      {{- with .Values.kubecostQueryHandler.cloudCost.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}

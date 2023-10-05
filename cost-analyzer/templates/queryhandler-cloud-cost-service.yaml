@@ -1,4 +1,4 @@
-{{- if .Values.waterfowl.cloudCost.enabled }}
+{{- if .Values.kubecostQueryHandler.cloudCost.enabled }}
 
 kind: Service
 apiVersion: v1

@@ -1,0 +1,20 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostQueryHandler) }}
+{{- if gt (.Values.kubecostQueryHandler.replicas | toString | atoi) 0 }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "queryhandler.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "queryhandler.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "queryhandler.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: tcp-api
+      port: 9004
+      targetPort: 9004
+{{- end }}
+{{- end }}
