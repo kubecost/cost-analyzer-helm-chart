@@ -6,7 +6,7 @@ To help route you to the best location, see some examples of feature requests an
 
 ## Kubecost Feature Requests
 
-For all feature requests to Kubecost, please create an enhancement request in the [feature requests repository](https://github.com/kubecost/feature-requests).
+For all feature requests to Kubecost, please create an enhancement request in the [feature requests repository](https://github.com/kubecost/features-bugs).
 
 ## Kubecost Bug Reports
 
