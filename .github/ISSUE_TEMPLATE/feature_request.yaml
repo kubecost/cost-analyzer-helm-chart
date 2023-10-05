@@ -1,5 +1,5 @@
 name: "Feature Request"
-description: Suggest a new feature for the Kubecost chart. Please read the issue guidelines to determine what is an appropriate feature request for this repository.
+description: Suggest a new feature for the Kubecost chart. Please read the ISSUE_GUIDELINES.md file to determine what is an appropriate feature request for this repository.
 title: "[Feature] "
 labels: ["enhancement", "needs-triage"]
 body:
