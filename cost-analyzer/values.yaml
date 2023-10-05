@@ -873,7 +873,7 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
 
-kubecostQueryHandler:
+kubecostAggregator:
   cloudCost:
     enabled: false
   replicas: 0
@@ -884,11 +884,11 @@ kubecostQueryHandler:
     # default storage class
     storageClass: ""
     storageRequest: 1Gi
-  queryHandlerStorage:
+  aggregatorStorage:
     # default storage class
     storageClass: ""
     storageRequest: 20Gi
-  queryHandlerDbStorage:
+  aggregatorDbStorage:
     # default storage class
     storageClass: ""
     storageRequest: 128G

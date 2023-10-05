@@ -1,13 +1,13 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostQueryHandler) }}
-{{- if gt (.Values.kubecostQueryHandler.replicas | toString | atoi) 0 }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostAggregator) }}
+{{- if gt (.Values.kubecostAggregator.replicas | toString | atoi) 0 }}
 
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: {{ .Release.Namespace }}
-  name: {{ template "queryhandler.serviceAccountName" . }}
+  name: {{ template "aggregator.serviceAccountName" . }}
   labels:
-    {{ include "queryhandler.commonLabels" . | nindent 4 }}
+    {{ include "aggregator.commonLabels" . | nindent 4 }}
 rules:
 - apiGroups:
     - ''
@@ -21,9 +21,9 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ template "queryhandler.serviceAccountName" . }}
+  name: {{ template "aggregator.serviceAccountName" . }}
   labels:
-    {{ include "queryhandler.commonLabels" . | nindent 4 }}
+    {{ include "aggregator.commonLabels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ''
