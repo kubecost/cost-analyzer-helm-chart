@@ -488,7 +488,7 @@ data:
         }
         location = /model/reports/allocation {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/allocation;
+            proxy_pass http://aggregator/reports/allocation;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -496,7 +496,7 @@ data:
         }
         location = /model/reports/asset {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/asset;
+            proxy_pass http://aggregator/reports/asset;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -504,7 +504,7 @@ data:
         }
         location = /model/reports/advanced {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/advanced;
+            proxy_pass http://aggregator/reports/advanced;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -512,7 +512,7 @@ data:
         }
         location = /model/reports/cloudCost {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/cloudCost;
+            proxy_pass http://aggregator/reports/cloudCost;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -520,25 +520,25 @@ data:
         }
         location = /model/reports/group {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/group;
+            proxy_pass http://aggregator/reports/group;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        # this is a special case to handle /reports/group/:group in waterfowl. prior to waterfowl, this endpoint
+        # this is a special case to handle /reports/group/:group in the Kubecost Aggregator. prior to aggregator, this endpoint
         # was handled by /model/, so no special case proxies were required. without this, /model/reports/groups/?foo=bar
         # will be directed to /reports/groups?foo=bar (note the missing /model prefix)
         location ~ ^/model/reports/group/ {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/group/$is_args$args;
+            proxy_pass http://aggregator/reports/group/$is_args$args;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location = /model/budget {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/budget;
+            proxy_pass http://aggregator/budget;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -546,7 +546,7 @@ data:
         }
         location = /model/budgets {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/budgets;
+            proxy_pass http://aggregator/budgets;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
