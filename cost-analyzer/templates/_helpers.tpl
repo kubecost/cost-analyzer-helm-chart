@@ -217,7 +217,7 @@ app: query-service
 app: federator
 {{- end -}}
 {{- define "aggregator.commonLabels" -}}
-{{ include "kubecost.aggregator.chartLabels" . }}
+{{ include "cost-analyzer.chartLabels" . }}
 app: kubecost-aggregator
 {{- end -}}
 {{- define "cloudCost.commonLabels" -}}

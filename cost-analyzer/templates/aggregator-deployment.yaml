@@ -153,10 +153,6 @@ spec:
               {{- end }}
             {{- end }}
 
-            # TODO (michaelmdresser):
-            # - SAML configs?
-            # - Product key configs?
-
             {{- range $key, $value := .Values.kubecostAggregator.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
