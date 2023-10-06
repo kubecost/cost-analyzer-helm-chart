@@ -932,10 +932,15 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
+# The Kubecost Aggregator is a high scale implementation of kubecost 
+# intended for large datasets and/or high query load
+# At present, this should only be enabled when recommended 
+# by Kubecost staff
 kubecostAggregator:
   cloudCost:
     enabled: false
-  replicas: 0
+  replicas: 1
+  enabled: false
   resources: {}
   env:
     "LOG_LEVEL": "info"
@@ -950,7 +955,7 @@ kubecostAggregator:
   aggregatorDbStorage:
     # default storage class
     storageClass: ""
-    storageRequest: 128G
+    storageRequest: 128Gi
   securityContext:
     runAsGroup: 1001
     runAsUser: 1001

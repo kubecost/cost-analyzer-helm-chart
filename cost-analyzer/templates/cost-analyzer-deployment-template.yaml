@@ -1053,7 +1053,7 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-            {{- if and (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+            {{- if .Values.kubecostAggregator.enabled }}
             - name: WATERFOWL_ENABLED
               value: "true"
             {{- end }}

@@ -108,7 +108,7 @@ data:
     }
   {{- end }}
 
-  {{- if and (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+  {{- if .Values.kubecostAggregator.enabled }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
@@ -315,7 +315,7 @@ data:
     # Query Service Replicas (QSR) proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
 
-      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
       {{- fail "Query Service Replicas should not be used at the same time as the Kubecost Aggregator" }}
       {{- end }}
 
@@ -344,7 +344,7 @@ data:
         }
     {{- end }}
 
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
 
     # Aggregator proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
