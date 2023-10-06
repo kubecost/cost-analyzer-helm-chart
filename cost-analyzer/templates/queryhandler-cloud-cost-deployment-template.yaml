@@ -121,7 +121,7 @@ spec:
       {{- if .Values.kubecostAggregator.priority.name }}
       priorityClassName: {{ .Values.kubecostAggregator.priority.name }}
       {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-query-handler-priority
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-aggregator-priority
       {{- end }}
       {{- end }}
       {{- end }}

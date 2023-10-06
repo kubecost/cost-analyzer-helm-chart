@@ -214,7 +214,7 @@ app: federator
 {{- end -}}
 {{- define "aggregator.commonLabels" -}}
 {{ include "kubecost.aggregator.chartLabels" . }}
-app: kubecost-query-handler
+app: kubecost-aggregator
 {{- end -}}
 {{- define "cloudCost.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
@@ -242,7 +242,7 @@ app: federator
 {{- define "aggregator.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: kubecost-query-handler
+app: kubecost-aggregator
 {{- end -}}
 {{- define "cloudCost.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
