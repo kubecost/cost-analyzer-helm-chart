@@ -863,9 +863,9 @@ kubecostDeployment:
   # Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
   queryServiceReplicas: 0
   queryService:
-    resources: 
-      requests: 
-        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours. 
+    resources:
+      requests:
+        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi
     # default storage class
@@ -873,34 +873,42 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
 
-waterfowl:
+kubecostAggregator:
   cloudCost:
     enabled: false
   replicas: 0
-  resources:
-    requests:
-      # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
-      cpu: 1000m
-      memory: 2Gi
-    limits:
-      cpu: 1000m
-      memory: 2Gi
+  resources: {}
   env:
-    # "DB_READ_ONLY": "true" # TODO switch to false
-    # "DB_MEMORY_LIMIT": "1700MB" # this should match or be below the memory limit of the pod
     "LOG_LEVEL": "info"
   persistentConfigsStorage:
     # default storage class
     storageClass: ""
     storageRequest: 1Gi
-  waterfowlStorage:
+  aggregatorStorage:
     # default storage class
     storageClass: ""
     storageRequest: 20Gi
-  waterfowlDbStorage:
+  aggregatorDbStorage:
     # default storage class
     storageClass: ""
     storageRequest: 128G
+  securityContext:
+    runAsGroup: 1001
+    runAsUser: 1001
+    fsGroup: 1001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

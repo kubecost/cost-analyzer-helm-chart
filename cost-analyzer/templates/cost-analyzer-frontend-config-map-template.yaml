@@ -107,12 +107,12 @@ data:
     }
   {{- end }}
 
-  {{- if and (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
-    upstream waterfowl {
-        server {{ .Release.Name }}-waterfowl.{{ .Release.Namespace }}:9004;
+  {{- if and (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+    upstream aggregator {
+        server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
   {{- end }}
-  {{- if .Values.waterfowl.cloudCost.enabled }}
+  {{- if .Values.kubecostAggregator.cloudCost.enabled }}
     upstream cloudCost {
         server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
     }
@@ -311,8 +311,8 @@ data:
     # Query Service Replicas (QSR) proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
 
-      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
-      {{- fail "Query Service Replicas should not be used at the same time as Waterfowl" }}
+      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
+      {{- fail "Query Service Replicas should not be used at the same time as the Kubecost Aggregator" }}
       {{- end }}
 
         location /model/allocation {
@@ -340,18 +340,16 @@ data:
         }
     {{- end }}
 
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.waterfowl) (gt (.Values.waterfowl.replicas | toString | atoi) 0) }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) (gt (.Values.kubecostAggregator.replicas | toString | atoi) 0) }}
 
-    # Waterfowl proxy
+    # Aggregator proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-    {{- fail "Waterfowl should not be used at the same time as Query Service Replicas" }}
+    {{- fail "The Kubecost Aggregator should not be used at the same time as Query Service Replicas" }}
     {{- end }}
 
-        # As Waterfowl gains functionality, more endpoints will be added to this
-        # list.
         location = /model/allocation {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/allocation;
+            proxy_pass http://aggregator/allocation;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -360,7 +358,7 @@ data:
         {{- if not .Values.kubecostFrontend.trendsDisabled }}
         location = /model/allocation/trends {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/allocation/trends;
+            proxy_pass http://aggregator/allocation/trends;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -369,7 +367,7 @@ data:
         {{ end }}
         location = /model/allocation/view {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/allocation/view;
+            proxy_pass http://aggregator/allocation/view;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -377,7 +375,7 @@ data:
         }
         location = /model/allocation/summary {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/allocation/summary;
+            proxy_pass http://aggregator/allocation/summary;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -385,7 +383,7 @@ data:
         }
         location = /model/allocation/summary/topline {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/allocation/summary/topline;
+            proxy_pass http://aggregator/allocation/summary/topline;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -393,7 +391,7 @@ data:
         }
         location = /model/assets {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/assets;
+            proxy_pass http://aggregator/assets;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -401,7 +399,7 @@ data:
         }
         location = /model/assets/topline {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/assets/topline;
+            proxy_pass http://aggregator/assets/topline;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -409,24 +407,24 @@ data:
         }
         location = /model/assets/graph {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/assets/graph;
+            proxy_pass http://aggregator/assets/graph;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location = /model/assets/totals {
-            return 501 "<b>Waterfowl does not support this endpoint.</b>";
+            return 501 "<b>Aggregator does not support this endpoint.</b>";
         }
         location = /model/assets/diff {
-            return 501 "<b>Waterfowl does not support this endpoint.</b>";
+            return 501 "<b>Aggregator does not support this endpoint.</b>";
         }
         location = /model/assets/breakdown {
-            return 501 "<b>Waterfowl does not support this endpoint.</b>";
+            return 501 "<b>Aggregator does not support this endpoint.</b>";
         }
         location = /model/savings/requestSizingV2 {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/savings/requestSizingV2;
+            proxy_pass http://aggregator/savings/requestSizingV2;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -434,7 +432,7 @@ data:
         }
         location = /model/savings/requestSizingV2/topline {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/savings/requestSizingV2/topline;
+            proxy_pass http://aggregator/savings/requestSizingV2/topline;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -442,7 +440,7 @@ data:
         }
         location = /model/cloudCost {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/cloudCost;
+            proxy_pass http://aggregator/cloudCost;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -450,7 +448,7 @@ data:
         }
         location = /model/cloudCost/view/graph {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/cloudCost/view/graph;
+            proxy_pass http://aggregator/cloudCost/view/graph;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -458,7 +456,7 @@ data:
         }
         location = /model/cloudCost/view/totals {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/cloudCost/view/totals;
+            proxy_pass http://aggregator/cloudCost/view/totals;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -466,7 +464,7 @@ data:
         }
         location = /model/cloudCost/view/table {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/cloudCost/view/table;
+            proxy_pass http://aggregator/cloudCost/view/table;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -474,7 +472,7 @@ data:
         }
         location = /model/savings {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/savings;
+            proxy_pass http://aggregator/savings;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -482,7 +480,7 @@ data:
         }
         location = /model/savings/abandonedWorkloads {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/savings/abandonedWorkloads;
+            proxy_pass http://aggregator/savings/abandonedWorkloads;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -490,7 +488,7 @@ data:
         }
         location = /model/reports/allocation {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/allocation;
+            proxy_pass http://aggregator/reports/allocation;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -498,7 +496,7 @@ data:
         }
         location = /model/reports/asset {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/asset;
+            proxy_pass http://aggregator/reports/asset;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -506,7 +504,7 @@ data:
         }
         location = /model/reports/advanced {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/advanced;
+            proxy_pass http://aggregator/reports/advanced;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -514,7 +512,7 @@ data:
         }
         location = /model/reports/cloudCost {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/cloudCost;
+            proxy_pass http://aggregator/reports/cloudCost;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -522,25 +520,25 @@ data:
         }
         location = /model/reports/group {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/group;
+            proxy_pass http://aggregator/reports/group;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        # this is a special case to handle /reports/group/:group in waterfowl. prior to waterfowl, this endpoint
+        # this is a special case to handle /reports/group/:group in the Kubecost Aggregator. prior to aggregator, this endpoint
         # was handled by /model/, so no special case proxies were required. without this, /model/reports/groups/?foo=bar
         # will be directed to /reports/groups?foo=bar (note the missing /model prefix)
         location ~ ^/model/reports/group/ {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/reports/group/$is_args$args;
+            proxy_pass http://aggregator/reports/group/$is_args$args;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location = /model/budget {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/budget;
+            proxy_pass http://aggregator/budget;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -548,14 +546,14 @@ data:
         }
         location = /model/budgets {
             proxy_read_timeout          300;
-            proxy_pass http://waterfowl/budgets;
+            proxy_pass http://aggregator/budgets;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
-    {{- if .Values.waterfowl.cloudCost.enabled }}
+    {{- if .Values.kubecostAggregator.cloudCost.enabled }}
         location = /model/cloudCost/status {
             proxy_read_timeout          300;
             proxy_pass http://cloudCost/cloudCost/status;

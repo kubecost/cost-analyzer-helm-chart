@@ -11,8 +11,8 @@ Expand the name of the chart.
 {{- define "federator.name" -}}
 {{- default "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- define "waterfowl.name" -}}
-{{- default "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- define "aggregator.name" -}}
+{{- default "aggregator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- define "cloudCost.name" -}}
 {{- default "cloud-cost" | trunc 63 | trimSuffix "-" -}}
@@ -44,8 +44,8 @@ If release name contains chart name it will be used as a full name.
 {{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "waterfowl.fullname" -}}
-{{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- define "aggregator.fullname" -}}
+{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "cloudCost.fullname" -}}
@@ -98,8 +98,8 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "waterfowl.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "waterfowl" | trunc 63 | trimSuffix "-" -}}
+{{- define "aggregator.serviceName" -}}
+{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- define "cloudCost.serviceName" -}}
 {{ include "cloudCost.fullname" . }}
@@ -122,9 +122,9 @@ Create the name of the service account
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
-{{- define "waterfowl.serviceAccountName" -}}
+{{- define "aggregator.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create -}}
-    {{ default (include "waterfowl.fullname" .) .Values.serviceAccount.name }}
+    {{ default (include "aggregator.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
 {{- end -}}
@@ -186,8 +186,8 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-{{- define "kubecost.waterfowl.chartLabels" -}}
-app.kubernetes.io/name: {{ include "waterfowl.name" . }}
+{{- define "kubecost.aggregator.chartLabels" -}}
+app.kubernetes.io/name: {{ include "aggregator.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -212,9 +212,9 @@ app: query-service
 {{ include "kubecost.federator.chartLabels" . }}
 app: federator
 {{- end -}}
-{{- define "waterfowl.commonLabels" -}}
-{{ include "kubecost.waterfowl.chartLabels" . }}
-app: waterfowl
+{{- define "aggregator.commonLabels" -}}
+{{ include "kubecost.aggregator.chartLabels" . }}
+app: kubecost-aggregator
 {{- end -}}
 {{- define "cloudCost.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
@@ -239,10 +239,10 @@ app.kubernetes.io/name: {{ include "federator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: federator
 {{- end -}}
-{{- define "waterfowl.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "waterfowl.name" . }}
+{{- define "aggregator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "aggregator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: waterfowl
+app: kubecost-aggregator
 {{- end -}}
 {{- define "cloudCost.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}

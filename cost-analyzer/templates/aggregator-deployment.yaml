@@ -1,57 +1,61 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.waterfowl) }}
-{{- if gt (.Values.waterfowl.replicas | toString | atoi) 0 }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostAggregator) }}
+{{- if gt (.Values.kubecostAggregator.replicas | toString | atoi) 0 }}
 
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "waterfowl.fullname" . }}
+  name: {{ template "aggregator.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "waterfowl.commonLabels" . | nindent 4 }}
+    {{ include "aggregator.commonLabels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.waterfowl.replicas }}
-  serviceName: "waterfowl"
+  replicas: {{ .Values.kubecostAggregator.replicas }}
+  serviceName: "aggregator"
   selector:
     matchLabels:
-      app.kubernetes.io/name: waterfowl
+      app.kubernetes.io/name: aggregator
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app: waterfowl
+      app: aggregator
   volumeClaimTemplates:
   - metadata:
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.persistentConfigsStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostAggregator.persistentConfigsStorage.storageClass }}
       resources:
         requests:
-          storage: {{ .Values.waterfowl.persistentConfigsStorage.storageRequest }}
+          storage: {{ .Values.kubecostAggregator.persistentConfigsStorage.storageRequest }}
   - metadata:
-      name: waterfowl-storage
+      name: aggregator-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.waterfowlStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostAggregator.aggregatorStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.waterfowl.waterfowlStorage.storageRequest }}
-  {{- if .Values.waterfowl.waterfowlDbStorage }}
+          storage:  {{ .Values.kubecostAggregator.Storage.storageRequest }}
+  {{- if .Values.kubecostAggregator.aggregatorDbStorage }}
   - metadata:
-      name: waterfowl-db-storage
+      name: aggregator-db-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.waterfowl.waterfowlDbStorage.storageClass }}
+      storageClassName: {{ .Values.kubecostAggregator.aggregatorDbStorage.storageClass }}
       resources:
         requests:
-          storage:  {{ .Values.waterfowl.waterfowlDbStorage.storageRequest }}
+          storage:  {{ .Values.kubecostAggregator.aggregatorDbStorage.storageRequest }}
   {{- end }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: waterfowl
+        app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app: waterfowl
+        app: aggregator
     spec:
       restartPolicy: Always
-      serviceAccountName: {{ template "waterfowl.serviceAccountName" . }}
+      {{- if .Values.kubecostAggregator.securityContext }}
+      securityContext:
+          {{- toYaml .Values.kubecostAggregator.securityContext | nindent 10 }}
+      {{ end }}
+      serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
@@ -63,28 +67,18 @@ spec:
            defaultMode: 420
            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
-      initContainers:
-        - name: config-db-perms-fix
-          image: busybox
-          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
-          volumeMounts:
-            - name: persistent-configs
-              mountPath: /var/configs
-            - name: waterfowl-storage
-              mountPath: /var/configs/waterfowl
-            {{- if .Values.waterfowl.waterfowlDbStorage }}
-            - name: waterfowl-db-storage
-              mountPath: /var/configs/waterfowl/duckdb
-            {{- end }}
-          securityContext:
-            runAsUser: 0
+
       containers:
-        - name: waterfowl
+        - name: aggregator
+        {{- if .Values.kubecostAggregator.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.kubecostAggregator.containerSecurityContext | nindent 12 }}
+        {{ end }}
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
-          {{- fail "Waterfowl cannot be used with open source only" }}
-          {{- else if .Values.waterfowl.fullImageName }}
-          image: {{ .Values.waterfowl.fullImageName }}
+          {{- fail "Kubecost Aggregator cannot be used with open source only" }}
+          {{- else if .Values.kubecostAggregator.fullImageName }}
+          image: {{ .Values.kubecostAggregator.fullImageName }}
           {{- else if .Values.kubecostModel.fullImageName }}
           image: {{ .Values.kubecostModel.fullImageName }}
           {{- else if .Values.imageVersion }}
@@ -109,16 +103,16 @@ spec:
               containerPort: 9004
               protocol: TCP
           resources:
-{{ toYaml .Values.waterfowl.resources | indent 12 }}
+{{ toYaml .Values.kubecostAggregator.resources | indent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
             - name: bucket-config
               mountPath: /var/configs/etl
-            - name: waterfowl-storage
+            - name: aggregator-storage
               mountPath: /var/configs/waterfowl
-            {{- if .Values.waterfowl.waterfowlDbStorage }}
-            - name: waterfowl-db-storage
+            {{- if .Values.kubecostAggregator.aggregatorDbStorage }}
+            - name: aggregator-db-storage
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
           env:
@@ -163,7 +157,7 @@ spec:
             # - SAML configs?
             # - Product key configs?
 
-            {{- range $key, $value := .Values.waterfowl.env }}
+            {{- range $key, $value := .Values.kubecostAggregator.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
@@ -174,24 +168,24 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
-      {{- if .Values.waterfowl.priority }}
-      {{- if .Values.waterfowl.priority.enabled }}
-      {{- if .Values.waterfowl.priority.name }}
-      priorityClassName: {{ .Values.waterfowl.priority.name }}
+      {{- if .Values.kubecostAggregator.priority }}
+      {{- if .Values.kubecostAggregator.priority.enabled }}
+      {{- if .Values.kubecostAggregator.priority.name }}
+      priorityClassName: {{ .Values.kubecostAggregator.priority.name }}
       {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-waterfowl-priority
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-aggregator-priority
       {{- end }}
       {{- end }}
       {{- end }}
-      {{- with .Values.waterfowl.nodeSelector }}
+      {{- with .Values.kubecostAggregator.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.tolerations }}
+      {{- with .Values.kubecostAggregator.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.waterfowl.affinity }}
+      {{- with .Values.kubecostAggregator.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
