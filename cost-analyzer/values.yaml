@@ -13,7 +13,7 @@ global:
     # queryService: http://kubecost-thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
     # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
     # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
-    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve syncronization on all cluster block stores
+    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve synchronization on all cluster block stores
 
   grafana:
     enabled: true # If false, Grafana will not be installed
@@ -28,7 +28,7 @@ global:
 
   # Google Cloud Managed Service for Prometheus
   gmp:
-  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to ultilize Kubecost scrape configs.
+  # Remember to set up these parameters when install the Kubecost Helm chart with `global.gmp.enabled=true` if you want to use GMP self-deployed collection (Recommended) to utilize Kubecost scrape configs.
   # If enabling GMP, it is highly recommended to utilize Google's distribution of Prometheus.
   # Learn more at https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
   # --set prometheus.server.image.repository="gke.gcr.io/prometheus-engine/prometheus" \
@@ -46,7 +46,7 @@ global:
   # Amazon Managed Service for Prometheus
   amp:
     enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
-    prometheusServerEndpoint: https://localhost:8085/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
+    prometheusServerEndpoint: https://localhost:8085/workspaces/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
     remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
     sigv4:
       region: us-west-2
@@ -67,7 +67,9 @@ global:
     port: 8085
     mimirEndpoint: $mimir_endpoint #Your Mimir query endpoint. If your Mimir query endpoint is http://example.com/prometheus, replace $mimir_endpoint with http://example.com/
     orgIdentifier: $your_tenant_ID #Your Grafana Mimir tenant ID
-
+    # basicAuth:
+      # username: user
+      # password: pwd
 
   notifications:
     # Kubecost alerting configuration
@@ -217,8 +219,20 @@ global:
     # iam.amazonaws.com/role: role-arn
   additionalLabels: {}
 
-  containerSecuritycontext: {}
-    # readOnlyRootFilesystem: true
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    fsGroup: 65534
+    runAsGroup: 65534
+    runAsUser: 65534
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+      - ALL
 
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken: # ""
@@ -269,12 +283,13 @@ saml:
 
 oidc:
   enabled: false
-  clientID: "" # application/client client_id paramter obtained from provider, used to make requests to server
-  clientSecret: "" # application/client client_secret paramter obtained from provider, used to make requests to server
+  clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
+  clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
   secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
   authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
+  skipOnlineTokenValidation: false # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
 #  hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
@@ -308,6 +323,7 @@ systemProxy:
 # - name: "image-pull-secret"
 
 kubecostFrontend:
+  enabled: true
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   # extraEnv:
@@ -484,6 +500,26 @@ kubecostModel:
     failureThreshold: 200
   extraArgs: []
 
+  # creates an ingress directly to the model container, for API access
+  ingress:
+    enabled: false
+    # className: nginx
+    labels:
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    annotations:
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    paths: ["/"]
+    pathType: ImplementationSpecific
+    hosts:
+      - cost-analyzer-model.local
+    tls: []
+    #  - secretName: cost-analyzer-model-tls
+    #    hosts:
+    #      - cost-analyzer-model.local
+
+
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/main/ingress-examples.md
 ingress:
   enabled: false
@@ -523,12 +559,12 @@ priority:
 networkPolicy:
   enabled: false
   denyEgress: true # create a network policy that denies egress from kubecost
-  sameNamespace: true # Set to true if cost analyser and prometheus are on the same namespace
+  sameNamespace: true # Set to true if cost analyzer and prometheus are on the same namespace
 #  namespace: kubecost # Namespace where prometheus is installed
 
   # Cost-analyzer specific vars using the new template
   costAnalyzer:
-    enabled: false # If true, create a newtork policy for cost-analzyer
+    enabled: false # If true, create a network policy for cost-analyzer
     annotations: {} # annotations to be added to the network policy
     additionalLabels: {} # additional labels to be added to the network policy
     # Examples rules:
@@ -656,11 +692,14 @@ prometheus:
   # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     enabled: true
-  # kubecost emits pre-2.0 KSM metrics, KSM is enabled by default here for backwards compatibity, but can be disabled to save resources without concern to kubecost metrics
+
+  ## Default disabled since Kubecost already emits KSMv1 metrics.
+  ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
   kubeStateMetrics:
-    enabled: true
+    enabled: false
   kube-state-metrics:
-    disabled: false
+    disabled: true
+
   pushgateway:
     enabled: false
     persistentVolume:
@@ -716,7 +755,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.16.7
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.0
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -847,8 +886,9 @@ networkCosts:
   additionalSecurityContext: {}
     # readOnlyRootFilesystem: true
 
-# Kubecost Deployment Configuration
-# Used for HA mode in Business & Enterprise tier
+## Kubecost Deployment Configuration
+## Used for HA mode in Business & Enterprise tier
+##
 kubecostDeployment:
   replicas: 1
   leaderFollower:
@@ -858,20 +898,39 @@ kubecostDeployment:
   #     maxSurge: 1
   #     maxUnavailable: 1
   #   type: RollingUpdate
+  labels: {}
+  annotations: {}
 
-  # QueryServiceReplicas
-  # Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
+  ## QueryServiceReplicas
+  ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
+  ##
   queryServiceReplicas: 0
   queryService:
+    securityContext:
+      fsGroup: 65534
+      runAsGroup: 65534
+      runAsUser: 65534
+      runAsNonRoot: false
+      seccompProfile:
+        type: RuntimeDefault
+    containerSecurityContext:
+      allowPrivilegeEscalation: true
+      readOnlyRootFilesystem: false
+      capabilities:
+        drop:
+        - ALL
     resources:
       requests:
-        # You can use the Kubecost savings report for 'Right-size your container requests' to determine the recommended resource requests once the pod has run for 24 hours.
+        ## You can use the Kubecost savings report for 'Right-size your
+        ## container requests' to determine the recommended resource requests
+        ## once the pod has run for 24 hours.
         cpu: 1000m
         memory: 500Mi
-    # default storage class
+    ## default storage class
     storageClass: ""
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
+    initImage: {}
 
 kubecostAggregator:
   cloudCost:
@@ -913,7 +972,7 @@ kubecostAggregator:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.11.0
+  image: gcr.io/kubecost1/cluster-controller:v0.12.0
   imagePullPolicy: Always
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -972,15 +1031,20 @@ grafana:
   rbac:
     # Manage the Grafana Pod Security Policy
     pspEnabled: false
-  datasources:
-    datasources.yaml:
-      apiVersion: 1
-      datasources:
-        - name: prometheus-kubecost
-          type: prometheus
-          url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
-          access: proxy
-          isDefault: false
+  # datasources:
+  #   datasources.yaml:
+  #     apiVersion: 1
+  #     datasources:
+  #       - name: prometheus-kubecost
+  #         type: prometheus
+  #         url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
+  #         access: proxy
+  #         isDefault: false
+  #         jsonData:
+  #           httpMethod: POST
+  #           prometheusType: Prometheus
+  #           prometheusVersion: 2.35.0
+  #           timeInterval: 1m
   sidecar:
     dashboards:
       enabled: true
@@ -1010,17 +1074,53 @@ awsstore:
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: ""
 
+## Federated ETL Architecture
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
+## 
 federatedETL:
-  federatedCluster: false # whether this cluster should push data to the Federated store
-  primaryCluster: false # whether this cluster should load data from the combined section of the Federated store
-  useExistingS3Config: false # will attempt to use existing object-store.yaml configs for S3 backup/Thanos as config for the Federated store
-  redirectS3Backup: false # changes the dir of S3 backup to the Federated combined store, for using Thanos-federated data in the Federated ETL. Note S3 backup should be enabled separately for this.
-  useMultiClusterDB: false # set to true if you have a single federated PromQL DB with metrics from all monitored clusters but want to use federation for performance
+  ## If true, push ETL data to the federated storage bucket
+  federatedCluster: false
+
+  ## If true, load ETL data from the combined storage bucket to display data
+  ## from all monitored clusters. Note, if this is your first time setting up
+  ## Federated ETL, ensure you see federated ETL data in combined storage before
+  ## setting this config to true.
+  primaryCluster: false
+
+  ## If true, changes the dir of S3 backup to the Federated combined store.
+  ## Commonly used when transitioning from Thanos to Federated ETL architecture.
+  redirectS3Backup: false
+
+  ## If true, will query metrics from a central PromQL DB (e.g. Amazon Managed
+  ## Prometheus)
+  useMultiClusterDB: false
+
+  ## The Federator is responsible for combining each cluster's ETL files located
+  ## in the federated storage bucket, and placing results in the combined
+  ## storage bucket.
   federator:
-    enabled: false # enables the federator to run inside the costmodel container, federating the data in the Federated store
-    clusters: [] # optional. Whitelist of clusters by cluster id. If not set, the federator will attempt to federated all clusters pushing to the federated storage.
-    # primaryClusterID: "cluster_id" # optional. Used when reconciliation is expected to occur on the Primary.
-    # federationCutoffDate: "2022-10-18T00:00:00.000Z" # an RFC 3339-formatted string. All ETL files with windows that fall before this time are not processed by the Federator. If this is not set, the Federator will process all files regardless of date.
+    enabled: false
+
+    ## Optional. Used when reconciliation is expected to occur on the Primary.
+    # primaryClusterID: "cluster_id"
+
+    ## Optional. Allowlist of which cluster_ids to federate. If not set, the
+    ## federator will attempt to federated all clusters pushing to the federated
+    ## storage.
+    clusters: []
+
+    ## Optional. An RFC 3339-formatted string. All ETL files with windows that
+    ## fall before this time are not processed by the Federator. If this is not
+    ## set, the Federator will process all files regardless of date.
+    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
+
+    ## Optional. You can use the Kubecost savings report for 'Right-size your
+    ## container requests' to determine the recommended resource requests once
+    ## the pod has run for 24 hours.
+    resources: {}
+      # requests:
+      #   cpu: 100m
+      #   memory: 500Mi
 
 kubecostAdmissionController:
   enabled: false
@@ -1032,8 +1132,9 @@ kubecostAdmissionController:
 costEventsAudit:
   enabled: false
 
-
-#readonly: false # disable updates to kubecost from the frontend UI and via POST request
+## Disable updates to kubecost from the frontend UI and via POST request
+## 
+# readonly: false
 
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
@@ -1091,6 +1192,7 @@ costEventsAudit:
 #  masterPayerARN: ""
 #  projectID: "123456789"  # Also known as AccountID on AWS -- the current account/project that this instance of Kubecost is deployed on.
 #  gcpSecretName: gcp-secret # Name of a secret representing the gcp service key
+#  gcpSecretKeyName: compute-viewer-kubecost-key.json # Name of the secret's key containing the gcp service key
 #  bigQueryBillingDataDataset: billing_data.gcp_billing_export_v1_01AC9F_74CF1D_5565A2
 #  labelMappingConfigs:  # names of k8s labels or annotations used to designate different allocation concepts
 #    enabled: true
@@ -1115,7 +1217,7 @@ costEventsAudit:
 #  grafanaURL: ""
 #  clusterName: "" # clusterName is the default context name in settings.
 #  clusterAccountID: "" # Manually set Account property for assets
-#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, INR, JPY, NOK, PLN, SEK
+#  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, IDR, INR, JPY, NOK, PLN, SEK
 #  azureBillingRegion: US # Represents 2-letter region code, e.g. West Europe = NL, Canada = CA. ref: https://en.wikipedia.org/wiki/List_of_ISO_3166_country_codes
 #  azureSubscriptionID: 0bd50fdf-c923-4e1e-850c-196dd3dcc5d3
 #  azureClientID: f2ef6f7d-71fb-47c8-b766-8d63a19db017
@@ -1174,5 +1276,3 @@ extraObjects: []
 #             host: kubecost.kubecost.svc.cluster.local
 #             port:
 #               number: 80
-
-

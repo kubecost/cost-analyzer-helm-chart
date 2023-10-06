@@ -26,21 +26,46 @@ data:
   {{ $key }}: |
 {{ toYaml $value | trim | indent 4 }}
   {{- end -}}
-{{- end -}}
-{{- if .Values.global.prometheus.enabled }}
+{{- end }}
+{{- if not .Values.datasources }}
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+{{- if .Values.global.thanos.enabled }}
+    - access: proxy
+      isDefault: true
+      name: Thanos
+      type: prometheus
+      url:  http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:10902
+      jsonData:
+        timeInterval: 1m
+        prometheusType: Thanos
+        prometheusVersion: 0.29.0
+        httpMethod: POST
+{{- else if .Values.global.prometheus.enabled }}
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: http://{{ template "cost-analyzer.prometheus.server.name" . }}.{{ .Release.Namespace }}.svc
-{{ else }}
+      jsonData:
+        httpMethod: POST
+        prometheusType: Prometheus
+        prometheusVersion: 2.35.0
+        timeInterval: 1m
+{{- else }}
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: {{ .Values.global.prometheus.fqdn }}
+      jsonData:
+        httpMethod: POST
+        prometheusType: Prometheus
+        prometheusVersion: 2.35.0
+        timeInterval: 1m
 {{- end -}}
-
+{{- end }}
 {{- if .Values.dashboardProviders }}
   {{- range $key, $value := .Values.dashboardProviders }}
   {{ $key }}: |

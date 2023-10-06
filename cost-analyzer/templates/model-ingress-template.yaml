@@ -1,0 +1,66 @@
+{{- if .Values.kubecostModel.ingress -}}
+{{- if .Values.kubecostModel.ingress.enabled -}}
+{{- $fullName := include "cost-analyzer.fullname" . -}}
+{{- $serviceName := include "cost-analyzer.serviceName" . -}}
+{{- $ingressPaths := .Values.kubecostModel.ingress.paths -}}
+{{- $ingressPathType := .Values.kubecostModel.ingress.pathType -}}
+{{- $apiV1 := false -}}
+{{- if and (.Capabilities.APIVersions.Has "networking.k8s.io/v1") (semverCompare "^1.19-0" .Capabilities.KubeVersion.GitVersion) }}
+{{- $apiV1 = true -}}
+apiVersion: networking.k8s.io/v1
+{{ else if .Capabilities.APIVersions.Has "networking.k8s.io/v1beta1" }}
+apiVersion: networking.k8s.io/v1beta1
+{{ else }}
+apiVersion: extensions/v1beta1
+{{ end -}}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-model
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.kubecostModel.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.kubecostModel.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+{{- if .Values.kubecostModel.ingress.className }}
+  ingressClassName: {{ .Values.kubecostModel.ingress.className }}
+{{- end }}
+{{- if .Values.kubecostModel.ingress.tls }}
+  tls:
+  {{- range .Values.kubecostModel.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
+  rules:
+  {{- range .Values.kubecostModel.ingress.hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+        {{- range $ingressPaths }}
+          {{- if $apiV1 }}
+          - path: {{ . }}
+            pathType: {{ $ingressPathType }}
+            backend:
+              service:
+                name: {{ $serviceName }}
+                port:
+                  name: tcp-model
+          {{- else }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ $serviceName }}
+              servicePort: tcp-model
+          {{- end }}
+        {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}
