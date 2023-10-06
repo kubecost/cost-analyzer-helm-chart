@@ -51,6 +51,10 @@ spec:
         app: aggregator
     spec:
       restartPolicy: Always
+      {{- if .Values.kubecostAggregator.securityContext }}
+      securityContext:
+          {{- toYaml .Values.kubecostAggregator.securityContext | nindent 10 }}
+      {{ end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -63,23 +67,13 @@ spec:
            defaultMode: 420
            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
-      initContainers:
-        - name: config-db-perms-fix
-          image: busybox
-          command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
-          volumeMounts:
-            - name: persistent-configs
-              mountPath: /var/configs
-            - name: aggregator-storage
-              mountPath: /var/configs/waterfowl
-            {{- if .Values.kubecostAggregator.aggregatorDbStorage }}
-            - name: aggregator-db-storage
-              mountPath: /var/configs/waterfowl/duckdb
-            {{- end }}
-          securityContext:
-            runAsUser: 0
+
       containers:
         - name: aggregator
+        {{- if .Values.kubecostAggregator.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.kubecostAggregator.containerSecurityContext | nindent 12 }}
+        {{ end }}
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
           {{- fail "Kubecost Aggregator cannot be used with open source only" }}
