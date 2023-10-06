@@ -10,7 +10,7 @@ metadata:
     {{ include "aggregator.commonLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.kubecostAggregator.replicas }}
-  serviceName: "aggregator"
+  serviceName: {{ template "aggregator.serviceName" . }}
   selector:
     matchLabels:
       app.kubernetes.io/name: aggregator
