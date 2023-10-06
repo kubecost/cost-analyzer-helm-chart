@@ -77,7 +77,7 @@ spec:
               containerPort: 9005
               protocol: TCP
           resources:
-{{ toYaml .Values.kubecostAggregator.cloudCost.resources | indent 12 }}
+            {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 12 }}
           volumeMounts:
           {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
