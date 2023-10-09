@@ -1053,6 +1053,10 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+            {{- if .Values.kubecostAggregator.enabled }}
+            - name: WATERFOWL_ENABLED
+              value: "true"
+            {{- end }}
         {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}

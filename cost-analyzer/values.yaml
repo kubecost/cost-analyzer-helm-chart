@@ -424,6 +424,8 @@ sigV4Proxy:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # set to 'true' to utilize images on the public Quay repository
+  # openSourceOnly: false
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -931,6 +933,49 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
     initImage: {}
+
+# The Kubecost Aggregator is a high scale implementation of kubecost 
+# intended for large datasets and/or high query load.
+# At present, this should only be enabled when recommended 
+# by Kubecost staff.
+kubecostAggregator:
+  # fullImageName: 
+  cloudCost:
+    enabled: false
+  replicas: 1
+  enabled: false
+  resources: {}
+  env:
+    "LOG_LEVEL": "info"
+  persistentConfigsStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 1Gi
+  aggregatorStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 20Gi
+  aggregatorDbStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 128Gi
+  securityContext:
+    runAsGroup: 1001
+    runAsUser: 1001
+    fsGroup: 1001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
