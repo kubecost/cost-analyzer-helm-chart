@@ -424,6 +424,7 @@ sigV4Proxy:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # set to 'true' to utilize images on the public Quay repository
   # openSourceOnly: false
   # extraEnv:
   # - name: SOME_VARIABLE
