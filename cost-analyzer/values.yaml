@@ -1130,8 +1130,15 @@ federatedETL:
       #   cpu: 100m
       #   memory: 500Mi
 
+## Kubecost Admission Controller (beta feature)
+## To use this feature, ensure you have run the `create-admission-controller.sh`
+## script. This generates a k8s secret with TLS keys/certificats and a
+## corresponding CA bundle.
+## 
 kubecostAdmissionController:
   enabled: false
+  secretName: webhook-server-tls
+  caBundle: ${CA_BUNDLE}
 
 # Enables or disables the Cost Event Audit pipeline, which tracks recent changes at cluster level
 # and provides an estimated cost impact via the Kubecost Predict API.
@@ -1250,11 +1257,6 @@ costEventsAudit:
 #  cloudIntegrationSecret: "cloud-integration"
 #  ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
 #  regionOverrides: "region1,region2,region3" # list of regions which will override default costmodel provider regions
-
-#kubecostAdmissionController:
-#  enabled: true
-#  secretName: webhook-server-tls
-#  caBundle: ${CA_BUNDLE}
 
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates
