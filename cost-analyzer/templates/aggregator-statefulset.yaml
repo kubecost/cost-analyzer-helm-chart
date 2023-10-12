@@ -116,6 +116,8 @@ spec:
               mountPath: /var/configs/waterfowl/duckdb
             {{- end }}
           env:
+            - name: DB_BUCKET_REFRESH_INTERVAL
+              value: 2m
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}

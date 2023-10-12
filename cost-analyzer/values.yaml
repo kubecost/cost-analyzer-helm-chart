@@ -950,7 +950,7 @@ kubecostAggregator:
   cloudCost:
     enabled: false
   replicas: 1
-  enabled: false
+  enabled: true
   resources: {}
   env:
     "LOG_LEVEL": "info"
