@@ -38,6 +38,10 @@ spec:
         app.kubernetes.io/name: query-service
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: query-service
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Always
 
