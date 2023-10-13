@@ -1,0 +1,140 @@
+{{- if .Values.kubecostAggregator.cloudCost.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "cloudCost.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "cloudCost.commonLabels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{ include "cloudCost.selectorLabels" . | nindent 6 }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: cloud-cost
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app: cloud-cost
+    spec:
+      restartPolicy: Always
+      serviceAccountName: {{ template "cloudCost.serviceAccountName" . }}
+      volumes:
+        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        - name: etl-bucket-config
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- end }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        - name: federated-storage-config
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- end }}
+        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+        - name: cloud-integration
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+            items:
+              - key: cloud-integration.json
+                path: cloud-integration.json
+        {{- else }}
+        {{- fail "Cloud Cost requires configuration secret" }}
+        {{- end }}
+      containers:
+        - name: cloud-cost
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
+          {{- fail "Kubecost Aggregator cannot be used with open source only" }}
+          {{- else if .Values.kubecostAggregator.fullImageName }}
+          image: {{ .Values.kubecostAggregator.fullImageName }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9005
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 200
+          imagePullPolicy: Always
+          args: ["cloud-cost"]
+          ports:
+            - name: tcp-api
+              containerPort: 9005
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 12 }}
+          volumeMounts:
+          {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: federated-storage-config
+              mountPath: /var/configs/etl/federated
+              readOnly: true
+          {{- end }}
+          {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+              readOnly: true
+          {{- end }}
+          {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+            - name: cloud-integration
+              mountPath: /var/configs/cloud-integration
+          {{- end }}
+          env:
+            - name: CONFIG_PATH
+              value: /var/configs/
+            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            - name: ETL_BUCKET_CONFIG
+              value: "/var/configs/etl/object-store.yaml"
+            {{- end}}
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated/federated-store.yaml"
+            - name: FEDERATED_CLUSTER
+              value: "true"
+            {{- end}}
+            {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.kubecostAggregator.priority }}
+      {{- if .Values.kubecostAggregator.priority.enabled }}
+      {{- if .Values.kubecostAggregator.priority.name }}
+      priorityClassName: {{ .Values.kubecostAggregator.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-aggregator-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.kubecostAggregator.cloudCost.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostAggregator.cloudCost.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.kubecostAggregator.cloudCost.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

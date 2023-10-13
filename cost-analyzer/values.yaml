@@ -283,12 +283,20 @@ saml:
 
 oidc:
   enabled: false
-  # clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
-  # clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
+  clientID: "" # application/client client_id parameter obtained from provider, used to make requests to server
+  clientSecret: "" # application/client client_secret parameter obtained from provider, used to make requests to server
   # secretName: "kubecost-oidc-secret" # k8s secret where clientsecret will be stored
+  # For use to provide a custom OIDC Secret. Overrides the usage of oidc.clientSecret and oidc.secretName.
+  # Should contain the field directly.
+  # Can be created using raw k8s secrets, external secrets, sealed secrets, or any other method.
+  existingCustomSecret:
+    enabled: false
+    name: "" # name of the secret containing the client secret
+
   # authURL: "https://my.auth.server/authorize" # endpoint for login to auth server
   # loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   # discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
+  skipOnlineTokenValidation: false # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
   # hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
@@ -423,6 +431,8 @@ sigV4Proxy:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
+  # set to 'true' to utilize images on the public Quay repository
+  # openSourceOnly: false
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -754,7 +764,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.16.8
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.0
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -931,6 +941,49 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
+# The Kubecost Aggregator is a high scale implementation of kubecost 
+# intended for large datasets and/or high query load.
+# At present, this should only be enabled when recommended 
+# by Kubecost staff.
+kubecostAggregator:
+  # fullImageName: 
+  cloudCost:
+    enabled: false
+  replicas: 1
+  enabled: false
+  resources: {}
+  env:
+    "LOG_LEVEL": "info"
+  persistentConfigsStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 1Gi
+  aggregatorStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 20Gi
+  aggregatorDbStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 128Gi
+  securityContext:
+    runAsGroup: 1001
+    runAsUser: 1001
+    fsGroup: 1001
+    fsGroupChangePolicy: OnRootMismatch
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
@@ -1084,8 +1137,15 @@ federatedETL:
       #   cpu: 100m
       #   memory: 500Mi
 
+## Kubecost Admission Controller (beta feature)
+## To use this feature, ensure you have run the `create-admission-controller.sh`
+## script. This generates a k8s secret with TLS keys/certificats and a
+## corresponding CA bundle.
+## 
 kubecostAdmissionController:
   enabled: false
+  secretName: webhook-server-tls
+  caBundle: ${CA_BUNDLE}
 
 # Enables or disables the Cost Event Audit pipeline, which tracks recent changes at cluster level
 # and provides an estimated cost impact via the Kubecost Predict API.
@@ -1204,11 +1264,6 @@ costEventsAudit:
 #  cloudIntegrationSecret: "cloud-integration"
 #  ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
 #  regionOverrides: "region1,region2,region3" # list of regions which will override default costmodel provider regions
-
-#kubecostAdmissionController:
-#  enabled: true
-#  secretName: webhook-server-tls
-#  caBundle: ${CA_BUNDLE}
 
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates

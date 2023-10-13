@@ -248,10 +248,15 @@ spec:
         - name: oidc-config
           configMap:
             name: {{ template "cost-analyzer.fullname" . }}-oidc
-        {{- if .Values.oidc.secretName }}
+        {{- if and (not .Values.oidc.existingCustomSecret.enabled) .Values.oidc.secretName }}
         - name: oidc-client-secret
           secret:
             secretName: {{ .Values.oidc.secretName }}
+        {{- end }}
+        {{- if .Values.oidc.existingCustomSecret.enabled }}
+        - name: oidc-client-secret
+          secret:
+            secretName: {{ .Values.oidc.existingCustomSecret.name }}
         {{- end }}
         {{- end }}
         {{- end }}
@@ -925,6 +930,8 @@ spec:
             {{- if .Values.oidc.enabled }}
             - name: OIDC_ENABLED
               value: "true"
+            - name: OIDC_SKIP_ONLINE_VALIDATION
+              value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
             {{- end}}
             {{- if .Values.saml }}
             {{- if .Values.saml.enabled }}
@@ -1051,6 +1058,10 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+            {{- if .Values.kubecostAggregator.enabled }}
+            - name: WATERFOWL_ENABLED
+              value: "true"
+            {{- end }}
         {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}

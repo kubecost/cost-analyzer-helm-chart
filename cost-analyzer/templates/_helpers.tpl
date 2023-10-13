@@ -11,6 +11,12 @@ Expand the name of the chart.
 {{- define "federator.name" -}}
 {{- default "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "aggregator.name" -}}
+{{- default "aggregator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "cloudCost.name" -}}
+{{- default "cloud-cost" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -40,6 +46,14 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "federator.fullname" -}}
 {{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "aggregator.fullname" -}}
+{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "cloudCost.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "cloudCost.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -88,6 +102,41 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "aggregator.serviceName" -}}
+{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "cloudCost.serviceName" -}}
+{{ include "cloudCost.fullname" . }}
+{{- end -}}
+
+{{/*
+Create the name of the service account
+*/}}
+{{- define "cost-analyzer.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "query-service.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "aggregator.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "aggregator.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "cloudCost.serviceAccountName" -}}
+    {{ (include "cloudCost.fullname" .) }}
+{{- end -}}
+
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
@@ -110,8 +159,19 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- end -}}
 
 {{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "cost-analyzer.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Create the chart labels.
 */}}
+{{- define "cost-analyzer.chartLabels" -}}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
 {{- define "kubecost.chartLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
@@ -130,32 +190,13 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-
-
-{{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "cost-analyzer.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- define "kubecost.aggregator.chartLabels" -}}
+app.kubernetes.io/name: {{ include "aggregator.name" . }}
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
-{{/*
-Create the name of the service account
-*/}}
-{{- define "cost-analyzer.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "query-service.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
 
 {{/*
 Create the common labels.
@@ -175,6 +216,14 @@ app: query-service
 {{ include "kubecost.federator.chartLabels" . }}
 app: federator
 {{- end -}}
+{{- define "aggregator.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+app: kubecost-aggregator
+{{- end -}}
+{{- define "cloudCost.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+{{ include "cloudCost.selectorLabels" . }}
+{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -193,6 +242,16 @@ app: query-service
 app.kubernetes.io/name: {{ include "federator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: federator
+{{- end -}}
+{{- define "aggregator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "aggregator.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: kubecost-aggregator
+{{- end -}}
+{{- define "cloudCost.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cloudCost.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "cloudCost.name" . }}
 {{- end -}}
 
 {{/*
