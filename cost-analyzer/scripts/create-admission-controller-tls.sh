@@ -1,8 +1,11 @@
 #!/bin/bash
 
-namespace=$1
-if [[ "${namespace}" == "" ]]; then
+set -eo pipefail
+
+if [ -z "$1" ]; then
   namespace=kubecost
+else
+  namespace="$1"
 fi
 
 echo -e "\nCreating certificates ..."
