@@ -344,7 +344,7 @@ data:
         }
 
         # to get memory profile from query service need to prefix all request by queryservice/
-        # for example if you want heap dump from query service end point should be 
+        # for example if you want heap dump from query service end point should be
         # /model/queryservice/debug/pprof/heap to get queryservice heap dumps
         location ~ /model/queryservice/(.*)$ {
             proxy_connect_timeout       600;
@@ -580,6 +580,15 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
+        location = /model/hidediagnostics {
+            default_type text/html;
+            {{- if .Values.kubecostFrontend.hideDiagnostics }}
+            return 200 'true';
+            {{- else }}
+            return 200 'false';
+            {{- end }}
+        }
+
     {{- if .Values.kubecostAggregator.cloudCost.enabled }}
         location = /model/cloudCost/status {
             proxy_read_timeout          300;
