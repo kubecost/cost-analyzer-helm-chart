@@ -69,6 +69,12 @@ spec:
         {{- end }}
 
       containers:
+      {{- if .Values.kubecostAggregator.jaeger.enabled }}
+        - name: embedded-jaeger
+          securityContext:
+            {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 12 }}
+          image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
+      {{- end }}
         - name: aggregator
         {{- if .Values.kubecostAggregator.containerSecurityContext }}
           securityContext:
@@ -127,7 +133,10 @@ spec:
                   name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
             {{- end }}
-
+            {{- if .Values.kubecostAggregator.jaeger.enabled }}
+            - name: TRACING_URL
+              value: "http://localhost:14268/api/traces"
+            {{- end }}
             - name: CONFIG_PATH
               value: /var/configs/
             - name: ETL_ENABLED

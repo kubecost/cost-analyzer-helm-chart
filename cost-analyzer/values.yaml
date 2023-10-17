@@ -947,6 +947,11 @@ kubecostDeployment:
 # At present, this should only be enabled when recommended 
 # by Kubecost staff.
 kubecostAggregator:
+  jaeger:
+    enabled: false
+    image: jaegertracing/all-in-one
+    imageVersion: latest
+    # containerSecurityContext: 
   # fullImageName: 
   cloudCost:
     enabled: false
