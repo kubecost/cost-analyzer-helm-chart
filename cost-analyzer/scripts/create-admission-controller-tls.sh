@@ -25,5 +25,5 @@ if [ -f "../values.yaml" ]; then
   echo -e "\nUpdating values.yaml ..."
   sed -i '' 's@${CA_BUNDLE}@'"${ENCODED_CA}"'@g' ../values.yaml
 else
-  echo -e "\nThe CA bundle to use in your values file is: \n$ENCODED_CA"
+  echo -e "\nThe CA bundle to use in your values file is: \n${ENCODED_CA}"
 fi
