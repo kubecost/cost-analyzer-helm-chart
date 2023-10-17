@@ -358,6 +358,7 @@ kubecostFrontend:
   #   proxy_buffers   4 512k;
   #   proxy_buffer_size   256k;
   #   large_client_header_buffers 4 64k;
+  # hideDiagnostics: false # used if the primary is not monitored. Supported in limited environments.
 
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
