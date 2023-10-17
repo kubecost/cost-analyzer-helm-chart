@@ -489,6 +489,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/clusters/status {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/clusters/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/savings {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/savings;
