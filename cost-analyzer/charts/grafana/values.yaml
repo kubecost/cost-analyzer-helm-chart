@@ -258,7 +258,7 @@ smtp:
 sidecar:
   image:
     repository: kiwigrid/k8s-sidecar
-    tag: 1.25.1
+    tag: 1.25.2
     pullPolicy: IfNotPresent
   resources:
 #   limits:
