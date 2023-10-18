@@ -695,6 +695,8 @@ prometheus:
     #    operator: "Equal|Exists"
     #    value: "value"
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+    # retention: 50h This must be greater than or equal to etlHourlyStoreDurationHours
+    # retentionSize: should be significantly greater than the storage used in the number of hours set in etlHourlyStoreDurationHours
   alertmanager:
     enabled: false
     persistentVolume:
@@ -942,21 +944,21 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
-# The Kubecost Aggregator is a high scale implementation of kubecost 
+# The Kubecost Aggregator is a high scale implementation of kubecost
 # intended for large datasets and/or high query load.
-# At present, this should only be enabled when recommended 
+# At present, this should only be enabled when recommended
 # by Kubecost staff.
 kubecostAggregator:
   # by default, the aggregator uses the same service account as the cost analyzer
   # if a custom service account is desired for the aggregator only, provide the name
   # of a pre-existing service account for the Kubecost Aggregator to use here
-  #serviceAccountName: 
+  #serviceAccountName:
   jaeger:
     enabled: false
     image: jaegertracing/all-in-one
     imageVersion: latest
-    # containerSecurityContext: 
-  # fullImageName: 
+    # containerSecurityContext:
+  # fullImageName:
   cloudCost:
     enabled: false
     # by default, the aggregator cloud cost pod uses the same service account as the cost analyzer
@@ -1155,7 +1157,7 @@ federatedETL:
 ## To use this feature, ensure you have run the `create-admission-controller.sh`
 ## script. This generates a k8s secret with TLS keys/certificats and a
 ## corresponding CA bundle.
-## 
+##
 kubecostAdmissionController:
   enabled: false
   secretName: webhook-server-tls
