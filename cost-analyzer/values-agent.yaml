@@ -72,10 +72,11 @@ prometheus:
           action: keep
           regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
+    retention: 50h
     extraArgs:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
-      storage.tsdb.retention: 10h
+      # storage.tsdb.retention: 10h
     securityContext:
       runAsNonRoot: true
       runAsUser: 1001
