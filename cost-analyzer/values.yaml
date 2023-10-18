@@ -223,9 +223,11 @@ global:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
-    fsGroup: 65534
-    runAsGroup: 65534
-    runAsUser: 65534
+    fsGroup: 1001
+    runAsGroup: 1001
+    runAsUser: 1001
+
+    fsGroupChangePolicy: OnRootMismatch
   containerSecurityContext:
     allowPrivilegeEscalation: false
     privileged: false
@@ -917,9 +919,10 @@ kubecostDeployment:
   queryServiceReplicas: 0
   queryService:
     securityContext:
-      fsGroup: 65534
-      runAsGroup: 65534
-      runAsUser: 65534
+      runAsGroup: 1001
+      runAsUser: 1001
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
       runAsNonRoot: false
       seccompProfile:
         type: RuntimeDefault
@@ -942,21 +945,21 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
-# The Kubecost Aggregator is a high scale implementation of kubecost 
+# The Kubecost Aggregator is a high scale implementation of kubecost
 # intended for large datasets and/or high query load.
-# At present, this should only be enabled when recommended 
+# At present, this should only be enabled when recommended
 # by Kubecost staff.
 kubecostAggregator:
   # by default, the aggregator uses the same service account as the cost analyzer
   # if a custom service account is desired for the aggregator only, provide the name
   # of a pre-existing service account for the Kubecost Aggregator to use here
-  #serviceAccountName: 
+  #serviceAccountName:
   jaeger:
     enabled: false
     image: jaegertracing/all-in-one
     imageVersion: latest
-    # containerSecurityContext: 
-  # fullImageName: 
+    # containerSecurityContext:
+  # fullImageName:
   cloudCost:
     enabled: false
     # by default, the aggregator cloud cost pod uses the same service account as the cost analyzer
@@ -1155,7 +1158,7 @@ federatedETL:
 ## To use this feature, ensure you have run the `create-admission-controller.sh`
 ## script. This generates a k8s secret with TLS keys/certificats and a
 ## corresponding CA bundle.
-## 
+##
 kubecostAdmissionController:
   enabled: false
   secretName: webhook-server-tls
