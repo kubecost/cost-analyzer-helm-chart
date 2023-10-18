@@ -959,6 +959,10 @@ kubecostAggregator:
   # fullImageName: 
   cloudCost:
     enabled: false
+    # by default, the aggregator cloud cost pod uses the same service account as the cost analyzer
+    # if a custom service account is desired for the aggregator cloud cost pod only, provide the name
+    # of a pre-existing service account for the Kubecost Aggregator cloud cost pod to use here
+    # serviceAccountName:
   replicas: 1
   enabled: false
   resources: {}

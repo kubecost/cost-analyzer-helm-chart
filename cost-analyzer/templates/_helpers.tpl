@@ -134,9 +134,12 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 {{- define "cloudCost.serviceAccountName" -}}
-    {{ (include "cloudCost.fullname" .) }}
+{{- if .Values.kubecostAggregator.cloudCost.serviceAccountName -}}
+    {{ .Values.kubecostAggregator.cloudCost.serviceAccountName }}
+{{- else -}}
+    {{ template "cost-analyzer.serviceAccountName" . }}
 {{- end -}}
-
+{{- end -}}
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
