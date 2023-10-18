@@ -1,6 +1,6 @@
 image:
   repository: thanosio/thanos
-  tag: v0.29.0
+  tag: v0.32.4
   pullPolicy: IfNotPresent
 
 ## PriorityClassName
@@ -187,7 +187,7 @@ queryFrontend:
     validity: 10m
 
   downstreamTripper:
-    enabled: false 
+    enabled: false
     idleConnectionTimeout: 90s
     responseHeaderTimeout: 2m
     tlsHandshakeTimeout: 10s
@@ -198,7 +198,7 @@ queryFrontend:
 
   # Downstream Tripper Configuration Content
   # downstreamTripperConfig:
-    
+
   # Response cache configuration content
   # responseCacheConfig:
 
@@ -233,7 +233,7 @@ queryFrontend:
       # minAvailable and maxUnavailable can't be used simultaneous. Choose one.
     minAvailable: 1
     #  maxUnavailable: 50%
-  
+
   serviceAccount: ""
 
   # The http endpoint to communicate with other components
@@ -327,7 +327,7 @@ queryFrontend:
   # Pod affinity
   # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#node-affinity
   affinity: {}
-      
+
 query:
   enabled: true
   # Label to treat as a replica indicator along which data is deduplicated.
@@ -355,9 +355,9 @@ query:
   maxConcurrent: 16
   # Maximum number of select requests made concurrently per a query.
   maxConcurrentSelect: 4
-  # Enable automatic adjustment (step / 5) to what source of data should be used in store gateways 
+  # Enable automatic adjustment (step / 5) to what source of data should be used in store gateways
   # if no max_source_resolution param is specified.
-  autoDownsampling: false                                        
+  autoDownsampling: false
   # https://github.com/improbable-eng/thanos/issues/1015
   storeDNSResolver: miekgdns
   # Enable DNS discovery for stores
