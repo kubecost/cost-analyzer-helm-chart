@@ -76,7 +76,8 @@ prometheus:
     extraArgs:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
-      # storage.tsdb.retention: 10h
+      storage.tsdb.retention.time: 50h
+      # storage.tsdb.retention.size: 1Gi
     securityContext:
       runAsNonRoot: true
       runAsUser: 1001
