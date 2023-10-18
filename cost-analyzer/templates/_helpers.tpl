@@ -127,10 +127,10 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 {{- define "aggregator.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "aggregator.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.kubecostAggregator.serviceAccountName -}}
+    {{ .Values.kubecostAggregator.serviceAccountName }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ template "cost-analyzer.serviceAccountName" . }}
 {{- end -}}
 {{- end -}}
 {{- define "cloudCost.serviceAccountName" -}}

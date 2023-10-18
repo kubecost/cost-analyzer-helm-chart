@@ -947,6 +947,10 @@ kubecostDeployment:
 # At present, this should only be enabled when recommended 
 # by Kubecost staff.
 kubecostAggregator:
+  # by default, the aggregator uses the same service account as the cost analyzer
+  # if a custom service account is desired for the aggregator only, provide the name
+  # of a pre-existing service account for the Kubecost Aggregator to use here
+  #serviceAccountName: 
   jaeger:
     enabled: false
     image: jaegertracing/all-in-one
