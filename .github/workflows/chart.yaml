@@ -72,7 +72,7 @@ jobs:
         run: helm install --wait --wait-for-jobs kubecost . -n kubecost --create-namespace --set global.prometheus.enabled=false --set global.grafana.enabled=false
 
       - name: Wait for ready 
-        run: kubectl wait --namespace kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=60s
+        run: kubectl wait --namespace kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
 
       - name: Run Helm tests 
         run: helm test -n kubecost kubecost
