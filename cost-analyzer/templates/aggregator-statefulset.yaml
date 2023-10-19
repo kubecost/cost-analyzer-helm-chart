@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: aggregator
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app: kubecost-aggregator
+      app: aggregator
   volumeClaimTemplates:
   - metadata:
       name: persistent-configs
@@ -48,7 +48,7 @@ spec:
       labels:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app: kubecost-aggregator
+        app: aggregator
     spec:
       restartPolicy: Always
       {{- if .Values.kubecostAggregator.securityContext }}
