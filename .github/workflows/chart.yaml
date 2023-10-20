@@ -69,5 +69,10 @@ jobs:
   
       - name: Install Kubecost chart
         working-directory: ./cost-analyzer
-        run: |
-          helm install --wait --wait-for-jobs kubecost . --namespace kubecost --create-namespace --set global.prometheus.enabled=false --set global.grafana.enabled=false
+        run: helm install --wait --wait-for-jobs kubecost . -n kubecost --create-namespace
+
+      - name: Wait for ready 
+        run: kubectl wait --namespace kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+
+      - name: Run Helm tests 
+        run: helm test -n kubecost kubecost
