@@ -223,9 +223,11 @@ global:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
-    fsGroup: 65534
-    runAsGroup: 65534
-    runAsUser: 65534
+    fsGroup: 1001
+    runAsGroup: 1001
+    runAsUser: 1001
+
+    fsGroupChangePolicy: OnRootMismatch
   containerSecurityContext:
     allowPrivilegeEscalation: false
     privileged: false
@@ -919,9 +921,10 @@ kubecostDeployment:
   queryServiceReplicas: 0
   queryService:
     securityContext:
-      fsGroup: 65534
-      runAsGroup: 65534
-      runAsUser: 65534
+      runAsGroup: 1001
+      runAsUser: 1001
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
       runAsNonRoot: false
       seccompProfile:
         type: RuntimeDefault
