@@ -663,9 +663,12 @@ prometheus:
         - role: pod
       relabel_configs:
       # Scrape only the the targets matching the following metadata
-        - source_labels: [__meta_kubernetes_pod_label_app]
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
           action: keep
-          regex:  {{ template "cost-analyzer.networkCostsName" . }}
+          regex:  kubecost
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex:  network-costs
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -881,7 +884,10 @@ networkCosts:
   podMonitor:
     enabled: false
     additionalLabels: {}
-  additionalLabels: {}
+  # match the default extraScrapeConfig
+  additionalLabels:
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/name: network-costs
   nodeSelector: {}
   annotations: {}
   healthCheckProbes: {}
