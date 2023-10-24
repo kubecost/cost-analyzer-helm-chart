@@ -1,9 +1,9 @@
 apiVersion: v2
-appVersion: "1.106.4-rc.1"
+appVersion: "1.106.4-rc.2"
 description: A Helm chart that sets up Kubecost, Prometheus, and Grafana to monitor
   cloud costs.
 name: cost-analyzer
-version: "1.106.4-rc.1"
+version: "1.106.4-rc.2"
 annotations:
   "artifacthub.io/links": |
     - name: Homepage
