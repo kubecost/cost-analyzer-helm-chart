@@ -344,6 +344,21 @@ spec:
           args:
           - "--web.listen-address=:{{ .Values.global.gmp.gmpProxy.port }}"
           - "--query.project-id={{ .Values.global.gmp.gmpProxy.projectId }}"
+          {{- if .Values.systemProxy.enabled }}
+          env:
+          - name: HTTP_PROXY
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: http_proxy
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: HTTPS_PROXY
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: https_proxy
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: NO_PROXY
+            value:  {{ .Values.systemProxy.noProxy }}
+          - name: no_proxy
+            value:  {{ .Values.systemProxy.noProxy }}
+          {{- end }}
           ports:
           - name: web
             containerPort: {{ .Values.global.gmp.gmpProxy.port | int }}
@@ -384,8 +399,24 @@ spec:
           ports:
           - name: aws-sigv4-proxy
             containerPort: {{ .Values.sigV4Proxy.port | int }}
-          {{- if .Values.sigV4Proxy.extraEnv }}
           env:
+          - name: AGENT_LOCAL_PORT
+            value: "{{ .Values.sigV4Proxy.port | int }}"
+          {{- if .Values.systemProxy.enabled }}
+          - name: HTTP_PROXY
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: http_proxy
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: HTTPS_PROXY
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: https_proxy
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: NO_PROXY
+            value:  {{ .Values.systemProxy.noProxy }}
+          - name: no_proxy
+            value:  {{ .Values.systemProxy.noProxy }}
+          {{- end }}
+          {{- if .Values.sigV4Proxy.extraEnv }}
           {{- toYaml .Values.sigV4Proxy.extraEnv | nindent 10 }}
           {{- end }}
         {{- end }}
@@ -393,6 +424,20 @@ spec:
         - name: ubbagent
           image: gcr.io/kubecost1/gcp-mp/ent/cost-model/ubbagent:1.0
           env:
+          {{- if .Values.systemProxy.enabled }}
+          - name: HTTP_PROXY
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: http_proxy
+            value: {{ .Values.systemProxy.httpProxyUrl }}
+          - name: HTTPS_PROXY
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: https_proxy
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+          - name: NO_PROXY
+            value:  {{ .Values.systemProxy.noProxy }}
+          - name: no_proxy
+            value:  {{ .Values.systemProxy.noProxy }}
+          {{- end }}
           - name: AGENT_CONFIG_FILE
             value: "/etc/ubbagent/config.yaml"
           - name: AGENT_LOCAL_PORT

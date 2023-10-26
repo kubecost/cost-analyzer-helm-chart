@@ -320,8 +320,11 @@ oidc:
     #     claimValues:
     #       - "editor"
 
-# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
-# Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+## Adds the HTTP_PROXY, HTTPS_PROXY, and NO_PROXY environment variables to all
+## containers. Typically used in environments that have firewall rules which
+## prevent kubecost from accessing cloud provider resources.
+## Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+##
 systemProxy:
   enabled: false
   httpProxyUrl: ""
