@@ -149,11 +149,10 @@ global:
         idle: "separate"
         rate: "cumulative"
         accumulate: false # daily resolution
-        filters:
-          - property: "cluster"
-            value: "cluster-one,cluster*" # supports wildcard filtering and multiple comma separated values
-          - property: "namespace"
-            value: "kubecost"
+        filters: # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+          - key: "cluster" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+            operator: ":" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+            value: "dev"
       - title: "Example Saved Report 1"
         window: "month"
         aggregateBy: "controllerKind"
@@ -161,10 +160,9 @@ global:
         idle: "share"
         rate: "monthly"
         accumulate: false
-        filters:
-          - property: "label"
-            value: "app:cost*,environment:kube*"
-          - property: "namespace"
+        filters: # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+          - key: "namespace" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+            operator: "!:" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
             value: "kubecost"
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
@@ -196,9 +194,10 @@ global:
     - title: "Example Advanced Report 0"
       window: "7d"
       aggregateBy: "namespace"
-      filters:
-        - property: "cluster"
-          value: "cluster-one"
+      filters: # same as allocation api filters Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+        - key: "cluster" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+          operator: ":" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+          value: "dev"
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
 
