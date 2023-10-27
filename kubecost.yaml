@@ -20181,11 +20181,11 @@ spec:
       serviceAccountName: kubecost-prometheus-server
       containers:
         - name: prometheus-server-configmap-reload
-          image: "jimmidyson/configmap-reload:v0.9.0"
+          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.68.0"
           imagePullPolicy: "IfNotPresent"
           args:
-            - --volume-dir=/etc/config
-            - --webhook-url=http://127.0.0.1:9090/-/reload
+            - --watched-dir=/etc/config
+            - --reload-url=http://127.0.0.1:9090/-/reload
           resources:
             {}
           securityContext:
