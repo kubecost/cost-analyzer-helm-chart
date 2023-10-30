@@ -533,6 +533,7 @@ kubecostModel:
     #    hosts:
     #      - cost-analyzer-model.local
 
+# etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
   enabled: false
   fullImageName: null
@@ -541,7 +542,7 @@ etlUtils:
   nodeSelector: {}
   tolerations: {}
   affinity: {}
-  
+
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/main/ingress-examples.md
 ingress:
   enabled: false
