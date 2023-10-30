@@ -137,16 +137,19 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 {{- define "aggregator.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "aggregator.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.kubecostAggregator.serviceAccountName -}}
+    {{ .Values.kubecostAggregator.serviceAccountName }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ template "cost-analyzer.serviceAccountName" . }}
 {{- end -}}
 {{- end -}}
 {{- define "cloudCost.serviceAccountName" -}}
-    {{ (include "cloudCost.fullname" .) }}
+{{- if .Values.kubecostAggregator.cloudCost.serviceAccountName -}}
+    {{ .Values.kubecostAggregator.cloudCost.serviceAccountName }}
+{{- else -}}
+    {{ template "cost-analyzer.serviceAccountName" . }}
 {{- end -}}
-
+{{- end -}}
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
@@ -228,7 +231,7 @@ app: federator
 {{- end -}}
 {{- define "aggregator.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
-app: kubecost-aggregator
+app: aggregator
 {{- end -}}
 {{- define "cloudCost.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
@@ -260,7 +263,7 @@ app: federator
 {{- define "aggregator.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app: kubecost-aggregator
+app: aggregator
 {{- end -}}
 {{- define "cloudCost.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
@@ -319,9 +322,9 @@ Return the appropriate apiVersion for podsecuritypolicy.
 
 {{/*
 Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
-will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map 
-is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the 
-map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the 
+will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map
+is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the
+map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the
 enabled only version to the output .r
 */}}
 {{- define "cost-analyzer.filter" -}}
@@ -359,8 +362,8 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
 
 {{/*
 This template runs the full check for leader/follower requirements in order to determine
-whether it should be configured. This template will return true if it's enabled and all 
-requirements are met. 
+whether it should be configured. This template will return true if it's enabled and all
+requirements are met.
 */}}
 {{- define "cost-analyzer.leaderFollowerEnabled" }}
     {{- if .Values.kubecostDeployment }}

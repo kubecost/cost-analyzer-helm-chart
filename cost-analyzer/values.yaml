@@ -149,11 +149,10 @@ global:
         idle: "separate"
         rate: "cumulative"
         accumulate: false # daily resolution
-        filters:
-          - property: "cluster"
-            value: "cluster-one,cluster*" # supports wildcard filtering and multiple comma separated values
-          - property: "namespace"
-            value: "kubecost"
+        filters: # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+          - key: "cluster" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+            operator: ":" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+            value: "dev"
       - title: "Example Saved Report 1"
         window: "month"
         aggregateBy: "controllerKind"
@@ -161,10 +160,9 @@ global:
         idle: "share"
         rate: "monthly"
         accumulate: false
-        filters:
-          - property: "label"
-            value: "app:cost*,environment:kube*"
-          - property: "namespace"
+        filters: # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+          - key: "namespace" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+            operator: "!:" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
             value: "kubecost"
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
@@ -196,9 +194,10 @@ global:
     - title: "Example Advanced Report 0"
       window: "7d"
       aggregateBy: "namespace"
-      filters:
-        - property: "cluster"
-          value: "cluster-one"
+      filters: # same as allocation api filters Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
+        - key: "cluster" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
+          operator: ":" # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+          value: "dev"
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
 
@@ -223,9 +222,11 @@ global:
     runAsNonRoot: true
     seccompProfile:
       type: RuntimeDefault
-    fsGroup: 65534
-    runAsGroup: 65534
-    runAsUser: 65534
+    fsGroup: 1001
+    runAsGroup: 1001
+    runAsUser: 1001
+
+    fsGroupChangePolicy: OnRootMismatch
   containerSecurityContext:
     allowPrivilegeEscalation: false
     privileged: false
@@ -318,8 +319,11 @@ oidc:
     #     claimValues:
     #       - "editor"
 
-# Adds an httpProxy as an environment variable. systemProxy.enabled must be `true`to have any effect.
-# Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+## Adds the HTTP_PROXY, HTTPS_PROXY, and NO_PROXY environment variables to all
+## containers. Typically used in environments that have firewall rules which
+## prevent kubecost from accessing cloud provider resources.
+## Ref: https://www.oreilly.com/library/view/security-with-go/9781788627917/5ea6a02b-3d96-44b1-ad3c-6ab60fcbbe4f.xhtml
+##
 systemProxy:
   enabled: false
   httpProxyUrl: ""
@@ -358,6 +362,7 @@ kubecostFrontend:
   #   proxy_buffers   4 512k;
   #   proxy_buffer_size   256k;
   #   large_client_header_buffers 4 64k;
+  # hideDiagnostics: false # used if the primary is not monitored. Supported in limited environments.
 
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
@@ -668,9 +673,12 @@ prometheus:
         - role: pod
       relabel_configs:
       # Scrape only the the targets matching the following metadata
-        - source_labels: [__meta_kubernetes_pod_label_app]
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
           action: keep
-          regex:  {{ template "cost-analyzer.networkCostsName" . }}
+          regex:  kubecost
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex:  network-costs
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -702,6 +710,8 @@ prometheus:
     #    operator: "Equal|Exists"
     #    value: "value"
     #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
+    # retention: 50h This must be greater than or equal to etlHourlyStoreDurationHours
+    # retentionSize: should be significantly greater than the storage used in the number of hours set in etlHourlyStoreDurationHours
   alertmanager:
     enabled: false
     persistentVolume:
@@ -884,7 +894,10 @@ networkCosts:
   podMonitor:
     enabled: false
     additionalLabels: {}
-  additionalLabels: {}
+  # match the default extraScrapeConfig
+  additionalLabels:
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/name: network-costs
   nodeSelector: {}
   annotations: {}
   healthCheckProbes: {}
@@ -907,6 +920,9 @@ networkCosts:
 ## Used for HA mode in Business & Enterprise tier
 ##
 kubecostDeployment:
+  # Instead of a kubecost-analyzer Deployment, you can set it to be a StatefulSet as for volumeClaimTemplates usage and real stateful behaviour
+  statefulSet:
+    enabled: false
   replicas: 1
   leaderFollower:
     enabled: false
@@ -924,9 +940,10 @@ kubecostDeployment:
   queryServiceReplicas: 0
   queryService:
     securityContext:
-      fsGroup: 65534
-      runAsGroup: 65534
-      runAsUser: 65534
+      runAsGroup: 1001
+      runAsUser: 1001
+      fsGroup: 1001
+      fsGroupChangePolicy: OnRootMismatch
       runAsNonRoot: false
       seccompProfile:
         type: RuntimeDefault
@@ -949,14 +966,27 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
-# The Kubecost Aggregator is a high scale implementation of kubecost 
+# The Kubecost Aggregator is a high scale implementation of kubecost
 # intended for large datasets and/or high query load.
-# At present, this should only be enabled when recommended 
+# At present, this should only be enabled when recommended
 # by Kubecost staff.
 kubecostAggregator:
-  # fullImageName: 
+  # by default, the aggregator uses the same service account as the cost analyzer
+  # if a custom service account is desired for the aggregator only, provide the name
+  # of a pre-existing service account for the Kubecost Aggregator to use here
+  #serviceAccountName:
+  jaeger:
+    enabled: false
+    image: jaegertracing/all-in-one
+    imageVersion: latest
+    # containerSecurityContext:
+  # fullImageName:
   cloudCost:
     enabled: false
+    # by default, the aggregator cloud cost pod uses the same service account as the cost analyzer
+    # if a custom service account is desired for the aggregator cloud cost pod only, provide the name
+    # of a pre-existing service account for the Kubecost Aggregator cloud cost pod to use here
+    # serviceAccountName:
   replicas: 1
   enabled: false
   resources: {}
@@ -1149,7 +1179,7 @@ federatedETL:
 ## To use this feature, ensure you have run the `create-admission-controller.sh`
 ## script. This generates a k8s secret with TLS keys/certificats and a
 ## corresponding CA bundle.
-## 
+##
 kubecostAdmissionController:
   enabled: false
   secretName: webhook-server-tls

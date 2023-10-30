@@ -344,7 +344,7 @@ data:
         }
 
         # to get memory profile from query service need to prefix all request by queryservice/
-        # for example if you want heap dump from query service end point should be 
+        # for example if you want heap dump from query service end point should be
         # /model/queryservice/debug/pprof/heap to get queryservice heap dumps
         location ~ /model/queryservice/(.*)$ {
             proxy_connect_timeout       600;
@@ -489,6 +489,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/clusters/status {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/clusters/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/savings {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/savings;
@@ -508,6 +516,30 @@ data:
         location = /model/savings/abandonedWorkloads/topline {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/savings/abandonedWorkloads/topline;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/savings/unclaimedVolumes {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/savings/unclaimedVolumes;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/savings/localLowDisks {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/savings/localLowDisks;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/savings/persistentVolumeSizing {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/savings/persistentVolumeSizing;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -580,6 +612,15 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
+        location = /model/hideDiagnostics {
+            default_type text/html;
+            {{- if .Values.kubecostFrontend.hideDiagnostics }}
+            return 200 'true';
+            {{- else }}
+            return 200 'false';
+            {{- end }}
+        }
+
     {{- if .Values.kubecostAggregator.cloudCost.enabled }}
         location = /model/cloudCost/status {
             proxy_read_timeout          300;
