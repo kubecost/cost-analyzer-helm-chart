@@ -23,11 +23,11 @@ spec:
     spec:
       restartPolicy: Always
       volumes:
-        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- if .Values.kubecostModel.thanosSourceBucketSecret }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
-            secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+            secretName: {{ .Values.kubecostModel.thanosSourceBucketSecret }}
         {{- end }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
