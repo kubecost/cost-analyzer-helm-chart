@@ -23,11 +23,11 @@ spec:
     spec:
       restartPolicy: Always
       volumes:
-        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+        {{- if .Values.etlUtils.thanosSourceBucketSecret }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
-            secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
+            secretName: {{ .Values.etlUtils.thanosSourceBucketSecret }}
         {{- end }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
@@ -55,7 +55,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 9005
+              port: 9006
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 200
@@ -68,7 +68,7 @@ spec:
           resources:
             {{- toYaml .Values.etlUtils.resources | nindent 12 }}
           volumeMounts:
-          {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+          {{- if .Values.etlUtils.thanosSourceBucketSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
@@ -76,7 +76,7 @@ spec:
           env:
             - name: CONFIG_PATH
               value: /var/configs/
-            {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+            {{- if .Values.etlUtils.thanosSourceBucketSecret }}
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
             {{- end}}
