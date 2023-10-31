@@ -83,7 +83,7 @@ spec:
             {{- toYaml .Values.kubecostAggregator.containerSecurityContext | nindent 12 }}
         {{- else if .Values.global.containerSecurityContext }}
           securityContext:
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
         {{ end }}
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
