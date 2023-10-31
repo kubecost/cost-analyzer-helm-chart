@@ -17,6 +17,9 @@ Expand the name of the chart.
 {{- define "cloudCost.name" -}}
 {{- default "cloud-cost" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "etlUtils.name" -}}
+{{- default "etl-utils" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -54,6 +57,10 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "cloudCost.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "cloudCost.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "etlUtils.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "etlUtils.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -107,6 +114,9 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 {{- define "cloudCost.serviceName" -}}
 {{ include "cloudCost.fullname" . }}
+{{- end -}}
+{{- define "etlUtils.serviceName" -}}
+{{ include "etlUtils.fullname" . }}
 {{- end -}}
 
 {{/*
@@ -227,6 +237,10 @@ app: aggregator
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "cloudCost.selectorLabels" . }}
 {{- end -}}
+{{- define "etlUtils.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+{{ include "etlUtils.selectorLabels" . }}
+{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -255,6 +269,11 @@ app: aggregator
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
+{{- end -}}
+{{- define "etlUtils.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "etlUtils.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "etlUtils.name" . }}
 {{- end -}}
 
 {{/*
