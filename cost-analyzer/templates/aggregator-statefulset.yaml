@@ -114,7 +114,7 @@ spec:
               containerPort: 9004
               protocol: TCP
           resources:
-{{ toYaml .Values.kubecostAggregator.resources | indent 12 }}
+            {{ toYaml .Values.kubecostAggregator.resources | nindent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
