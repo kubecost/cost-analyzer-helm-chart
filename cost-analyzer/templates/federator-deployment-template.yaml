@@ -54,9 +54,11 @@ spec:
           volumeMounts:
             - name: federator-config
               mountPath: /var/configs/federator
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
               mountPath: /var/configs/etl/federated
               readOnly: true
+            {{- end }}
             {{- if .Values.federatedETL.federator.extraVolumeMounts }}
             {{- toYaml .Values.federatedETL.federator.extraVolumeMounts | nindent 12 }}
             {{- end }}
