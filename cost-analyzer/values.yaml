@@ -46,7 +46,7 @@ global:
   # Amazon Managed Service for Prometheus
   amp:
     enabled: false # If true, kubecost will be configured to remote_write and query from Amazon Managed Service for Prometheus.
-    prometheusServerEndpoint: https://localhost:8085/workspaces/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
+    prometheusServerEndpoint: http://localhost:8005/workspaces/<workspaceId>/ # The prometheus service endpoint used by kubecost. The calls are forwarded through the SigV4Proxy side car to the AMP workspace.
     remoteWriteService: https://aps-workspaces.us-west-2.amazonaws.com/workspaces/<workspaceId>/api/v1/remote_write # The remote_write endpoint for the AMP workspace.
     sigv4:
       region: us-west-2
@@ -969,7 +969,7 @@ kubecostDeployment:
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
 ## enabled when recommended by Kubecost staff.
-## 
+##
 kubecostAggregator:
   enabled: false
   replicas: 1
