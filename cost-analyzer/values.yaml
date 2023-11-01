@@ -226,7 +226,6 @@ global:
     fsGroup: 1001
     runAsGroup: 1001
     runAsUser: 1001
-
     fsGroupChangePolicy: OnRootMismatch
   containerSecurityContext:
     allowPrivilegeEscalation: false
@@ -965,29 +964,25 @@ kubecostDeployment:
     configVolumeSize: 1Gi
     initImage: {}
 
-# The Kubecost Aggregator is a high scale implementation of kubecost
-# intended for large datasets and/or high query load.
-# At present, this should only be enabled when recommended
-# by Kubecost staff.
+## The Kubecost Aggregator is a high scale implementation of Kubecost intended
+## for large datasets and/or high query load. At present, this should only be
+## enabled when recommended by Kubecost staff.
+## 
 kubecostAggregator:
-  # by default, the aggregator uses the same service account as the cost analyzer
-  # if a custom service account is desired for the aggregator only, provide the name
-  # of a pre-existing service account for the Kubecost Aggregator to use here
-  #serviceAccountName:
+  enabled: false
+  replicas: 1
+  ## Creates a new pod to retrieve CloudCost data. By default it uses the same
+  ## serviceaccount as the cost-analyzer pod. A custom serviceaccount can be
+  ## specified.
+  cloudCost:
+    enabled: false
+    # serviceAccountName:
   jaeger:
     enabled: false
     image: jaegertracing/all-in-one
     imageVersion: latest
     # containerSecurityContext:
   # fullImageName:
-  cloudCost:
-    enabled: false
-    # by default, the aggregator cloud cost pod uses the same service account as the cost analyzer
-    # if a custom service account is desired for the aggregator cloud cost pod only, provide the name
-    # of a pre-existing service account for the Kubecost Aggregator cloud cost pod to use here
-    # serviceAccountName:
-  replicas: 1
-  enabled: false
   resources: {}
   env:
     "LOG_LEVEL": "info"
@@ -1003,23 +998,23 @@ kubecostAggregator:
     # default storage class
     storageClass: ""
     storageRequest: 128Gi
-  securityContext:
-    runAsGroup: 1001
-    runAsUser: 1001
-    fsGroup: 1001
-    fsGroupChangePolicy: OnRootMismatch
-    seccompProfile:
-      type: RuntimeDefault
-    runAsNonRoot: true
-  containerSecurityContext:
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-    runAsNonRoot: true
-    seccompProfile:
-      type: RuntimeDefault
-    capabilities:
-      drop:
-        - ALL
+  # securityContext:
+  #   runAsGroup: 1001
+  #   runAsUser: 1001
+  #   fsGroup: 1001
+  #   fsGroupChangePolicy: OnRootMismatch
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   runAsNonRoot: true
+  # containerSecurityContext:
+  #   allowPrivilegeEscalation: false
+  #   readOnlyRootFilesystem: true
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   capabilities:
+  #     drop:
+  #       - ALL
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
