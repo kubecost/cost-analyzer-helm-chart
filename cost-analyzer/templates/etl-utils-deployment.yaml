@@ -35,6 +35,7 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
+      serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       containers:
         - name: {{ template "etlUtils.name" . }}
           {{- if .Values.kubecostModel }}
