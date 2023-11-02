@@ -25,8 +25,13 @@ jobs:
       #   run: helm lint
 
       - name: Helm template
-        working-directory: ./cost-analyzer
-        run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
+        run: |
+          directory=".github/ci-files/"
+          for file in "$directory"/*; do
+          if [ -f "$file" ]; then
+              helm template cost-analyzer/ -f "$file"
+          fi
+          done
 
       - name: Kubeconform
         uses: docker://ghcr.io/yannh/kubeconform:latest
