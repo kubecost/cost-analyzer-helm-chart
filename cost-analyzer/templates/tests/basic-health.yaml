@@ -6,7 +6,7 @@ metadata:
   annotations:
     {{- include "kubecost.test.annotations" . | nindent 4 }}
 spec:
-  serviceAccountName: tester
+  serviceAccountName: e2e-testing
   restartPolicy: Never
   containers:
   - name: test-kubecost
@@ -31,7 +31,9 @@ spec:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: test-role
+  name: e2e-testing-role
+  annotations:
+    {{- include "kubecost.test.annotations" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 rules:
 - apiGroups: [""]
@@ -41,19 +43,23 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: test-rolebinding
+  name: e2e-testing-rolebinding
+  annotations:
+    {{- include "kubecost.test.annotations" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
 subjects:
 - kind: ServiceAccount
-  name: tester
+  name: e2e-testing
   namespace: {{ .Release.Namespace }}
 roleRef:
   kind: Role
-  name: test-role
+  name: e2e-testing-role
   apiGroup: rbac.authorization.k8s.io
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: tester
+  name: e2e-testing
+  annotations:
+    {{- include "kubecost.test.annotations" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
