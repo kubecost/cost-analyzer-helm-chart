@@ -21,10 +21,10 @@ jobs:
         run: |
           if [[ $(ct list-changed --target-branch=develop) ]];
           then
-            ct lint --target-branch=develop --check-version-increment=false --validate-maintainers=false
+            ct lint --target-branch=develop --check-version-increment=false --validate-maintainers=false --chart-dirs=cost-analyzer
           fi
 
-          # - name: Helm lint
+      # - name: Helm lint
       #   working-directory: ./cost-analyzer
       #   run: helm lint
 
