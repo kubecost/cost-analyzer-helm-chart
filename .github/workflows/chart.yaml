@@ -37,7 +37,7 @@ jobs:
         uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
           entrypoint: /kubeconform
-          args: "-summary -output text ./cost-analyzer/full.yaml"
+          args: "-summary -output text full.yaml"
 
 
   # Installs the chart across a matrix of modern Kubernetes versions
