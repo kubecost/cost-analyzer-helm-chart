@@ -18,7 +18,7 @@ jobs:
         uses: helm/chart-testing-action@b43128a8b25298e1e7b043b78ea6613844e079b1 # v2.6.0
 
       - name: Run chart-testing (lint)
-        run: ct lint --target-branch=develop --check-version-increment=false --validate-maintainers=false --chart-dirs=cost-analyzer
+        run: ct lint --chart-dirs=cost-analyzer/ --charts cost-analyzer/ --validate-maintainers=false
 
       # - name: Helm lint
       #   working-directory: ./cost-analyzer
