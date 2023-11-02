@@ -1,0 +1,120 @@
+# Kubecost running as an Agent is designed for external hosting. The current setup deploys a
+# kubecost-agent pod, low data retention prometheus server + thanos sidecar, and node-exporter.
+networkCosts:
+  enabled: false
+  # config:
+  #   services:
+  #     amazon-web-services: true
+  #     google-cloud-services: true
+  #     azure-cloud-services: true
+
+
+global:
+  thanos:
+    enabled: false
+  grafana:
+    enabled: false
+    proxy: false
+# Agent enables specific features designed to enhance the metrics exporter deployment
+# with enhancements designed for external hosting.
+agent: true
+# agentKeySecretName: kubecost-agent-object-store
+agentCsi:
+  enabled: false
+  secretProvider:
+    name: kubecost-agent-object-store-secretprovider
+    provider:
+    parameters: {}
+    secretObjects: {}
+
+
+# No Grafana configuration is required.
+grafana:
+  sidecar:
+    dashboards:
+      enabled: false
+    datasources:
+      defaultDatasourceEnabled: false
+
+# Exporter Pod
+kubecostMetrics:
+  exporter:
+    enabled: true
+    exportClusterInfo: true
+    exportClusterCache: true
+
+# Prometheus defaults to low retention (10h), disables KSM, and attaches a thanos-sidecar
+# for exporting metrics.
+prometheus:
+  nodeExporter:
+    enabled: false
+  kube-state-metrics:
+    enabled: false
+    disabled: true
+  extraScrapeConfigs: |
+    - job_name: kubecost-agent
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - kubecost-agent-agent
+        type: 'A'
+        port: 9005
+    - job_name: kubecost-networking
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
+  server:
+    retention: 50h
+    # retentionSize: 1Gi
+    extraArgs:
+      storage.tsdb.min-block-duration: 2h
+      storage.tsdb.max-block-duration: 2h
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
+    extraSecretMounts:
+      - name: object-store-volume
+        mountPath: /etc/thanos/config
+        readOnly: true
+        secretName: kubecost-agent-object-store
+    enableAdminApi: true
+    sidecarContainers:
+    - name: thanos-sidecar
+      image: thanosio/thanos:v0.29.0
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+      args:
+      - sidecar
+      - --log.level=debug
+      - --tsdb.path=/data/
+      - --prometheus.url=http://127.0.0.1:9090
+      - --objstore.config-file=/etc/thanos/config/object-store.yaml
+      env:
+      - name: POD_NAME
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.name
+      ports:
+      - name: sidecar-http
+        containerPort: 10902
+      - name: grpc
+        containerPort: 10901
+      - name: cluster
+        containerPort: 10900
+      volumeMounts:
+      - name: config-volume
+        mountPath: /etc/prometheus
+      - name: storage-volume
+        mountPath: /data
+        subPath: ""
+      - name: object-store-volume
+        mountPath: /etc/thanos/config

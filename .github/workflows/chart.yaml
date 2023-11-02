@@ -14,9 +14,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Helm lint
-        working-directory: ./cost-analyzer
-        run: helm lint
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@b43128a8b25298e1e7b043b78ea6613844e079b1 # v2.6.0
+
+      - name: Run chart-testing (lint)
+        run: |
+          if [[ $(ct list-changed --target-branch=develop) ]];
+          then
+            ct lint --target-branch=develop --check-version-increment=false --validate-maintainers=false
+          fi
+
+          # - name: Helm lint
+      #   working-directory: ./cost-analyzer
+      #   run: helm lint
 
       - name: Helm template
         working-directory: ./cost-analyzer
