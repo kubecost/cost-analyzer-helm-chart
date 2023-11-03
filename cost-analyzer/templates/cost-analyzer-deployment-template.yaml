@@ -1147,7 +1147,7 @@ spec:
         {{- if .Values.kubecostFrontend.securityContext }}
           securityContext:
             {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-          {{- else if .Values.global.containerSecurityContext }}
+          {{- else if and .Values.global.containerSecurityContext (gt $nginxPort 1025) }}
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           {{- end }}
