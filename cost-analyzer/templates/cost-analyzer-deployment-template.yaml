@@ -69,7 +69,7 @@ spec:
       {{- else if lt $nginxPort 1025 }}
       securityContext:
         runAsUser: 0
-              {{- else if .Values.global.securityContext }}
+      {{- else if .Values.global.securityContext }}
       securityContext:
         {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{- else }}
@@ -331,7 +331,7 @@ spec:
             {{- end }}
           securityContext:
             runAsUser: 0
-            {{ end }}
+{{ end }}
       containers:
         {{- if .Values.global.gmp.enabled }}
         - name: {{ .Values.global.gmp.gmpProxy.name }}
