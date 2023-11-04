@@ -467,10 +467,10 @@ spec:
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
         {{- else }}
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
           name: cost-model
         {{- if .Values.kubecostModel.extraArgs }}
           args:
