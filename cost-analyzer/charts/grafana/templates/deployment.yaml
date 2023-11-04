@@ -96,8 +96,10 @@ spec:
               value: "{{ .Values.sidecar.dashboards.folder }}"
             - name: ERROR_THROTTLE_SLEEP
               value: "{{ .Values.sidecar.dashboards.error_throttle_sleep }}"
+          {{- with .Values.sidecar.resources }}
           resources:
-{{ toYaml .Values.sidecar.resources | indent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: sc-dashboard-volume
               mountPath: {{ .Values.sidecar.dashboards.folder | quote }}
