@@ -67,7 +67,9 @@ spec:
               subPath: download_dashboards.sh
             - name: storage
               mountPath: "/var/lib/grafana"
+              {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
+              {{- end }}
           {{- range .Values.extraSecretMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
@@ -179,7 +181,9 @@ spec:
 {{- end}}
             - name: storage
               mountPath: "/var/lib/grafana"
+              {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
+              {{- end }}
           {{- range .Values.extraSecretMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
