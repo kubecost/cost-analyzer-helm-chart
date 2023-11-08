@@ -362,7 +362,7 @@ kubecostFrontend:
   #   proxy_buffer_size   256k;
   #   large_client_header_buffers 4 64k;
   # hideDiagnostics: false # used if the primary is not monitored. Supported in limited environments.
-
+  # hideOrphanedResources: false # OrphanedResources is a primary-cluster-only report. WIP to support agent clusters.
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
