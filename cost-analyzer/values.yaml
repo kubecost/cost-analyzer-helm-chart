@@ -783,7 +783,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.0
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.1
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
