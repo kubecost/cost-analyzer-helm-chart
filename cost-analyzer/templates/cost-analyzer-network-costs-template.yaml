@@ -6,10 +6,10 @@ metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-{{- if .Values.networkCosts.additionalLabels }}
-{{ toYaml .Values.networkCosts.additionalLabels | indent 4 }}
-{{- end }}
+    app: {{ template "cost-analyzer.networkCostsName" . }}
+    {{- if .Values.networkCosts.additionalLabels }}
+    {{- toYaml .Values.networkCosts.additionalLabels | nindent 4 }}
+    {{- end }}
 spec:
   {{- if .Values.networkCosts.updateStrategy }}
   updateStrategy:
@@ -27,7 +27,7 @@ spec:
       labels:
         app: {{ template "cost-analyzer.networkCostsName" . }}
         {{- if .Values.networkCosts.additionalLabels }}
-        {{ toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
+        {{- toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
         {{- end }}
     spec:
     {{- if .Values.imagePullSecrets }}
