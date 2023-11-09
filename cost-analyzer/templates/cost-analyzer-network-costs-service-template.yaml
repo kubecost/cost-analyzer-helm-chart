@@ -16,11 +16,10 @@ metadata:
 {{- end }}
 {{- end }}
   labels:
-    {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
-    app: {{ template "cost-analyzer.networkCostsName" . }}
-{{- if .Values.networkCosts.service.labels }}
-{{ toYaml .Values.networkCosts.service.labels | indent 4 }}
-{{- end }}
+    {{- include "networkcosts.commonLabels" . | nindent 4 }}
+    {{- if .Values.networkCosts.service.labels }}
+    {{ toYaml .Values.networkCosts.service.labels | nindent 4 }}
+    {{- end }}
 spec:
   clusterIP: None
   ports:
@@ -29,7 +28,7 @@ spec:
     protocol: TCP
     targetPort: {{ .Values.networkCosts.port | default 3001 }}
   selector:
-    app: {{ template "cost-analyzer.networkCostsName" . }}
+    {{- include "networkcosts.selectorLabels" . | nindent 4 }}
   type: ClusterIP
 {{- end }}
 {{- end }}
