@@ -243,6 +243,24 @@ app: aggregator
 {{- end -}}
 
 {{/*
+Create the networkcosts common labels. Note that because this is a daemonset, we don't want app.kubernetes.io/instance: to take the release name, which allows the scrape config to be static.
+*/}}
+{{- define "networkcosts.commonLabels" -}}
+app.kubernetes.io/instance: kubecost
+app.kubernetes.io/name: network-costs
+helm.sh/chart: {{ include "cost-analyzer.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app: kubecost-network-costs
+{{- end -}}
+{{- define "networkcosts.selectorLabels" -}}
+app.kubernetes.io/instance: kubecost
+app.kubernetes.io/name: network-costs
+{{- end }}
+
+{{/*
+{{- end -}}
+
+{{/*
 Create the selector labels.
 */}}
 {{- define "cost-analyzer.selectorLabels" -}}
