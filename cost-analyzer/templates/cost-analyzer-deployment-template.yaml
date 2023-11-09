@@ -949,6 +949,16 @@ spec:
             {{- if .Values.networkCosts.enabled }}
             - name: NETWORK_COSTS_PORT
               value: {{ quote .Values.networkCosts.port | default (quote 3001) }}
+            {{- if .Values.networkCosts.config.services }}
+            {{- $services := .Values.networkCosts.config.services -}}
+            {{- if or (index $services "google-cloud-services") (index $services "aws-cloud-services") (index $services "azure-cloud-services")}}
+            - name: ENTERPRISE_NETWORK_ENABLED
+              value: "true"
+            {{- else}}
+            - name: ENTERPRISE_NETWORK_ENABLED
+              value: "false"
+            {{- end}}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- /*
