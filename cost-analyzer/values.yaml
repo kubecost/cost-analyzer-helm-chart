@@ -896,9 +896,7 @@ networkCosts:
     enabled: false
     additionalLabels: {}
   # match the default extraScrapeConfig
-  additionalLabels:
-    app.kubernetes.io/instance: kubecost
-    app.kubernetes.io/name: network-costs
+  additionalLabels: {}
   nodeSelector: {}
   annotations: {}
   healthCheckProbes: {}
