@@ -531,6 +531,7 @@ kubecostModel:
     #  - secretName: cost-analyzer-model-tls
     #    hosts:
     #      - cost-analyzer-model.local
+  utcOffset: "+00:00"
 
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
