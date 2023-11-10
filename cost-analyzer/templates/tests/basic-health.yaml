@@ -7,17 +7,31 @@ metadata:
   annotations:
     {{- include "kubecost.test.annotations" . | nindent 4 }}
 spec:
-  serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
+  automountServiceAccountToken: false
   restartPolicy: Never
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
   containers:
   - name: test-kubecost
     image: alpine/k8s:1.26.9
+    securityContext:
+      privileged: false
+      capabilities:
+        drop: 
+        - ALL
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
     command:
       - /bin/sh
     args:
       - -c
       - >-
-        svc=$(kubectl -n {{ .Release.Namespace }} get svc -l app.kubernetes.io/name=cost-analyzer -o json | jq -r .items[0].metadata.name);
+        svc="{{ .Release.Name }}-cost-analyzer";
         echo Getting current Kubecost state.;
         response=$(curl -sL http://${svc}:9090/model/getConfigs);
         code=$(echo ${response} | jq .code);

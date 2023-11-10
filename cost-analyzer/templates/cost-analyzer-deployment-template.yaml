@@ -307,16 +307,18 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end }}
 {{- end }}
-      initContainers:
 {{- if .Values.supportNFS }}
+      initContainers:
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
         {{- else }}
           image: busybox
         {{- end }}
+          {{- with .Values.initChownData.resources }}
           resources:
-{{ toYaml .Values.initChownData.resources | indent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
@@ -465,10 +467,10 @@ spec:
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
         {{- else }}
         - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
           name: cost-model
         {{- if .Values.kubecostModel.extraArgs }}
           args:
