@@ -250,11 +250,10 @@ app.kubernetes.io/instance: kubecost
 app.kubernetes.io/name: network-costs
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-app: kubecost-network-costs
+app: {{ template "cost-analyzer.networkCostsName" . }}
 {{- end -}}
 {{- define "networkcosts.selectorLabels" -}}
-app.kubernetes.io/instance: kubecost
-app.kubernetes.io/name: network-costs
+app: {{ template "cost-analyzer.networkCostsName" . }}
 {{- end }}
 
 {{/*
