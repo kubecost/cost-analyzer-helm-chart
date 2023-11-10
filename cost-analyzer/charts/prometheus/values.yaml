@@ -351,7 +351,7 @@ configmapReload:
   alertmanager:
     ## If false, the configmap-reload container will not be deployed
     ##
-    enabled: true
+    enabled: false
 
     ## configmap-reload container name
     ##
