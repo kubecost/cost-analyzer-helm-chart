@@ -361,8 +361,8 @@ kubecostFrontend:
   #   proxy_buffers   4 512k;
   #   proxy_buffer_size   256k;
   #   large_client_header_buffers 4 64k;
-  # hideDiagnostics: false # used if the primary is not monitored. Supported in limited environments.
-
+  # hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
+  # hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
@@ -531,6 +531,7 @@ kubecostModel:
     #  - secretName: cost-analyzer-model-tls
     #    hosts:
     #      - cost-analyzer-model.local
+  utcOffset: "+00:00"
 
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
@@ -782,7 +783,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.0
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.1
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -895,9 +896,7 @@ networkCosts:
     enabled: false
     additionalLabels: {}
   # match the default extraScrapeConfig
-  additionalLabels:
-    app.kubernetes.io/instance: kubecost
-    app.kubernetes.io/name: network-costs
+  additionalLabels: {}
   nodeSelector: {}
   annotations: {}
   healthCheckProbes: {}

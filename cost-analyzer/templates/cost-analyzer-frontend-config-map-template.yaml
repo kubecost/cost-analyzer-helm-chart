@@ -612,15 +612,23 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
-        location = /model/hideDiagnostics {
-            default_type text/html;
-            {{- if .Values.kubecostFrontend.hideDiagnostics }}
-            return 200 'true';
+
+        location = /model/hideOrphanedResources {
+            default_type 'application/json';
+            {{- if .Values.kubecostFrontend.hideOrphanedResources }}
+            return 200 '{"hideOrphanedResources": "true"}';
             {{- else }}
-            return 200 'false';
+            return 200 '{"hideOrphanedResources": "false"}';
             {{- end }}
         }
-
+        location = /model/hideDiagnostics {
+            default_type 'application/json';
+            {{- if .Values.kubecostFrontend.hideDiagnostics }}
+            return 200 '{"hideDiagnostics": "true"}';
+            {{- else }}
+            return 200 '{"hideDiagnostics": "false"}';
+            {{- end }}
+        }
     {{- if .Values.kubecostAggregator.cloudCost.enabled }}
         location = /model/cloudCost/status {
             proxy_read_timeout          300;
