@@ -50,8 +50,8 @@ spec:
           image: "{{ .Values.configmapReload.prometheus.image.repository }}:{{ .Values.configmapReload.prometheus.image.tag }}"
           imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
           args:
-            - --volume-dir=/etc/config
-            - --webhook-url=http://127.0.0.1:9090{{ .Values.server.prefixURL }}/-/reload
+            - --watched-dir=/etc/config
+            - --reload-url=http://127.0.0.1:9090{{ .Values.server.prefixURL }}/-/reload
           {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}

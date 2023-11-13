@@ -14,11 +14,16 @@ data:
         "enabled" : {{ .Values.oidc.enabled }},
         "useIDToken" : {{ .Values.oidc.useIDToken | default "false" }},
         "clientID" : "{{ .Values.oidc.clientID }}",
+        {{- if .Values.oidc.existingCustomSecret.enabled }}
+        "secretName" : "{{ .Values.oidc.existingCustomSecret.name }}",
+        {{- else }}
         "secretName" : "{{ .Values.oidc.secretName }}",
+        {{- end }}
         "authURL" : "{{ .Values.oidc.authURL }}",
         "loginRedirectURL" : "{{ .Values.oidc.loginRedirectURL }}",
         "discoveryURL" : "{{ .Values.oidc.discoveryURL }}",
         "hostedDomain" : "{{ .Values.oidc.hostedDomain }}",
+        "skipOnlineTokenValidation" : "{{ .Values.oidc.skipOnlineTokenValidation | default "false" }}",
         "rbac" : {
           "enabled" : {{ .Values.oidc.rbac.enabled }},
           "groups" : [

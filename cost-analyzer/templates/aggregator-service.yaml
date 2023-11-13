@@ -1,0 +1,20 @@
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostAggregator) }}
+{{- if .Values.kubecostAggregator.enabled }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "aggregator.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "aggregator.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "aggregator.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: tcp-api
+      port: 9004
+      targetPort: 9004
+{{- end }}
+{{- end }}
