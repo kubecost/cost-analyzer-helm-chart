@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: diagnostics
+    app.kubernetes.io/instance: kubecost
+    app.kubernetes.io/name: diagnostics
+  name: kubecost-diagnostics
+spec:
+  selector:
+    matchLabels:
+      app: diagnostics
+      app.kubernetes.io/instance: kubecost
+      app.kubernetes.io/name: diagnostics
+  template:
+    metadata:
+      labels:
+        app: diagnostics
+        app.kubernetes.io/instance: kubecost
+        app.kubernetes.io/name: diagnostics
+    spec:
+      containers:
+      - args:
+        - diagnostics
+        env:
+        - name: CLUSTER_ID
+          value: federated-kubecost
+        - name: POLLING_INTERVAL
+          value: "300"
+        - name: FEDERATED_STORE_CONFIG
+          value: /var/configs/etl/federated/federated-store.yaml
+        - name: KUBECOST_FQDN
+          value: federated-kubecost-cost-analyzer
+        image: jgoodier/cost-model:diagnostics
+        imagePullPolicy: Always
+        name: diagnostics
+        ports:
+        - containerPort: 9007
+          name: tcp-model
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 200
+          httpGet:
+            path: /healthz
+            port: 9007
+            scheme: HTTP
+        resources: {}
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/configs/etl/federated
+          name: federated-storage-config
+          readOnly: true
+      securityContext:
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1001
+        runAsNonRoot: true
+        runAsUser: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: federated-kubecost
+      serviceAccountName: federated-kubecost
+      volumes:
+      - name: federated-storage-config
+        secret:
+          defaultMode: 420
+          secretName: federated-store-aggregator-nightly-arm
