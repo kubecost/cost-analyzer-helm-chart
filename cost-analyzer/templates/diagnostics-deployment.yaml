@@ -10,7 +10,7 @@ metadata:
     {{- toYaml .Values.diagnostics.labels | nindent 4 }}
     {{- end }}
 spec:
-  replicas: {{ .Values.diagnostics.replicas }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "diagnostics.selectorLabels" . | nindent 6 }}
@@ -47,11 +47,11 @@ spec:
           imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy }}
           {{- if .Values.diagnostics.containerSecurityContext }}
           securityContext:
-          {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 }}
+            {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 }}
           {{- else if .Values.global.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{ end }}
+          {{- end }}
           volumeMounts:
             - name: config-db
               mountPath: /var/configs/db
