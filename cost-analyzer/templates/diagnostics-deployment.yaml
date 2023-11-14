@@ -37,20 +37,20 @@ spec:
         - name: federated-storage-config
           secret:
            defaultMode: 420
-           secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret -}}
+           secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
         - name: config-db
           emptyDir: {}
       containers:
         - name: diagnostics
           image: {{ .Values.diagnostics.fullImageName }}
-          imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy -}}
-          {{- if .Values.diagnostics.containerSecurityContext -}}
+          imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy }}
+          {{- if .Values.diagnostics.containerSecurityContext }}
           securityContext:
-          {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 -}}
+          {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 }}
           {{- else if .Values.global.containerSecurityContext }}
           securityContext:
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           {{ end }}
           volumeMounts:
             - name: config-db
@@ -74,7 +74,7 @@ spec:
                   key: CLUSTER_ID
             {{- end }}
             - name: KUBECOST_FQDN
-              value: {{ template "cost-analyzer.serviceName" . -}}
+              value: {{ template "cost-analyzer.serviceName" . }}
 {{/*
 TODO: add thanos support
 */}}
