@@ -1,4 +1,3 @@
-{{- if .Values.diagnostics }}
 {{- if .Values.diagnostics.enabled }}
 apiVersion: v1
 kind: Service
@@ -16,5 +15,4 @@ spec:
   selector:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
   type: ClusterIP
-{{- end }}
 {{- end }}

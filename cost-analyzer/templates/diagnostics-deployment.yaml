@@ -92,12 +92,9 @@ TODO: add thanos support
             {{- else }}
               value: "false"
             {{- end }}
-            {{- end}}
-            {{- if .Values.reporting }}
             {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
             - name: HELM_VALUES
               value: {{ template "cost-analyzer.filterEnabled" .Values }}
-            {{- end }}
             {{- end }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
