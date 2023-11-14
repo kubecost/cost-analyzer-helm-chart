@@ -43,7 +43,7 @@ spec:
           emptyDir: {}
       containers:
         - name: diagnostics
-          image: {{ .Values.diagnostics.fullImageName -}}
+          image: {{ .Values.diagnostics.fullImageName }}
           imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy -}}
           {{- if .Values.diagnostics.containerSecurityContext -}}
           securityContext:

@@ -1026,7 +1026,7 @@ diagnostics:
   isDiagnosticsPrimary: # only needed on the primary
     enabled: false
     destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
-  fullImageName: jgoodier/cost-model:diagnostics
+  fullImageName: thomasvn/cost-model:diagnostics-20231114
   imagePullPolicy: Always
   pollingInterval: "300"
   resources:
