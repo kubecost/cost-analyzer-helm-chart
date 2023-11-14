@@ -43,8 +43,8 @@ spec:
           emptyDir: {}
       containers:
         - name: diagnostics
-          image: jgoodier/cost-model:diagnostics
-          imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy -}}
+          image: {{ .Values.diagnostics.fullImageName -}}
+          imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy -}}
           {{- if .Values.diagnostics.containerSecurityContext -}}
           securityContext:
           {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 -}}
@@ -86,12 +86,15 @@ TODO: add thanos support
             {{- end}}
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
-            {{- if .Values.diagnostics.primaryCluster }}
-            - name: PRIMARY_CLUSTER
+            - name: KUBECOST_DIAGNOSTICS_PRIMARY
+            {{- if .Values.diagnostics.isDiagnosticsPrimary }}
               value: "true"
+            {{- else }}
+              value: "false"
+            {{- end }}
             {{- end}}
             {{- if .Values.reporting }}
-            {{- if .Values.reporting.valuesReporting }}
+            {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
             - name: HELM_VALUES
               value: {{ template "cost-analyzer.filterEnabled" .Values }}
             {{- end }}

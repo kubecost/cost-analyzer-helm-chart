@@ -1020,9 +1020,16 @@ kubecostAggregator:
 # Kubecost Diagnostics
 diagnostics:
   enabled: true
-  image: jgoodier/cost-model:diagnostics
+  collectHelmValues: true # stored in separate json output file
+  # not MVP parseKubecostLogs: false # stored in separate json output file
+  keepDiagnosticHistory: false # creates a new file for every run, keeping old files
+  isDiagnosticsPrimary: # only needed on a single cluster
+    enabled: true
+    destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true
+  fullImageName: jgoodier/cost-model:diagnostics
   imagePullPolicy: Always
   pollingInterval: "300"
+
   # securityContext:
   #   runAsGroup: 1001
   #   runAsUser: 1001
@@ -1040,6 +1047,14 @@ diagnostics:
   #   capabilities:
   #     drop:
   #       - ALL
+  # resources:
+  #   requests:
+  #     cpu: "100m"
+  #     memory: "100Mi"
+  #   limits:
+  #     cpu: "100m"
+  #     memory: "100Mi"
+
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
