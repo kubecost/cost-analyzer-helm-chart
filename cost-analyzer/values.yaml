@@ -1017,6 +1017,29 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
+# Kubecost Diagnostics
+diagnostics:
+  enabled: true
+  image: jgoodier/cost-model:diagnostics
+  imagePullPolicy: Always
+  pollingInterval: "300"
+  # securityContext:
+  #   runAsGroup: 1001
+  #   runAsUser: 1001
+  #   fsGroup: 1001
+  #   fsGroupChangePolicy: OnRootMismatch
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   runAsNonRoot: true
+  # containerSecurityContext:
+  #   allowPrivilegeEscalation: false
+  #   readOnlyRootFilesystem: true
+  #   runAsNonRoot: true
+  #   seccompProfile:
+  #     type: RuntimeDefault
+  #   capabilities:
+  #     drop:
+  #       - ALL
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false

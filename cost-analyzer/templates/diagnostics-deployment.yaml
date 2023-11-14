@@ -1,75 +1,155 @@
+{{- if .Values.diagnostics.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: {{ template "diagnostics.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
-    app: diagnostics
-    app.kubernetes.io/instance: kubecost
-    app.kubernetes.io/name: diagnostics
-  name: kubecost-diagnostics
+    {{- include "diagnostics.selectorLabels" . | nindent 4 }}
+    {{- if and .Values.diagnostics .Values.diagnostics.labels }}
+    {{- toYaml .Values.diagnostics.labels | nindent 4 }}
+    {{- end }}
 spec:
+  replicas: {{ .Values.diagnostics.replicas }}
   selector:
     matchLabels:
-      app: diagnostics
-      app.kubernetes.io/instance: kubecost
-      app.kubernetes.io/name: diagnostics
+      {{- include "diagnostics.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: diagnostics
-        app.kubernetes.io/instance: kubecost
-        app.kubernetes.io/name: diagnostics
+        {{- include "diagnostics.selectorLabels" . | nindent 8 }}
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
-      containers:
-      - args:
-        - diagnostics
-        env:
-        - name: CLUSTER_ID
-          value: federated-kubecost
-        - name: POLLING_INTERVAL
-          value: "300"
-        - name: FEDERATED_STORE_CONFIG
-          value: /var/configs/etl/federated/federated-store.yaml
-        - name: KUBECOST_FQDN
-          value: federated-kubecost-cost-analyzer
-        image: jgoodier/cost-model:diagnostics
-        imagePullPolicy: Always
-        name: diagnostics
-        ports:
-        - containerPort: 9007
-          name: tcp-model
-          protocol: TCP
-        readinessProbe:
-          failureThreshold: 200
-          httpGet:
-            path: /healthz
-            port: 9007
-            scheme: HTTP
-        resources: {}
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          privileged: false
-          readOnlyRootFilesystem: true
-        terminationMessagePath: /dev/termination-log
-        terminationMessagePolicy: File
-        volumeMounts:
-        - mountPath: /var/configs/etl/federated
-          name: federated-storage-config
-          readOnly: true
+      restartPolicy: Always
+      {{- if .Values.diagnostics.securityContext }}
       securityContext:
-        fsGroup: 1001
-        fsGroupChangePolicy: OnRootMismatch
-        runAsGroup: 1001
-        runAsNonRoot: true
-        runAsUser: 1001
-        seccompProfile:
-          type: RuntimeDefault
-      serviceAccount: federated-kubecost
-      serviceAccountName: federated-kubecost
+        {{- toYaml .Values.diagnostics.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-      - name: federated-storage-config
-        secret:
-          defaultMode: 420
-          secretName: federated-store-aggregator-nightly-arm
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        - name: federated-storage-config
+          secret:
+           defaultMode: 420
+           secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret -}}
+        {{- end }}
+        - name: config-db
+          emptyDir: {}
+      containers:
+        - name: diagnostics
+          image: jgoodier/cost-model:diagnostics
+          imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy -}}
+          {{- if .Values.diagnostics.containerSecurityContext -}}
+          securityContext:
+          {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 -}}
+          {{- else if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
+          {{ end }}
+          volumeMounts:
+            - name: config-db
+              mountPath: /var/configs/db
+              readOnly: false
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: federated-storage-config
+              mountPath: /var/configs/etl
+              readOnly: true
+            {{- end }}
+          env:
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
+            - name: CLUSTER_ID
+              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- end }}
+            {{- if .Values.prometheus.server.clusterIDConfigmap }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
+                  key: CLUSTER_ID
+            {{- end }}
+            - name: KUBECOST_FQDN
+              value: {{ template "cost-analyzer.serviceName" . -}}
+{{/*
+TODO: add thanos support
+*/}}
+            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
+            - name: FEDERATED_STORE_CONFIG
+              value: "/var/configs/etl/federated-store.yaml"
+            - name: FEDERATED_CLUSTER
+              value: "true"
+            {{- end}}
+            - name: POLLING_INTERVAL
+              value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
+            {{- if .Values.diagnostics.primaryCluster }}
+            - name: PRIMARY_CLUSTER
+              value: "true"
+            {{- end}}
+            {{- if .Values.reporting }}
+            {{- if .Values.reporting.valuesReporting }}
+            - name: HELM_VALUES
+              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.systemProxy.enabled }}
+            - name: HTTP_PROXY
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: HTTPS_PROXY
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
+            {{- end }}
+            {{- range $key, $value := .Values.diagnostics.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            - name: KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9007
+          args: ["diagnostics"]
+          ports:
+            - name: diagnostics-api
+              containerPort: 9007
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.diagnostics.resources | nindent 12 }}
+    {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+    {{- end }}
+      {{- if .Values.diagnostics.priority }}
+      {{- if .Values.diagnostics.priority.enabled }}
+      {{- if .Values.diagnostics.priority.name }}
+      priorityClassName: {{ .Values.diagnostics.priority.name }}
+      {{- else }}
+      priorityClassName: {{ template "cost-analyzer.fullname" . }}-diagnostics-priority
+      {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- with .Values.diagnostics.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.diagnostics.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.diagnostics.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
