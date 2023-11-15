@@ -1,4 +1,7 @@
 {{- if .Values.diagnostics.enabled }}
+{{/* check if thanos or federatedETL are enabled */}}
+{{- $result := include "isFederated" . }}
+{{- if $result }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -15,4 +18,5 @@ spec:
   selector:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
   type: ClusterIP
+{{- end }}
 {{- end }}

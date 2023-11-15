@@ -1,4 +1,8 @@
 {{- if .Values.diagnostics.enabled }}
+{{/* check if thanos or federatedETL are enabled */}}
+{{- $result := include "isFederated" . }}
+{{- if $result }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,6 +43,14 @@ spec:
           secret:
            defaultMode: 420
            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- else if .Values.global.thanos.enabled }}
+        - name: federated-storage-config
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.thanos.storeSecretName }}
+            items:
+            - key: object-store.yaml
+              path: federated-store.yaml
         {{- end }}
         - name: config-db
           emptyDir: {}
@@ -57,11 +69,9 @@ spec:
             - name: config-db
               mountPath: /var/configs/db
               readOnly: false
-            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
               mountPath: /var/configs/etl
               readOnly: true
-            {{- end }}
           env:
             # TODO: I think we need to remove dependence on this method of obtaining CLUSTER_ID. Find a new method.
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
@@ -82,6 +92,8 @@ spec:
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
             {{- end}}
+            - name: FEDERATED_CLUSTER
+              value: "true"
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
             - name: KUBECOST_DIAGNOSTICS_PRIMARY
@@ -90,9 +102,11 @@ spec:
             {{- else }}
               value: "false"
             {{- end }}
-            {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
             - name: COLLECT_HELM_VALUES
-              value: "{{ .Values.diagnostics.collectHelmValues }}"
+            {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
+              value: "true"
+            {{- else }}
+              value: "false"
             {{- end }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
@@ -150,4 +164,5 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}
