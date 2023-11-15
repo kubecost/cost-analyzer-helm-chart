@@ -1191,6 +1191,21 @@ costEventsAudit:
 ##
 # readonly: false
 
+## Kubecost Integrations
+## 
+integrations:
+  powerbi:
+    enabled: true
+    imagePullSecrets: my-docker-key
+    fullImageName: docker.io/mclean0328/test-cron:latest
+    kubecostEndpoint: "https://kubecost.me.com/model/allocation"
+    databaseName: "postgres"
+    databaseUser: "test"
+    databasePassword: "test"
+    databaseHost: "my.postgres.database.azure.com"
+    databasePort: "5432"
+    schedule: '0 * * * *'
+
 # These configs can also be set from the Settings page in the Kubecost product UI
 # Values in this block override config changes in the Settings UI on pod restart
 #
