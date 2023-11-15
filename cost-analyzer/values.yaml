@@ -1194,11 +1194,10 @@ costEventsAudit:
 ## Kubecost Integrations
 ## 
 integrations:
-  powerbi:
+  postgres:
     enabled: true
-    imagePullSecrets: my-docker-key
     fullImageName: docker.io/mclean0328/test-cron:latest
-    kubecostEndpoint: "https://kubecost.me.com/model/allocation"
+    kubecostEndpoint: "https://kubecost.me.com/"
     databaseName: "postgres"
     databaseUser: "test"
     databasePassword: "test"

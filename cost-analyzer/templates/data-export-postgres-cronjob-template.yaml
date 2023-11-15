@@ -1,0 +1,54 @@
+{{ if .Values.integrations.postgres.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-data-export-postgres-cronjob
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.integrations.postgres.imagePullSecrets }}
+          imagePullSecrets:
+          - name: {{ .Values.integrations.postgres.imagePullSecrets }}
+          {{- end }}
+          containers:
+          - name: data-export-postgres-cronjob
+            {{- if .Values.integrations.postgres.fullImageName }}
+            image: {{ .Values.integrations.postgres.fullImageName }}
+            {{- else }}
+            image: docker.io/mclean0328/kube-postgres-cron:latest
+            {{- end }}
+            imagePullPolicy: Always
+            env:
+            {{- if .Values.integrations.postgres.kubecostEndpoint }}
+            - name: KUBECOST_ENDPOINT
+              value: "{{ .Values.integrations.postgres.kubecostEndpoint}}"
+            {{- end }}
+            {{- if .Values.integrations.postgres.databaseName }}
+            - name: DATABASE_NAME
+              value: "{{ .Values.integrations.postgres.databaseName}}"
+            {{- end }}
+            {{- if .Values.integrations.postgres.databaseUser }}
+            - name: DATABASE_USER
+              value: "{{ .Values.integrations.postgres.databaseUser}}"
+            {{- end }}
+            {{- if .Values.integrations.postgres.databasePassword }}
+            - name: DATABASE_PASSWORD
+              value: "{{ .Values.integrations.postgres.databasePassword}}"
+            {{- end }}
+            {{- if .Values.integrations.postgres.databaseHost }}
+            - name: DATABASE_HOST
+              value: "{{ .Values.integrations.postgres.databaseHost}}"
+            {{- end }}
+            {{- if .Values.integrations.postgres.databasePort }}
+            - name: DATABASE_PORT
+              value: "{{ .Values.integrations.postgres.databasePort}}"
+            {{- end }}
+          restartPolicy: OnFailure
+  {{- if .Values.integrations.postgres.schedule }}
+  schedule: {{ .Values.integrations.postgres.schedule }}
+  {{- else }}
+  schedule: '0 * * * *'
+  {{- end }}
+{{ end }}
