@@ -638,7 +638,7 @@ service:
   labels: {}
   annotations: {}
   sessionAffinity:
-    enabled: false # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
+    enabled: false  # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
     timeoutSeconds: 10800
 
 # Enabling long-term durable storage with Postgres requires an enterprise license
