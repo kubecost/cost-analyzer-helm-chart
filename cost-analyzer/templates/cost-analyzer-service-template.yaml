@@ -73,4 +73,14 @@ spec:
       targetPort: 9004
     {{- end }}
     {{- end }}
+{{- if .Values.service.sessionAffinity.enabled }}
+  sessionAffinity: ClientIP
+  {{- if .Values.service.sessionAffinity.timeoutSeconds }}
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: {{ .Values.service.sessionAffinity.timeoutSeconds }}
+  {{- end }}
+{{- else }}
+  sessionAffinity: None
+{{- end }}
 {{- end }}
