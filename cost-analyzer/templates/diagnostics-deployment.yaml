@@ -14,12 +14,12 @@ spec:
   selector:
     matchLabels:
       {{- include "diagnostics.selectorLabels" . | nindent 6 }}
-    template:
+  template:
     metadata:
       labels:
         {{- include "diagnostics.selectorLabels" . | nindent 8 }}
       annotations:
-        helm.sh/deploy-date: {{ now | quote }}
+        helm.sh/pod-restarter: {{  randNumeric 3|quote}}
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
       {{- end }}
