@@ -1,0 +1,54 @@
+{{ if .Values.integrations.powerbi.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: test-cron
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.integrations.powerbi.imagePullSecrets }}
+          imagePullSecrets:
+          - name: {{ .Values.integrations.powerbi.imagePullSecrets }}
+          {{- end }}
+          containers:
+          - name: test-cron
+            {{- if .Values.integrations.powerbi.fullImageName }}
+            image: {{ .Values.integrations.powerbi.fullImageName }}
+            {{- else }}
+            image: docker.io/mclean0328/test-cron:latest 
+            {{- end }}
+            imagePullPolicy: Always
+            env:
+            {{- if .Values.integrations.powerbi.kubecostEndpoint }}
+            - name: KUBECOST_ENDPOINT
+              value: "{{ .Values.integrations.powerbi.kubecostEndpoint}}"
+            {{- end }}
+            {{- if .Values.integrations.powerbi.databaseName }}
+            - name: DATABASE_NAME
+              value: "{{ .Values.integrations.powerbi.databaseName}}"
+            {{- end }}
+            {{- if .Values.integrations.powerbi.databaseUser }}
+            - name: DATABASE_USER
+              value: "{{ .Values.integrations.powerbi.databaseUser}}"
+            {{- end }}
+            {{- if .Values.integrations.powerbi.databasePassword }}
+            - name: DATABASE_PASSWORD
+              value: "{{ .Values.integrations.powerbi.databasePassword}}"
+            {{- end }}
+            {{- if .Values.integrations.powerbi.databaseHost }}
+            - name: DATABASE_HOST
+              value: "{{ .Values.integrations.powerbi.databaseHost}}"
+            {{- end }}
+            {{- if .Values.integrations.powerbi.databasePort }}
+            - name: DATABASE_PORT
+              value: "{{ .Values.integrations.powerbi.databasePort}}"
+            {{- end }}
+          restartPolicy: OnFailure
+  {{- if .Values.integrations.powerbi.schedule }}
+  schedule: {{ .Values.integrations.powerbi.schedule }}
+  {{- else }}
+  schedule: '0 * * * *'
+  {{- end }}
+{{ end }}
