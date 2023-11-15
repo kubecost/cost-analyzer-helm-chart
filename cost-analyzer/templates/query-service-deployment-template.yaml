@@ -118,6 +118,9 @@ spec:
             - name: tcp-model
               containerPort: 9003
               protocol: TCP
+          {{- with .Values.kubecostDeployment.queryService.extraPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.kubecostDeployment.queryService.resources | nindent 12 }}
           volumeMounts:

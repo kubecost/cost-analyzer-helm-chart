@@ -15,5 +15,8 @@ spec:
     - name: tcp-query-service
       port: 9003
       targetPort: 9003
+  {{- with .Values.kubecostDeployment.queryService.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}
 {{- end }}
