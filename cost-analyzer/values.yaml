@@ -1017,42 +1017,37 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-# Kubecost Diagnostics
+## Kubecost Diagnostics creates a centralized view into the health of your
+## primary/agent Kubecost clusters. It will create a new Deployment on each
+## cluster. For example, it checks that Kubecost is emitting metrics, that it is
+## being scraped by Prometheus, and has healthy ETL files.
+##
 diagnostics:
   enabled: true
-  collectHelmValues: false # stored in separate json output file
-  # not MVP parseKubecostLogs: false # stored in separate json output file
-  keepDiagnosticHistory: false # creates a new file for every run, keeping old files
-  isDiagnosticsPrimary: # only needed on the primary
-    enabled: false
-    destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
   fullImageName: thomasvn/cost-model:diagnostics-20231114
   imagePullPolicy: Always
+
+  ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300"
+  
+  ## Pushes the cluster's Kubecost Helm Values to the bucket.
+  collectHelmValues: false
+  
   resources:
     requests:
       cpu: "10m"
       memory: "10Mi"
-    # limits:
-    #   cpu: "100m"
-    #   memory: "100Mi"
-  # securityContext:
-  #   runAsGroup: 1001
-  #   runAsUser: 1001
-  #   fsGroup: 1001
-  #   fsGroupChangePolicy: OnRootMismatch
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   runAsNonRoot: true
-  # containerSecurityContext:
-  #   allowPrivilegeEscalation: false
-  #   readOnlyRootFilesystem: true
-  #   runAsNonRoot: true
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   capabilities:
-  #     drop:
-  #       - ALL
+  securityContext: {}
+
+  ## BELOW CONFIGS ARE WORK IN PROGRESS
+  ## 
+  # TODO: Create a helm config to backup diagnostics to `/diagnostics/CLUSTER_ID/backups`
+  keepDiagnosticHistory: false # creates a new file for every run, keeping old files
+  # parseKubecostLogs: false # stored in separate json output file
+  isDiagnosticsPrimary: # only needed on the primary
+    enabled: false
+    destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
+
 
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown

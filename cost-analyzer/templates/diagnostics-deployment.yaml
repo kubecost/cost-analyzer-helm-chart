@@ -19,7 +19,7 @@ spec:
       labels:
         {{- include "diagnostics.selectorLabels" . | nindent 8 }}
       annotations:
-        helm.sh/pod-restarter: {{  randNumeric 3|quote}}
+        helm.sh/pod-restarter: {{ randNumeric 3 | quote}}
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -63,6 +63,7 @@ spec:
               readOnly: true
             {{- end }}
           env:
+            # TODO: I think we need to remove dependence on this method of obtaining CLUSTER_ID. Find a new method.
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
@@ -76,14 +77,10 @@ spec:
             {{- end }}
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
-{{/*
-TODO: add thanos support
-*/}}
-            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
+            # TODO: Add support for thanos `object-store.yaml`
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
-            - name: FEDERATED_CLUSTER
-              value: "true"
             {{- end}}
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
@@ -94,8 +91,8 @@ TODO: add thanos support
               value: "false"
             {{- end }}
             {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
-            - name: HELM_VALUES
-              value: {{ template "cost-analyzer.filterEnabled" .Values }}
+            - name: COLLECT_HELM_VALUES
+              value: "{{ .Values.diagnostics.collectHelmValues }}"
             {{- end }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
