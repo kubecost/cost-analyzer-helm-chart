@@ -47,7 +47,7 @@ spec:
             secretName: {{ .Values.thanos.storeSecretName }}
             items:
             - key: object-store.yaml
-              path: federated-store.yaml #TODO: fix this
+              path: federated-store.yaml
         {{- end }}
         - name: config-db
           emptyDir: {} #TODO: make pv?
@@ -85,10 +85,8 @@ spec:
             {{- end }}
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
-            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
-            {{- end}}
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
             - name: KUBECOST_DIAGNOSTICS_PRIMARY
