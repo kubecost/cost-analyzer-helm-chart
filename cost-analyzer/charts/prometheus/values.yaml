@@ -543,7 +543,7 @@ server:
   ##
   image:
     repository: quay.io/prometheus/prometheus
-    tag: v2.35.0
+    tag: v2.47.2
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
@@ -1270,7 +1270,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha 
+            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha
             action: keep
 
       # Scrape config for service endpoints.
