@@ -28,7 +28,7 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.32.4
+      image: thanosio/thanos:v0.32.5
       securityContext:
         allowPrivilegeEscalation: false
         readOnlyRootFilesystem: true
