@@ -1,7 +1,7 @@
 {{- if .Values.diagnostics.enabled }}
-{{/* check if thanos or federatedETL are enabled */}}
-{{- $result := include "isFederated" . }}
-{{- if $result }}
+# {{/* check if thanos or federatedETL are enabled */}}
+# {{- $result := include "isFederated" . }}
+# {{- if $result }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -92,8 +92,6 @@ spec:
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
             {{- end}}
-            - name: FEDERATED_CLUSTER
-              value: "true"
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
             - name: KUBECOST_DIAGNOSTICS_PRIMARY
@@ -104,6 +102,12 @@ spec:
             {{- end }}
             - name: COLLECT_HELM_VALUES
             {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
+              value: "true"
+            {{- else }}
+              value: "false"
+            {{- end }}
+            - name: BACKUP_DIAGNOSTICS
+            {{- if .Values.diagnostics.backupDiagnostics }}
               value: "true"
             {{- else }}
               value: "false"
@@ -164,5 +168,5 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- end }}
+# {{- end }}
 {{- end }}

@@ -1,3 +1,4 @@
+# TODO: Only create this service if this is the KUBECOST_DIAGNOSTICS_PRIMARY
 {{- if .Values.diagnostics.enabled }}
 {{/* check if thanos or federatedETL are enabled */}}
 {{- $result := include "isFederated" . }}
