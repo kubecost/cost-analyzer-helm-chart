@@ -54,7 +54,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -298,9 +298,12 @@ data:
         - role: pod
       relabel_configs:
       # Scrape only the the targets matching the following metadata
-        - source_labels: [__meta_kubernetes_pod_label_app]
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
           action: keep
-          regex:  kubecost-network-costs
+          regex:  kubecost
+        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex:  network-costs
 
   recording_rules.yml: |
     {}
@@ -352,7 +355,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -370,7 +373,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -438,7 +441,7 @@ data:
         location / {
             try_files $uri $uri/ /index.html;
         }
-        add_header ETag "1.106.3";
+        add_header ETag "1.107.0";
         listen 9090;
         listen [::]:9090;
         location /api/ {
@@ -539,7 +542,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -1091,7 +1094,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -2791,7 +2794,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -6005,7 +6008,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7409,7 +7412,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7835,7 +7838,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -8998,7 +9001,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -10191,7 +10194,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -11598,7 +11601,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -12373,7 +12376,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18080,7 +18083,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18737,7 +18740,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19552,7 +19555,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19627,7 +19630,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19636,7 +19639,6 @@ rules:
       - ''
     resources:
       - configmaps
-      - deployments
       - nodes
       - pods
       - events
@@ -19653,16 +19655,6 @@ rules:
       - list
       - watch
   - apiGroups:
-      - extensions
-    resources:
-      - daemonsets
-      - deployments
-      - replicasets
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
       - apps
     resources:
       - statefulsets
@@ -19670,6 +19662,7 @@ rules:
       - daemonsets
       - replicasets
     verbs:
+      - get
       - list
       - watch
   - apiGroups:
@@ -19761,7 +19754,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19795,7 +19788,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19837,7 +19830,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19934,7 +19927,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -20042,10 +20035,11 @@ spec:
     spec:
       serviceAccountName: kubecost-grafana
       securityContext:
-        fsGroup: 65534
-        runAsGroup: 65534
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1001
         runAsNonRoot: true
-        runAsUser: 65534
+        runAsUser: 1001
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -20246,10 +20240,11 @@ spec:
               mountPath: /data
               subPath: ""
       securityContext:
-        fsGroup: 65534
-        runAsGroup: 65534
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1001
         runAsNonRoot: true
-        runAsUser: 65534
+        runAsUser: 1001
         seccompProfile:
           type: RuntimeDefault
       terminationGracePeriodSeconds: 300
@@ -20269,7 +20264,7 @@ metadata:
   namespace: kubecost
   labels:
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.106.3
+    helm.sh/chart: cost-analyzer-1.107.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -20293,10 +20288,11 @@ spec:
         app: cost-analyzer
     spec:
       securityContext:
-        fsGroup: 65534
-        runAsGroup: 65534
+        fsGroup: 1001
+        fsGroupChangePolicy: OnRootMismatch
+        runAsGroup: 1001
         runAsNonRoot: true
-        runAsUser: 65534
+        runAsUser: 1001
         seccompProfile:
           type: RuntimeDefault
       restartPolicy: Always
@@ -20315,7 +20311,7 @@ spec:
             claimName: kubecost-cost-analyzer
       initContainers:
       containers:
-        - image: gcr.io/kubecost1/cost-model:prod-1.106.3
+        - image: gcr.io/kubecost1/cost-model:prod-1.107.0
 
           name: cost-model
           securityContext:
@@ -20468,7 +20464,7 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.106.3
+        - image: gcr.io/kubecost1/frontend:prod-1.107.0
 
           env:
             - name: GET_HOSTS_FROM

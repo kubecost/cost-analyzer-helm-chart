@@ -1,3 +1,4 @@
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -6,17 +7,31 @@ metadata:
   annotations:
     {{- include "kubecost.test.annotations" . | nindent 4 }}
 spec:
-  serviceAccountName: tester
+  automountServiceAccountToken: false
   restartPolicy: Never
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 3000
+    fsGroup: 2000
   containers:
   - name: test-kubecost
     image: alpine/k8s:1.26.9
+    securityContext:
+      privileged: false
+      capabilities:
+        drop: 
+        - ALL
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
     command:
       - /bin/sh
     args:
       - -c
       - >-
-        svc=$(kubectl -n {{ .Release.Namespace }} get svc -l app.kubernetes.io/name=cost-analyzer -o json | jq -r .items[0].metadata.name);
+        svc="{{ .Release.Name }}-cost-analyzer";
         echo Getting current Kubecost state.;
         response=$(curl -sL http://${svc}:9090/model/getConfigs);
         code=$(echo ${response} | jq .code);
@@ -27,33 +42,3 @@ spec:
           echo "Failed to fetch Kubecost configuration. Response was $response"
           exit 1
         fi
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: test-role
-  namespace: {{ .Release.Namespace }}
-rules:
-- apiGroups: [""]
-  resources: ["services"]
-  verbs: ["list"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: test-rolebinding
-  namespace: {{ .Release.Namespace }}
-subjects:
-- kind: ServiceAccount
-  name: tester
-  namespace: {{ .Release.Namespace }}
-roleRef:
-  kind: Role
-  name: test-role
-  apiGroup: rbac.authorization.k8s.io
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: tester
-  namespace: {{ .Release.Namespace }}

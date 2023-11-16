@@ -151,8 +151,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: public.ecr.aws/bitnami/configmap-reload
-        tag: 0.7.1
+        repository: public.ecr.aws/kubecost/prometheus-config-reloader
+        tag: v0.68.0
         pullPolicy: IfNotPresent
       ## Additional configmap-reload container arguments
       ##
@@ -172,7 +172,7 @@ prometheus:
       ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
       ##
       resources: {}
-     
+
   kube-state-metrics:
     disabled: false
   nodeExporter:
