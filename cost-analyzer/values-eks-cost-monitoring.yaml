@@ -152,7 +152,7 @@ prometheus:
       ##
       image:
         repository: public.ecr.aws/kubecost/prometheus-config-reloader
-        tag: v0.68.0
+        tag: v0.69.1
         pullPolicy: IfNotPresent
       ## Additional configmap-reload container arguments
       ##
