@@ -1020,10 +1020,10 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-## Pushes Kubecost Diagnostic data to a central bucket. Creates a centralized
-## view into the health of your primary/agent Kubecost clusters. Healthchecks
-## include 1) whether Kubecost is emitting metrics, 2) whether Kubecost is being
-## scraped by Prometheus, and 3) whether Kubecost has healthy ETL files.
+## Push Kubecost Diagnostic data to a central bucket. Creates a single view into
+## the health of your primary/agent Kubecost clusters. Healthchecks include 1)
+## whether Kubecost is emitting metrics, 2) whether Kubecost is being scraped by
+## Prometheus, and 3) whether Kubecost has healthy ETL files.
 ##
 diagnostics:
   enabled: true
@@ -1031,10 +1031,10 @@ diagnostics:
   imagePullPolicy: Always
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300"
+  ## Creates a new Diagnostic file in the bucket for every run
+  keepDiagnosticHistory: true
   ## Pushes the cluster's Kubecost Helm Values to the bucket.
   collectHelmValues: false
-  ## Creates a new Diagnostic file in the bucket for every run
-  backupDiagnostics: false
   resources:
     requests:
       cpu: "10m"
@@ -1043,7 +1043,6 @@ diagnostics:
 
   ## BELOW CONFIGS ARE WORK IN PROGRESS
   ##
-  # TODO: Create a helm config to backup diagnostics to `/diagnostics/CLUSTER_ID/backups`
   # parseKubecostLogs: false # stored in separate json output file
   isDiagnosticsPrimary: # only needed on the primary
     enabled: false

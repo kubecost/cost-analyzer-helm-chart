@@ -1,17 +1,9 @@
 {{- if .Values.diagnostics.enabled }}
 {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
-{{/*
-{{- if empty .Values.kubecostProductConfigs.clusterName  -}}
-{{ fail "Cluster name cannot be null" }}
+
+{{- if or (not .Values.kubecostProductConfigs) (empty .Values.kubecostProductConfigs.clusterName) }}
+{{ fail "ERROR: You must set the `.Values.kubecostProductConfigs.clusterName` config when `.Values.diagnostics.enabled=true`" }}
 {{- end }}
-{{- if .Values.kubecostProductConfigs  -}}
-{{- if .Values.kubecostProductConfigs.clusterName  -}}
-{{- if eq .Values.kubecostProductConfigs.clusterName "cluster-one"  -}}
-{{ fail "Cluster name cannot be cluster-one" }}
-{{- end }}
-{{- end }}
-{{- end }}
-*/}}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -86,7 +78,6 @@ spec:
           env:
             - name: CLUSTER_ID
               value: {{ .Values.kubecostProductConfigs.clusterName }}
-
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
             - name: FEDERATED_STORE_CONFIG
@@ -105,8 +96,8 @@ spec:
             {{- else }}
               value: "false"
             {{- end }}
-            - name: BACKUP_DIAGNOSTICS
-            {{- if .Values.diagnostics.backupDiagnostics }}
+            - name: KEEP_DIAGNOSTIC_HISTORY
+            {{- if .Values.diagnostics.keepDiagnosticHistory }}
               value: "true"
             {{- else }}
               value: "false"
