@@ -15,7 +15,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: aggregator
       app.kubernetes.io/instance: {{ .Release.Name }}
-      app: kubecost-aggregator
+      app: aggregator
   volumeClaimTemplates:
   - metadata:
       name: persistent-configs
@@ -48,12 +48,15 @@ spec:
       labels:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
-        app: kubecost-aggregator
+        app: aggregator
     spec:
       restartPolicy: Always
       {{- if .Values.kubecostAggregator.securityContext }}
       securityContext:
-          {{- toYaml .Values.kubecostAggregator.securityContext | nindent 10 }}
+        {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{ end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
@@ -64,10 +67,9 @@ spec:
         {{- if $etlBackupBucketSecret }}
         - name: bucket-config
           secret:
-           defaultMode: 420
-           secretName: {{ $etlBackupBucketSecret }}
+            defaultMode: 420
+            secretName: {{ $etlBackupBucketSecret }}
         {{- end }}
-
       containers:
       {{- if .Values.kubecostAggregator.jaeger.enabled }}
         - name: embedded-jaeger
@@ -79,6 +81,9 @@ spec:
         {{- if .Values.kubecostAggregator.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.kubecostAggregator.containerSecurityContext | nindent 12 }}
+        {{- else if .Values.global.containerSecurityContext }}
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
         {{ end }}
           {{- if .Values.kubecostModel }}
           {{- if .Values.kubecostModel.openSourceOnly }}
@@ -109,7 +114,7 @@ spec:
               containerPort: 9004
               protocol: TCP
           resources:
-{{ toYaml .Values.kubecostAggregator.resources | indent 12 }}
+            {{ toYaml .Values.kubecostAggregator.resources | nindent 12 }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs

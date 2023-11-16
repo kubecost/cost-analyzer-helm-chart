@@ -35,7 +35,6 @@ rules:
       - services
       - resourcequotas
       - replicationcontrollers
-      - replicasets
       - limitranges
       - persistentvolumeclaims
       - persistentvolumes
