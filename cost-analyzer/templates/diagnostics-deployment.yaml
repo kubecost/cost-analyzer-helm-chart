@@ -1,5 +1,18 @@
 {{- if .Values.diagnostics.enabled }}
 {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+{{/*
+{{- if empty .Values.kubecostProductConfigs.clusterName  -}}
+{{ fail "Cluster name cannot be null" }}
+{{- end }}
+{{- if .Values.kubecostProductConfigs  -}}
+{{- if .Values.kubecostProductConfigs.clusterName  -}}
+{{- if eq .Values.kubecostProductConfigs.clusterName "cluster-one"  -}}
+{{ fail "Cluster name cannot be cluster-one" }}
+{{- end }}
+{{- end }}
+{{- end }}
+*/}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -71,18 +84,9 @@ spec:
               mountPath: /var/configs/etl
               readOnly: true
           env:
-            # TODO: I think we need to remove dependence on this method of obtaining CLUSTER_ID. Find a new method.
-            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
-              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
-            {{- end }}
-            {{- if .Values.prometheus.server.clusterIDConfigmap }}
-            - name: CLUSTER_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
-                  key: CLUSTER_ID
-            {{- end }}
+              value: {{ .Values.kubecostProductConfigs.clusterName }}
+
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
             - name: FEDERATED_STORE_CONFIG
