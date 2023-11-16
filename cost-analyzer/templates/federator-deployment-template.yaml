@@ -54,9 +54,11 @@ spec:
           volumeMounts:
             - name: federator-config
               mountPath: /var/configs/federator
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: federated-storage-config
               mountPath: /var/configs/etl/federated
               readOnly: true
+            {{- end }}
             {{- if .Values.federatedETL.federator.extraVolumeMounts }}
             {{- toYaml .Values.federatedETL.federator.extraVolumeMounts | nindent 12 }}
             {{- end }}
@@ -80,6 +82,20 @@ spec:
             {{- end }}
             {{- if .Values.federatedETL.federator.extraEnv }}
             {{- toYaml .Values.federatedETL.federator.extraEnv | nindent 12 }}
+            {{- end }}
+            {{- if .Values.systemProxy.enabled }}
+            - name: HTTP_PROXY
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: HTTPS_PROXY
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}

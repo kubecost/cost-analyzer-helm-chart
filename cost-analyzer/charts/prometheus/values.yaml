@@ -307,8 +307,6 @@ alertmanager:
     type: ClusterIP
 
 ## Monitors ConfigMap changes and POSTs to a URL
-## Ref: https://github.com/jimmidyson/configmap-reload
-##
 configmapReload:
   prometheus:
     ## If false, the configmap-reload container will not be deployed
@@ -322,8 +320,8 @@ configmapReload:
     ## configmap-reload container image
     ##
     image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.9.0
+      repository: quay.io/prometheus-operator/prometheus-config-reloader
+      tag: v0.68.0
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -362,8 +360,8 @@ configmapReload:
     ## configmap-reload container image
     ##
     image:
-      repository: jimmidyson/configmap-reload
-      tag: v0.9.0
+      repository: quay.io/prometheus-operator/prometheus-config-reloader
+      tag: v0.68.0
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -1272,7 +1270,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha 
+            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha
             action: keep
 
       # Scrape config for service endpoints.

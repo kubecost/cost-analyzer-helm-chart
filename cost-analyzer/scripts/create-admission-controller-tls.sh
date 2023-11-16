@@ -19,6 +19,11 @@ kubectl create secret tls webhook-server-tls \
     --cert "certs/tls.crt" \
     --key "certs/tls.key" -n "${namespace}"
 
-echo -e "\nUpdating values.yaml ..."
 ENCODED_CA=$(base64 < certs/tls.crt | tr -d '\n')
-sed -i '' 's@${CA_BUNDLE}@'"${ENCODED_CA}"'@g' ../values.yaml
+
+if [ -f "../values.yaml" ]; then
+  echo -e "\nUpdating values.yaml ..."
+  sed -i '' 's@${CA_BUNDLE}@'"${ENCODED_CA}"'@g' ../values.yaml
+else
+  echo -e "\nThe CA bundle to use in your values file is: \n${ENCODED_CA}"
+fi
