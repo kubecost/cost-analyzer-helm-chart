@@ -941,6 +941,10 @@ kubecostDeployment:
   ##
   queryServiceReplicas: 0
   queryService:
+    serviceAccount:
+      create: true
+      annotations: {}
+      # name: kc-qs-test
     securityContext:
       runAsGroup: 1001
       runAsUser: 1001
