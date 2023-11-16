@@ -426,18 +426,3 @@ requirements are met.
         {{- "" }}
     {{- end }}
 {{- end }}
-
-{{/* check if thanos or federatedETL are enabled */}}
-{{- define "isFederated" -}}
-{{- if .Values.global.thanos -}}
-    {{- if .Values.global.thanos.enabled -}}
-        {{- printf "false" -}}
-    {{- end -}}
-    {{- else if .Values.myflag -}}
-        {{- printf "true" -}}
-{{- else -}}
-    {{- printf "false" }}
-{{- end -}}
-{{- end -}}
-
-

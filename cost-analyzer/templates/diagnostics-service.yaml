@@ -1,8 +1,6 @@
-# TODO: Only create this service if this is the KUBECOST_DIAGNOSTICS_PRIMARY
+{{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
 {{- if .Values.diagnostics.enabled }}
-{{/* check if thanos or federatedETL are enabled */}}
-{{- $result := include "isFederated" . }}
-{{- if $result }}
+{{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -19,5 +17,6 @@ spec:
   selector:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
   type: ClusterIP
+{{- end }}
 {{- end }}
 {{- end }}

@@ -1,8 +1,5 @@
 {{- if .Values.diagnostics.enabled }}
-# {{/* check if thanos or federatedETL are enabled */}}
-# {{- $result := include "isFederated" . }}
-# {{- if $result }}
-
+{{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,12 +47,13 @@ spec:
             secretName: {{ .Values.thanos.storeSecretName }}
             items:
             - key: object-store.yaml
-              path: federated-store.yaml
+              path: federated-store.yaml #TODO: fix this
         {{- end }}
         - name: config-db
-          emptyDir: {}
+          emptyDir: {} #TODO: make pv?
       containers:
         - name: diagnostics
+          args: ["diagnostics"]
           image: {{ .Values.diagnostics.fullImageName }}
           imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy }}
           {{- if .Values.diagnostics.containerSecurityContext }}
@@ -87,7 +85,6 @@ spec:
             {{- end }}
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
-            # TODO: Add support for thanos `object-store.yaml`
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated-store.yaml"
@@ -132,15 +129,17 @@ spec:
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+          {{/* TODO: heatlhcheck that validates the diagnotics pod is healthy */}}
+          {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled}}
           readinessProbe:
             httpGet:
               path: /healthz
               port: 9007
-          args: ["diagnostics"]
           ports:
             - name: diagnostics-api
               containerPort: 9007
               protocol: TCP
+          {{- end }}
           resources:
             {{- toYaml .Values.diagnostics.resources | nindent 12 }}
     {{- if .Values.imagePullSecrets }}
@@ -168,5 +167,5 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-# {{- end }}
+{{- end }}
 {{- end }}
