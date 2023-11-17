@@ -1020,13 +1020,10 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-## Kubecost Diagnostic pod
+## Kubecost Diagnostic pod (beta, disabled by default until GA)
+## Future versions will include additional diagnostic/repair features and ability to alert
 ## Sends health data to the bucket used by Federated-ETL or Thanos.
 ## Allows the Kubecost primary to report agent health for all clusters.
-## The health checks include:
-## 1) whether Kubecost is emitting metrics
-## 2) whether Kubecost is being scraped by Prometheus
-## 3) whether Kubecost has healthy ETL files
 ## See https://docs.kubecost.com/install-and-configure/install/diagnostics for more information.
 diagnostics:
   enabled: true
