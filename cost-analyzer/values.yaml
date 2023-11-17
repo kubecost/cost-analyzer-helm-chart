@@ -1002,6 +1002,9 @@ kubecostAggregator:
     # default storage class
     storageClass: ""
     storageRequest: 128Gi
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
   # securityContext:
   #   runAsGroup: 1001
   #   runAsUser: 1001
