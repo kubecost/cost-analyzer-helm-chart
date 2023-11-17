@@ -1033,7 +1033,9 @@ diagnostics:
   pollingInterval: "300"
   ## Creates a new Diagnostic file in the bucket for every run.
   keepDiagnosticHistory: true
-  ## Pushes the cluster's Kubecost Helm Values to the bucket. This will consume additional storage and network transfers.
+  ## Pushes the cluster's Kubecost Helm Values to the bucket
+  ## This may contain sensitive information
+  ## It will consume additional storage and network transfer data. The file is roughly 30kb per cluster and is sent on pod restarts.
   collectHelmValues: false
   ## Only needs to be enabled on the primary cluster. When enabled, will download the diagnostic files from the bucket and serve HTTP queries.
   isDiagnosticsPrimary:
