@@ -1027,7 +1027,7 @@ kubecostAggregator:
 ##
 diagnostics:
   enabled: true
-  fullImageName: thomasvn/cost-model:diagnostics-20231115-newDateFormat
+  fullImageName: thomasvn/cost-model:diagnostics
   imagePullPolicy: Always
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300"
