@@ -1027,7 +1027,7 @@ kubecostAggregator:
 ## 1) whether Kubecost is emitting metrics
 ## 2) whether Kubecost is being scraped by Prometheus
 ## 3) whether Kubecost has healthy ETL files
-## See https://docs.kubecost.com/using-kubecost/agent-health-checks for more information.
+## See https://docs.kubecost.com/install-and-configure/install/diagnostics for more information.
 diagnostics:
   enabled: true
   fullImageName: thomasvn/cost-model:diagnostics
