@@ -1046,10 +1046,25 @@ diagnostics:
       memory: "20Mi"
   securityContext: {}
 
-  ## BELOW CONFIGS ARE WORK IN PROGRESS
+  ## BELOW CONFIGS ARE WORK IN PROGRESS FOR DIAGNOSTICS POD
   # parseKubecostLogs: false # stored in separate json output file
   # isDiagnosticsPrimary:
   #   destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

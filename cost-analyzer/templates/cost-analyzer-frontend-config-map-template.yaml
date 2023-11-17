@@ -114,10 +114,20 @@ data:
     }
   {{- end }}
   {{- if .Values.kubecostAggregator.cloudCost.enabled }}
-    upstream cloudCost {
-        server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
-    }
+  upstream cloudCost {
+      server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
+  }
   {{- end }}
+
+    {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+    {{- if .Values.diagnostics.enabled }}
+    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+    upstream multi-cluster-diagnostics {
+        server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
+    }
+    {{- end }}
+    {{- end }}
+    {{- end }}
     server {
         server_name _;
         root /var/www;
@@ -687,6 +697,41 @@ data:
             return 204 'endpoint disabled';
         }
         {{ end }}
+
+        location /model/multi-cluster-diagnostics-enabled {
+            default_type 'application/json';
+            {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+            {{- if .Values.diagnostics.enabled }}
+            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+
+                return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
+
+            {{- else }}
+
+                return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
+
+            {{- end }}
+            {{- end }}
+            {{- end }}
+        }
+
+        {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+        {{- if .Values.diagnostics.enabled }}
+        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+
+        location /model/multi-cluster-diagnostics {
+            default_type 'application/json';
+            proxy_read_timeout          300;
+            proxy_pass http://multi-cluster-diagnostics/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        {{- end}}
+        {{- end}}
+        {{- end }}
     }
 {{- end }}
 {{- end }}
