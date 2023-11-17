@@ -1034,10 +1034,13 @@ diagnostics:
   imagePullPolicy: Always
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300"
-  ## Creates a new Diagnostic file in the bucket for every run
+  ## Creates a new Diagnostic file in the bucket for every run.
   keepDiagnosticHistory: true
-  ## Pushes the cluster's Kubecost Helm Values to the bucket. This will consume additional storage and network transfers
+  ## Pushes the cluster's Kubecost Helm Values to the bucket. This will consume additional storage and network transfers.
   collectHelmValues: false
+  ## Only needs to be enabled on the primary cluster. When enabled, will download the diagnostic files from the bucket and serve HTTP queries.
+  isDiagnosticsPrimary:
+    enabled: true
   resources:
     requests:
       cpu: "10m"
@@ -1045,11 +1048,9 @@ diagnostics:
   securityContext: {}
 
   ## BELOW CONFIGS ARE WORK IN PROGRESS
-  ##
   # parseKubecostLogs: false # stored in separate json output file
-  isDiagnosticsPrimary: # only needed on the primary
-    enabled: false
-    destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
+  # isDiagnosticsPrimary:
+  #   destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
