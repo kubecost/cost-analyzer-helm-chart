@@ -954,7 +954,7 @@ spec:
             # enabled when network cost is enabled and one of the service tagging is enabled
             {{- if .Values.networkCosts.config.services }}
             {{- $services := .Values.networkCosts.config.services -}}
-            {{- if or (index $services "google-cloud-services") (index $services "aws-cloud-services") (index $services "azure-cloud-services")}}
+            {{- if or (index $services "google-cloud-services") (index $services "amazon-web-services") (index $services "azure-cloud-services")}}
             - name: ADVANCED_NETWORK_STATS
               value: "true"
             {{- else}}
