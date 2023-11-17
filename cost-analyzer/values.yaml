@@ -1020,11 +1020,14 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-## Push Kubecost Diagnostic data to a central bucket. Creates a single view into
-## the health of your primary/agent Kubecost clusters. Healthchecks include 1)
-## whether Kubecost is emitting metrics, 2) whether Kubecost is being scraped by
-## Prometheus, and 3) whether Kubecost has healthy ETL files.
-##
+## Kubecost Diagnostic pod
+## Sends health data to the bucket used by Federated-ETL or Thanos.
+## Allows the Kubecost primary to report agent health for all clusters.
+## The health checks include:
+## 1) whether Kubecost is emitting metrics
+## 2) whether Kubecost is being scraped by Prometheus
+## 3) whether Kubecost has healthy ETL files
+## See https://docs.kubecost.com/using-kubecost/agent-health-checks for more information.
 diagnostics:
   enabled: true
   fullImageName: thomasvn/cost-model:diagnostics
@@ -1033,7 +1036,7 @@ diagnostics:
   pollingInterval: "300"
   ## Creates a new Diagnostic file in the bucket for every run
   keepDiagnosticHistory: true
-  ## Pushes the cluster's Kubecost Helm Values to the bucket.
+  ## Pushes the cluster's Kubecost Helm Values to the bucket. This will consume additional storage and network transfers
   collectHelmValues: false
   resources:
     requests:

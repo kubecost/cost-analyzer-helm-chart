@@ -2,7 +2,7 @@
 {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 
 {{- if or (not .Values.kubecostProductConfigs) (empty .Values.kubecostProductConfigs.clusterName) }}
-{{ fail "ERROR: You must set the `.Values.kubecostProductConfigs.clusterName` config when `.Values.diagnostics.enabled=true`" }}
+{{ fail "ERROR: You must set the `.Values.kubecostProductConfigs.clusterName` config when `.Values.diagnostics.enabled=true` and federation is enabled." }}
 {{- end }}
 
 apiVersion: apps/v1
