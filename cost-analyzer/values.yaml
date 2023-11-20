@@ -512,6 +512,11 @@ kubecostModel:
     periodSeconds: 10
     failureThreshold: 200
   extraArgs: []
+  extraEnv: []
+    # - name: LOG_LEVEL
+    #   value: trace
+    # - name: LOG_FORMAT
+    #   value: json
 
   # creates an ingress directly to the model container, for API access
   ingress:
