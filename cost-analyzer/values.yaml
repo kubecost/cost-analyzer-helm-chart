@@ -1168,6 +1168,12 @@ federatedETL:
     ## storage.
     clusters: []
 
+    ## Optional. A list of extra volumes to pass to the federator Pod.
+    # extraVolumes: []
+
+    ## Optional. A list of extra volume mounts to pass to the federator Pod.
+    # extraVolumeMounts: []
+
     ## Optional. An RFC 3339-formatted string. All ETL files with windows that
     ## fall before this time are not processed by the Federator. If this is not
     ## set, the Federator will process all files regardless of date.
