@@ -512,7 +512,9 @@ kubecostModel:
     periodSeconds: 10
     failureThreshold: 200
   extraArgs: []
-  extraEnv: []
+
+  # Optional. A list of extra environment variables to be added to the cost-model container.
+  # extraEnv: []
     # - name: LOG_LEVEL
     #   value: trace
     # - name: LOG_FORMAT
