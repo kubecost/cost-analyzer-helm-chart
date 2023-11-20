@@ -148,8 +148,23 @@ spec:
               value: "false" # this pod should never run KC's concept of "ETL"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
-              value: "true" # just in case, not sure if necessary
-
+          {{- if .Values.systemProxy.enabled }}
+            - name: HTTP_PROXY
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: HTTPS_PROXY
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
+            {{- end }}
+            {{- if .Values.kubecostAggregator.extraEnv -}}
+            {{ toYaml .Values.kubecostAggregator.extraEnv | nindent 12 }}
+            {{- end }}
             {{- if $etlBackupBucketSecret }}
             # If this isn't set, we pretty much have to be in a read only state,
             # initialization will probably fail otherwise.
