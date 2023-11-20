@@ -408,6 +408,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/allocation/autocomplete {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/allocation/autocomplete;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/assets {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/assets;
