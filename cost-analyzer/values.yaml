@@ -513,6 +513,13 @@ kubecostModel:
     failureThreshold: 200
   extraArgs: []
 
+  # Optional. A list of extra environment variables to be added to the cost-model container.
+  # extraEnv: []
+    # - name: LOG_LEVEL
+    #   value: trace
+    # - name: LOG_FORMAT
+    #   value: json
+
   # creates an ingress directly to the model container, for API access
   ingress:
     enabled: false
@@ -1162,6 +1169,12 @@ federatedETL:
     ## federator will attempt to federated all clusters pushing to the federated
     ## storage.
     clusters: []
+
+    ## Optional. A list of extra volumes to pass to the federator Pod.
+    # extraVolumes: []
+
+    ## Optional. A list of extra volume mounts to pass to the federator Pod.
+    # extraVolumeMounts: []
 
     ## Optional. An RFC 3339-formatted string. All ETL files with windows that
     ## fall before this time are not processed by the Federator. If this is not
