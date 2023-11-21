@@ -356,6 +356,7 @@ kubecostFrontend:
     failureThreshold: 200
   ipv6:
     enabled: true  # disable if the cluster does not support ipv6
+  # timeoutSeconds: 600  # should be rarely used, but can be increased if needed
   # allow customizing nginx-conf server block
   # extraServerConfig: |-
   #   proxy_busy_buffers_size   512k;
