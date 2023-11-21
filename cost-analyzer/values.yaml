@@ -1053,20 +1053,6 @@ diagnostics:
   #   destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
