@@ -114,9 +114,9 @@ data:
     }
   {{- end }}
   {{- if .Values.kubecostAggregator.cloudCost.enabled }}
-  upstream cloudCost {
-      server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
-  }
+    upstream cloudCost {
+        server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
+    }
   {{- end }}
 
     {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
