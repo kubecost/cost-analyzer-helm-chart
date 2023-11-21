@@ -183,8 +183,8 @@ Parameter | Description | Default
 `configmapReload.prometheus.enabled` | If false, the configmap-reload container for Prometheus will not be deployed | `true`
 `configmapReload.prometheus.containerSecurityContext` | securityContext for container | `{}`
 `configmapReload.prometheus.name` | configmap-reload container name | `configmap-reload`
-`configmapReload.prometheus.image.repository` | configmap-reload container image repository | `jimmidyson/configmap-reload`
-`configmapReload.prometheus.image.tag` | configmap-reload container image tag | `v0.5.0`
+`configmapReload.prometheus.image.repository` | configmap-reload container image repository | `quay.io/prometheus-operator/prometheus-config-reloader`
+`configmapReload.prometheus.image.tag` | configmap-reload container image tag | `v0.68.0`
 `configmapReload.prometheus.image.pullPolicy` | configmap-reload container image pull policy | `IfNotPresent`
 `configmapReload.prometheus.extraArgs` | Additional configmap-reload container arguments | `{}`
 `configmapReload.prometheus.extraVolumeDirs` | Additional configmap-reload volume directories | `{}`
@@ -192,8 +192,8 @@ Parameter | Description | Default
 `configmapReload.prometheus.resources` | configmap-reload pod resource requests & limits | `{}`
 `configmapReload.alertmanager.enabled` | If false, the configmap-reload container for AlertManager will not be deployed | `true`
 `configmapReload.alertmanager.name` | configmap-reload container name | `configmap-reload`
-`configmapReload.alertmanager.image.repository` | configmap-reload container image repository | `jimmidyson/configmap-reload`
-`configmapReload.alertmanager.image.tag` | configmap-reload container image tag | `v0.5.0`
+`configmapReload.alertmanager.image.repository` | configmap-reload container image repository | `quay.io/prometheus-operator/prometheus-config-reloader`
+`configmapReload.alertmanager.image.tag` | configmap-reload container image tag | `v0.68.0`
 `configmapReload.alertmanager.image.pullPolicy` | configmap-reload container image pull policy | `IfNotPresent`
 `configmapReload.alertmanager.extraArgs` | Additional configmap-reload container arguments | `{}`
 `configmapReload.alertmanager.extraVolumeDirs` | Additional configmap-reload volume directories | `{}`
