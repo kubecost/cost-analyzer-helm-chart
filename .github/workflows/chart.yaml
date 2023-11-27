@@ -14,22 +14,34 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Helm lint
-        working-directory: ./cost-analyzer
-        run: helm lint
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@b43128a8b25298e1e7b043b78ea6613844e079b1 # v2.6.0
 
+      # Lint all chart values including those in the ci directory.
+      - name: Run chart-testing (lint)
+        run: ct lint --chart-dirs=cost-analyzer/ --charts cost-analyzer/ --validate-maintainers=false
+
+      # Run `helm template` on the main values file plus all those in the ci directory.
       - name: Helm template
-        working-directory: ./cost-analyzer
-        run: helm template . --set global.prometheus.enabled=false --set global.grafana.enabled=false > full.yaml
+        run: |
+          helm template cost-analyzer/ -f cost-analyzer/values.yaml > full.yaml
+          directory="cost-analyzer/ci"
+          for file in "$directory"/*; do
+          if [ -f "$file" ]; then
+              helm template cost-analyzer/ -f "$file" >> full.yaml
+          fi
+          done
 
+      # Run Kubeconform on the combined, templatized output across all tested values stored in `full.yaml`.
+      # Ensure all the rendered resources are valid.
       - name: Kubeconform
         uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
           entrypoint: /kubeconform
-          args: "-summary -output text ./cost-analyzer/full.yaml"
+          args: "-summary -output text full.yaml"
 
 
-  # Installs the chart across a matrix of modern Kubernetes versions
+  # Test cluster versions.
   deploy-chart:
     runs-on: ubuntu-latest
     strategy:
@@ -60,19 +72,65 @@ jobs:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@b43128a8b25298e1e7b043b78ea6613844e079b1 # v2.6.0
+
       - name: Create KinD cluster
         uses: helm/kind-action@dda0770415bac9fc20092cacbc54aa298604d140 # v1.8.0
         with:
           version: v0.20.0
           node_image: kindest/node:${{ matrix.k8s-version.version }}
           kubectl_version: ${{ matrix.k8s-version.version }}
+
+      # Create necessary test files in the cluster. Some configurations of the chart
+      # require pre-existing files like Secrets in order for volume mounts to be valid. Without them,
+      # Pods won't come up and tests will fail.
+      - name: Create kubecost Namespace and test files
+        run: |
+          kubectl create ns kubecost
+          kubectl -n kubecost create -f .github/ci-files
   
+      # Install the chart with default values and check results.
       - name: Install Kubecost chart
         working-directory: ./cost-analyzer
-        run: helm install --wait --wait-for-jobs kubecost . -n kubecost --create-namespace
+        run: helm install --wait --wait-for-jobs kubecost . -n kubecost
+        # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
 
       - name: Wait for ready 
-        run: kubectl wait --namespace kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+        run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
 
       - name: Run Helm tests 
         run: helm test -n kubecost kubecost
+
+      - name: Uninstall chart
+        run: helm uninstall kubecost -n kubecost --no-hooks --wait
+
+      - name: Cleanup all Pods in Kubecost Namespace
+        run: kubectl -n kubecost delete deployments,daemonsets,statefulsets,pods --all --force
+
+      # Loops over all the other values files in the ci directory and installs the chart, runs Helm tests, and uninstalls.
+      # Additional sleeps seem necessary for the main Kubecost Pod to be completely available, both frontend and backend.
+      - name: Install, test, remove chart for other values
+        id: loopingtests
+        run: |
+          directory="cost-analyzer/ci"
+          for file in "$directory"/*; do
+          if [ -f "$file" ]; then
+            echo "### Sleeping for 30 seconds ###"
+            sleep 30
+            echo "### Performing installation with values from $file ###"
+            helm install --wait --wait-for-jobs kubecost cost-analyzer/ -n kubecost -f "$file"
+            echo "### Waiting for cost-analyzer Pod readiness. ###"
+            kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+            echo "### Sleeping for 60 seconds longer. ###"
+            sleep 60
+            echo "### [DEBUG] Listing Pods in Kubecost Namespace. ###"
+            kubectl -n kubecost get pods
+            echo "### Performing helm tests ###"
+            helm test -n kubecost $(helm ls -n kubecost --all --short)
+            echo "### Performing uninstallation ###"
+            helm uninstall $(helm ls -n kubecost --all --short) -n kubecost --no-hooks --wait
+            echo "### Cleaning up all Pods and Pod controllers in Kubecost Namespace ###"
+            kubectl -n kubecost delete deployments,daemonsets,statefulsets,pods --all --force
+          fi
+          done
