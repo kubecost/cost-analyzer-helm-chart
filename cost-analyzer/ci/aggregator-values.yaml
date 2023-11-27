@@ -1,0 +1,12 @@
+kubecostAggregator:
+  enabled: true
+  cloudCost:
+    enabled: true
+  aggregatorStorage:
+    storageRequest: 5Gi
+  aggregatorDbStorage:
+    storageRequest: 10Gi
+kubecostModel:
+  federatedStorageConfigSecret: federated-store
+kubecostProductConfigs:
+  cloudIntegrationSecret: cloud-integration

@@ -408,6 +408,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/allocation/autocomplete {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/allocation/autocomplete;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/assets {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/assets;
@@ -440,6 +448,14 @@ data:
         }
         location = /model/assets/breakdown {
             return 501 "<b>Aggregator does not support this endpoint.</b>";
+        }
+        location = /model/assets/autocomplete {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/assets/autocomplete;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location = /model/savings/requestSizingV2 {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
@@ -484,6 +500,14 @@ data:
         location = /model/cloudCost/view/table {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/cloudCost/view/table;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/cloudCost/autocomplete {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/cloudCost/autocomplete;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
