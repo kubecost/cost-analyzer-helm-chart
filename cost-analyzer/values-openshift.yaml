@@ -1,0 +1,8 @@
+# Does not work with Helm versions 3.13.0-2 at this point.
+# Awaiting 3.12.3 where this will hopefully work.
+
+global:
+  securityContext:
+    fsGroup: null
+    runAsGroup: null
+    runAsUser: null
