@@ -351,7 +351,7 @@ configmapReload:
   alertmanager:
     ## If false, the configmap-reload container will not be deployed
     ##
-    enabled: true
+    enabled: false
 
     ## configmap-reload container name
     ##
@@ -418,7 +418,7 @@ nodeExporter:
   ##
   image:
     repository: prom/node-exporter
-    tag: v1.5.0
+    tag: v1.7.0
     pullPolicy: IfNotPresent
 
   ## Specify if a Pod Security Policy for node-exporter must be created
@@ -928,7 +928,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.5.1
+    tag: v1.6.2
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
