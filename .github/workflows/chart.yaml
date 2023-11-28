@@ -137,6 +137,7 @@ jobs:
 
   deploy-ocp:
     runs-on: ubuntu-latest
+    needs: test-chart
     strategy:
       matrix:
         cluster:
