@@ -174,3 +174,43 @@ jobs:
         with:
           api-token: ${{ secrets.REPLICATED_API_TOKEN }}
           cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
+
+  deploy-eks:
+    runs-on: ubuntu-latest
+    needs: test-chart
+    strategy:
+      matrix:
+        cluster:
+        - distribution: eks
+          version: v1.26
+        - distribution: eks
+          version: v1.27
+    steps:
+      - uses: actions/checkout@v4
+
+      # Outputs: `cluster-kubeconfig`, `cluster-id`
+      - name: Create Cluster
+        id: create-cluster
+        uses: replicatedhq/compatibility-actions/create-cluster@v1
+        with:
+          kubernetes-distribution: ${{ matrix.cluster.distribution }}
+          kubernetes-version: ${{ matrix.cluster.version }}
+          cluster-name: ${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}
+          timeout-minutes: 5
+          ttl: 10m
+          export-kubeconfig: true
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          # kubeconfig-path: /tmp/kubeconfig # optional, specifies path for Kubeconfig file
+
+      - name: Test
+        run: |
+          echo "Running a test"
+          kubectl get po -A
+
+      - name: Remove Cluster
+        id: remove-cluster
+        uses: replicatedhq/compatibility-actions/remove-cluster@v1
+        continue-on-error: true
+        with:
+          api-token: ${{ secrets.REPLICATED_API_TOKEN }}
+          cluster-id: ${{ steps.create-cluster.outputs.cluster-id }}
