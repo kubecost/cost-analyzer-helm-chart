@@ -7,7 +7,7 @@ pricingCsv:
   enabled: false
   location:
     provider: "AWS"
-    region: "us-east-1" 
+    region: "us-east-1"
     URI: s3://kc-csv-test/pricing_schema.csv # a valid file URI
     csvAccessCredentials: pricing-schema-access-secret
 
@@ -46,7 +46,7 @@ kubecostFrontend:
     #limits:
     #  cpu: "100m"
     #  memory: "256Mi"
-  
+
 kubecostModel:
   image: public.ecr.aws/kubecost/cost-model
   imagePullPolicy: Always
@@ -151,6 +151,7 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
+        repository: public.ecr.aws/kubecost/prometheus-config-reloader
         tag: v0.69.1
         pullPolicy: IfNotPresent
       ## Additional configmap-reload container arguments
