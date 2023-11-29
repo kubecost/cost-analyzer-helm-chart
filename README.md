@@ -8,7 +8,7 @@ Kubecost strives to support as many versions of Kubernetes as possible. Below is
 
 | Chart Version                | Kubernetes Min | Kubernetes Max |
 |--------------------------------|----------------|----------------|
-| 1.106                          | 1.20           | 1.28           |
+| 1.107                          | 1.20           | 1.28           |
 
 ## Installation
 

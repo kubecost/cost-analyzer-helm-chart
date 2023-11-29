@@ -57,7 +57,7 @@ spec:
             - --{{ $key }}={{ $value }}
           {{- end }}
           {{- range .Values.configmapReload.prometheus.extraVolumeDirs }}
-            - --volume-dir={{ . }}
+            - --watched-dir={{ . }}
           {{- end }}
           resources:
 {{ toYaml .Values.configmapReload.prometheus.resources | indent 12 }}
