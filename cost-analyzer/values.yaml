@@ -1290,12 +1290,10 @@ costEventsAudit:
 #    daemonset_external_label: "kubernetes_daemonset"
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
-#  # Provide a mapping from Account ID to a readable account name which will be displayed in the UI for CloudCosts
-#  # Account ID refers to different entities for different entities for each provider:
-#  # - AWS: Account ID
-#  # - Azure: Subscription ID
-#  # - GCP: Project ID
-#  cloudAccountMapping: {}
+#  # Provide a mapping from Account ID to a readable Account Name in a key/value object. Provide Account IDs as they are displayed in CloudCost
+#  # as the 'key' and the Account Name associated with it as the 'value'
+#  cloudAccountMapping:
+#    EXAMPLE_ACCOUNT_ID: EXAMPLE_ACCOUNT_NAME
 #  clusterName: "" # clusterName is the default context name in settings.
 #  clusterAccountID: "" # Manually set Account property for assets
 #  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, IDR, INR, JPY, NOK, PLN, SEK
