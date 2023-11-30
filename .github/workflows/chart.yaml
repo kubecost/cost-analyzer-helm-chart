@@ -196,7 +196,7 @@ jobs:
           kubernetes-distribution: ${{ matrix.cluster.distribution }}
           kubernetes-version: ${{ matrix.cluster.version }}
           cluster-name: ${{ matrix.cluster.distribution }}-${{ matrix.cluster.version }}
-          timeout-minutes: 5
+          timeout-minutes: 10
           ttl: 10m
           export-kubeconfig: true
           api-token: ${{ secrets.REPLICATED_API_TOKEN }}
