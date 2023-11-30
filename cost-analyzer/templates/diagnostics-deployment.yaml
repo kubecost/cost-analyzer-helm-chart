@@ -55,7 +55,8 @@ spec:
               path: federated-store.yaml
         {{- end }}
         - name: config-db
-          emptyDir: {} #TODO: make pv?
+        {{- /* #TODO: make pv? */}}
+          emptyDir: {}
       containers:
         - name: diagnostics
           args: ["diagnostics"]
@@ -88,12 +89,19 @@ spec:
               mountPath: /var/configs/etl
               readOnly: true
           env:
-            - name: CLUSTER_ID
+            - name: CLUSTER_NAME
               value: {{ .Values.kubecostProductConfigs.clusterName }}
+            {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
+            - name: CLUSTER_ID
+              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- else }}
+            - name: CLUSTER_ID
+              value: CLUSTER_ID_NOT_SET
+            {{- end }}
             - name: KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
             - name: FEDERATED_STORE_CONFIG
-              value: "/var/configs/etl/federated-store.yaml"
+              value: /var/configs/etl/federated-store.yaml
             - name: POLLING_INTERVAL
               value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
             - name: KUBECOST_DIAGNOSTICS_PRIMARY
@@ -134,7 +142,7 @@ spec:
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
-          {{/* TODO: heatlhcheck that validates the diagnotics pod is healthy */}}
+          {{- /* TODO: heatlhcheck that validates the diagnotics pod is healthy */}}
           {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled}}
           readinessProbe:
             httpGet:

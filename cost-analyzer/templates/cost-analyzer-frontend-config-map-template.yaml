@@ -752,6 +752,16 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        # simple alias for support
+        location /model/mcd {
+            default_type 'application/json';
+            proxy_read_timeout          300;
+            proxy_pass http://multi-cluster-diagnostics/status?window=7d;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
 
         {{- end}}
         {{- end}}

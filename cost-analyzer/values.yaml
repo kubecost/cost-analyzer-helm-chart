@@ -1037,7 +1037,7 @@ kubecostAggregator:
 ## Allows the Kubecost primary to report agent health for all clusters.
 ## See https://docs.kubecost.com/install-and-configure/install/diagnostics for more information.
 diagnostics:
-  enabled: false
+  enabled: true
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300"
   ## Creates a new Diagnostic file in the bucket for every run.
@@ -1049,8 +1049,8 @@ diagnostics:
   ## Only needs to be enabled on the primary cluster. When enabled, will download the diagnostic files from the bucket and serve HTTP queries.
   isDiagnosticsPrimary:
     enabled: true
-  # fullImageName: image: "gcr.io/kubecost1/cost-model:prod-1.108.0"
-  image: "gcr.io/kubecost1/cost-model"
+  # fullImageName: gcr.io/kubecost1/cost-model:diagnostics
+  image: gcr.io/kubecost1/cost-model
   imagePullPolicy: Always
   resources:
     requests:
