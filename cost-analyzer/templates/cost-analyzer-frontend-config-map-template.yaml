@@ -719,6 +719,15 @@ data:
             return 204 'endpoint disabled';
         }
         {{ end }}
+
+        location /model/aggregatorEnabled {
+            {{- if .Values.kubecostAggregator.enabled }}
+            return 200 '{"aggregatorEnabled": "true"}';
+            {{- else }}
+            return 200 '{"aggregatorEnabled": "false"}';
+            {{- end }}
+        }
+
     }
 {{- end }}
 {{- end }}
