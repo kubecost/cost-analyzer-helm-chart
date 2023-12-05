@@ -1131,6 +1131,7 @@ serviceAccount:
   # name: kc-test
 awsstore:
   useAwsStore: false
+  # imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
   createServiceAccount: false
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
