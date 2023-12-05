@@ -794,7 +794,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.1
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.2
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -1034,7 +1034,7 @@ kubecostAggregator:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.12.0
+  image: gcr.io/kubecost1/cluster-controller:v0.13.0
   imagePullPolicy: Always
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
