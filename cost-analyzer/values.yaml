@@ -628,7 +628,7 @@ extraVolumes: []
 ##
 extraVolumeMounts: []
 
-# Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/main/install-and-configure/install/storage.md
+# Define persistence volume for cost-analyzer, more information at https://docs.kubecost.com/install-and-configure/install/storage
 persistentVolume:
   size: 32Gi
   dbSize: 32.0Gi
