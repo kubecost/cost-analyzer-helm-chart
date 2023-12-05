@@ -44,12 +44,15 @@ spec:
       {{- end }}
     spec:
       restartPolicy: Always
-      {{- if .Values.kubecostDeployment.queryService.securityContext }}
+      {{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
       securityContext:
-        {{- toYaml .Values.kubecostDeployment.queryService.securityContext | nindent 8 }}
+        {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
       securityContext:
         {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- else if .Values.kubecostDeployment.queryService.securityContext }}
+      securityContext:
+        {{- toYaml .Values.kubecostDeployment.queryService.securityContext | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ template "query-service.serviceAccountName" . }}
       volumes:

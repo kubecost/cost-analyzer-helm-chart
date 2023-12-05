@@ -234,6 +234,18 @@ global:
       drop:
       - ALL
 
+  platforms:
+    openshift:
+      enabled: false
+      route:
+        enabled: false  # Create an OpenShift Route.
+        annotations: {}  # Add annotations to the Route.
+        # host: kubecost.apps.okd4.example.com  # Add a custom host for your Route.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
 

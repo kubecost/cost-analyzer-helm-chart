@@ -1,0 +1,12 @@
+global:
+  platforms:
+    openshift:
+      enabled: true
+      route:
+        enabled: false  # Create an OpenShift Route.
+        annotations: {}  # Add annotations to the Route.
+        # host: kubecost.apps.okd4.example.com  # Add a custom host for your Route.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
