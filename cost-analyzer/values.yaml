@@ -558,6 +558,12 @@ kubecostModel:
     #    hosts:
     #      - cost-analyzer-model.local
   utcOffset: "+00:00"
+  # Optional - add extra ports to the cost-model container. For kubecost development purposes only - not recommended for users.
+  extraPorts: []
+    # - name: debug
+    #   port: 40000
+    #   targetPort: 40000
+    #   containerPort: 40000
 
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
@@ -971,6 +977,10 @@ kubecostDeployment:
   ##
   queryServiceReplicas: 0
   queryService:
+    serviceAccount:
+      create: true
+      annotations: {}
+      # name: kc-qs-test
     securityContext:
       runAsGroup: 1001
       runAsUser: 1001
@@ -997,6 +1007,12 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
     initImage: {}
+    # Optional - add extra ports to the query service container. For kubecost development purposes only - not recommended for users.
+    extraPorts: []
+      # - name: debug
+      #   port: 40000
+      #   targetPort: 40000
+      #   containerPort: 40000
 
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
@@ -1052,6 +1068,13 @@ kubecostAggregator:
   #   capabilities:
   #     drop:
   #       - ALL
+  #
+  # Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
+  extraPorts: []
+    # - name: debug
+    #   port: 40000
+    #   targetPort: 40000
+    #   containerPort: 40000
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:

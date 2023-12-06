@@ -116,6 +116,9 @@ spec:
             - name: tcp-api
               containerPort: 9004
               protocol: TCP
+          {{- with.Values.kubecostAggregator.extraPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{ toYaml .Values.kubecostAggregator.resources | nindent 12 }}
           volumeMounts:

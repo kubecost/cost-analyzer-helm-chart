@@ -497,6 +497,9 @@ spec:
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+        {{- with .Values.kubecostModel.extraPorts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
