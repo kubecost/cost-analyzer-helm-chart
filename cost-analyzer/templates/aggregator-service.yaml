@@ -16,5 +16,8 @@ spec:
     - name: tcp-api
       port: 9004
       targetPort: 9004
+  {{- with .Values.kubecostAggregator.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 {{- end }}
 {{- end }}
