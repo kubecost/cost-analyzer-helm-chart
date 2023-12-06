@@ -16,6 +16,3 @@ global:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-
-networkCosts:
-  enabled: false
