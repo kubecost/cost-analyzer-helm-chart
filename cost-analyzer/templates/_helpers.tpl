@@ -130,10 +130,10 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 {{- define "query-service.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.kubecostDeployment.queryService.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.kubecostDeployment.queryService.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ default "default" .Values.kubecostDeployment.queryService.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 {{- define "aggregator.serviceAccountName" -}}
