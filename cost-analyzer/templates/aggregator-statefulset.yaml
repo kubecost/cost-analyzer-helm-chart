@@ -69,6 +69,8 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
+        {{- else }}
+        {{- fail "Kubecost Aggregator requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
       containers:
       {{- if .Values.kubecostAggregator.jaeger.enabled }}
