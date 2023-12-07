@@ -1,6 +1,6 @@
 {{ if .Values.global.prometheus.enabled }}
 {{- if and .Values.nodeExporter.enabled .Values.rbac.create }}
-{{- if or (default .Values.nodeExporter.podSecurityPolicy.enabled false) (.Values.podSecurityPolicy.enabled) (.Values.global.platforms.openshift.scc.nodeExporter) }}
+{{- if or (default .Values.nodeExporter.podSecurityPolicy.enabled false) (.Values.podSecurityPolicy.enabled) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -15,13 +15,6 @@ rules:
   verbs:     ['use']
   resourceNames:
   - {{ template "prometheus.nodeExporter.fullname" . }}
-{{- if .Values.global.platforms.openshift.scc.nodeExporter }}
-- apiGroups: ['security.openshift.io']
-  resources: ['securitycontextconstraints']
-  verbs: ['use']
-  resourceNames:
-  - {{ template "prometheus.nodeExporter.fullname" . }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{ end }}

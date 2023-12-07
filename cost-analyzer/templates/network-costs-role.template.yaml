@@ -1,7 +1,7 @@
 {{- if .Values.networkCosts }}
 {{- if .Values.networkCosts.enabled }}
 {{- if .Values.networkCosts.podSecurityPolicy }}
-{{- if or (.Values.networkCosts.podSecurityPolicy.enabled) (.Values.global.platforms.openshift.scc.networkCosts) }}
+{{- if .Values.networkCosts.podSecurityPolicy.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
@@ -22,16 +22,6 @@ rules:
   - use
   resourceNames:
   - {{ template "cost-analyzer.fullname" . }}-network-costs
-{{- if .Values.global.platforms.openshift.scc.networkCosts }}
-- apiGroups:
-  - security.openshift.io
-  resources:
-  - securitycontextconstraints
-  verbs:
-  - use
-  resourceNames:
-  - {{ template "cost-analyzer.networkCostsName" . }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

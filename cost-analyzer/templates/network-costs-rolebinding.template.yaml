@@ -1,18 +1,18 @@
 {{- if .Values.networkCosts }}
 {{- if .Values.networkCosts.enabled }}
 {{- if .Values.networkCosts.podSecurityPolicy }}
-{{- if or (.Values.networkCosts.podSecurityPolicy.enabled) (.Values.global.platforms.openshift.scc.networkCosts) }}
+{{- if .Values.networkCosts.podSecurityPolicy.enabled }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-    name: {{ template "cost-analyzer.fullname" . }}-network-costs
-    namespace: {{ .Release.Namespace }}
-    labels:
-      {{ include "cost-analyzer.commonLabels" . | nindent 6 }}
+  name: {{ template "cost-analyzer.fullname" . }}-network-costs
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 6 }}
 roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: Role
-    name: {{ template "cost-analyzer.fullname" . }}-network-costs
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "cost-analyzer.fullname" . }}-network-costs
 subjects:
 - kind: ServiceAccount
   name: {{ template "cost-analyzer.serviceAccountName" . }}
