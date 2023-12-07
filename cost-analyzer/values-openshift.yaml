@@ -16,3 +16,9 @@ global:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+
+# networkCosts:
+#   enabled: true  # Enable network costs.
+# prometheus:
+#   nodeExporter:
+#     enabled: true  # Enable Prometheus Node Exporter.
