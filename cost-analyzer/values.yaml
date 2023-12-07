@@ -1031,22 +1031,23 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-## Kubecost Diagnostic pod (beta, disabled by default until GA)
-## Future versions will include additional diagnostic/repair features and ability to alert
-## Sends health data to the bucket used by Federated-ETL or Thanos.
-## Allows the Kubecost primary to report agent health for all clusters.
-## See https://docs.kubecost.com/install-and-configure/install/diagnostics for more information.
+## Kubecost Diagnostic Pod (beta, disabled by default until GA)
+## Future versions will include additional diagnostic/repair features and
+## ability to alert Sends health data to the bucket used by Federated-ETL or
+## Thanos. Allows the Kubecost primary to report agent health for all clusters.
+## Ref: https://docs.kubecost.com/install-and-configure/install/diagnostics
+## 
 diagnostics:
   enabled: true
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
-  pollingInterval: "300"
+  pollingInterval: "300s"
   ## Creates a new Diagnostic file in the bucket for every run.
   keepDiagnosticHistory: true
-  ## Pushes the cluster's Kubecost Helm Values to the bucket
-  ## This may contain sensitive information
-  ## It will consume additional storage and network transfer data. The file is roughly 30kb per cluster and is sent on pod restarts.
+  ## Pushes the cluster's Kubecost Helm Values to the bucket once upon startup.
+  ## This may contain sensitive information and is roughly 30kb per cluster.
   collectHelmValues: false
-  ## Only needs to be enabled on the primary cluster. When enabled, will download the diagnostic files from the bucket and serve HTTP queries.
+  ## Only needs to be enabled on the primary cluster. When enabled, will
+  ## download the diagnostic files from the bucket and serve HTTP queries.
   isDiagnosticsPrimary:
     enabled: true
   # fullImageName: gcr.io/kubecost1/cost-model:diagnostics
@@ -1058,7 +1059,7 @@ diagnostics:
       memory: "20Mi"
   securityContext: {}
 
-  ## BELOW CONFIGS ARE WORK IN PROGRESS FOR DIAGNOSTICS POD
+  ## TODO
   # parseKubecostLogs: false # stored in separate json output file
   # isDiagnosticsPrimary:
   #   destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days

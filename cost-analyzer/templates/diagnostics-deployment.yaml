@@ -1,8 +1,8 @@
 {{- if .Values.diagnostics.enabled }}
 {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 
-{{- if or (not .Values.kubecostProductConfigs) (empty .Values.kubecostProductConfigs.clusterName) }}
-{{ fail "ERROR: You must set the `.Values.kubecostProductConfigs.clusterName` config when `.Values.diagnostics.enabled=true` and federation is enabled." }}
+{{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
+{{- fail "Error: The 'cluster_id' is set to default 'cluster-one'. Please update so that the diagnostics service can uniquely identify data coming from this cluster." }}
 {{- end }}
 
 apiVersion: apps/v1
@@ -89,34 +89,38 @@ spec:
               mountPath: /var/configs/etl
               readOnly: true
           env:
-            - name: CLUSTER_NAME
-              value: {{ .Values.kubecostProductConfigs.clusterName }}
-            {{- if .Values.prometheus.server.global.external_labels.cluster_id }}
+            {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID
               value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
-            {{- else }}
-            - name: CLUSTER_ID
-              value: CLUSTER_ID_NOT_SET
             {{- end }}
-            - name: KUBECOST_FQDN
-              value: {{ template "cost-analyzer.serviceName" . }}
+            {{- if .Values.prometheus.server.clusterIDConfigmap }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.prometheus.server.clusterIDConfigmap }}
+                  key: CLUSTER_ID
+            {{- end }}
             - name: FEDERATED_STORE_CONFIG
               value: /var/configs/etl/federated-store.yaml
-            - name: POLLING_INTERVAL
-              value: "{{ .Values.diagnostics.pollingInterval | default 300 }}"
-            - name: KUBECOST_DIAGNOSTICS_PRIMARY
+            - name: DIAGNOSTICS_KUBECOST_FQDN
+              value: {{ template "cost-analyzer.serviceName" . }}
+            - name: DIAGNOSTICS_KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: DIAGNOSTICS_POLLING_INTERVAL
+              value: {{ .Values.diagnostics.pollingInterval | default "300s" }}
+            - name: DIAGNOSTICS_PRIMARY
             {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
               value: "true"
             {{- else }}
               value: "false"
             {{- end }}
-            - name: COLLECT_HELM_VALUES
+            - name: DIAGNOSTICS_COLLECT_HELM_VALUES
             {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
               value: "true"
             {{- else }}
               value: "false"
             {{- end }}
-            - name: KEEP_DIAGNOSTIC_HISTORY
+            - name: DIAGNOSTICS_KEEP_HISTORY
             {{- if .Values.diagnostics.keepDiagnosticHistory }}
               value: "true"
             {{- else }}
@@ -140,8 +144,6 @@ spec:
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
-            - name: KUBECOST_NAMESPACE
-              value: {{ .Release.Namespace }}
           {{- /* TODO: heatlhcheck that validates the diagnotics pod is healthy */}}
           {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled}}
           readinessProbe:
@@ -155,18 +157,9 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.diagnostics.resources | nindent 12 }}
-    {{- if .Values.imagePullSecrets }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
-      {{- if .Values.diagnostics.priority }}
-      {{- if .Values.diagnostics.priority.enabled }}
-      {{- if .Values.diagnostics.priority.name }}
-      priorityClassName: {{ .Values.diagnostics.priority.name }}
-      {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-diagnostics-priority
-      {{- end }}
-      {{- end }}
       {{- end }}
       {{- with .Values.diagnostics.nodeSelector }}
       nodeSelector:
