@@ -51,15 +51,15 @@ spec:
         app: aggregator
     spec:
       restartPolicy: Always
-    {{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+    {{- if .Values.kubecostAggregator.securityContext }}
+      securityContext:
+    {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
     {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
     {{- else if .Values.global.securityContext }}
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
-    {{- else if .Values.kubecostAggregator.securityContext }}
-      securityContext:
-    {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
     {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:

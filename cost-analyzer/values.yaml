@@ -1075,6 +1075,7 @@ kubecostAggregator:
     #   port: 40000
     #   targetPort: 40000
     #   containerPort: 40000
+  securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
