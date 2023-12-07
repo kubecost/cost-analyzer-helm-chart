@@ -179,15 +179,15 @@ spec:
       nodeSelector:
       {{- toYaml .Values.server.nodeSelector | nindent 8 }}
     {{- end }}
-    {{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+    {{- if .Values.server.securityContext }}
+      securityContext:
+    {{- toYaml .Values.server.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
     {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
     {{- else if .Values.global.securityContext }}
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
-    {{- else if .Values.server.securityContext }}
-      securityContext:
-    {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.server.tolerations }}
       tolerations:
