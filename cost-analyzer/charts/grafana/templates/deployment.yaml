@@ -41,15 +41,15 @@ spec:
     {{- if .Values.schedulerName }}
       schedulerName: "{{ .Values.schedulerName }}"
     {{- end }}
-    {{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+    {{- if .Values.securityContext }}
+      securityContext:
+    {{- toYaml .Values.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
     {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
     {{- else if .Values.global.securityContext }}
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
-    {{- else if .Values.securityContext }}
-      securityContext:
-    {{- toYaml .Values.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.priorityClassName }}
       priorityClassName: "{{ .Values.priorityClassName }}"
