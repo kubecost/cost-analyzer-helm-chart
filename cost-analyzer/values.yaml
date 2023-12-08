@@ -234,6 +234,25 @@ global:
       drop:
       - ALL
 
+  # Platforms is a higher-level abstraction for platform-specific values and settings.
+  platforms:
+    # Deploying to OpenShift (OCP) requires enabling this option.
+    openshift:
+      enabled: false  # Deploy Kubecost to OpenShift.
+      route:
+        enabled: false  # Create an OpenShift Route.
+        annotations: {}  # Add annotations to the Route.
+        # host: kubecost.apps.okd4.example.com  # Add a custom host for your Route.
+      # Create Security Context Constraint resources for the DaemonSets requiring additional privileges.
+      scc:
+        nodeExporter: false  # Creates an SCC for Prometheus Node Exporter. This requires Node Exporter be enabled.
+        networkCosts: false  # Creates an SCC for Kubecost network-costs. This requires network-costs be enabled.
+      # When OpenShift is enabled, the following securityContext will be applied to all resources unless they define their own.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
 
@@ -738,6 +757,9 @@ prometheus:
   nodeExporter:
     enabled: true
 
+  # rbac:
+  #   create: true  # Create the RBAC resources for Prometheus Node Exporter.
+
   ## Default disabled since Kubecost already emits KSMv1 metrics.
   ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
   kubeStateMetrics:
@@ -800,6 +822,7 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
+    # annotations: {}  # Add annotations to the PodSecurityPolicy for network-costs.
   image: gcr.io/kubecost1/kubecost-network-costs:v0.17.2
   imagePullPolicy: Always
   updateStrategy:
@@ -959,14 +982,14 @@ kubecostDeployment:
       create: true
       annotations: {}
       # name: kc-qs-test
-    securityContext:
-      runAsGroup: 1001
-      runAsUser: 1001
-      fsGroup: 1001
-      fsGroupChangePolicy: OnRootMismatch
-      runAsNonRoot: false
-      seccompProfile:
-        type: RuntimeDefault
+    securityContext: {}  # Define a custom securityContext for the query service. This will take the highest precedence.
+      # runAsGroup: 1001
+      # runAsUser: 1001
+      # fsGroup: 1001
+      # fsGroupChangePolicy: OnRootMismatch
+      # runAsNonRoot: false
+      # seccompProfile:
+      #   type: RuntimeDefault
     containerSecurityContext:
       allowPrivilegeEscalation: true
       readOnlyRootFilesystem: false
@@ -1053,6 +1076,7 @@ kubecostAggregator:
     #   port: 40000
     #   targetPort: 40000
     #   containerPort: 40000
+  securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
@@ -1154,6 +1178,7 @@ serviceAccount:
   # name: kc-test
 awsstore:
   useAwsStore: false
+  # imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
   createServiceAccount: false
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
