@@ -233,6 +233,10 @@ spec:
     metadata:
       labels:
         app: {{ template "kubecost.clusterControllerName" . }}
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       {{- if .Values.clusterController.priorityClassName }}
       priorityClassName: "{{ .Values.clusterController.priorityClassName }}"
