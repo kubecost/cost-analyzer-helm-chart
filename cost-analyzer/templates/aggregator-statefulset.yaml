@@ -49,6 +49,10 @@ spec:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: aggregator
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Always
       {{- if .Values.kubecostAggregator.securityContext }}
