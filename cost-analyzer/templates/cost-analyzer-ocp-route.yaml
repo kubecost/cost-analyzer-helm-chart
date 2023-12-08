@@ -1,0 +1,25 @@
+{{- if and (.Capabilities.APIVersions.Has "route.openshift.io/v1/Route") (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.route.enabled) }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-route
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+  {{- with .Values.global.platforms.openshift.route.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.global.platforms.openshift.route.host }}
+  host: "{{ .Values.global.platforms.openshift.route.host }}"
+  {{- end }}
+  port:
+    targetPort: tcp-frontend
+  tls:
+    termination: edge
+  to:
+    kind: Service
+    name: {{ template "cost-analyzer.serviceName" . }}
+    weight: 100
+  wildcardPolicy: None
+{{- end }}
