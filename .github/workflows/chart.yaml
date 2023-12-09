@@ -220,10 +220,23 @@ jobs:
           api-token: ${{ secrets.REPLICATED_API_TOKEN }}
           # kubeconfig-path: /tmp/kubeconfig # optional, specifies path for Kubeconfig file
 
-      - name: Test
+      - name: Create kubecost Namespace and test files
         run: |
-          echo "Running a test"
-          kubectl get po -A
+          kubectl create ns kubecost
+          kubectl -n kubecost create -f .github/ci-files
+    
+      # Install the chart with EKS values and check results.
+      - name: Install Kubecost chart with EKS values
+        working-directory: ./cost-analyzer
+        run: |
+          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml
+        # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
+
+      - name: Wait for ready 
+        run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+
+      - name: Run Helm tests 
+        run: helm test -n kubecost kubecost
 
       - name: Remove Cluster
         id: remove-cluster
