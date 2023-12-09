@@ -172,7 +172,8 @@ jobs:
       # Install the chart with OCP values and check results.
       - name: Install Kubecost chart with OCP values
         working-directory: ./cost-analyzer
-        run: helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-openshift.yaml \
+        run: |
+          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-openshift.yaml \
           --set global.platforms.openshift.route.enabled=true \
           --set global.platforms.openshift.scc.nodeExporter=true \
           --set global.platforms.openshift.scc.kubecost=true
