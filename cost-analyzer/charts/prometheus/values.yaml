@@ -865,11 +865,11 @@ server:
 
   ## Security context to be added to server pods
   ##
-  securityContext:
-    runAsUser: 1001
-    runAsNonRoot: true
-    runAsGroup: 1001
-    fsGroup: 1001
+  securityContext: {}
+    # runAsUser: 1001
+    # runAsNonRoot: true
+    # runAsGroup: 1001
+    # fsGroup: 1001
 
   containerSecurityContext: {}
 
@@ -928,7 +928,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.5.1
+    tag: v1.6.2
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName

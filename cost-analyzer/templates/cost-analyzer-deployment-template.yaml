@@ -69,9 +69,12 @@ spec:
       {{- else if lt $nginxPort 1025 }}
       securityContext:
         runAsUser: 0
+      {{- else if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+      securityContext:
+      {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
       securityContext:
-        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{- else }}
       securityContext:
         runAsUser: 1001
@@ -494,6 +497,9 @@ spec:
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+        {{- with .Values.kubecostModel.extraPorts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
@@ -950,7 +956,7 @@ spec:
             - name: NETWORK_COSTS_PORT
               value: {{ quote .Values.networkCosts.port | default (quote 3001) }}
             # ADVANCED_NETWORK_STATS is a feature offered by Kubecost that gives you network
-            # insights of your Kubernetes resources with cloud services. The feature is 
+            # insights of your Kubernetes resources with cloud services. The feature is
             # enabled when network cost is enabled and one of the service tagging is enabled
             {{- if .Values.networkCosts.config.services }}
             {{- $services := .Values.networkCosts.config.services -}}
@@ -1137,8 +1143,6 @@ spec:
         - image: {{ .Values.kubecostFrontend.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
-        {{- else if .Values.kubecostAggregator.enabled }}
-        - image: {{ .Values.kubecostFrontend.image }}:prod-aggregator-{{ $.Chart.AppVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{ end }}
