@@ -181,6 +181,10 @@ spec:
     {{- end }}
     {{- if .Values.server.securityContext }}
       securityContext:
+        {{- if not .Values.server.securityContext.fsGroup }}
+        fsGroupChangePolicy: OnRootMismatch
+        fsGroup: 1001
+        {{- end }}
     {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
