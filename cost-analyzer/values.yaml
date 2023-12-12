@@ -1078,10 +1078,10 @@ kubecostAggregator:
     #   containerPort: 40000
   securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
 
-## Kubecost Diagnostic Pod (beta, disabled by default until GA) Enables the
-## Kubecost primary to report health/diagnostics of all agent clusters. Each
-## agent cluster sends its health/diagnostic data to a storage bucket. Future
-## versions may include repairing & alerting from the primary.
+## Kubecost Multi-cluster Diagnostics (beta)
+## A single view into the health of all agent clusters. Each agent cluster sends
+## its diagnostic data to a storage bucket. Future versions may include
+## repairing & alerting from the primary.
 ## Ref: https://docs.kubecost.com/install-and-configure/install/diagnostics
 ##
 diagnostics:
@@ -1089,15 +1089,13 @@ diagnostics:
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300s"
   ## Creates a new Diagnostic file in the bucket for every run.
-  keepDiagnosticHistory: true
+  keepDiagnosticHistory: false
   ## Pushes the cluster's Kubecost Helm Values to the bucket once upon startup.
   ## This may contain sensitive information and is roughly 30kb per cluster.
   collectHelmValues: false
-  ## Only needs to be enabled on the primary cluster. When enabled, will
-  ## download the diagnostic files from the bucket and serve HTTP queries.
+  ## The primary aggregates all diagnostic data and serves HTTP queries.
   isDiagnosticsPrimary:
-    enabled: true
-
+    enabled: false
   resources:
     requests:
       cpu: "10m"
