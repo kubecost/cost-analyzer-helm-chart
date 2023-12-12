@@ -25,10 +25,11 @@ spec:
       labels:
         {{- include "diagnostics.selectorLabels" . | nindent 8 }}
       annotations:
+        # Generates a unique annotation upon each `helm upgrade`, forcing a redeployment
         helm.sh/pod-restarter: {{ randNumeric 3 | quote}}
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
     spec:
       restartPolicy: Always
       {{- if .Values.diagnostics.securityContext }}
@@ -55,25 +56,33 @@ spec:
               path: federated-store.yaml
         {{- end }}
         - name: config-db
-        {{- /* #TODO: make pv? */}}
+          {{- /* #TODO: make pv? */}}
           emptyDir: {}
       containers:
         - name: diagnostics
           args: ["diagnostics"]
-        {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.openSourceOnly }}
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
           image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
-        {{- else if .Values.diagnostics.fullImageName }}
-          image: {{ .Values.diagnostics.fullImageName }}
-        {{- else if .Values.imageVersion }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
           image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
-        {{- else }}
+          {{- else }}
           image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-        {{- else }}
+          {{- end }}
+          {{- else }}
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-          imagePullPolicy: {{ .Values.diagnostics.imagePullPolicy }}
+          {{- end }}
+          {{- if .Values.kubecostModel.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.kubecostModel.imagePullPolicy }}
+          {{- else }}
+          imagePullPolicy: Always
+          {{- end }}
+          {{- if .Values.imagePullSecrets }}
+          imagePullSecrets:
+          {{ toYaml .Values.imagePullSecrets | indent 2 }}
+          {{- end }}
           {{- if .Values.diagnostics.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 }}
@@ -157,10 +166,6 @@ spec:
           {{- end }}
           resources:
             {{- toYaml .Values.diagnostics.resources | nindent 12 }}
-      {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-      {{- end }}
       {{- with .Values.diagnostics.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -1031,12 +1031,12 @@ kubecostAggregator:
   #     drop:
   #       - ALL
 
-## Kubecost Diagnostic Pod (beta, disabled by default until GA)
-## Future versions will include additional diagnostic/repair features and
-## ability to alert Sends health data to the bucket used by Federated-ETL or
-## Thanos. Allows the Kubecost primary to report agent health for all clusters.
+## Kubecost Diagnostic Pod (beta, disabled by default until GA) Enables the
+## Kubecost primary to report health/diagnostics of all agent clusters. Each
+## agent cluster sends its health/diagnostic data to a storage bucket. Future
+## versions may include repairing & alerting from the primary.
 ## Ref: https://docs.kubecost.com/install-and-configure/install/diagnostics
-## 
+##
 diagnostics:
   enabled: true
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
@@ -1050,20 +1050,12 @@ diagnostics:
   ## download the diagnostic files from the bucket and serve HTTP queries.
   isDiagnosticsPrimary:
     enabled: true
-  # fullImageName: gcr.io/kubecost1/cost-model:diagnostics
-  image: gcr.io/kubecost1/cost-model
-  imagePullPolicy: Always
+
   resources:
     requests:
       cpu: "10m"
       memory: "20Mi"
   securityContext: {}
-
-  ## TODO
-  # parseKubecostLogs: false # stored in separate json output file
-  # isDiagnosticsPrimary:
-  #   destroyHistoryAfter: 30d # used only when isDiagnosticsPrimary: true, runs cleanup after x days
-
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
