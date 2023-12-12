@@ -729,14 +729,12 @@ data:
 
         location /model/multi-cluster-diagnostics-enabled {
             default_type 'application/json';
-            {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if .Values.diagnostics.enabled }}
+            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
             {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
+            {{- end }}
             {{- else }}
             return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
-            {{- end }}
-            {{- end }}
             {{- end }}
         }
         {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
