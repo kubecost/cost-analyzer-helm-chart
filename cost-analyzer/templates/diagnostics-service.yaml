@@ -1,0 +1,22 @@
+{{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+{{- if .Values.diagnostics.enabled }}
+{{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "diagnostics.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "diagnostics.selectorLabels" . | nindent 4 }}
+spec:
+  ports:
+    - name: diagnostics-api
+      protocol: TCP
+      port: 9007
+      targetPort: diagnostics-api
+  selector:
+    {{- include "diagnostics.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
+{{- end }}
+{{- end }}
+{{- end }}
