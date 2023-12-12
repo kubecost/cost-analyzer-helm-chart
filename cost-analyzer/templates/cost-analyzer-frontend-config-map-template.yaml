@@ -119,15 +119,14 @@ data:
     }
   {{- end }}
 
-    {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-    {{- if .Values.diagnostics.enabled }}
-    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+    {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
     }
     {{- end }}
     {{- end }}
-    {{- end }}
+
     server {
         server_name _;
         root /var/www;
