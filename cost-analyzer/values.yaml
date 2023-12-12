@@ -234,6 +234,25 @@ global:
       drop:
       - ALL
 
+  # Platforms is a higher-level abstraction for platform-specific values and settings.
+  platforms:
+    # Deploying to OpenShift (OCP) requires enabling this option.
+    openshift:
+      enabled: false  # Deploy Kubecost to OpenShift.
+      route:
+        enabled: false  # Create an OpenShift Route.
+        annotations: {}  # Add annotations to the Route.
+        # host: kubecost.apps.okd4.example.com  # Add a custom host for your Route.
+      # Create Security Context Constraint resources for the DaemonSets requiring additional privileges.
+      scc:
+        nodeExporter: false  # Creates an SCC for Prometheus Node Exporter. This requires Node Exporter be enabled.
+        networkCosts: false  # Creates an SCC for Kubecost network-costs. This requires network-costs be enabled.
+      # When OpenShift is enabled, the following securityContext will be applied to all resources unless they define their own.
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
 
@@ -540,6 +559,12 @@ kubecostModel:
     #    hosts:
     #      - cost-analyzer-model.local
   utcOffset: "+00:00"
+  # Optional - add extra ports to the cost-model container. For kubecost development purposes only - not recommended for users.
+  extraPorts: []
+    # - name: debug
+    #   port: 40000
+    #   targetPort: 40000
+    #   containerPort: 40000
 
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
@@ -628,7 +653,7 @@ extraVolumes: []
 ##
 extraVolumeMounts: []
 
-# Define persistence volume for cost-analyzer, more information at https://github.com/kubecost/docs/blob/main/storage.md
+# Define persistence volume for cost-analyzer, more information at https://docs.kubecost.com/install-and-configure/install/storage
 persistentVolume:
   size: 32Gi
   dbSize: 32.0Gi
@@ -732,6 +757,9 @@ prometheus:
   nodeExporter:
     enabled: true
 
+  # rbac:
+  #   create: true  # Create the RBAC resources for Prometheus Node Exporter.
+
   ## Default disabled since Kubecost already emits KSMv1 metrics.
   ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
   kubeStateMetrics:
@@ -794,7 +822,8 @@ networkCosts:
   enabled: false
   podSecurityPolicy:
     enabled: false
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.1
+    # annotations: {}  # Add annotations to the PodSecurityPolicy for network-costs.
+  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.2
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -949,14 +978,18 @@ kubecostDeployment:
   ##
   queryServiceReplicas: 0
   queryService:
-    securityContext:
-      runAsGroup: 1001
-      runAsUser: 1001
-      fsGroup: 1001
-      fsGroupChangePolicy: OnRootMismatch
-      runAsNonRoot: false
-      seccompProfile:
-        type: RuntimeDefault
+    serviceAccount:
+      create: true
+      annotations: {}
+      # name: kc-qs-test
+    securityContext: {}  # Define a custom securityContext for the query service. This will take the highest precedence.
+      # runAsGroup: 1001
+      # runAsUser: 1001
+      # fsGroup: 1001
+      # fsGroupChangePolicy: OnRootMismatch
+      # runAsNonRoot: false
+      # seccompProfile:
+      #   type: RuntimeDefault
     containerSecurityContext:
       allowPrivilegeEscalation: true
       readOnlyRootFilesystem: false
@@ -975,6 +1008,12 @@ kubecostDeployment:
     databaseVolumeSize: 100Gi
     configVolumeSize: 1Gi
     initImage: {}
+    # Optional - add extra ports to the query service container. For kubecost development purposes only - not recommended for users.
+    extraPorts: []
+      # - name: debug
+      #   port: 40000
+      #   targetPort: 40000
+      #   containerPort: 40000
 
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
@@ -1030,6 +1069,14 @@ kubecostAggregator:
   #   capabilities:
   #     drop:
   #       - ALL
+  #
+  # Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
+  extraPorts: []
+    # - name: debug
+    #   port: 40000
+    #   targetPort: 40000
+    #   containerPort: 40000
+  securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
 
 ## Kubecost Diagnostic Pod (beta, disabled by default until GA) Enables the
 ## Kubecost primary to report health/diagnostics of all agent clusters. Each
@@ -1060,7 +1107,7 @@ diagnostics:
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
-  image: gcr.io/kubecost1/cluster-controller:v0.12.0
+  image: gcr.io/kubecost1/cluster-controller:v0.13.0
   imagePullPolicy: Always
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -1157,6 +1204,7 @@ serviceAccount:
   # name: kc-test
 awsstore:
   useAwsStore: false
+  # imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
   createServiceAccount: false
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -1316,6 +1364,10 @@ costEventsAudit:
 #    daemonset_external_label: "kubernetes_daemonset"
 #    pod_external_label: "kubernetes_pod"
 #  grafanaURL: ""
+#  # Provide a mapping from Account ID to a readable Account Name in a key/value object. Provide Account IDs as they are displayed in CloudCost
+#  # as the 'key' and the Account Name associated with it as the 'value'
+#  cloudAccountMapping:
+#    EXAMPLE_ACCOUNT_ID: EXAMPLE_ACCOUNT_NAME
 #  clusterName: "" # clusterName is the default context name in settings.
 #  clusterAccountID: "" # Manually set Account property for assets
 #  currencyCode: "USD" # official support for USD, AUD, BRL, CAD, CHF, CNY, DKK, EUR, GBP, IDR, INR, JPY, NOK, PLN, SEK

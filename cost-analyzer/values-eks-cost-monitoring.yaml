@@ -53,8 +53,9 @@ kubecostModel:
   warmCache: true
   warmSavingsCache: true
   etl: true
-  # The total number of days the ETL storage will build
-  etlStoreDurationDays: 120
+  # The total number of days the ETL pipelines will build
+  # Set to 0 to disable daily ETL (not recommended)
+  etlDailyStoreDurationDays: 120
   maxQueryConcurrency: 5
   # utcOffset represents a timezone in hours and minutes east (+) or west (-)
   # of UTC, itself, which is defined as +00:00.
@@ -113,7 +114,7 @@ prometheus:
     # clusterIDConfigmap: cluster-id-configmap
     image:
       repository: public.ecr.aws/kubecost/prometheus
-      tag: v2.35.0
+      tag: v2.47.2
     resources: {}
     # limits:
     #   cpu: 500m
@@ -123,7 +124,7 @@ prometheus:
     #   memory: 512Mi
     global:
       scrape_interval: 1m
-      scrape_timeout: 10s
+      scrape_timeout: 60s
       evaluation_interval: 1m
       external_labels:
         cluster_id: cluster-one # Each cluster should have a unique ID
@@ -141,27 +142,26 @@ prometheus:
 
   configmapReload:
     prometheus:
+
       ## If false, the configmap-reload container will not be deployed
-      ##
       enabled: false
 
       ## configmap-reload container name
-      ##
       name: configmap-reload
+
       ## configmap-reload container image
-      ##
       image:
         repository: public.ecr.aws/kubecost/prometheus-config-reloader
         tag: v0.69.1
         pullPolicy: IfNotPresent
+
       ## Additional configmap-reload container arguments
-      ##
       extraArgs: {}
+
       ## Additional configmap-reload volume directories
-      ##
       extraVolumeDirs: []
+
       ## Additional configmap-reload mounts
-      ##
       extraConfigmapMounts: []
         # - name: prometheus-alerts
         #   mountPath: /etc/alerts.d
@@ -174,7 +174,7 @@ prometheus:
       resources: {}
 
   kube-state-metrics:
-    disabled: false
+    disabled: true
   nodeExporter:
     enabled: false
 

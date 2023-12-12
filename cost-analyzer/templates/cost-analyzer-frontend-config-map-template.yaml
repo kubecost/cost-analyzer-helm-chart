@@ -515,6 +515,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/cloudCost/view/trends {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/cloudCost/view/trends;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/cloudCost/autocomplete {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/cloudCost/autocomplete;
@@ -714,8 +722,6 @@ data:
         }
     {{- end }}
 
-
-
         {{- if .Values.kubecostFrontend.trendsDisabled }}
         location /model/allocation/trends {
             return 204 'endpoint disabled';
@@ -726,23 +732,16 @@ data:
             default_type 'application/json';
             {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
             {{- if .Values.diagnostics.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
-
-                return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
-
+            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
             {{- else }}
-
-                return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
-
+            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
             {{- end }}
             {{- end }}
             {{- end }}
         }
-
-        {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if .Values.diagnostics.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
-
+        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
             proxy_read_timeout          300;
@@ -762,10 +761,18 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
-        {{- end}}
-        {{- end}}
         {{- end }}
+        {{- end }}
+
+        location /model/aggregatorEnabled {
+            default_type 'application/json';
+            {{- if .Values.kubecostAggregator.enabled }}
+            return 200 '{"aggregatorEnabled": "true"}';
+            {{- else }}
+            return 200 '{"aggregatorEnabled": "false"}';
+            {{- end }}
+        }
+
     }
 {{- end }}
 {{- end }}

@@ -24,7 +24,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.global.securityContext }}
+      {{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+      securityContext:
+      {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
       securityContext:
       {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{- end }}
