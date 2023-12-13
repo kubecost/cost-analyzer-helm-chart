@@ -272,6 +272,8 @@ saml:
   # isGLUUProvider: false # An additional URL parameter must be appended for GLUU providers
   # encryptionCertSecret: "kubecost-saml-cert" # k8s secret where the x509 certificate used to encrypt an Okta saml response is stored
   # decryptionKeySecret: "kubecost-sank-decryption-key" # k8s secret where the private key associated with the encryptionCertSecret is stored
+  # authSecret: "random string" # Aggregator only - this enables cost model and aggregator pods to share required information to decode SAML token
+  # authSecretName: "kubecost-saml-secret" # Aggregator only - k8s secret where the authSecret will be stored
   rbac:
     enabled: false
     # groups:
