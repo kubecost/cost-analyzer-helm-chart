@@ -682,22 +682,6 @@ service:
     enabled: false  # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
     timeoutSeconds: 10800
 
-# Enabling long-term durable storage with Postgres requires an enterprise license
-remoteWrite:
-  postgres:
-    enabled: false
-    initImage: "gcr.io/kubecost1/sql-init"
-    initImagePullPolicy: Always
-    installLocal: true
-    remotePostgresAddress: ""  # ignored if installing locally
-    ## PriorityClassName
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-    priorityClassName: ""
-    persistentVolume:
-      size: 200Gi
-    auth:
-      password: admin  # change me
-
 prometheus:
   rbac:
     create: true  # Create the RBAC resources for Prometheus.

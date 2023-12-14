@@ -722,11 +722,17 @@ spec:
               value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
             {{- end }}
             {{- end }}
-            {{- if .Values.remoteWrite.postgres.enabled }}
-            - name: REMOTE_WRITE_ENABLED
-              value: "true"
-            - name: REMOTE_WRITE_PASSWORD
-              value: {{ .Values.remoteWrite.postgres.auth.password }}
+            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
+            - name: MC_BASIC_AUTH_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: USERNAME
+            - name: MC_BASIC_AUTH_PW
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
+                  key: PASSWORD
             {{- end }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
             - name: DB_BASIC_AUTH_USERNAME
@@ -1006,13 +1012,6 @@ spec:
                 configMapKeyRef:
                   name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
-            {{- end }}
-            {{- if .Values.remoteWrite.postgres.installLocal }}
-            - name: SQL_ADDRESS
-              value: pgprometheus
-            {{- else }}
-            - name: SQL_ADDRESS
-              value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
             {{- end }}
             {{- if .Values.kubecostModel.promClusterIDLabel }}
             - name: PROM_CLUSTER_ID_LABEL
