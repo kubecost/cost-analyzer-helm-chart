@@ -5,9 +5,6 @@ Expand the name of the chart.
 {{- define "cost-analyzer.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- define "query-service.name" -}}
-{{- default "query-service" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 {{- define "federator.name" -}}
 {{- default "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -36,14 +33,6 @@ If release name contains chart name it will be used as a full name.
 {{- else -}}
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{- define "query-service.fullname" -}}
-{{- if .Values.queryServiceFullnameOverride -}}
-{{- .Values.queryServiceFullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name "query-service" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -113,10 +102,6 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "query-service.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
 {{- define "diagnostics.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -138,13 +123,6 @@ Create the name of the service account
     {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
 {{- else -}}
     {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "query-service.serviceAccountName" -}}
-{{- if .Values.kubecostDeployment.queryService.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.kubecostDeployment.queryService.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.kubecostDeployment.queryService.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 {{- define "aggregator.serviceAccountName" -}}
@@ -202,12 +180,6 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-{{- define "kubecost.queryService.chartLabels" -}}
-app.kubernetes.io/name: {{ include "query-service.name" . }}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
 {{- define "kubecost.federator.chartLabels" -}}
 app.kubernetes.io/name: {{ include "federator.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
@@ -231,10 +203,6 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app: cost-analyzer
-{{- end -}}
-{{- define "query-service.commonLabels" -}}
-{{ include "kubecost.queryService.chartLabels" . }}
-app: query-service
 {{- end -}}
 {{- define "federator.commonLabels" -}}
 {{ include "kubecost.federator.chartLabels" . }}
@@ -286,11 +254,6 @@ Create the selector labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
-{{- end -}}
-{{- define "query-service.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "query-service.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: query-service
 {{- end -}}
 {{- define "federator.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "federator.name" . }}
