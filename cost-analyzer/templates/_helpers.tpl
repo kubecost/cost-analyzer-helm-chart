@@ -555,3 +555,9 @@ Create the name of the service account to use for the server component
     {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
   {{ end }}
 {{ end }}
+
+{{ if .Values.kubecostModel }}
+  {{ if .Values.kubecostModel.openSourceOnly }}
+    {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
+  {{ end }}
+{{ end }}

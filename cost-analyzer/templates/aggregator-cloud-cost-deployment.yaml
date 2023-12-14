@@ -53,9 +53,7 @@ spec:
       containers:
         - name: cloud-cost
           {{- if .Values.kubecostModel }}
-          {{- if .Values.kubecostModel.openSourceOnly }}
-          {{- fail "Kubecost Aggregator cannot be used with open source only" }}
-          {{- else if .Values.kubecostAggregator.fullImageName }}
+          {{- if .Values.kubecostAggregator.fullImageName }}
           image: {{ .Values.kubecostAggregator.fullImageName }}
           {{- else if .Values.kubecostModel.fullImageName }}
           image: {{ .Values.kubecostModel.fullImageName }}
