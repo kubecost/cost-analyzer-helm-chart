@@ -5,9 +5,6 @@ Expand the name of the chart.
 {{- define "cost-analyzer.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- define "federator.name" -}}
-{{- default "federator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 {{- define "aggregator.name" -}}
 {{- default "aggregator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -42,10 +39,6 @@ If release name contains chart name it will be used as a full name.
 {{- else -}}
 {{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- end -}}
-
-{{- define "federator.fullname" -}}
-{{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "aggregator.fullname" -}}
@@ -180,12 +173,6 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-{{- define "kubecost.federator.chartLabels" -}}
-app.kubernetes.io/name: {{ include "federator.name" . }}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
 {{- define "kubecost.aggregator.chartLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
@@ -203,10 +190,6 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app: cost-analyzer
-{{- end -}}
-{{- define "federator.commonLabels" -}}
-{{ include "kubecost.federator.chartLabels" . }}
-app: federator
 {{- end -}}
 {{- define "aggregator.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
@@ -254,11 +237,6 @@ Create the selector labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
-{{- end -}}
-{{- define "federator.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "federator.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: federator
 {{- end -}}
 {{- define "aggregator.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
@@ -568,3 +546,12 @@ Create the name of the service account to use for the server component
     {{ default "default" .Values.prometheus.serviceAccounts.server.name }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+ Check KC 2.0 values requirements that may differ
+*/}}
+{{ if .Values.federatedETL }}
+  {{ if .Values.federatedETL.primaryCluster }}
+    {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
+  {{ end }}
+{{ end }}

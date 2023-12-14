@@ -2441,10 +2441,7 @@ federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
-  ## If true, load ETL data from the combined storage bucket to display data
-  ## from all monitored clusters. Note, if this is your first time setting up
-  ## Federated ETL, ensure you see federated ETL data in combined storage before
-  ## setting this config to true.
+  ## This value must always be set to false in Kubecost 2.0+
   primaryCluster: false
 
   ## If true, changes the dir of S3 backup to the Federated combined store.
@@ -2454,39 +2451,6 @@ federatedETL:
   ## If true, will query metrics from a central PromQL DB (e.g. Amazon Managed
   ## Prometheus)
   useMultiClusterDB: false
-
-  ## The Federator is responsible for combining each cluster's ETL files located
-  ## in the federated storage bucket, and placing results in the combined
-  ## storage bucket.
-  federator:
-    enabled: false
-
-    ## Optional. Used when reconciliation is expected to occur on the Primary.
-    # primaryClusterID: "cluster_id"
-
-    ## Optional. Allowlist of which cluster_ids to federate. If not set, the
-    ## federator will attempt to federated all clusters pushing to the federated
-    ## storage.
-    clusters: []
-
-    ## Optional. A list of extra volumes to pass to the federator Pod.
-    # extraVolumes: []
-
-    ## Optional. A list of extra volume mounts to pass to the federator Pod.
-    # extraVolumeMounts: []
-
-    ## Optional. An RFC 3339-formatted string. All ETL files with windows that
-    ## fall before this time are not processed by the Federator. If this is not
-    ## set, the Federator will process all files regardless of date.
-    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
-
-    ## Optional. You can use the Kubecost savings report for 'Right-size your
-    ## container requests' to determine the recommended resource requests once
-    ## the pod has run for 24 hours.
-    resources: {}
-      # requests:
-      #   cpu: 100m
-      #   memory: 500Mi
 
 ## Kubecost Admission Controller (beta feature)
 ## To use this feature, ensure you have run the `create-admission-controller.sh`

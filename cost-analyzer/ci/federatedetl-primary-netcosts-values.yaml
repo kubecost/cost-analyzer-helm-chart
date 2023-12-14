@@ -3,11 +3,7 @@ kubecostProductConfigs:
   # cloudIntegrationSecret: cloud-integration
 federatedETL:
   useExistingS3Config: false
-  primaryCluster: true
   federatedCluster: true
-  federator:
-    enabled: true
-    # primaryClusterID: CLUSTER_NAME # Add after initial setup. This will break the combined folder setup if included at deployment.
 kubecostModel:
   containerStatsEnabled: true
   cloudCost:
