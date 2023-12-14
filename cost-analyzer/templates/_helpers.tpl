@@ -376,3 +376,9 @@ requirements are met.
     {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
   {{ end }}
 {{ end }}
+
+{{ if .Values.kubecostModel }}
+  {{ if .Values.kubecostModel.openSourceOnly }}
+    {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
+  {{ end }}
+{{ end }}
