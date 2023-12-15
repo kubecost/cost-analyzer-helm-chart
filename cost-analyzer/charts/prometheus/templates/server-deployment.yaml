@@ -56,7 +56,7 @@ spec:
             - --{{ $key }}={{ $value }}
           {{- end }}
           {{- range .Values.configmapReload.prometheus.extraVolumeDirs }}
-            - --volume-dir={{ . }}
+            - --watched-dir={{ . }}
           {{- end }}
           resources:
           {{- toYaml .Values.configmapReload.prometheus.resources | nindent 12 }}
@@ -173,18 +173,25 @@ spec:
       {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-       {{ toYaml .Values.imagePullSecrets | indent 2 }}
+        {{ toYaml .Values.imagePullSecrets | indent 0 }}
     {{- end }}
     {{- if .Values.server.nodeSelector }}
       nodeSelector:
       {{- toYaml .Values.server.nodeSelector | nindent 8 }}
     {{- end }}
-    {{- if .Values.global.securityContext }}
+    {{- if .Values.server.securityContext }}
+      securityContext:
+        {{- if not .Values.server.securityContext.fsGroup }}
+        fsGroupChangePolicy: OnRootMismatch
+        fsGroup: 1001
+        {{- end }}
+    {{- toYaml .Values.server.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
+      securityContext:
+    {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
+    {{- else if .Values.global.securityContext }}
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
-    {{- else if .Values.server.securityContext }}
-      securityContext2:
-    {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.server.tolerations }}
       tolerations:

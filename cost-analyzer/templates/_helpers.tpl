@@ -47,6 +47,14 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+{{- define "diagnostics.fullname" -}}
+{{- if .Values.diagnosticsFullnameOverride -}}
+{{- .Values.diagnosticsFullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "federator.fullname" -}}
 {{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -109,6 +117,9 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "diagnostics.serviceName" -}}
+{{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- define "aggregator.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -130,10 +141,10 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 {{- define "query-service.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.kubecostDeployment.queryService.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.kubecostDeployment.queryService.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ default "default" .Values.kubecostDeployment.queryService.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 {{- define "aggregator.serviceAccountName" -}}
@@ -233,6 +244,10 @@ app: federator
 {{ include "cost-analyzer.chartLabels" . }}
 app: aggregator
 {{- end -}}
+{{- define "diagnostics.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+app: diagnostics
+{{- end -}}
 {{- define "cloudCost.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "cloudCost.selectorLabels" . }}
@@ -254,6 +269,11 @@ app: {{ template "cost-analyzer.networkCostsName" . }}
 {{- end -}}
 {{- define "networkcosts.selectorLabels" -}}
 app: {{ template "cost-analyzer.networkCostsName" . }}
+{{- end }}
+{{- define "diagnostics.selectorLabels" -}}
+app.kubernetes.io/name: diagnostics
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: diagnostics
 {{- end }}
 
 {{/*

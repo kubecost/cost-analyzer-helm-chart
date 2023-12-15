@@ -69,9 +69,12 @@ spec:
       {{- else if lt $nginxPort 1025 }}
       securityContext:
         runAsUser: 0
+      {{- else if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+      securityContext:
+      {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
       securityContext:
-        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- toYaml .Values.global.securityContext | nindent 8 }}
       {{- else }}
       securityContext:
         runAsUser: 1001
@@ -381,10 +384,14 @@ spec:
           {{- else }}
           imagePullPolicy: Always
           {{- end }}
-        {{- if .Values.global.containerSecurityContext }}
+          {{- if .Values.global.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 -}}
-        {{- end }}
+          {{- end }}
+          {{- with .Values.sigV4Proxy.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           args:
           - --name
           - {{ .Values.sigV4Proxy.name }}
@@ -494,6 +501,9 @@ spec:
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+        {{- with .Values.kubecostModel.extraPorts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
           readinessProbe:
@@ -949,6 +959,19 @@ spec:
             {{- if .Values.networkCosts.enabled }}
             - name: NETWORK_COSTS_PORT
               value: {{ quote .Values.networkCosts.port | default (quote 3001) }}
+            # ADVANCED_NETWORK_STATS is a feature offered by Kubecost that gives you network
+            # insights of your Kubernetes resources with cloud services. The feature is
+            # enabled when network cost is enabled and one of the service tagging is enabled
+            {{- if .Values.networkCosts.config.services }}
+            {{- $services := .Values.networkCosts.config.services -}}
+            {{- if or (index $services "google-cloud-services") (index $services "amazon-web-services") (index $services "azure-cloud-services")}}
+            - name: ADVANCED_NETWORK_STATS
+              value: "true"
+            {{- else}}
+            - name: ADVANCED_NETWORK_STATS
+              value: "false"
+            {{- end}}
+            {{- end }}
             {{- end }}
             {{- end }}
             {{- /*
@@ -1124,8 +1147,6 @@ spec:
         - image: {{ .Values.kubecostFrontend.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
-        {{- else if .Values.kubecostAggregator.enabled }}
-        - image: {{ .Values.kubecostFrontend.image }}:prod-aggregator-{{ $.Chart.AppVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -1221,6 +1242,10 @@ spec:
       {{- end }}
       {{- with .Values.affinity }}
       affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
   {{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}

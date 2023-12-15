@@ -49,15 +49,22 @@ spec:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: aggregator
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Always
-      {{- if .Values.kubecostAggregator.securityContext }}
+    {{- if .Values.kubecostAggregator.securityContext }}
       securityContext:
-        {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
-      {{- else if .Values.global.securityContext }}
+    {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
-        {{- toYaml .Values.global.securityContext | nindent 8 }}
-      {{ end }}
+    {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
+    {{- else if .Values.global.securityContext }}
+      securityContext:
+    {{- toYaml .Values.global.securityContext | nindent 8 }}
+    {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -69,6 +76,8 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
+        {{- else }}
+        {{- fail "Kubecost Aggregator requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
       containers:
       {{- if .Values.kubecostAggregator.jaeger.enabled }}
@@ -113,6 +122,9 @@ spec:
             - name: tcp-api
               containerPort: 9004
               protocol: TCP
+          {{- with.Values.kubecostAggregator.extraPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{ toYaml .Values.kubecostAggregator.resources | nindent 12 }}
           volumeMounts:
@@ -148,8 +160,23 @@ spec:
               value: "false" # this pod should never run KC's concept of "ETL"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
-              value: "true" # just in case, not sure if necessary
-
+          {{- if .Values.systemProxy.enabled }}
+            - name: HTTP_PROXY
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: http_proxy
+              value: {{ .Values.systemProxy.httpProxyUrl }}
+            - name: HTTPS_PROXY
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: https_proxy
+              value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            - name: NO_PROXY
+              value:  {{ .Values.systemProxy.noProxy }}
+            - name: no_proxy
+              value:  {{ .Values.systemProxy.noProxy }}
+            {{- end }}
+            {{- if .Values.kubecostAggregator.extraEnv -}}
+            {{ toYaml .Values.kubecostAggregator.extraEnv | nindent 12 }}
+            {{- end }}
             {{- if $etlBackupBucketSecret }}
             # If this isn't set, we pretty much have to be in a read only state,
             # initialization will probably fail otherwise.

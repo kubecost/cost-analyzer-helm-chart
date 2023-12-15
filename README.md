@@ -8,7 +8,8 @@ Kubecost strives to support as many versions of Kubernetes as possible. Below is
 
 | Chart Version                | Kubernetes Min | Kubernetes Max |
 |--------------------------------|----------------|----------------|
-| 1.106                          | 1.20           | 1.28           |
+| 1.107                          | 1.20           | 1.28           |
+| 1.108                          | 1.20           | 1.28           |
 
 ## Installation
 
@@ -34,7 +35,7 @@ helm install kubecost kubecost/cost-analyzer -n kubecost --create-namespace \
   --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
 ```
 
-While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost especially in production, Kubecost can alternatively be deployed with a single-file manifest using the following command. Keep in mind when choosing this method, Kubecost will be installed from a development branch and may include unreleased changes.
+While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost, especially in production, Kubecost can alternatively be deployed with a single-file manifest using the following command. Keep in mind when choosing this method, Kubecost will be installed from a development branch and may include unreleased changes. We recommend using the manifest from a release branch, such as v1.108.
 
 ```sh
 kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/develop/kubecost.yaml

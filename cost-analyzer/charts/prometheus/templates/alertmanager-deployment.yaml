@@ -88,8 +88,8 @@ spec:
           image: "{{ .Values.configmapReload.alertmanager.image.repository }}:{{ .Values.configmapReload.alertmanager.image.tag }}"
           imagePullPolicy: "{{ .Values.configmapReload.alertmanager.image.pullPolicy }}"
           args:
-            - --volume-dir=/etc/config
-            - --webhook-url=http://127.0.0.1:9093{{ .Values.alertmanager.prefixURL }}/-/reload
+            - --watched-dir=/etc/config
+            - --reload-url=http://127.0.0.1:9093{{ .Values.alertmanager.prefixURL }}/-/reload
           resources:
 {{ toYaml .Values.configmapReload.alertmanager.resources | indent 12 }}
           volumeMounts:
