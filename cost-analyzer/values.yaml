@@ -607,6 +607,8 @@ tolerations: []
 
 affinity: {}
 
+topologySpreadConstraints: []
+
 # If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
   enabled: false
