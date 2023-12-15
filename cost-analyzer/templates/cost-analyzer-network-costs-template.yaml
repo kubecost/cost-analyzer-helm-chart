@@ -38,7 +38,11 @@ spec:
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
       - name: {{ template "cost-analyzer.networkCostsName" . }}
+        {{- if eq (typeOf .Values.networkCosts.image) "string" }}
         image: {{ .Values.networkCosts.image }}
+        {{- else }}
+        image: {{ .Values.networkCosts.image.repository }}:{{ .Values.networkCosts.image.tag }}
+        {{- end}}
         {{- if .Values.networkCosts.extraArgs }}
         args:
           {{- toYaml .Values.networkCosts.extraArgs | nindent 8 }}
