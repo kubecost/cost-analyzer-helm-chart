@@ -1114,6 +1114,8 @@ clusterController:
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: ""
+  # Set custom tolerations for the cluster controller.
+  tolerations: []
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.

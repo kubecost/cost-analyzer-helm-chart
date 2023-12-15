@@ -285,6 +285,10 @@ spec:
           hostPort: 9731
       serviceAccount: {{ template "kubecost.clusterControllerName" . }}
       serviceAccountName: {{ template "kubecost.clusterControllerName" . }}
+      {{- with .Values.clusterController.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       - name: cluster-controller-keys
         secret:
