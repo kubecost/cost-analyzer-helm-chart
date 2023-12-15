@@ -49,15 +49,22 @@ spec:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: aggregator
+      {{- with .Values.global.podAnnotations}}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Always
-      {{- if .Values.kubecostAggregator.securityContext }}
+    {{- if .Values.kubecostAggregator.securityContext }}
       securityContext:
-        {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
-      {{- else if .Values.global.securityContext }}
+    {{- toYaml .Values.kubecostAggregator.securityContext | nindent 8 }}
+    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
       securityContext:
-        {{- toYaml .Values.global.securityContext | nindent 8 }}
-      {{ end }}
+    {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
+    {{- else if .Values.global.securityContext }}
+      securityContext:
+    {{- toYaml .Values.global.securityContext | nindent 8 }}
+    {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
         {{- $etlBackupBucketSecret := "" }}
@@ -69,6 +76,8 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
+        {{- else }}
+        {{- fail "Kubecost Aggregator requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
       containers:
       {{- if .Values.kubecostAggregator.jaeger.enabled }}
@@ -113,6 +122,9 @@ spec:
             - name: tcp-api
               containerPort: 9004
               protocol: TCP
+          {{- with.Values.kubecostAggregator.extraPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{ toYaml .Values.kubecostAggregator.resources | nindent 12 }}
           volumeMounts:

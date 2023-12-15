@@ -12,7 +12,7 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if $.Values.grafana.sidecar.dashboards.label }}
-    {{ $.Values.grafana.sidecar.dashboards.label }}: "1"
+    {{ $.Values.grafana.sidecar.dashboards.label }}: "{{ $.Values.grafana.sidecar.dashboards.labelValue }}"
     {{- else }}
     grafana_dashboard: "1"
     {{- end }}
