@@ -1185,6 +1185,7 @@ grafana:
       enabled: true
       # label that the configmaps with dashboards are marked with
       label: grafana_dashboard
+      labelValue: "1"
       # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
       annotations: {}
       error_throttle_sleep: 0
