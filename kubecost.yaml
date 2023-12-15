@@ -54,7 +54,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -129,7 +129,7 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
-    serve_from_sub_path = true
+    serve_from_sub_path = false
   datasources.yaml: |
     apiVersion: 1
     datasources:
@@ -355,7 +355,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -373,7 +373,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -425,6 +425,7 @@ data:
     upstream grafana {
         server kubecost-grafana.kubecost;
     }
+
     server {
         server_name _;
         root /var/www;
@@ -441,7 +442,7 @@ data:
         location / {
             try_files $uri $uri/ /index.html;
         }
-        add_header ETag "1.107.1";
+        add_header ETag "1.108.0";
         listen 9090;
         listen [::]:9090;
         location /api/ {
@@ -453,9 +454,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
-            proxy_connect_timeout       600;
-            proxy_send_timeout          600;
-            proxy_read_timeout          600;
+            proxy_connect_timeout       300;
+            proxy_send_timeout          300;
+            proxy_read_timeout          300;
             proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -528,10 +529,26 @@ data:
 
 
     # Query Service Replicas (QSR) proxy
-        location = /model/hideDiagnostics {
-            default_type text/html;
-            return 200 'false';
+
+        location = /model/hideOrphanedResources {
+            default_type 'application/json';
+            return 200 '{"hideOrphanedResources": "false"}';
         }
+        location = /model/hideDiagnostics {
+            default_type 'application/json';
+            return 200 '{"hideDiagnostics": "false"}';
+        }
+
+        location /model/multi-cluster-diagnostics-enabled {
+            default_type 'application/json';
+            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
+        }
+
+        location /model/aggregatorEnabled {
+            default_type 'application/json';
+            return 200 '{"aggregatorEnabled": "false"}';
+        }
+
     }
 ---
 # Source: cost-analyzer/templates/grafana-attached-disk-metrics-template.yaml
@@ -542,7 +559,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -1094,7 +1111,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -2794,7 +2811,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -6008,7 +6025,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7412,7 +7429,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7838,7 +7855,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -9001,7 +9018,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -10194,7 +10211,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -11601,7 +11618,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -12376,7 +12393,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18083,7 +18100,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18740,7 +18757,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19555,7 +19572,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19630,7 +19647,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19754,7 +19771,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19767,18 +19784,6 @@ subjects:
     name: kubecost-cost-analyzer
     namespace: kubecost
 ---
-# Source: cost-analyzer/charts/grafana/templates/role.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: kubecost-grafana
-  namespace: kubecost
-  labels:
-    app: grafana
-    chart: grafana-1.17.2
-    heritage: Helm
-    release: kubecost
----
 # Source: cost-analyzer/templates/cost-analyzer-cluster-role-template.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -19788,7 +19793,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19802,25 +19807,6 @@ rules:
     - list
     - watch
 ---
-# Source: cost-analyzer/charts/grafana/templates/rolebinding.yaml
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: kubecost-grafana
-  namespace: kubecost
-  labels:
-    app: grafana
-    chart: grafana-1.17.2
-    heritage: Helm
-    release: kubecost
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: kubecost-grafana
-subjects:
-- kind: ServiceAccount
-  name: kubecost-grafana
----
 # Source: cost-analyzer/templates/cost-analyzer-cluster-role-binding-template.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -19830,7 +19816,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19927,7 +19913,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19945,6 +19931,7 @@ spec:
     - name: tcp-frontend
       port: 9090
       targetPort: 9090
+  sessionAffinity: None
 ---
 # Source: cost-analyzer/charts/prometheus/templates/node-exporter-daemonset.yaml
 apiVersion: apps/v1
@@ -19979,7 +19966,7 @@ spec:
       dnsPolicy: "ClusterFirstWithHostNet"
       containers:
         - name: prometheus-node-exporter
-          image: "prom/node-exporter:v1.5.0"
+          image: "prom/node-exporter:v1.7.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --path.procfs=/host/proc
@@ -20044,7 +20031,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: grafana-sc-dashboard
-          image: "kiwigrid/k8s-sidecar:1.25.1"
+          image: "kiwigrid/k8s-sidecar:1.25.2"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
@@ -20060,8 +20047,6 @@ spec:
               value: "/tmp/dashboards"
             - name: ERROR_THROTTLE_SLEEP
               value: "0"
-          resources:
-            null
           volumeMounts:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
@@ -20092,7 +20077,6 @@ spec:
               subPath: provider.yaml
             - name: storage
               mountPath: "/var/lib/grafana"
-              subPath:
           ports:
             - name: service
               containerPort: 80
@@ -20175,7 +20159,7 @@ spec:
       serviceAccountName: kubecost-prometheus-server
       containers:
         - name: prometheus-server-configmap-reload
-          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.68.0"
+          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.69.1"
           imagePullPolicy: "IfNotPresent"
           args:
             - --watched-dir=/etc/config
@@ -20195,7 +20179,7 @@ spec:
               readOnly: true
 
         - name: prometheus-server
-          image: "quay.io/prometheus/prometheus:v2.35.0"
+          image: "quay.io/prometheus/prometheus:v2.47.2"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=15d
@@ -20264,7 +20248,7 @@ metadata:
   namespace: kubecost
   labels:
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.107.1
+    helm.sh/chart: cost-analyzer-1.108.0
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -20309,10 +20293,8 @@ spec:
         - name: persistent-configs
           persistentVolumeClaim:
             claimName: kubecost-cost-analyzer
-      initContainers:
       containers:
-        - image: gcr.io/kubecost1/cost-model:prod-1.107.1
-
+        - image: gcr.io/kubecost1/cost-model:prod-1.108.0
           name: cost-model
           securityContext:
             allowPrivilegeEscalation: false
@@ -20402,12 +20384,6 @@ spec:
               value: "false"
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: "false"
-            - name: ETL_CLOUD_REFRESH_RATE_HOURS
-              value: "6"
-            - name: ETL_CLOUD_QUERY_WINDOW_DAYS
-              value: "7"
-            - name: ETL_CLOUD_RUN_WINDOW_DAYS
-              value: "3"
             - name: ETL_RESOLUTION_SECONDS
               value: "300"
             - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
@@ -20432,6 +20408,12 @@ spec:
               value: ""
             - name: CLOUD_COST_TOP_N
               value: "1000"
+            - name: CLOUD_COST_REFRESH_RATE_HOURS
+              value: "6"
+            - name: CLOUD_COST_QUERY_WINDOW_DAYS
+              value: "7"
+            - name: CLOUD_COST_RUN_WINDOW_DAYS
+              value: "3"
             - name: CONTAINER_STATS_ENABLED
               value: "false"
             - name: RECONCILE_NETWORK
@@ -20443,7 +20425,7 @@ spec:
             - name: MAX_QUERY_CONCURRENCY
               value: "5"
             - name: UTC_OFFSET
-              value: "0"
+              value: "+00:00"
             - name: CLUSTER_ID
               value: cluster-one
             - name: SQL_ADDRESS
@@ -20464,7 +20446,7 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.107.1
+        - image: gcr.io/kubecost1/frontend:prod-1.108.0
 
           env:
             - name: GET_HOSTS_FROM

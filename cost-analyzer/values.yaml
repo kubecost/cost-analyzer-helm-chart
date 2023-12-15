@@ -451,6 +451,8 @@ sigV4Proxy:
   #   value: <access_key>
   # - name: AWS_SECRET_ACCESS_KEY
   #   value: <secret_key>
+  # Optional resource requests and limits for the sigV4proxy container.
+  resources: {}
 
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
@@ -1183,6 +1185,7 @@ grafana:
       enabled: true
       # label that the configmaps with dashboards are marked with
       label: grafana_dashboard
+      labelValue: "1"
       # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
       annotations: {}
       error_throttle_sleep: 0
