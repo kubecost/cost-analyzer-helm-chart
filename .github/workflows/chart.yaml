@@ -2,6 +2,8 @@ name: Chart build
 
 on:
   workflow_dispatch: {}
+  # Normally using pull_request_target along with checking out the ref of the PR is not
+  # a good idea, but this is low risk since it's a Helm chart repo.
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   # pull_request:
@@ -15,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
@@ -73,6 +77,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@e6669bcd63d7cb57cb4380c33043eebe5d111992 # v2.6.1
@@ -149,6 +155,8 @@ jobs:
           version: 4.13.0-okd
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       # Outputs: `cluster-kubeconfig`, `cluster-id`
       - name: Create Cluster
@@ -205,6 +213,8 @@ jobs:
           version: v1.27
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
 
       # Outputs: `cluster-kubeconfig`, `cluster-id`
       - name: Create Cluster
