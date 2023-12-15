@@ -827,7 +827,9 @@ networkCosts:
   podSecurityPolicy:
     enabled: false
     # annotations: {}  # Add annotations to the PodSecurityPolicy for network-costs.
-  image: gcr.io/kubecost1/kubecost-network-costs:v0.17.2
+  image:
+    repository: gcr.io/kubecost1/kubecost-network-costs
+    tag: v0.17.2
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
