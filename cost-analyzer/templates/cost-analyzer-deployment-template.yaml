@@ -834,15 +834,15 @@ spec:
             {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
               value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.primaryCluster }}
             - name: FEDERATED_PRIMARY_CLUSTER
               value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.redirectS3Backup }}
             - name: FEDERATED_REDIRECT_BACKUP
               value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.useMultiClusterDB }}
             - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
