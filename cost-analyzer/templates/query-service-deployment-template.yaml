@@ -47,6 +47,9 @@ spec:
       {{- if .Values.kubecostDeployment.queryService.securityContext }}
       securityContext:
         {{- toYaml .Values.kubecostDeployment.queryService.securityContext | nindent 8 }}
+      {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
+      securityContext:
+        {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
       securityContext:
         {{- toYaml .Values.global.securityContext | nindent 8 }}
@@ -118,6 +121,9 @@ spec:
             - name: tcp-model
               containerPort: 9003
               protocol: TCP
+          {{- with .Values.kubecostDeployment.queryService.extraPorts }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.kubecostDeployment.queryService.resources | nindent 12 }}
           volumeMounts:
