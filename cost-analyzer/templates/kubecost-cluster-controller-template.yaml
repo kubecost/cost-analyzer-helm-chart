@@ -219,7 +219,7 @@ metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   strategy:
     rollingUpdate:
@@ -243,7 +243,11 @@ spec:
       {{- end }}
       containers:
       - name: {{ template "kubecost.clusterControllerName" . }}
+        {{- if eq (typeOf .Values.clusterController.image) "string" }}
         image: {{ .Values.clusterController.image }}
+        {{- else }}
+        image: {{ .Values.clusterController.image.repository }}:{{ .Values.clusterController.image.tag }}
+        {{- end}}
         imagePullPolicy: {{ .Values.clusterController.imagePullPolicy }}
         volumeMounts:
         - name: cluster-controller-keys
