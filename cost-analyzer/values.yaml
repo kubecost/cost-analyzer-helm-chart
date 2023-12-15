@@ -1114,6 +1114,8 @@ clusterController:
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: ""
+  # Set custom tolerations for the cluster controller.
+  tolerations: []
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.
@@ -1207,11 +1209,14 @@ serviceAccount:
   # name: kc-test
 awsstore:
   useAwsStore: false
-  # imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
+  imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
   createServiceAccount: false
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
   priorityClassName: ""
+  # Use a custom nodeSelector for AWSStore.
+  nodeSelector: {}
+    # kubernetes.io/arch: amd64
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl

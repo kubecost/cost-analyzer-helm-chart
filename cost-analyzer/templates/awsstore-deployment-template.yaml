@@ -6,7 +6,7 @@ metadata:
   name: {{ template "cost-analyzer.fullname" . }}-awsstore
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -28,6 +28,10 @@ spec:
       serviceAccountName: awsstore-serviceaccount
       {{- if .Values.awsstore.priorityClassName }}
       priorityClassName: "{{ .Values.awsstore.priorityClassName }}"
+      {{- end }}
+      {{- with .Values.awsstore.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - image: {{ .Values.awsstore.imageNameAndVersion }}
