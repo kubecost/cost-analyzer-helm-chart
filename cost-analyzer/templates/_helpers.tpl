@@ -1,4 +1,23 @@
 {{/* vim: set filetype=mustache: */}}
+
+{{/*
+Set important variables before starting main templates
+*/}}
+{{- define "aggregator.deployMethod" -}}
+  {{- if (not .Values.kubecostAggregator) }}
+    {{- printf "singlepod" }}
+  {{- else if .Values.kubecostAggregator.enabled }}
+    {{- printf "statefulset" }}
+  {{- else if eq .Values.kubecostAggregator.deployMethod "singlepod" }}
+    {{- printf "singlepod" }}
+  {{- else if eq .Values.kubecostAggregator.deployMethod "statefulset" }}
+    {{- printf "statefulset" }}
+  {{- else }}
+    {{- fail "Unknown kubecostAggregator.deployMethod value" }}
+  {{- end }}
+{{- end }}
+
+
 {{/*
 Expand the name of the chart.
 */}}
@@ -250,10 +269,15 @@ app: aggregator
 {{- end }}
 
 {{- define "cloudCost.selectorLabels" -}}
+{{- if eq "aggregator.deployMethod" "statefulset" }}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
-{{- end -}}
+{{- else if eq "aggregator.deployMethod" "singlepod" }}
+{{- include "cost-analyzer.selectorLabels" . }}
+{{- end }}
+{{- end }}
+
 {{- define "etlUtils.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "etlUtils.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
@@ -362,24 +386,17 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
 {{/*
  Aggregator config reconciliation and common config
 */}}
-{{- define "aggregator.deployMethod" -}}
-  {{- if (not .Values.kubecostAggregator) }}
-    {{- printf "singlepod" }}
-  {{- else if .Values.kubecostAggregator.enabled }}
-    {{- printf "statefulset" }}
-  {{- else if eq .Values.kubecostAggregator.deployMethod "singlepod" }}
-    {{- printf "singlepod" }}
-  {{- else if eq .Values.kubecostAggregator.deployMethod "statefulset" }}
-    {{- printf "statefulset" }}
-  {{- else }}
-    {{- fail "Unknown kubecostAggregator.deployMethod value" }}
-  {{- end }}
-{{- end }}
-
 {{ if eq (include "aggregator.deployMethod") "statefulset" }}
   {{ if .Values.kubecostAggregator }}
     {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
       {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+{{ if .Values.kubecostAggregator.cloudCost }}
+  {{ if .Values.kubecostAggregator.cloudCost.enabled }}
+    {{ if not .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+      {{ fail "If enabling Cloud Costs, a cloud integration secret must be configured" }}
     {{ end }}
   {{ end }}
 {{ end }}
@@ -520,4 +537,90 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
   securityContext:
     {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 4 }}
   image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
+{{- end }}
+
+
+{{- define "aggregator.cloudCost.containerTemplate" }}
+- name: cloud-cost
+  {{- if .Values.kubecostModel }}
+  {{- if .Values.kubecostAggregator.fullImageName }}
+  image: {{ .Values.kubecostAggregator.fullImageName }}
+  {{- else if .Values.kubecostModel.fullImageName }}
+  image: {{ .Values.kubecostModel.fullImageName }}
+  {{- else if .Values.imageVersion }}
+  image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else }}
+  image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+  {{ end }}
+  {{- else }}
+  image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+  {{ end }}
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: 9005
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 200
+  imagePullPolicy: Always
+  args: ["cloud-cost"]
+  ports:
+    - name: tcp-api
+      containerPort: 9005
+      protocol: TCP
+  resources:
+    {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
+  volumeMounts:
+  {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+    - name: federated-storage-config
+      mountPath: /var/configs/etl/federated
+      readOnly: true
+  {{- end }}
+  {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+    - name: etl-bucket-config
+      mountPath: /var/configs/etl
+      readOnly: true
+  {{- end }}
+  {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+    - name: cloud-integration
+      mountPath: /var/configs/cloud-integration
+  {{- end }}
+  env:
+    - name: CONFIG_PATH
+      value: /var/configs/
+    {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+    - name: ETL_BUCKET_CONFIG
+      value: "/var/configs/etl/object-store.yaml"
+    {{- end}}
+    {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+    - name: FEDERATED_STORE_CONFIG
+      value: "/var/configs/etl/federated/federated-store.yaml"
+    - name: FEDERATED_CLUSTER
+      value: "true"
+    {{- end}}
+    - name: CLOUD_COST_REFRESH_RATE_HOURS
+      value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default  6 | quote }}
+    - name: CLOUD_COST_QUERY_WINDOW_DAYS
+      value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays  | default  7 | quote }}
+    - name: CLOUD_COST_RUN_WINDOW_DAYS
+      value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
+
+    {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
+    - name: {{ $key | quote }}
+      value: {{ $value | quote }}
+    {{- end }}
+    {{- if .Values.systemProxy.enabled }}
+    - name: HTTP_PROXY
+      value: {{ .Values.systemProxy.httpProxyUrl }}
+    - name: http_proxy
+      value: {{ .Values.systemProxy.httpProxyUrl }}
+    - name: HTTPS_PROXY
+      value: {{ .Values.systemProxy.httpsProxyUrl }}
+    - name: https_proxy
+      value: {{ .Values.systemProxy.httpsProxyUrl }}
+    - name: NO_PROXY
+      value: {{ .Values.systemProxy.noProxy }}
+    - name: no_proxy
+      value: {{ .Values.systemProxy.noProxy }}
+    {{- end }}
 {{- end }}
