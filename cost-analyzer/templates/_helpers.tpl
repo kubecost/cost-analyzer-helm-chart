@@ -238,11 +238,17 @@ app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
+
 {{- define "aggregator.selectorLabels" -}}
+{{- if eq "aggregator.deployMethod" "statefulset" }}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: aggregator
-{{- end -}}
+{{- else if eq "aggregator.deployMethod" "singlepod" }}
+{{- include "cost-analyzer.selectorLabels" . }}
+{{- end }}
+{{- end }}
+
 {{- define "cloudCost.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
