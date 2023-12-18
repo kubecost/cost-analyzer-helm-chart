@@ -353,9 +353,165 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
   {{ end }}
 {{ end }}
 
+{{/*
+ Aggregator config reconciliation and common config
+*/}}
+{{- define "aggregator.deployMethod" -}}
+  {{- if (not .Values.kubecostAggregator) }}
+    {{- printf "singlepod" }}
+  {{- else if .Values.kubecostAggregator.enabled }}
+    {{- printf "statefulset" }}
+  {{- else if eq .Values.kubecostAggregator.deployMethod "singlepod" }}
+    {{- printf "singlepod" }}
+  {{- else if eq .Values.kubecostAggregator.deployMethod "statefulset" }}
+    {{- printf "statefulset" }}
+  {{- else }}
+    {{- fail "Unknown kubecostAggregator.deployMethod value" }}
+  {{- end }}
+{{- end }}
+
+{{ if eq (include "aggregator.deployMethod") "statefulset" }}
+  {{ if .Values.kubecostAggregator }}
+    {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
+      {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+
+{{- define "aggregator.containerTemplate" }}
+- name: aggregator
+{{- if .Values.kubecostAggregator.containerSecurityContext }}
+  securityContext:
+    {{- toYaml .Values.kubecostAggregator.containerSecurityContext | nindent 4 }}
+{{- else if .Values.global.containerSecurityContext }}
+  securityContext:
+    {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
+{{ end }}
+  {{- if .Values.kubecostModel }}
+  {{- if .Values.kubecostAggregator.fullImageName }}
+  image: {{ .Values.kubecostAggregator.fullImageName }}
+  {{- else if .Values.imageVersion }}
+  image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else }}
+  image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+  {{ end }}
+  {{- else }}
+  image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+  {{ end }}
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: 9004
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    failureThreshold: 200
+  imagePullPolicy: Always
+  args: ["waterfowl"]
+  ports:
+    - name: tcp-api
+      containerPort: 9004
+      protocol: TCP
+  {{- with.Values.kubecostAggregator.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  resources:
+    {{- toYaml .Values.kubecostAggregator.resources | nindent 4 }}
+
+  volumeMounts:
+    - name: persistent-configs
+      mountPath: /var/configs
+    {{- $etlBackupBucketSecret := "" }}
+    {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
+    {{- end }}
+    {{- if $etlBackupBucketSecret }}
+    - name: etl-bucket-config
+      mountPath: /var/configs/etl
+      readOnly: true
+    {{- else if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
+    - name: persistent-db
+      mountPath: /var/db
+      # aggregator should only need read access to ETL data
+      readOnly: true
+    {{- end }}
+    {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
+    - name: aggregator-storage
+      mountPath: /var/configs/waterfowl/duckdb
+    {{- end }}
+
+  env:
+    {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
+    - name: CLUSTER_ID
+      value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+    {{- end }}
+    {{- if .Values.prometheus.server.clusterIDConfigmap }}
+    - name: CLUSTER_ID
+      valueFrom:
+        configMapKeyRef:
+          name: {{ .Values.prometheus.server.clusterIDConfigmap }}
+          key: CLUSTER_ID
+    {{- end }}
+    {{- if .Values.kubecostAggregator.jaeger.enabled }}
+    - name: TRACING_URL
+      value: "http://localhost:14268/api/traces"
+    {{- end }}
+    - name: CONFIG_PATH
+      value: /var/configs/
+    {{- if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
+    - name: ETL_PATH_PREFIX
+      value: "/var/db"
+    {{- end }}
+    - name: ETL_ENABLED
+      value: "false" # this container should never run KC's concept of "ETL"
+    - name: CLOUD_PROVIDER_API_KEY
+      value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+  {{- if .Values.systemProxy.enabled }}
+    - name: HTTP_PROXY
+      value: {{ .Values.systemProxy.httpProxyUrl }}
+    - name: http_proxy
+      value: {{ .Values.systemProxy.httpProxyUrl }}
+    - name: HTTPS_PROXY
+      value:  {{ .Values.systemProxy.httpsProxyUrl }}
+    - name: https_proxy
+      value:  {{ .Values.systemProxy.httpsProxyUrl }}
+    - name: NO_PROXY
+      value:  {{ .Values.systemProxy.noProxy }}
+    - name: no_proxy
+      value:  {{ .Values.systemProxy.noProxy }}
+    {{- end }}
+    {{- if .Values.kubecostAggregator.extraEnv -}}
+    {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
+    {{- end }}
+    {{- if $etlBackupBucketSecret }}
+    # If this isn't set, we pretty much have to be in a read only state,
+    # initialization will probably fail otherwise.
+    - name: ETL_BUCKET_CONFIG
+      {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
+      value: "/var/configs/etl/object-store.yaml"
+      {{- else  }}
+      value: "/var/configs/etl/federated-store.yaml"
+    - name: FEDERATED_STORE_CONFIG
+      value: "/var/configs/etl/federated-store.yaml"
+    - name: FEDERATED_PRIMARY_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
+      value: "true"
+    - name: FEDERATED_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
+      value: "true"
+      {{- end }}
+    {{- end }}
+
+    {{- range $key, $value := .Values.kubecostAggregator.env }}
+    - name: {{ $key | quote }}
+      value: {{ $value | quote }}
+    {{- end }}
+    - name: KUBECOST_NAMESPACE
+      value: {{ .Release.Namespace }}
+{{- end }}
+
+
 {{- define "aggregator.jaeger.sidecarContainerTemplate" }}
 - name: embedded-jaeger
   securityContext:
-    {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 12 }}
+    {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 4 }}
   image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
 {{- end }}
