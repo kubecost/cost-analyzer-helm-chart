@@ -475,8 +475,6 @@ kubecostModel:
   outOfClusterPromMetricsEnabled: false
   # Build local cost allocation cache
   warmCache: false
-  # Build local savings cache
-  warmSavingsCache: true
   # Run allocation ETL pipelines
   etl: true
   # Enable the ETL filestore backing storage
