@@ -530,3 +530,10 @@ Create the name of the service account to use for the server component
     {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
   {{ end }}
 {{ end }}
+
+{{- define "aggregator.jaeger.sidecarContainerTemplate" }}
+- name: embedded-jaeger
+  securityContext:
+    {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 12 }}
+  image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
+{{- end }}
