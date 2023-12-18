@@ -352,3 +352,10 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
     {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
   {{ end }}
 {{ end }}
+
+{{- define "aggregator.jaeger.sidecarContainerTemplate" }}
+- name: embedded-jaeger
+  securityContext:
+    {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 12 }}
+  image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
+{{- end }}

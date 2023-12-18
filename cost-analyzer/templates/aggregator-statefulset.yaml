@@ -80,12 +80,6 @@ spec:
         {{- fail "Kubecost Aggregator requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
       containers:
-      {{- if .Values.kubecostAggregator.jaeger.enabled }}
-        - name: embedded-jaeger
-          securityContext:
-            {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 12 }}
-          image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
-      {{- end }}
         - name: aggregator
         {{- if .Values.kubecostAggregator.containerSecurityContext }}
           securityContext:
@@ -198,6 +192,9 @@ spec:
             {{- end }}
             - name: KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
+        {{- if .Values.kubecostAggregator.jaeger.enabled }}
+        {{ template "aggregator.jaeger.sidecarContainerTemplate" }}
+        {{- end }}
 
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
