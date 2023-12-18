@@ -807,7 +807,7 @@ spec:
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_ENABLED
-              value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
+              value: "false"
             - name: ETL_ENABLED
               value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
             {{- if .Values.kubecostModel.etlReadOnlyMode }}
