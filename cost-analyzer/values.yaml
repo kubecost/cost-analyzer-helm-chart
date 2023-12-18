@@ -968,8 +968,6 @@ kubecostDeployment:
   statefulSet:
     enabled: false
   replicas: 1
-  leaderFollower:
-    enabled: false
   # deploymentStrategy:
   #   rollingUpdate:
   #     maxSurge: 1
