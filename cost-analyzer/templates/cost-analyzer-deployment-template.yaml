@@ -506,21 +506,23 @@ spec:
         {{- end }}
           resources:
 {{ toYaml .Values.kubecostModel.resources | indent 12 }}
+          {{- if .Values.kubecostModel.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
-          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
+            initialDelaySeconds: {{ .Values.kubecostModel.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.kubecostModel.readinessProbe.periodSeconds}}
+            failureThreshold: {{ .Values.kubecostModel.readinessProbe.failureThreshold}}
+          {{- end }}
+          {{- if .Values.kubecostModel.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
+            initialDelaySeconds: {{ .Values.kubecostModel.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.kubecostModel.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.kubecostModel.livenessProbe.failureThreshold }}
           {{- end }}
           {{- if .Values.global.containerSecuritycontext }}
           securityContext:
@@ -1149,10 +1151,10 @@ spec:
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
         {{- else }}
         - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
-        {{ end }}
+        {{- end }}
           {{- if .Values.kubecostFrontend.tls }}
           {{- if .Values.kubecostFrontend.tls.enabled }}
           command: ["nginx", "-g", "daemon off;"]
@@ -1198,13 +1200,15 @@ spec:
         {{- else }}
           imagePullPolicy: Always
         {{- end }}
+          {{- if .Values.kubecostFrontend.readinessProbe.enabled }}
           readinessProbe:
             httpGet:
               path: /healthz
               port: 9003
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 200
+            initialDelaySeconds: {{ .Values.kubecostFrontend.readinessProbe.initialDelaySeconds  }}
+            periodSeconds: {{ .Values.kubecostFrontend.readinessProbe.periodSeconds  }}
+            failureThreshold: {{ .Values.kubecostFrontend.readinessProbe.failureThreshold  }}
+            {{- end }}
           {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
