@@ -1,4 +1,3 @@
-{{- if (.Values.kubecostModel.etlToDisk | default true) -}}
 {{- if .Values.persistentVolume -}}
 {{- if not .Values.persistentVolume.dbExistingClaim -}}
 {{- if .Values.persistentVolume.enabled -}}
@@ -30,7 +29,6 @@ spec:
     {{- else }}
       storage: 32.0Gi
     {{ end }}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}

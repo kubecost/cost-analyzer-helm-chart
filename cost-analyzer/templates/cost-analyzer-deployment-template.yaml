@@ -280,7 +280,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-{{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+{{- if .Values.persistentVolume.dbPVEnabled }}
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -310,15 +310,15 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+          {{- if .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
-          {{- end}}
+          {{- end }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -530,7 +530,7 @@ spec:
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
-            {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- else if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
