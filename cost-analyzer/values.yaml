@@ -2218,7 +2218,17 @@ kubecostDeployment:
 ## enabled when recommended by Kubecost staff.
 ##
 kubecostAggregator:
+  # deployMethod determines how Aggregator is deployed. Current options are
+  # "singlepod" (within cost-analyzer Pod) and "statefulset" (separate
+  # StatefulSet).
+  deployMethod: "singlepod"
+
+  # For legacy configuration support, `enabled: true` overrides deployMethod
+  # and causes `deployMethod: "statefulset"`
   enabled: false
+
+  # Replicas sets the number of Aggregator replicas. It only has an effect if
+  # `deployMethod: "statefulset"`
   replicas: 1
   ## Creates a new pod to retrieve CloudCost data. By default it uses the same
   ## serviceaccount as the cost-analyzer pod. A custom serviceaccount can be
@@ -2232,17 +2242,22 @@ kubecostAggregator:
     imageVersion: latest
     # containerSecurityContext:
   # fullImageName:
-  resources: {}
+  resources:
+    # TODO: Benchmark requests to determine minimal
+    # stable set.
+    requests:
+      cpu: "1000m"
+      memory: "2Gi"
   env:
     "LOG_LEVEL": "info"
+    "DB_READ_THREADS": "1"
+    "DB_WRITE_THREADS": "1"
+    "DB_MEMORY_LIMIT": "500MB"
+    "DB_CONCURRENT_INGESTION_COUNT": "3"
   persistentConfigsStorage:
     # default storage class
     storageClass: ""
     storageRequest: 1Gi
-  aggregatorStorage:
-    # default storage class
-    storageClass: ""
-    storageRequest: 20Gi
   aggregatorDbStorage:
     # default storage class
     storageClass: ""

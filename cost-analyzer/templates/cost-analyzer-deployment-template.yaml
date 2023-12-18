@@ -1038,10 +1038,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-            {{- if .Values.kubecostAggregator.enabled }}
             - name: WATERFOWL_ENABLED
               value: "true"
-            {{- end }}
         {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
@@ -1122,6 +1120,15 @@ spec:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
           {{- end }}
         {{ end }}
+
+        {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
+        {{- include "aggregator.containerTemplate" . | nindent 8 }}
+
+        {{- if .Values.kubecostAggregator.jaeger.enabled }}
+        {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
