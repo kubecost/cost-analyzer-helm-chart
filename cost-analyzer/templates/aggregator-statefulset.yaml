@@ -1,4 +1,4 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostAggregator) }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 
 apiVersion: apps/v1
