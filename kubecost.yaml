@@ -19,6 +19,20 @@ metadata:
   name: kubecost-grafana
   namespace: kubecost
 ---
+# Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubecost
+  name: kubecost-kube-state-metrics
+  namespace: kubecost
+imagePullSecrets:
+  []
+---
 # Source: cost-analyzer/charts/prometheus/templates/node-exporter-serviceaccount.yaml
 apiVersion: v1
 kind: ServiceAccount
@@ -52,9 +66,8 @@ metadata:
   name: kubecost-cost-analyzer
   namespace: kubecost
   labels:
-
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -129,20 +142,20 @@ data:
     provisioning = /etc/grafana/provisioning
     [server]
     root_url = %(protocol)s://%(domain)s:%(http_port)s/grafana
-    serve_from_sub_path = false
+    serve_from_sub_path = true
   datasources.yaml: |
     apiVersion: 1
     datasources:
+    - access: proxy
+      isDefault: false
+      name: prometheus-kubecost
+      type: prometheus
+      url: http://kubecost-prometheus-server.kubecost.svc.cluster.local
     - access: proxy
       isDefault: true
       name: Prometheus
       type: prometheus
       url: http://kubecost-prometheus-server.kubecost.svc
-      jsonData:
-        httpMethod: POST
-        prometheusType: Prometheus
-        prometheusVersion: 2.35.0
-        timeInterval: 1m
 ---
 # Source: cost-analyzer/charts/prometheus/templates/server-configmap.yaml
 apiVersion: v1
@@ -248,7 +261,7 @@ data:
         source_labels:
         - __meta_kubernetes_service_annotation_prometheus_io_scrape
       - action: keep
-        regex: (.*kube-state-metrics|.*node-exporter|kubecost-network-costs)
+        regex: (.*kube-state-metrics|.*prometheus-node-exporter|kubecost-network-costs)
         source_labels:
         - __meta_kubernetes_endpoints_name
       - action: replace
@@ -282,6 +295,84 @@ data:
         source_labels:
         - __meta_kubernetes_pod_node_name
         target_label: kubernetes_node
+    - job_name: kubernetes-service-endpoints-slow
+      kubernetes_sd_configs:
+      - role: endpoints
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scrape_slow
+      - action: replace
+        regex: (https?)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_scheme
+        target_label: __scheme__
+      - action: replace
+        regex: (.+)
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_path
+        target_label: __metrics_path__
+      - action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        source_labels:
+        - __address__
+        - __meta_kubernetes_service_annotation_prometheus_io_port
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_service_name
+        target_label: kubernetes_name
+      - action: replace
+        source_labels:
+        - __meta_kubernetes_pod_node_name
+        target_label: kubernetes_node
+      scrape_interval: 5m
+      scrape_timeout: 30s
+    - honor_labels: true
+      job_name: prometheus-pushgateway
+      kubernetes_sd_configs:
+      - role: service
+      relabel_configs:
+      - action: keep
+        regex: pushgateway
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+    - job_name: kubernetes-services
+      kubernetes_sd_configs:
+      - role: service
+      metrics_path: /probe
+      params:
+        module:
+        - http_2xx
+      relabel_configs:
+      - action: keep
+        regex: true
+        source_labels:
+        - __meta_kubernetes_service_annotation_prometheus_io_probe
+      - source_labels:
+        - __address__
+        target_label: __param_target
+      - replacement: blackbox
+        target_label: __address__
+      - source_labels:
+        - __param_target
+        target_label: instance
+      - action: labelmap
+        regex: __meta_kubernetes_service_label_(.+)
+      - source_labels:
+        - __meta_kubernetes_namespace
+        target_label: kubernetes_namespace
+      - source_labels:
+        - __meta_kubernetes_service_name
+        target_label: kubernetes_name
     - job_name: kubecost
       honor_labels: true
       scrape_interval: 1m
@@ -298,12 +389,9 @@ data:
         - role: pod
       relabel_configs:
       # Scrape only the the targets matching the following metadata
-        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_instance]
+        - source_labels: [__meta_kubernetes_pod_label_app]
           action: keep
-          regex:  kubecost
-        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
-          action: keep
-          regex:  network-costs
+          regex:  kubecost-network-costs
 
   recording_rules.yml: |
     {}
@@ -355,7 +443,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -373,7 +461,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -430,9 +518,8 @@ data:
         server_name _;
         root /var/www;
         index index.html;
-
-        add_header Cache-Control "must-revalidate";
         large_client_header_buffers 4 32k;
+        add_header Cache-Control "must-revalidate";
 
         error_page 504 /custom_504.html;
         location = /custom_504.html {
@@ -442,7 +529,7 @@ data:
         location / {
             try_files $uri $uri/ /index.html;
         }
-        add_header ETag "1.108.0";
+        add_header ETag "1.104.1";
         listen 9090;
         listen [::]:9090;
         location /api/ {
@@ -454,9 +541,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
-            proxy_connect_timeout       300;
-            proxy_send_timeout          300;
-            proxy_read_timeout          300;
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -527,28 +614,6 @@ data:
             proxy_set_header Host $http_host;
         }
 
-
-    # Query Service Replicas (QSR) proxy
-
-        location = /model/hideOrphanedResources {
-            default_type 'application/json';
-            return 200 '{"hideOrphanedResources": "false"}';
-        }
-        location = /model/hideDiagnostics {
-            default_type 'application/json';
-            return 200 '{"hideDiagnostics": "false"}';
-        }
-
-        location /model/multi-cluster-diagnostics-enabled {
-            default_type 'application/json';
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
-        }
-
-        location /model/aggregatorEnabled {
-            default_type 'application/json';
-            return 200 '{"aggregatorEnabled": "false"}';
-        }
-
     }
 ---
 # Source: cost-analyzer/templates/grafana-attached-disk-metrics-template.yaml
@@ -559,7 +624,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -682,7 +747,7 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "max(container_fs_limit_bytes{instance=~'$disk', device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance)",
+                  "expr": "sum(container_fs_limit_bytes{instance=~'$disk', device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance)",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -779,7 +844,7 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance) / max(container_fs_limit_bytes{instance=~'$disk',device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id,instance)",
+                  "expr": "sum(container_fs_usage_bytes{instance=~'$disk',id=\"/\", cluster_id=~'$cluster'}) by (cluster_id, instance) / sum(container_fs_limit_bytes{instance=~'$disk',device!=\"tmpfs\", id=\"/\", cluster_id=~'$cluster'}) by (cluster_id,instance)",
                   "format": "time_series",
                   "interval": "",
                   "intervalFactor": 1,
@@ -1111,7 +1176,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -2811,7 +2876,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -3435,7 +3500,7 @@ data:
                 "pluginVersion": "8.3.2",
                 "targets": [
                   {
-                    "expr": "SUM(container_memory_working_set_bytes{name!=\"POD\", container!=\"\", namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
+                    "expr": "SUM(container_memory_usage_bytes{namespace!=\"\"}) / SUM(kube_node_status_allocatable{resource=\"memory\", unit=\"byte\"}) * 100",
                     "format": "time_series",
                     "interval": "",
                     "intervalFactor": 1,
@@ -6025,7 +6090,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7429,7 +7494,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -7855,7 +7920,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -9018,7 +9083,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -10211,7 +10276,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -11618,7 +11683,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -11632,611 +11697,809 @@ data:
             "list": [
               {
                 "builtIn": 1,
-                "datasource": {
-                  "type": "datasource",
-                  "uid": "grafana"
-                },
+                "datasource": "-- Grafana --",
                 "enable": true,
                 "hide": true,
                 "iconColor": "rgba(0, 211, 255, 1)",
                 "name": "Annotations & Alerts",
-                "target": {
-                  "limit": 100,
-                  "matchAny": false,
-                  "tags": [],
-                  "type": "dashboard"
-                },
                 "type": "dashboard"
               }
             ]
           },
-          "description": "",
+          "description": "Visualize your kubernetes costs at the pod level.",
           "editable": true,
-          "fiscalYearStartMonth": 0,
           "gnetId": 9063,
           "graphTooltip": 0,
-          "id": 11,
+          "iteration": 1616382275479,
           "links": [],
-          "liveNow": false,
           "panels": [
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "description": "Maximum CPU Core Usage vs Requested",
+              "columns": [
+                {
+                  "text": "Avg",
+                  "value": "avg"
+                }
+              ],
+              "datasource": "${datasource}",
               "fieldConfig": {
                 "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 0,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "none"
+                  "custom": {}
                 },
                 "overrides": []
               },
+              "fontSize": "100%",
               "gridPos": {
-                "h": 7,
-                "w": 12,
+                "h": 5,
+                "w": 24,
                 "x": 0,
                 "y": 0
               },
-              "id": 94,
+              "hideTimeOverride": true,
+              "id": 98,
               "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "max"
+              "pageSize": 5,
+              "repeatDirection": "v",
+              "scroll": true,
+              "showHeader": true,
+              "sort": {
+                "col": 6,
+                "desc": true
+              },
+              "styles": [
+                {
+                  "alias": "Container",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(50, 172, 45, 0.97)",
+                    "#c15c17"
                   ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "pluginVersion": "9.4.7",
-              "targets": [
-                {
-                  "datasource": {
-                    "type": "prometheus",
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "max(irate(\r\n  container_cpu_usage_seconds_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
-                  "format": "time_series",
-                  "hide": false,
-                  "instant": false,
-                  "interval": "",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (usage max)",
-                  "metric": "container_cpu",
-                  "refId": "A",
-                  "step": 10
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "link": false,
+                  "pattern": "container_name",
+                  "thresholds": [
+                    "30",
+                    "80"
+                  ],
+                  "type": "string",
+                  "unit": "currencyUSD"
                 },
                 {
-                  "datasource": {
-                    "type": "prometheus",
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "exemplar": true,
-                  "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby (cluster_id, namespace, pod, container)",
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
-                  "range": true,
-                  "refId": "B"
-                }
-              ],
-              "timeFrom": "",
-              "title": "CPU Core Usage vs Requested",
-              "type": "timeseries"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "description": "Max Memory usage vs avg requested",
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 0,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
+                  "alias": "Memory Allocation",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(237, 129, 40, 0.89)",
+                    "rgba(50, 172, 45, 0.97)"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "pattern": "Value #B",
+                  "thresholds": [],
+                  "type": "number",
                   "unit": "bytes"
                 },
+                {
+                  "alias": "CPU Allocation",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(237, 129, 40, 0.89)",
+                    "rgba(50, 172, 45, 0.97)"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "mappingType": 1,
+                  "pattern": "Value #A",
+                  "thresholds": [],
+                  "type": "number",
+                  "unit": "none"
+                },
+                {
+                  "alias": "",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(237, 129, 40, 0.89)",
+                    "rgba(50, 172, 45, 0.97)"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "mappingType": 1,
+                  "pattern": "Time",
+                  "thresholds": [],
+                  "type": "hidden",
+                  "unit": "short"
+                },
+                {
+                  "alias": "Memory ($/hour)",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(237, 129, 40, 0.89)",
+                    "rgba(50, 172, 45, 0.97)"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "mappingType": 1,
+                  "pattern": "Value #C",
+                  "thresholds": [],
+                  "type": "number",
+                  "unit": "currencyUSD"
+                },
+                {
+                  "alias": "Spot/PE RAM",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "rgba(245, 54, 54, 0.9)",
+                    "rgba(237, 129, 40, 0.89)",
+                    "rgba(50, 172, 45, 0.97)"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "mappingType": 1,
+                  "pattern": "Value #D",
+                  "thresholds": [],
+                  "type": "number",
+                  "unit": "currencyUSD"
+                },
+                {
+                  "alias": "Total",
+                  "align": "auto",
+                  "colorMode": null,
+                  "colors": [
+                    "#bf1b00",
+                    "rgba(50, 172, 45, 0.97)",
+                    "#ef843c"
+                  ],
+                  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+                  "decimals": 2,
+                  "mappingType": 1,
+                  "pattern": "Value #E",
+                  "thresholds": [
+                    ""
+                  ],
+                  "type": "number",
+                  "unit": "currencyUSD"
+                }
+              ],
+              "targets": [
+                {
+                  "expr": "sum(\n  avg_over_time(container_memory_allocation_bytes{namespace=\"$namespace\", pod=\"$pod\", container!=\"POD\"}[$__range])\n) by (container,node)",
+                  "format": "table",
+                  "instant": true,
+                  "intervalFactor": 1,
+                  "refId": "B"
+                },
+                {
+                  "expr": "sum(\n  avg_over_time(container_cpu_allocation{namespace=\"$namespace\", pod=\"$pod\", container!=\"POD\"}[$__range])\n  or up * 0 \n) by (container,node)",
+                  "format": "table",
+                  "hide": false,
+                  "instant": true,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "",
+                  "refId": "A"
+                }
+              ],
+              "timeFrom": "1M",
+              "timeShift": null,
+              "title": "Container cost  & allocation analysis",
+              "transform": "table",
+              "type": "table-old"
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "${datasource}",
+              "decimals": 3,
+              "description": "This graph attempts to show you CPU use of your application vs its requests",
+              "editable": true,
+              "error": false,
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {}
+                },
                 "overrides": []
               },
+              "fill": 0,
+              "fillGradient": 0,
+              "grid": {},
+              "gridPos": {
+                "h": 7,
+                "w": 12,
+                "x": 0,
+                "y": 5
+              },
+              "height": "",
+              "hiddenSeries": false,
+              "id": 94,
+              "isNew": true,
+              "legend": {
+                "alignAsTable": false,
+                "avg": false,
+                "current": false,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": false,
+                "min": false,
+                "rightSide": false,
+                "show": true,
+                "sideWidth": null,
+                "sort": "current",
+                "sortDesc": true,
+                "total": false,
+                "values": true
+              },
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "connected",
+              "percentage": false,
+              "pluginVersion": "7.1.1",
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": true,
+              "targets": [
+                {
+                  "expr": "avg (rate (container_cpu_usage_seconds_total{namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (container_name)",
+                  "format": "time_series",
+                  "hide": false,
+                  "instant": false,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "{{ container_name }} (usage)",
+                  "metric": "container_cpu",
+                  "refId": "A",
+                  "step": 10
+                },
+                {
+                  "exemplar": true,
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", namespace=~\"$namespace\", pod=~\"$pod\", container!=\"POD\"}) by (container)",
+                  "legendFormat": "{{ container}} (request)",
+                  "refId": "B"
+                }
+              ],
+              "thresholds": [],
+              "timeFrom": "",
+              "timeRegions": [],
+              "timeShift": null,
+              "title": "CPU Usage vs Requested",
+              "tooltip": {
+                "msResolution": true,
+                "shared": true,
+                "sort": 2,
+                "value_type": "cumulative"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "none",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": "0",
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            },
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "${datasource}",
+              "decimals": 3,
+              "description": "This graph attempts to show you RAM use of your application vs its requests",
+              "editable": true,
+              "error": false,
+              "fieldConfig": {
+                "defaults": {
+                  "custom": {}
+                },
+                "overrides": []
+              },
+              "fill": 0,
+              "fillGradient": 0,
+              "grid": {},
               "gridPos": {
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 0
+                "y": 5
               },
+              "height": "",
+              "hiddenSeries": false,
               "id": 96,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "asc"
-                }
+              "isNew": true,
+              "legend": {
+                "alignAsTable": false,
+                "avg": false,
+                "current": false,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": false,
+                "min": false,
+                "rightSide": false,
+                "show": true,
+                "sideWidth": null,
+                "sort": "current",
+                "sortDesc": true,
+                "total": false,
+                "values": true
               },
-              "pluginVersion": "9.4.7",
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "connected",
+              "percentage": false,
+              "pluginVersion": "7.1.1",
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": true,
               "targets": [
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "max(max_over_time(\r\n  container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+                  "expr": "avg (avg_over_time (container_memory_working_set_bytes{namespace=\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\",container_name!=\"\"}[1m])) by (container_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (usage max)",
+                  "legendFormat": "{{ container_name }} (usage)",
                   "metric": "container_cpu",
                   "refId": "A",
                   "step": 10
                 },
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "avg(\n  kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\", container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", namespace=~\"$namespace\", pod=\"$pod\", container!=\"POD\"}) by (container)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
+                  "legendFormat": "{{ container }} (requested)",
                   "refId": "B"
                 }
               ],
+              "thresholds": [],
               "timeFrom": "",
-              "title": "Memory Usage vs Requested",
-              "type": "timeseries"
+              "timeRegions": [],
+              "timeShift": null,
+              "title": "RAM Usage vs Requested",
+              "tooltip": {
+                "msResolution": true,
+                "shared": true,
+                "sort": 2,
+                "value_type": "cumulative"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "bytes",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": "0",
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
             },
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "description": "Network traffic by pod",
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "${datasource}",
+              "decimals": 2,
+              "description": "Traffic in and out of this pod, as a sum of its containers",
+              "editable": true,
+              "error": false,
               "fieldConfig": {
                 "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "Bps"
+                  "custom": {}
                 },
                 "overrides": []
               },
+              "fill": 1,
+              "fillGradient": 0,
+              "grid": {},
               "gridPos": {
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 7
+                "y": 12
               },
+              "height": "",
+              "hiddenSeries": false,
               "id": 95,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "desc"
-                }
+              "isNew": true,
+              "legend": {
+                "alignAsTable": false,
+                "avg": true,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": false,
+                "min": false,
+                "rightSide": false,
+                "show": true,
+                "sideWidth": null,
+                "sort": "current",
+                "sortDesc": true,
+                "total": false,
+                "values": true
               },
-              "pluginVersion": "9.4.7",
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "connected",
+              "percentage": false,
+              "pluginVersion": "7.1.1",
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
               "targets": [
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "sum(irate(container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+                  "expr": "avg (rate (container_network_receive_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}<- in",
+                  "legendFormat": "<- in",
                   "metric": "container_cpu",
                   "refId": "A",
                   "step": 10
                 },
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "- sum(irate(container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+                  "expr": "- avg (rate (container_network_transmit_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}-> out",
+                  "legendFormat": "-> out",
                   "refId": "B"
                 }
               ],
+              "thresholds": [],
               "timeFrom": "",
+              "timeRegions": [],
+              "timeShift": null,
               "title": "Network IO",
-              "type": "timeseries"
+              "tooltip": {
+                "msResolution": true,
+                "shared": true,
+                "sort": 2,
+                "value_type": "cumulative"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "Bps",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
             },
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "${datasource}",
+              "decimals": 2,
               "description": "Disk read writes",
+              "editable": true,
+              "error": false,
               "fieldConfig": {
                 "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "Bps"
+                  "custom": {}
                 },
                 "overrides": []
               },
+              "fill": 1,
+              "fillGradient": 0,
+              "grid": {},
               "gridPos": {
                 "h": 7,
                 "w": 12,
                 "x": 12,
-                "y": 7
+                "y": 12
               },
+              "height": "",
+              "hiddenSeries": false,
               "id": 97,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "desc"
-                }
+              "isNew": true,
+              "legend": {
+                "alignAsTable": false,
+                "avg": true,
+                "current": true,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": false,
+                "min": false,
+                "rightSide": false,
+                "show": true,
+                "sideWidth": null,
+                "sort": "current",
+                "sortDesc": true,
+                "total": false,
+                "values": true
               },
-              "pluginVersion": "9.4.7",
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "connected",
+              "percentage": false,
+              "pluginVersion": "7.1.1",
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
               "targets": [
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+                  "expr": "avg (rate (container_fs_writes_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}}<- write",
+                  "legendFormat": "<- write",
                   "metric": "container_cpu",
                   "refId": "A",
                   "step": 10
                 },
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+                  "expr": "- avg (rate (container_fs_reads_bytes_total{namespace=\"$namespace\",pod_name=\"$pod\"}[10m])) by (pod_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}}-> read",
+                  "legendFormat": "-> read",
                   "refId": "B"
                 }
               ],
+              "thresholds": [],
               "timeFrom": "",
+              "timeRegions": [],
+              "timeShift": null,
               "title": "Disk IO",
-              "type": "timeseries"
+              "tooltip": {
+                "msResolution": true,
+                "shared": true,
+                "sort": 2,
+                "value_type": "cumulative"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "Bps",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
             },
             {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "${datasource}",
+              "decimals": 3,
               "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
+              "editable": true,
+              "error": false,
               "fieldConfig": {
                 "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 0,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 1800000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "min": 0,
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "percent"
+                  "custom": {}
                 },
                 "overrides": []
               },
+              "fill": 0,
+              "fillGradient": 0,
+              "grid": {},
               "gridPos": {
                 "h": 7,
                 "w": 12,
                 "x": 0,
-                "y": 14
+                "y": 19
               },
+              "height": "",
+              "hiddenSeries": false,
               "id": 99,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "desc"
-                }
+              "isNew": true,
+              "legend": {
+                "alignAsTable": false,
+                "avg": false,
+                "current": false,
+                "hideEmpty": false,
+                "hideZero": false,
+                "max": false,
+                "min": false,
+                "rightSide": false,
+                "show": true,
+                "sideWidth": null,
+                "sort": "current",
+                "sortDesc": true,
+                "total": false,
+                "values": true
               },
-              "pluginVersion": "9.4.7",
+              "lines": true,
+              "linewidth": 2,
+              "links": [],
+              "nullPointMode": "connected",
+              "percentage": false,
+              "pluginVersion": "7.1.1",
+              "pointradius": 5,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": true,
               "targets": [
                 {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))",
+                  "expr": "100\n  * sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))\n  / sum by(container_name, pod_name, namespace) (increase(container_cpu_cfs_periods_total{container_name!=\"\",namespace=~\"$namespace\", pod_name=\"$pod\", container_name!=\"POD\"}[5m]))",
                   "format": "time_series",
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "__auto",
+                  "legendFormat": "{{container_name}}",
                   "refId": "B"
                 }
               ],
+              "thresholds": [],
               "timeFrom": "",
+              "timeRegions": [],
+              "timeShift": null,
               "title": "CPU throttle percent",
-              "type": "timeseries"
+              "tooltip": {
+                "msResolution": true,
+                "shared": true,
+                "sort": 2,
+                "value_type": "cumulative"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "none",
+                  "label": "",
+                  "logBase": 1,
+                  "max": null,
+                  "min": "0",
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": false
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
             }
           ],
-          "refresh": "",
-          "revision": 1,
-          "schemaVersion": 38,
+          "refresh": false,
+          "schemaVersion": 26,
           "style": "dark",
           "tags": [
             "cost",
@@ -12246,77 +12509,80 @@ data:
           "templating": {
             "list": [
               {
+                "allValue": null,
                 "current": {
-                  "selected": false,
-                  "text": "Prometheus",
-                  "value": "Prometheus"
+                  "selected": true,
+                  "text": "kube-system",
+                  "value": "kube-system"
                 },
+                "datasource": "${datasource}",
+                "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
                 "hide": 0,
                 "includeAll": false,
-                "multi": false,
-                "name": "datasource",
-                "options": [],
-                "query": "prometheus",
-                "queryValue": "",
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": false,
-                "type": "datasource"
-              },
-              {
-                "current": {
-                  "selected": false,
-                  "text": "All",
-                  "value": "$__all"
-                },
-                "datasource": {
-                  "uid": "${datasource}"
-                },
-                "definition": "label_values(kube_namespace_labels, namespace) ",
-                "hide": 0,
-                "includeAll": true,
-                "label": "",
+                "label": "ns",
                 "multi": false,
                 "name": "namespace",
                 "options": [],
-                "query": {
-                  "query": "label_values(kube_namespace_labels, namespace) ",
-                  "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
+                "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (namespace))",
+                "refresh": 1,
+                "regex": "/namespace=\\\"(.*?)(\\\")/",
                 "skipUrlSync": false,
-                "sort": 5,
+                "sort": 0,
                 "tagValuesQuery": "",
+                "tags": [],
                 "tagsQuery": "",
                 "type": "query",
                 "useTags": false
               },
               {
+                "allValue": null,
                 "current": {
-                  "selected": false,
-                  "text": "All",
-                  "value": "$__all"
+                  "selected": true,
+                  "text": "heapster-gke-5759dc947d-ctckh",
+                  "value": "heapster-gke-5759dc947d-ctckh"
                 },
-                "datasource": {
-                  "uid": "${datasource}"
-                },
-                "definition": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
+                "datasource": "${datasource}",
+                "definition": "",
                 "hide": 0,
-                "includeAll": true,
+                "includeAll": false,
                 "label": "pod",
                 "multi": false,
                 "name": "pod",
                 "options": [],
-                "query": {
-                  "query": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
-                  "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
+                "query": "query_result(sum(container_memory_working_set_bytes{namespace=\"$namespace\"}) by (pod_name))",
+                "refresh": 1,
+                "regex": "/pod_name=\\\"(.*?)(\\\")/",
                 "skipUrlSync": false,
                 "sort": 1,
                 "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
+              },
+              {
+                "allValue": null,
+                "current": {
+                  "isNone": true,
+                  "selected": false,
+                  "text": "None",
+                  "value": ""
+                },
+                "datasource": "${datasource}",
+                "definition": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+                "hide": 0,
+                "includeAll": false,
+                "label": "",
+                "multi": false,
+                "name": "cluster",
+                "options": [],
+                "query": "query_result(sum(container_memory_working_set_bytes{namespace!=\"\"}) by (cluster_id))",
+                "refresh": 1,
+                "regex": "/cluster_id=\\\"(.*?)(\\\")/",
+                "skipUrlSync": false,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tags": [],
                 "tagsQuery": "",
                 "type": "query",
                 "useTags": false
@@ -12324,33 +12590,26 @@ data:
               {
                 "current": {
                   "selected": false,
-                  "text": "All",
-                  "value": "$__all"
+                  "text": "default-kubecost",
+                  "value": "default-kubecost"
                 },
-                "datasource": {
-                  "type": "prometheus",
-                  "uid": "${datasource}"
-                },
-                "definition": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+                "error": null,
                 "hide": 0,
-                "includeAll": true,
+                "includeAll": false,
+                "label": null,
                 "multi": false,
-                "name": "container",
+                "name": "datasource",
                 "options": [],
-                "query": {
-                  "query": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
-                  "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
+                "query": "prometheus",
+                "refresh": 1,
                 "regex": "",
                 "skipUrlSync": false,
-                "sort": 5,
-                "type": "query"
+                "type": "datasource"
               }
             ]
           },
           "time": {
-            "from": "now-2d",
+            "from": "now-24h",
             "to": "now"
           },
           "timepicker": {
@@ -12379,10 +12638,9 @@ data:
             ]
           },
           "timezone": "browser",
-          "title": "Pod utilization metrics",
+          "title": "Pod cost & utilization metrics",
           "uid": "at-cost-analysis-pod",
-          "version": 2,
-          "weekStart": ""
+          "version": 1
         }
 ---
 # Source: cost-analyzer/templates/grafana-dashboard-prometheus-metrics-template.yaml
@@ -12393,7 +12651,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18100,7 +18358,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18136,7 +18394,7 @@ data:
           "editable": true,
           "fiscalYearStartMonth": 0,
           "graphTooltip": 0,
-          "id": 24,
+          "id": 12,
           "links": [],
           "liveNow": false,
           "panels": [
@@ -18169,8 +18427,8 @@ data:
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
-                    "drawStyle": "bars",
-                    "fillOpacity": 100,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
                     "gradientMode": "none",
                     "hideFrom": {
                       "legend": false,
@@ -18193,6 +18451,7 @@ data:
                       "mode": "off"
                     }
                   },
+                  "decimals": 2,
                   "mappings": [],
                   "thresholds": {
                     "mode": "absolute",
@@ -18207,7 +18466,7 @@ data:
                       }
                     ]
                   },
-                  "unit": "bytes"
+                  "unit": "decmbytes"
                 },
                 "overrides": []
               },
@@ -18237,8 +18496,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n {namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}\n [1h]\n ))\nby($aggregation) ",
-                  "interval": "1h",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+                  "interval": "",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "A"
@@ -18249,9 +18508,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "-sum(increase(kubecost_pod_network_egress_bytes_total\n {namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}\n [1h]\n ))\nby($aggregation) ",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
                   "hide": false,
-                  "interval": "1h",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "B"
@@ -18276,8 +18534,8 @@ data:
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
-                    "drawStyle": "bars",
-                    "fillOpacity": 100,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
                     "gradientMode": "none",
                     "hideFrom": {
                       "legend": false,
@@ -18314,7 +18572,7 @@ data:
                       }
                     ]
                   },
-                  "unit": "bytes"
+                  "unit": "decmbytes"
                 },
                 "overrides": []
               },
@@ -18344,9 +18602,9 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n  {internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}\n  [1h]\n))\nby($aggregation) ",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
                   "hide": false,
-                  "interval": "1h",
+                  "interval": "",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "A"
@@ -18357,9 +18615,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n    {internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}\n    [1h]))\nby($aggregation) ",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
                   "hide": false,
-                  "interval": "1h",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "B"
@@ -18385,8 +18642,8 @@ data:
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
-                    "drawStyle": "bars",
-                    "fillOpacity": 100,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
                     "gradientMode": "none",
                     "hideFrom": {
                       "legend": false,
@@ -18424,7 +18681,7 @@ data:
                       }
                     ]
                   },
-                  "unit": "bytes"
+                  "unit": "decmbytes"
                 },
                 "overrides": []
               },
@@ -18454,8 +18711,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n    {internet=\"false\",namespace=~\"$namespace\",cluster_id=~\"$cluster\",pod_name=~\"$pod\", sameRegion=\"false\",sameZone=\"false\"}\n    [1h]))\nby($aggregation)",
-                  "interval": "1h",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "interval": "",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "A"
@@ -18466,9 +18723,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n    {internet=\"false\", namespace=~\"$namespace\",cluster_id=~\"$cluster\",pod_name=~\"$pod\",sameRegion=\"false\", sameZone=\"false\"}\n    [1h]))\nby($aggregation) ",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
                   "hide": false,
-                  "interval": "1h",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "B"
@@ -18494,8 +18750,8 @@ data:
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
-                    "drawStyle": "bars",
-                    "fillOpacity": 100,
+                    "drawStyle": "line",
+                    "fillOpacity": 0,
                     "gradientMode": "none",
                     "hideFrom": {
                       "legend": false,
@@ -18533,7 +18789,7 @@ data:
                       }
                     ]
                   },
-                  "unit": "bytes"
+                  "unit": "decmbytes"
                 },
                 "overrides": []
               },
@@ -18563,8 +18819,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n  {internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}\n  [1h]))\nby($aggregation)",
-                  "interval": "1h",
+                  "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+                  "interval": "",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "A"
@@ -18575,9 +18831,8 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n  {internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}\n  [1h]))\nby($aggregation)",
+                  "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
                   "hide": false,
-                  "interval": "1h",
                   "legendFormat": "__auto",
                   "range": true,
                   "refId": "B"
@@ -18587,18 +18842,19 @@ data:
               "type": "timeseries"
             }
           ],
-          "refresh": "",
-          "revision": 1,
-          "schemaVersion": 38,
+          "refresh": false,
+          "schemaVersion": 37,
           "style": "dark",
           "tags": [
+        		"utilization",
+        		"metrics",
             "kubecost"
           ],
           "templating": {
             "list": [
               {
                 "current": {
-                  "selected": true,
+                  "selected": false,
                   "text": "Prometheus",
                   "value": "Prometheus"
                 },
@@ -18617,8 +18873,8 @@ data:
               {
                 "current": {
                   "selected": true,
-                  "text": "pod",
-                  "value": "pod"
+                  "text": "namespace",
+                  "value": "namespace"
                 },
                 "hide": 0,
                 "includeAll": false,
@@ -18631,17 +18887,17 @@ data:
                     "value": "cluster_id"
                   },
                   {
-                    "selected": false,
+                    "selected": true,
                     "text": "namespace",
                     "value": "namespace"
                   },
                   {
-                    "selected": true,
-                    "text": "pod",
-                    "value": "pod"
+                    "selected": false,
+                    "text": "pod_name",
+                    "value": "pod_name"
                   }
                 ],
-                "query": "cluster_id, namespace, pod",
+                "query": "cluster_id, namespace, pod_name",
                 "queryValue": "",
                 "skipUrlSync": false,
                 "type": "custom"
@@ -18675,8 +18931,8 @@ data:
               {
                 "current": {
                   "selected": false,
-                  "text": "kubecost",
-                  "value": "kubecost"
+                  "text": "All",
+                  "value": "$__all"
                 },
                 "datasource": {
                   "type": "prometheus",
@@ -18745,7 +19001,7 @@ data:
           "timezone": "",
           "title": "Kubecost networkCosts Metrics",
           "uid": "kubecost-networkCosts-metrics",
-          "version": 8,
+          "version": 7,
           "weekStart": ""
         }
 ---
@@ -18757,7 +19013,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -18789,12 +19045,13 @@ data:
               }
             ]
           },
-          "description": "",
+          "description": "Visualize your kubernetes costs at the pod level.",
           "editable": true,
           "fiscalYearStartMonth": 0,
           "gnetId": 9063,
           "graphTooltip": 0,
-          "id": 13,
+          "id": 16,
+          "iteration": 1674564472460,
           "links": [],
           "liveNow": false,
           "panels": [
@@ -18803,15 +19060,316 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "description": "Maximum CPU Core Usage vs avg Requested",
+              "fieldConfig": {
+                "defaults": {
+                  "color": {
+                    "mode": "thresholds"
+                  },
+                  "custom": {
+                    "align": "auto",
+                    "displayMode": "auto",
+                    "inspect": false
+                  },
+                  "mappings": [],
+                  "thresholds": {
+                    "mode": "absolute",
+                    "steps": [
+                      {
+                        "color": "green",
+                        "value": null
+                      },
+                      {
+                        "color": "red",
+                        "value": 80
+                      }
+                    ]
+                  }
+                },
+                "overrides": [
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "container_name"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Container"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "rgba(245, 54, 54, 0.9)",
+                              "value": null
+                            },
+                            {
+                              "color": "rgba(50, 172, 45, 0.97)",
+                              "value": 30
+                            },
+                            {
+                              "color": "#c15c17",
+                              "value": 80
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #memory_requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Memory Request"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "bytes"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #cpu_requests"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "CPU Request"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "none"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Time"
+                    },
+                    "properties": [
+                      {
+                        "id": "unit",
+                        "value": "short"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #C"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Memory ($/hour)"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #D"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Spot/PE RAM"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "Value #E"
+                    },
+                    "properties": [
+                      {
+                        "id": "displayName",
+                        "value": "Total"
+                      },
+                      {
+                        "id": "unit",
+                        "value": "currencyUSD"
+                      },
+                      {
+                        "id": "decimals",
+                        "value": 2
+                      },
+                      {
+                        "id": "custom.align"
+                      },
+                      {
+                        "id": "thresholds",
+                        "value": {
+                          "mode": "absolute",
+                          "steps": [
+                            {
+                              "color": "#bf1b00",
+                              "value": null
+                            },
+                            {
+                              "color": "rgba(50, 172, 45, 0.97)"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "matcher": {
+                      "id": "byName",
+                      "options": "cluster_id"
+                    },
+                    "properties": [
+                      {
+                        "id": "custom.width",
+                        "value": 226
+                      }
+                    ]
+                  }
+                ]
+              },
+              "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 0
+              },
+              "hideTimeOverride": true,
+              "id": 98,
+              "links": [],
+              "options": {
+                "footer": {
+                  "fields": "",
+                  "reducer": [
+                    "sum"
+                  ],
+                  "show": false
+                },
+                "showHeader": true,
+                "sortBy": [
+                  {
+                    "desc": true,
+                    "displayName": "Memory Request"
+                  }
+                ]
+              },
+              "pluginVersion": "9.0.2",
+              "repeatDirection": "v",
+              "targets": [
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"memory\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n) by (cluster_id, namespace, container)",
+                  "format": "table",
+                  "instant": true,
+                  "intervalFactor": 1,
+                  "refId": "memory_requests"
+                },
+                {
+                  "datasource": {
+                    "type": "prometheus",
+                    "uid": "${datasource}"
+                  },
+                  "expr": "sum(\n  avg_over_time(kube_pod_container_resource_requests{resource=\"cpu\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}[$__range])\n  or up * 0 \n) by (cluster_id, namespace, container)",
+                  "format": "table",
+                  "hide": false,
+                  "instant": true,
+                  "interval": "",
+                  "intervalFactor": 1,
+                  "legendFormat": "",
+                  "refId": "cpu_requests"
+                }
+              ],
+              "timeFrom": "1M",
+              "title": "Container cost  & allocation analysis",
+              "transformations": [
+                {
+                  "id": "merge",
+                  "options": {
+                    "reducers": []
+                  }
+                }
+              ],
+              "type": "table"
+            },
+            {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${datasource}"
+              },
+              "description": "This graph attempts to show you CPU use of your application vs its requests",
               "fieldConfig": {
                 "defaults": {
                   "color": {
                     "mode": "palette-classic"
                   },
                   "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
@@ -18823,14 +19381,14 @@ data:
                       "tooltip": false,
                       "viz": false
                     },
-                    "lineInterpolation": "linear",
+                    "lineInterpolation": "stepAfter",
                     "lineWidth": 2,
                     "pointSize": 5,
                     "scaleDistribution": {
                       "type": "linear"
                     },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
+                    "showPoints": "never",
+                    "spanNulls": true,
                     "stacking": {
                       "group": "A",
                       "mode": "none"
@@ -18860,17 +19418,15 @@ data:
               },
               "gridPos": {
                 "h": 7,
-                "w": 12,
+                "w": 24,
                 "x": 0,
-                "y": 0
+                "y": 8
               },
               "id": 94,
               "links": [],
               "options": {
                 "legend": {
-                  "calcs": [
-                    "max"
-                  ],
+                  "calcs": [],
                   "displayMode": "list",
                   "placement": "bottom",
                   "showLegend": true
@@ -18880,7 +19436,7 @@ data:
                   "sort": "desc"
                 }
               },
-              "pluginVersion": "9.4.7",
+              "pluginVersion": "9.1.0-beta1",
               "targets": [
                 {
                   "datasource": {
@@ -18888,15 +19444,15 @@ data:
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "max(irate(container_cpu_usage_seconds_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+                  "expr": "avg(rate(container_cpu_usage_seconds_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[10m])) by (cluster_id, namespace, container_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (usage max)",
+                  "legendFormat": "{{ cluster_id }}/{{container_name}} (usage)",
                   "metric": "container_cpu",
-                  "refId": "A",
+                  "refId": "usage",
                   "step": 10
                 },
                 {
@@ -18906,14 +19462,14 @@ data:
                   },
                   "editorMode": "code",
                   "exemplar": true,
-                  "expr": "avg(kube_pod_container_resource_requests\r\n  {cluster_id=\"$cluster\",resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby (cluster_id,namespace,pod,container)",
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (requested)",
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"cpu\", unit=\"core\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
+                  "legendFormat": "{{ cluster_id }}/{{ container }} (request)",
                   "range": true,
-                  "refId": "B"
+                  "refId": "requests"
                 }
               ],
               "timeFrom": "",
-              "title": "CPU Core Usage vs Requested",
+              "title": "CPU Usage vs Requested",
               "type": "timeseries"
             },
             {
@@ -18921,15 +19477,13 @@ data:
                 "type": "prometheus",
                 "uid": "${datasource}"
               },
-              "description": "Max memory used vs avg requested",
+              "description": "This graph attempts to show you RAM use of your application vs its requests",
               "fieldConfig": {
                 "defaults": {
                   "color": {
                     "mode": "palette-classic"
                   },
                   "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
@@ -18941,14 +19495,14 @@ data:
                       "tooltip": false,
                       "viz": false
                     },
-                    "lineInterpolation": "linear",
+                    "lineInterpolation": "stepAfter",
                     "lineWidth": 2,
                     "pointSize": 5,
                     "scaleDistribution": {
                       "type": "linear"
                     },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
+                    "showPoints": "never",
+                    "spanNulls": true,
                     "stacking": {
                       "group": "A",
                       "mode": "none"
@@ -18978,134 +19532,15 @@ data:
               },
               "gridPos": {
                 "h": 7,
-                "w": 12,
-                "x": 12,
-                "y": 0
+                "w": 24,
+                "x": 0,
+                "y": 15
               },
               "id": 96,
               "links": [],
               "options": {
                 "legend": {
-                  "calcs": [
-                    "max"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "asc"
-                }
-              },
-              "pluginVersion": "9.4.7",
-              "targets": [
-                {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "max(max_over_time(container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",cluster_id=\"$cluster\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
-                  "format": "time_series",
-                  "hide": false,
-                  "instant": false,
-                  "interval": "",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (usage max)",
-                  "metric": "container_cpu",
-                  "refId": "MEMORY_USAGE",
-                  "step": 10
-                },
-                {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "avg(kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\",container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
-                  "format": "time_series",
-                  "hide": false,
-                  "instant": false,
-                  "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (requested)",
-                  "refId": "MEMORY_REQUESTED"
-                }
-              ],
-              "timeFrom": "",
-              "title": "Memory Usage vs Requested",
-              "type": "timeseries"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "description": "Network traffic by pod",
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "Bps"
-                },
-                "overrides": []
-              },
-              "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 0,
-                "y": 7
-              },
-              "id": 95,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
+                  "calcs": [],
                   "displayMode": "list",
                   "placement": "bottom",
                   "showLegend": true
@@ -19115,159 +19550,42 @@ data:
                   "sort": "desc"
                 }
               },
-              "pluginVersion": "9.4.7",
+              "pluginVersion": "9.1.0-beta1",
               "targets": [
                 {
                   "datasource": {
+                    "type": "prometheus",
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "sum(irate(container_network_receive_bytes_total\n  {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+                  "expr": "avg(avg_over_time(container_memory_working_set_bytes{cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container_name!=\"POD\",container_name!=\"\"}[5m])) by (cluster_id, namespace, container_name)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}<- in",
+                  "legendFormat": "{{ cluster_id }}/{{ container_name }} (usage)",
                   "metric": "container_cpu",
                   "refId": "A",
                   "step": 10
                 },
                 {
                   "datasource": {
-                    "uid": "${datasource}"
+                    "type": "prometheus",
+                    "uid": "PBFA97CFB590B2093"
                   },
                   "editorMode": "code",
-                  "expr": "- sum(irate(container_network_transmit_bytes_total\n  {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+                  "expr": "avg(kube_pod_container_resource_requests{resource=\"memory\", unit=\"byte\", cluster_id=~\"$cluster\", namespace=~\"$namespace\", container=~\"$container\", container!=\"POD\"}) by (cluster_id, namespace, container)",
                   "format": "time_series",
                   "hide": false,
                   "instant": false,
-                  "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}-> out",
+                  "legendFormat": "{{ cluster_id }}/{{ container }} (requested)",
                   "refId": "B"
                 }
               ],
               "timeFrom": "",
-              "title": "Network IO",
-              "type": "timeseries"
-            },
-            {
-              "datasource": {
-                "type": "prometheus",
-                "uid": "${datasource}"
-              },
-              "description": "Disk read writes",
-              "fieldConfig": {
-                "defaults": {
-                  "color": {
-                    "mode": "palette-classic"
-                  },
-                  "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
-                    "axisLabel": "",
-                    "axisPlacement": "auto",
-                    "barAlignment": 0,
-                    "drawStyle": "line",
-                    "fillOpacity": 10,
-                    "gradientMode": "none",
-                    "hideFrom": {
-                      "legend": false,
-                      "tooltip": false,
-                      "viz": false
-                    },
-                    "lineInterpolation": "linear",
-                    "lineWidth": 2,
-                    "pointSize": 5,
-                    "scaleDistribution": {
-                      "type": "linear"
-                    },
-                    "showPoints": "auto",
-                    "spanNulls": 3600000,
-                    "stacking": {
-                      "group": "A",
-                      "mode": "none"
-                    },
-                    "thresholdsStyle": {
-                      "mode": "off"
-                    }
-                  },
-                  "mappings": [],
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "green",
-                        "value": null
-                      },
-                      {
-                        "color": "red",
-                        "value": 80
-                      }
-                    ]
-                  },
-                  "unit": "Bps"
-                },
-                "overrides": []
-              },
-              "gridPos": {
-                "h": 7,
-                "w": 12,
-                "x": 12,
-                "y": 7
-              },
-              "id": 97,
-              "links": [],
-              "options": {
-                "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
-                  "displayMode": "list",
-                  "placement": "bottom",
-                  "showLegend": true
-                },
-                "tooltip": {
-                  "mode": "multi",
-                  "sort": "desc"
-                }
-              },
-              "pluginVersion": "9.4.7",
-              "targets": [
-                {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
-                  "format": "time_series",
-                  "hide": false,
-                  "instant": false,
-                  "interval": "",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}}<- write",
-                  "metric": "container_cpu",
-                  "refId": "A",
-                  "step": 10
-                },
-                {
-                  "datasource": {
-                    "uid": "${datasource}"
-                  },
-                  "editorMode": "code",
-                  "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
-                  "format": "time_series",
-                  "hide": false,
-                  "instant": false,
-                  "interval": "",
-                  "intervalFactor": 1,
-                  "legendFormat": "{{cluster_id}} {{pod}}/{{container}}-> read",
-                  "refId": "B"
-                }
-              ],
-              "timeFrom": "",
-              "title": "Disk IO",
+              "title": "RAM Usage vs Requested",
               "type": "timeseries"
             },
             {
@@ -19282,8 +19600,6 @@ data:
                     "mode": "palette-classic"
                   },
                   "custom": {
-                    "axisCenteredZero": false,
-                    "axisColorMode": "text",
                     "axisLabel": "",
                     "axisPlacement": "auto",
                     "barAlignment": 0,
@@ -19295,14 +19611,14 @@ data:
                       "tooltip": false,
                       "viz": false
                     },
-                    "lineInterpolation": "linear",
+                    "lineInterpolation": "stepAfter",
                     "lineWidth": 2,
                     "pointSize": 5,
                     "scaleDistribution": {
                       "type": "linear"
                     },
-                    "showPoints": "auto",
-                    "spanNulls": 1800000,
+                    "showPoints": "never",
+                    "spanNulls": true,
                     "stacking": {
                       "group": "A",
                       "mode": "none"
@@ -19326,23 +19642,21 @@ data:
                       }
                     ]
                   },
-                  "unit": "percent"
+                  "unit": "none"
                 },
                 "overrides": []
               },
               "gridPos": {
-                "h": 7,
-                "w": 12,
+                "h": 6,
+                "w": 24,
                 "x": 0,
-                "y": 14
+                "y": 22
               },
               "id": 99,
               "links": [],
               "options": {
                 "legend": {
-                  "calcs": [
-                    "mean"
-                  ],
+                  "calcs": [],
                   "displayMode": "list",
                   "placement": "bottom",
                   "showLegend": true
@@ -19352,19 +19666,20 @@ data:
                   "sort": "desc"
                 }
               },
-              "pluginVersion": "9.4.7",
+              "pluginVersion": "9.1.0-beta1",
               "targets": [
                 {
                   "datasource": {
+                    "type": "prometheus",
                     "uid": "${datasource}"
                   },
                   "editorMode": "code",
-                  "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id,namespace,pod,container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}[$__rate_interval]))",
+                  "expr": "100\n  * sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_throttled_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))\n  / sum by(cluster_id, namespace, container_name) (increase(container_cpu_cfs_periods_total{container_name!=\"\",cluster_id=~\"$cluster\", namespace=~\"$namespace\", container_name=~\"$container\", container_name!=\"POD\"}[5m]))",
                   "format": "time_series",
                   "instant": false,
                   "interval": "",
                   "intervalFactor": 1,
-                  "legendFormat": "",
+                  "legendFormat": "{{ cluster_id }}/{{container_name}}",
                   "refId": "B"
                 }
               ],
@@ -19373,16 +19688,20 @@ data:
               "type": "timeseries"
             }
           ],
-          "refresh": "",
-          "revision": 1,
-          "schemaVersion": 38,
+          "refresh": false,
+          "schemaVersion": 36,
           "style": "dark",
-          "tags": [],
+          "tags": [
+            "cost",
+            "utilization",
+            "metrics",
+            "kubecost"
+          ],
           "templating": {
             "list": [
               {
                 "current": {
-                  "selected": false,
+                  "selected": true,
                   "text": "Thanos",
                   "value": "Thanos"
                 },
@@ -19408,30 +19727,37 @@ data:
                   "type": "prometheus",
                   "uid": "${datasource}"
                 },
-                "definition": "label_values(cluster_id)",
+                "definition": "label_values(kube_namespace_labels, cluster_id)",
                 "hide": 0,
-                "includeAll": false,
+                "includeAll": true,
+                "label": "",
                 "multi": false,
                 "name": "cluster",
                 "options": [],
                 "query": {
-                  "query": "label_values(cluster_id)",
+                  "query": "label_values(kube_namespace_labels, cluster_id)",
                   "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
                 "regex": "",
                 "skipUrlSync": false,
                 "sort": 5,
-                "type": "query"
+                "tagValuesQuery": "",
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": false
               },
               {
                 "current": {
-                  "selected": false
+                  "selected": true,
+                  "text": "kubecost",
+                  "value": "kubecost"
                 },
                 "datasource": {
+                  "type": "prometheus",
                   "uid": "${datasource}"
                 },
-                "definition": "label_values(kube_namespace_labels{cluster_id=\"$cluster\"}, namespace) ",
+                "definition": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
                 "hide": 0,
                 "includeAll": true,
                 "label": "",
@@ -19439,7 +19765,7 @@ data:
                 "name": "namespace",
                 "options": [],
                 "query": {
-                  "query": "label_values(kube_namespace_labels{cluster_id=\"$cluster\"}, namespace) ",
+                  "query": "label_values(kube_namespace_labels{cluster_id=~\"$cluster\"}, namespace) ",
                   "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -19453,36 +19779,7 @@ data:
               },
               {
                 "current": {
-                  "selected": false,
-                  "text": "All",
-                  "value": "$__all"
-                },
-                "datasource": {
-                  "uid": "${datasource}"
-                },
-                "definition": "label_values(kube_pod_labels{cluster_id=\"$cluster\",namespace=~\"$namespace\"}, pod) ",
-                "hide": 0,
-                "includeAll": true,
-                "label": "pod",
-                "multi": false,
-                "name": "pod",
-                "options": [],
-                "query": {
-                  "query": "label_values(kube_pod_labels{cluster_id=\"$cluster\",namespace=~\"$namespace\"}, pod) ",
-                  "refId": "StandardVariableQuery"
-                },
-                "refresh": 2,
-                "regex": "",
-                "skipUrlSync": false,
-                "sort": 1,
-                "tagValuesQuery": "",
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": false
-              },
-              {
-                "current": {
-                  "selected": false,
+                  "selected": true,
                   "text": "All",
                   "value": "$__all"
                 },
@@ -19490,14 +19787,14 @@ data:
                   "type": "prometheus",
                   "uid": "${datasource}"
                 },
-                "definition": "label_values(container_memory_working_set_bytes{cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+                "definition": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
                 "hide": 0,
                 "includeAll": true,
                 "multi": false,
                 "name": "container",
                 "options": [],
                 "query": {
-                  "query": "label_values(container_memory_working_set_bytes{cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+                  "query": "label_values(container_memory_working_set_bytes{cluster_id=~\"$cluster\",namespace=~\"$namespace\", container!=\"POD\"}, container) ",
                   "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -19509,7 +19806,7 @@ data:
             ]
           },
           "time": {
-            "from": "now-2d",
+            "from": "now-7d",
             "to": "now"
           },
           "timepicker": {
@@ -19538,7 +19835,7 @@ data:
             ]
           },
           "timezone": "browser",
-          "title": "Pod utilization metrics (multi-cluster)",
+          "title": "Pod cost & utilization metrics(multi-cluster)",
           "uid": "at-cost-analysis-pod2",
           "version": 2,
           "weekStart": ""
@@ -19572,7 +19869,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19597,6 +19894,118 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["configmaps"]
   verbs: ["get", "watch", "list"]
+---
+# Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/clusterrole.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubecost
+  name: kubecost-kube-state-metrics
+rules:
+
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["list", "watch"]
+
+- apiGroups: ["batch"]
+  resources:
+  - cronjobs
+  verbs: ["list", "watch"]
+
+- apiGroups: ["extensions", "apps"]
+  resources:
+  - daemonsets
+  verbs: ["list", "watch"]
+
+- apiGroups: ["extensions", "apps"]
+  resources:
+  - deployments
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - endpoints
+  verbs: ["list", "watch"]
+
+- apiGroups: ["autoscaling"]
+  resources:
+  - horizontalpodautoscalers
+  verbs: ["list", "watch"]
+
+- apiGroups: ["batch"]
+  resources:
+  - jobs
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - limitranges
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - namespaces
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - nodes
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - persistentvolumeclaims
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - persistentvolumes
+  verbs: ["list", "watch"]
+
+- apiGroups: ["policy"]
+  resources:
+    - poddisruptionbudgets
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - pods
+  verbs: ["list", "watch"]
+
+- apiGroups: ["extensions", "apps"]
+  resources:
+  - replicasets
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - replicationcontrollers
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - resourcequotas
+  verbs: ["list", "watch"]
+
+- apiGroups: [""]
+  resources:
+  - services
+  verbs: ["list", "watch"]
+
+- apiGroups: ["apps"]
+  resources:
+  - statefulsets
+  verbs: ["list", "watch"]
+
+- apiGroups: ["storage.k8s.io"]
+  resources:
+    - storageclasses
+  verbs: ["list", "watch"]
 ---
 # Source: cost-analyzer/charts/prometheus/templates/server-clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -19647,7 +20056,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19656,6 +20065,7 @@ rules:
       - ''
     resources:
       - configmaps
+      - deployments
       - nodes
       - pods
       - events
@@ -19672,6 +20082,16 @@ rules:
       - list
       - watch
   - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+      - deployments
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - apps
     resources:
       - statefulsets
@@ -19679,7 +20099,6 @@ rules:
       - daemonsets
       - replicasets
     verbs:
-      - get
       - list
       - watch
   - apiGroups:
@@ -19743,6 +20162,25 @@ roleRef:
   name: kubecost-grafana-clusterrole
   apiGroup: rbac.authorization.k8s.io
 ---
+# Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/clusterrolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.7.2
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: kubecost
+  name: kubecost-kube-state-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubecost-kube-state-metrics
+subjects:
+- kind: ServiceAccount
+  name: kubecost-kube-state-metrics
+  namespace: kubecost
+---
 # Source: cost-analyzer/charts/prometheus/templates/server-clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -19771,7 +20209,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19784,6 +20222,18 @@ subjects:
     name: kubecost-cost-analyzer
     namespace: kubecost
 ---
+# Source: cost-analyzer/charts/grafana/templates/role.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kubecost-grafana
+  namespace: kubecost
+  labels:
+    app: grafana
+    chart: grafana-1.17.2
+    heritage: Helm
+    release: kubecost
+---
 # Source: cost-analyzer/templates/cost-analyzer-cluster-role-template.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -19793,7 +20243,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19807,6 +20257,25 @@ rules:
     - list
     - watch
 ---
+# Source: cost-analyzer/charts/grafana/templates/rolebinding.yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kubecost-grafana
+  namespace: kubecost
+  labels:
+    app: grafana
+    chart: grafana-1.17.2
+    heritage: Helm
+    release: kubecost
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: kubecost-grafana
+subjects:
+- kind: ServiceAccount
+  name: kubecost-grafana
+---
 # Source: cost-analyzer/templates/cost-analyzer-cluster-role-binding-template.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -19816,7 +20285,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19851,6 +20320,30 @@ spec:
   selector:
     app: grafana
     release: kubecost
+---
+# Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubecost-kube-state-metrics
+  namespace: kubecost
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: "kube-state-metrics-2.7.2"
+    app.kubernetes.io/instance: "kubecost"
+    app.kubernetes.io/managed-by: "Helm"
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  type: "ClusterIP"
+  ports:
+  - name: "http"
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: kube-state-metrics
+    app.kubernetes.io/instance: kubecost
 ---
 # Source: cost-analyzer/charts/prometheus/templates/node-exporter-service.yaml
 apiVersion: v1
@@ -19913,7 +20406,7 @@ metadata:
   labels:
 
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -19931,7 +20424,6 @@ spec:
     - name: tcp-frontend
       port: 9090
       targetPort: 9090
-  sessionAffinity: None
 ---
 # Source: cost-analyzer/charts/prometheus/templates/node-exporter-daemonset.yaml
 apiVersion: apps/v1
@@ -19966,7 +20458,7 @@ spec:
       dnsPolicy: "ClusterFirstWithHostNet"
       containers:
         - name: prometheus-node-exporter
-          image: "prom/node-exporter:v1.7.0"
+          image: "prom/node-exporter:v1.5.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --path.procfs=/host/proc
@@ -20022,24 +20514,12 @@ spec:
     spec:
       serviceAccountName: kubecost-grafana
       securityContext:
-        fsGroup: 1001
-        fsGroupChangePolicy: OnRootMismatch
-        runAsGroup: 1001
-        runAsNonRoot: true
-        runAsUser: 1001
-        seccompProfile:
-          type: RuntimeDefault
+        fsGroup: 472
+        runAsUser: 472
       containers:
         - name: grafana-sc-dashboard
-          image: "kiwigrid/k8s-sidecar:1.25.2"
+          image: "kiwigrid/k8s-sidecar:1.23.1"
           imagePullPolicy: IfNotPresent
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           env:
             - name: LABEL
               value: "grafana_dashboard"
@@ -20047,19 +20527,14 @@ spec:
               value: "/tmp/dashboards"
             - name: ERROR_THROTTLE_SLEEP
               value: "0"
+          resources:
+            null
           volumeMounts:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
         - name: grafana
           image: "grafana/grafana:9.4.7"
           imagePullPolicy: IfNotPresent
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: config
               mountPath: "/etc/grafana/grafana.ini"
@@ -20077,6 +20552,7 @@ spec:
               subPath: provider.yaml
             - name: storage
               mountPath: "/var/lib/grafana"
+              subPath:
           ports:
             - name: service
               containerPort: 80
@@ -20126,6 +20602,123 @@ spec:
           configMap:
             name: kubecost-grafana-config-dashboards
 ---
+# Source: cost-analyzer/charts/prometheus/charts/kube-state-metrics/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubecost-kube-state-metrics
+  namespace: kubecost
+  labels:
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: "kube-state-metrics-2.7.2"
+    app.kubernetes.io/instance: "kubecost"
+    app.kubernetes.io/managed-by: "Helm"
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kube-state-metrics
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kube-state-metrics
+        app.kubernetes.io/instance: "kubecost"
+    spec:
+      hostNetwork: false
+      serviceAccountName: kubecost-kube-state-metrics
+      securityContext:
+        fsGroup: 65534
+        runAsUser: 65534
+      containers:
+      - name: kube-state-metrics
+        args:
+
+
+        - --collectors=configmaps
+
+
+        - --collectors=cronjobs
+
+
+        - --collectors=daemonsets
+
+
+        - --collectors=deployments
+
+
+        - --collectors=endpoints
+
+
+        - --collectors=horizontalpodautoscalers
+
+
+
+        - --collectors=jobs
+
+
+        - --collectors=limitranges
+
+
+
+        - --collectors=namespaces
+
+
+
+        - --collectors=nodes
+
+
+        - --collectors=persistentvolumeclaims
+
+
+        - --collectors=persistentvolumes
+
+
+        - --collectors=poddisruptionbudgets
+
+
+        - --collectors=pods
+
+
+        - --collectors=replicasets
+
+
+        - --collectors=replicationcontrollers
+
+
+        - --collectors=resourcequotas
+
+
+
+        - --collectors=services
+
+
+        - --collectors=statefulsets
+
+
+        - --collectors=storageclasses
+
+
+
+
+
+
+        imagePullPolicy: IfNotPresent
+        image: "registry.k8s.io/kube-state-metrics/kube-state-metrics:v1.9.8"
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          timeoutSeconds: 5
+---
 # Source: cost-analyzer/charts/prometheus/templates/server-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
@@ -20159,27 +20752,20 @@ spec:
       serviceAccountName: kubecost-prometheus-server
       containers:
         - name: prometheus-server-configmap-reload
-          image: "quay.io/prometheus-operator/prometheus-config-reloader:v0.69.1"
+          image: "jimmidyson/configmap-reload:v0.7.1"
           imagePullPolicy: "IfNotPresent"
           args:
-            - --watched-dir=/etc/config
-            - --reload-url=http://127.0.0.1:9090/-/reload
+            - --volume-dir=/etc/config
+            - --webhook-url=http://127.0.0.1:9090/-/reload
           resources:
             {}
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
               readOnly: true
 
         - name: prometheus-server
-          image: "quay.io/prometheus/prometheus:v2.47.2"
+          image: "quay.io/prometheus/prometheus:v2.35.0"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=15d
@@ -20210,13 +20796,6 @@ spec:
             successThreshold: 1
           resources:
             {}
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: config-volume
               mountPath: /etc/config
@@ -20225,12 +20804,9 @@ spec:
               subPath: ""
       securityContext:
         fsGroup: 1001
-        fsGroupChangePolicy: OnRootMismatch
         runAsGroup: 1001
         runAsNonRoot: true
         runAsUser: 1001
-        seccompProfile:
-          type: RuntimeDefault
       terminationGracePeriodSeconds: 300
       volumes:
         - name: config-volume
@@ -20247,8 +20823,9 @@ metadata:
   name: kubecost-cost-analyzer
   namespace: kubecost
   labels:
+
     app.kubernetes.io/name: cost-analyzer
-    helm.sh/chart: cost-analyzer-1.108.0
+    helm.sh/chart: cost-analyzer-1.104.1
     app.kubernetes.io/instance: kubecost
     app.kubernetes.io/managed-by: Helm
     app: cost-analyzer
@@ -20256,6 +20833,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
+
         app.kubernetes.io/name: cost-analyzer
         app.kubernetes.io/instance: kubecost
         app: cost-analyzer
@@ -20267,18 +20845,15 @@ spec:
   template:
     metadata:
       labels:
+
         app.kubernetes.io/name: cost-analyzer
         app.kubernetes.io/instance: kubecost
         app: cost-analyzer
     spec:
       securityContext:
-        fsGroup: 1001
-        fsGroupChangePolicy: OnRootMismatch
-        runAsGroup: 1001
-        runAsNonRoot: true
         runAsUser: 1001
-        seccompProfile:
-          type: RuntimeDefault
+        runAsGroup: 1001
+        fsGroup: 1001
       restartPolicy: Always
       serviceAccountName: kubecost-cost-analyzer
       volumes:
@@ -20293,16 +20868,11 @@ spec:
         - name: persistent-configs
           persistentVolumeClaim:
             claimName: kubecost-cost-analyzer
+      initContainers:
       containers:
-        - image: gcr.io/kubecost1/cost-model:prod-1.108.0
+        - image: gcr.io/kubecost1/cost-model:prod-1.104.1
+
           name: cost-model
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           imagePullPolicy: Always
           ports:
           - name: tcp-model
@@ -20350,6 +20920,8 @@ spec:
               value: /var/db/
             - name: CLUSTER_PROFILE
               value: production
+            - name: REMOTE_WRITE_PASSWORD
+              value: admin
             - name: EMIT_POD_ANNOTATIONS_METRIC
               value: "false"
             - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
@@ -20374,16 +20946,22 @@ spec:
               value: "false"
             - name: CACHE_WARMING_ENABLED
               value: "false"
-            - name: SAVINGS_ENABLED
+            - name: SAVINGS_CACHE_WARMING_ENABLED
               value: "true"
             - name: ETL_ENABLED
               value: "true"
             - name: ETL_STORE_READ_ONLY
               value: "false"
             - name : ETL_CLOUD_USAGE_ENABLED
-              value: "false"
+              value: "true"
             - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
               value: "false"
+            - name: ETL_CLOUD_REFRESH_RATE_HOURS
+              value: "6"
+            - name: ETL_CLOUD_QUERY_WINDOW_DAYS
+              value: "7"
+            - name: ETL_CLOUD_RUN_WINDOW_DAYS
+              value: "3"
             - name: ETL_RESOLUTION_SECONDS
               value: "300"
             - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
@@ -20408,12 +20986,6 @@ spec:
               value: ""
             - name: CLOUD_COST_TOP_N
               value: "1000"
-            - name: CLOUD_COST_REFRESH_RATE_HOURS
-              value: "6"
-            - name: CLOUD_COST_QUERY_WINDOW_DAYS
-              value: "7"
-            - name: CLOUD_COST_RUN_WINDOW_DAYS
-              value: "3"
             - name: CONTAINER_STATS_ENABLED
               value: "false"
             - name: RECONCILE_NETWORK
@@ -20425,7 +20997,7 @@ spec:
             - name: MAX_QUERY_CONCURRENCY
               value: "5"
             - name: UTC_OFFSET
-              value: "+00:00"
+              value: "0"
             - name: CLUSTER_ID
               value: cluster-one
             - name: SQL_ADDRESS
@@ -20446,19 +21018,12 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.108.0
+        - image: gcr.io/kubecost1/frontend:prod-1.104.1
 
           env:
             - name: GET_HOSTS_FROM
               value: dns
           name: cost-analyzer-frontend
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-              - ALL
-            privileged: false
-            readOnlyRootFilesystem: true
           volumeMounts:
             - name: tmp
               mountPath: /tmp

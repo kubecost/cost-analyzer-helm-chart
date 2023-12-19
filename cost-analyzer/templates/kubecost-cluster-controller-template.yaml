@@ -219,7 +219,7 @@ metadata:
   name: {{ template "kubecost.clusterControllerName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 spec:
   strategy:
     rollingUpdate:
@@ -233,21 +233,13 @@ spec:
     metadata:
       labels:
         app: {{ template "kubecost.clusterControllerName" . }}
-      {{- with .Values.global.podAnnotations}}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
     spec:
       {{- if .Values.clusterController.priorityClassName }}
       priorityClassName: "{{ .Values.clusterController.priorityClassName }}"
       {{- end }}
       containers:
       - name: {{ template "kubecost.clusterControllerName" . }}
-        {{- if eq (typeOf .Values.clusterController.image) "string" }}
         image: {{ .Values.clusterController.image }}
-        {{- else }}
-        image: {{ .Values.clusterController.image.repository }}:{{ .Values.clusterController.image.tag }}
-        {{- end}}
         imagePullPolicy: {{ .Values.clusterController.imagePullPolicy }}
         volumeMounts:
         - name: cluster-controller-keys
@@ -289,10 +281,6 @@ spec:
           hostPort: 9731
       serviceAccount: {{ template "kubecost.clusterControllerName" . }}
       serviceAccountName: {{ template "kubecost.clusterControllerName" . }}
-      {{- with .Values.clusterController.tolerations }}
-      tolerations:
-      {{- toYaml . | nindent 8 }}
-      {{- end }}
       volumes:
       - name: cluster-controller-keys
         secret:

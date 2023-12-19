@@ -25,7 +25,7 @@ livenessProbe:
 
 image:
   repository: grafana/grafana
-  tag: 10.2.2
+  tag: 9.4.7
   pullPolicy: IfNotPresent
 
   ## Optionally specify an array of imagePullSecrets.
@@ -35,9 +35,9 @@ image:
   # pullSecrets:
   #   - myRegistrKeySecretName
 
-securityContext: {}
-  # runAsUser: 472
-  # fsGroup: 472
+securityContext:
+  runAsUser: 472
+  fsGroup: 472
 
 downloadDashboardsImage:
   repository: curlimages/curl
@@ -258,9 +258,15 @@ smtp:
 sidecar:
   image:
     repository: kiwigrid/k8s-sidecar
-    tag: 1.25.3
+    tag: 1.25.0
     pullPolicy: IfNotPresent
-  resources: {}
+  resources:
+#   limits:
+#     cpu: 100m
+#     memory: 100Mi
+#   requests:
+#     cpu: 50m
+#     memory: 50Mi
   dashboards:
     enabled: false
     # label that the configmaps with dashboards are marked with

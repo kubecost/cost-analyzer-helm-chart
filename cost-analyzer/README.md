@@ -1,36 +1,12 @@
-# Kubecost Helm chart
+# Kubecost helm chart
+Helm chart for the Kubecost project, which is created to monitor and manage Kubernetes resource spend. Please contact team@kubecost.com or visit [kubecost.com](http://kubecost.com) for more info.
 
-This is the official Helm chart for [Kubecost](https://www.kubecost.com/), an enterprise-grade application to monitor and manage Kubernetes spend. Please see the [website](https://www.kubecost.com/) for more details on what Kubecost can do for you and the official documentation [here](https://docs.kubecost.com/), or contact [team@kubecost.com](mailto:team@kubecost.com) for assistance.
+While Helm is the [recommended install path](http://kubecost.com/install), these resources can also be deployed with the following command:<a name="manifest"></a>
 
-To install via Helm, run the following command.
+`kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/master/kubecost.yaml --namespace kubecost`
 
-```sh
-helm upgrade --install kubecost -n kubecost --create-namespace \
-  --repo https://kubecost.github.io/cost-analyzer/ cost-analyzer \
-  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
-```
-
-Alternatively, add the Helm repository first and scan for updates.
-
-```sh
-helm repo add kubecost https://kubecost.github.io/cost-analyzer/
-helm repo update
-```
-
-Next, install the chart.
-
-```sh
-helm install kubecost kubecost/cost-analyzer -n kubecost --create-namespace \
-  --set kubecostToken="aGVsbUBrdWJlY29zdC5jb20=xm343yadf98"
-```
-
-While Helm is the [recommended install path](http://kubecost.com/install) for Kubecost especially in production, Kubecost can alternatively be deployed with a single-file manifest using the following command. Keep in mind when choosing this method, Kubecost will be installed from a development branch and may include unreleased changes.
-
-```sh
-kubectl apply -f https://raw.githubusercontent.com/kubecost/cost-analyzer-helm-chart/develop/kubecost.yaml
-```
-
-The following table lists commonly used configuration parameters for the Kubecost Helm chart and their default values. Please see the [values file](values.yaml) for the complete set of definable values.
+<a name="config-options"></a><br/>
+The following table lists the commonly used configurable parameters of the Kubecost Helm chart and their default values.
 
 | Parameter                                                                          | Description                                                                                                                                                  | Default                                               |
 |------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------|
@@ -79,77 +55,16 @@ The following table lists commonly used configuration parameters for the Kubecos
 | `clusterController.fqdn`                                                           | Customize the upstream cluster controller FQDN                                                                                                               | `computed in terms of the service name and namespace` |
 | `global.grafana.fqdn`                                                              | Customize the upstream grafana FQDN                                                                                                                          | `computed in terms of the release name and namespace` |
 
-## Adjusting Log Output
-
-The log output can be customized during deployment by using the `LOG_LEVEL` and/or `LOG_FORMAT` environment variables.
-
-### Adjusting Log Level
-
-Adjusting the log level increases or decreases the level of verbosity written to the logs. To set the log level to `trace`, the following flag can be added to the `helm` command.
-
-```sh
---set 'kubecostModel.extraEnv[0].name=LOG_LEVEL,kubecostModel.extraEnv[0].value=trace'
-```
-
-### Adjusting Log Format
-
-Adjusting the log format changes the format in which the logs are output making it easier for log aggregators to parse and display logged messages. The `LOG_FORMAT` environment variable accepts the values `JSON`, for a structured output, and `pretty` for a nice, human-readable output.
-
-| Value  | Output                                                                                                                     |
-|--------|----------------------------------------------------------------------------------------------------------------------------|
-| `JSON`   | `{"level":"info","time":"2006-01-02T15:04:05.999999999Z07:00","message":"Starting cost-model (git commit \"1.91.0-rc.0\")"}` |
-| `pretty` | `2006-01-02T15:04:05.999999999Z07:00 INF Starting cost-model (git commit "1.91.0-rc.0")`                                     |
-
 ## Testing
 To perform local testing do next:
 - install locally [kind](https://github.com/kubernetes-sigs/kind) according to documentation.
 - install locally [ct](https://github.com/helm/chart-testing) according to documentation.
 - create local cluster using `kind` \
-use image version from https://github.com/kubernetes-sigs/kind/releases e.g. `kindest/node:v1.25.11@sha256:227fa11ce74ea76a0474eeefb84cb75d8dad1b08638371ecf0e86259b35be0c8`
+use image version from [kind docker registry](https://hub.docker.com/r/kindest/node/tags?page=1)
 ```shell
-kind create cluster --image kindest/node:v1.25.11@sha256:227fa11ce74ea76a0474eeefb84cb75d8dad1b08638371ecf0e86259b35be0c8
+kind create cluster --image kindest/node:<set-image-tag>
 ```
 - perform ct execution
 ```shell
-ct install  --chart-dirs="." --charts="."
+ct install  --chart-dirs="." --charts="." --helm-repo-extra-args="--set=global.prometheus.enabled=false --set=global.grafana.enabled=false"
 ```
-
-- perform ct StatefulSet execution
-
-```shell
-# create multiple nodes kind config
-cat > kind-config.yaml <<EOF
-kind: Cluster
-apiVersion: kind.x-k8s.io/v1alpha4
-nodes:
-- role: control-plane
-- role: worker
-- role: worker
-EOF
-# creaet kind cluster with kind config
-kind create cluster --name kubecost-statefulset --config kind-config.yaml --image kindest/node:v1.25.11@sha256:227fa11ce74ea76a0474eeefb84cb75d8dad1b08638371ecf0e86259b35be0c8
-# deploy an object storage for our testing purpose (https://min.io/docs/minio/kubernetes/upstream/index.html)
-curl --silent https://raw.githubusercontent.com/minio/docs/master/source/extra/examples/minio-dev.yaml  | sed -e "s/kubealpha.local/kubecost-statefulset-worker/" -e "s%minio server /data%mkdir -p /data/kubecost; minio server /data%" | kubectl apply -f -
-# create a headless service to the minio S3 API port
-kubectl create service clusterip -n minio-dev minio --tcp=9000:9000 --clusterip="None"
-# create our testing namespace
-kubectl create namespace kubecost-statefulset
-# create the bucket config 
-cat > etlBucketConfigSecret.yaml <<EOF
-type: s3
-config:
-  bucket: kubecost
-  endpoint: minio.minio-dev:9000
-  insecure: true
-  access_key: minioadmin
-  secret_key: minioadmin
-EOF
-# create the secret with the object-store.yaml
-kubectl create secret generic -n kubecost-statefulset object-store --from-file=object-store.yaml=etlBucketConfigSecret.yaml
-# start our chart-testing
-ct install --namespace kubecost-statefulset --chart-dirs="." --charts="." --helm-extra-set-args="--set=global.prometheus.enabled=true --set=global.grafana.enabled=true --set=kubecostDeployment.leaderFollower.enabled=true --set=kubecostDeployment.statefulSet.enabled=true --set=kubecostDeployment.replicas=2 --set=kubecostModel.etlBucketConfigSecret=object-store"
-# cleanup
-kind delete cluster --name kubecost-statefulset 
-```
-
-

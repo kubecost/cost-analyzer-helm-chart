@@ -10,16 +10,13 @@ metadata:
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
   annotations:
-  {{- with .Values.networkCosts.podSecurityPolicy.annotations }}
-    {{ toYaml . | indent 4 }}
-  {{- end }}
+{{- if .Values.networkCosts.podSecurityPolicy.annotations }}
+{{ toYaml .Values.networkCosts.podSecurityPolicy.annotations | indent 4 }}
+{{- end }}
 rules:
-- apiGroups:
-  - extensions
-  resources:
-  - podsecuritypolicies
-  verbs:
-  - use
+- apiGroups: ['extensions']
+  resources: ['podsecuritypolicies']
+  verbs: ['use']
   resourceNames:
   - {{ template "cost-analyzer.fullname" . }}-network-costs
 {{- end }}

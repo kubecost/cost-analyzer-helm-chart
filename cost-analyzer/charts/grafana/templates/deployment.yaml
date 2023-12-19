@@ -32,29 +32,26 @@ spec:
         {{- if .Values.global.additionalLabels }}
         {{ toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}
-      {{- with .Values.podAnnotations }}
+{{- with .Values.podAnnotations }}
       annotations:
-      {{ toYaml . | indent 8 }}
-      {{- end }}
+{{ toYaml . | indent 8 }}
+{{- end }}
     spec:
       serviceAccountName: {{ template "grafana.serviceAccountName" . }}
-    {{- if .Values.schedulerName }}
+{{- if .Values.schedulerName }}
       schedulerName: "{{ .Values.schedulerName }}"
-    {{- end }}
-    {{- if .Values.securityContext }}
+{{- end }}
+{{- if .Values.global.securityContext }}
       securityContext:
-    {{- toYaml .Values.securityContext | nindent 8 }}
-    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
+{{- toYaml .Values.global.securityContext | nindent 8 }}
+{{- else if .Values.securityContext }}
       securityContext:
-    {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
-    {{- else if .Values.global.securityContext }}
-      securityContext:
-    {{- toYaml .Values.global.securityContext | nindent 8 }}
-    {{- end }}
-    {{- if .Values.priorityClassName }}
+{{- toYaml .Values.securityContext | nindent 8 }}
+{{- end }}
+{{- if .Values.priorityClassName }}
       priorityClassName: "{{ .Values.priorityClassName }}"
-    {{- end }}
-    {{- if .Values.dashboards }}
+{{- end }}
+{{- if .Values.dashboards }}
       initContainers:
         - name: download-dashboards
           image: "{{ .Values.downloadDashboardsImage.repository }}:{{ .Values.downloadDashboardsImage.tag }}"
@@ -70,15 +67,13 @@ spec:
               subPath: download_dashboards.sh
             - name: storage
               mountPath: "/var/lib/grafana"
-              {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
-              {{- end }}
           {{- range .Values.extraSecretMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}
               readOnly: {{ .readOnly }}
           {{- end }}
-    {{- end }}
+{{- end }}
       {{- if .Values.image.pullSecrets }}
       imagePullSecrets:
       {{- range .Values.image.pullSecrets }}
@@ -86,7 +81,7 @@ spec:
       {{- end}}
       {{- end }}
       containers:
-      {{- if .Values.sidecar.dashboards.enabled }}
+{{- if .Values.sidecar.dashboards.enabled }}
         - name: {{ template "grafana.name" . }}-sc-dashboard
           image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
           imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
@@ -101,15 +96,13 @@ spec:
               value: "{{ .Values.sidecar.dashboards.folder }}"
             - name: ERROR_THROTTLE_SLEEP
               value: "{{ .Values.sidecar.dashboards.error_throttle_sleep }}"
-          {{- with .Values.sidecar.resources }}
           resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+{{ toYaml .Values.sidecar.resources | indent 12 }}
           volumeMounts:
             - name: sc-dashboard-volume
               mountPath: {{ .Values.sidecar.dashboards.folder | quote }}
-      {{- end}}
-      {{- if .Values.sidecar.datasources.enabled }}
+{{- end}}
+{{- if .Values.sidecar.datasources.enabled }}
         - name: {{ template "grafana.name" . }}-sc-datasources
           image: "{{ .Values.sidecar.image.repository }}:{{ .Values.sidecar.image.tag }}"
           imagePullPolicy: {{ .Values.sidecar.image.pullPolicy }}
@@ -125,11 +118,11 @@ spec:
             - name: ERROR_THROTTLE_SLEEP
               value: "{{ .Values.sidecar.datasources.error_throttle_sleep }}"
           resources:
-            {{ toYaml .Values.sidecar.resources | indent 12 }}
+{{ toYaml .Values.sidecar.resources | indent 12 }}
           volumeMounts:
             - name: sc-datasources-volume
               mountPath: "/etc/grafana/provisioning/datasources"
-      {{- end}}
+{{- end}}
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -184,9 +177,7 @@ spec:
 {{- end}}
             - name: storage
               mountPath: "/var/lib/grafana"
-              {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
-              {{- end }}
           {{- range .Values.extraSecretMounts }}
             - name: {{ .name }}
               mountPath: {{ .mountPath }}

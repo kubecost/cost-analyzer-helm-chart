@@ -307,6 +307,8 @@ alertmanager:
     type: ClusterIP
 
 ## Monitors ConfigMap changes and POSTs to a URL
+## Ref: https://github.com/jimmidyson/configmap-reload
+##
 configmapReload:
   prometheus:
     ## If false, the configmap-reload container will not be deployed
@@ -320,8 +322,8 @@ configmapReload:
     ## configmap-reload container image
     ##
     image:
-      repository: quay.io/prometheus-operator/prometheus-config-reloader
-      tag: v0.70.0
+      repository: jimmidyson/configmap-reload
+      tag: v0.7.1
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -351,7 +353,7 @@ configmapReload:
   alertmanager:
     ## If false, the configmap-reload container will not be deployed
     ##
-    enabled: false
+    enabled: true
 
     ## configmap-reload container name
     ##
@@ -360,8 +362,8 @@ configmapReload:
     ## configmap-reload container image
     ##
     image:
-      repository: quay.io/prometheus-operator/prometheus-config-reloader
-      tag: v0.70.0
+      repository: jimmidyson/configmap-reload
+      tag: v0.7.1
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -418,7 +420,7 @@ nodeExporter:
   ##
   image:
     repository: prom/node-exporter
-    tag: v1.7.0
+    tag: v1.5.0
     pullPolicy: IfNotPresent
 
   ## Specify if a Pod Security Policy for node-exporter must be created
@@ -543,7 +545,7 @@ server:
   ##
   image:
     repository: quay.io/prometheus/prometheus
-    tag: v2.48.1
+    tag: v2.35.0
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
@@ -865,11 +867,11 @@ server:
 
   ## Security context to be added to server pods
   ##
-  securityContext: {}
-    # runAsUser: 1001
-    # runAsNonRoot: true
-    # runAsGroup: 1001
-    # fsGroup: 1001
+  securityContext:
+    runAsUser: 1001
+    runAsNonRoot: true
+    runAsGroup: 1001
+    fsGroup: 1001
 
   containerSecurityContext: {}
 
@@ -928,7 +930,7 @@ pushgateway:
   ##
   image:
     repository: prom/pushgateway
-    tag: v1.6.2
+    tag: v1.5.1
     pullPolicy: IfNotPresent
 
   ## pushgateway priorityClassName
@@ -1270,7 +1272,7 @@ serverFiles:
 
         metric_relabel_configs:
           - source_labels: [ __name__ ]
-            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha
+            regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha 
             action: keep
 
       # Scrape config for service endpoints.

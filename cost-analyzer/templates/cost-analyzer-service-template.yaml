@@ -31,10 +31,6 @@ spec:
     - name: tcp-model
       port: 9003
       targetPort: 9003
-  {{- with .Values.kubecostModel.extraPorts }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-    {{- if .Values.kubecostFrontend.enabled }}
     - name: tcp-frontend
       {{- if .Values.kubecostFrontend.tls }}
       {{- if .Values.kubecostFrontend.tls.enabled }}
@@ -63,7 +59,6 @@ spec:
       {{- end }}
       {{- end }}
       {{- end }}
-    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     - name: apiserver
@@ -78,14 +73,4 @@ spec:
       targetPort: 9004
     {{- end }}
     {{- end }}
-{{- if .Values.service.sessionAffinity.enabled }}
-  sessionAffinity: ClientIP
-  {{- if .Values.service.sessionAffinity.timeoutSeconds }}
-  sessionAffinityConfig:
-    clientIP:
-      timeoutSeconds: {{ .Values.service.sessionAffinity.timeoutSeconds }}
-  {{- end }}
-{{- else }}
-  sessionAffinity: None
-{{- end }}
 {{- end }}

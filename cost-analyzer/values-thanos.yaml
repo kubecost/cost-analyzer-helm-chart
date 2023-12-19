@@ -17,10 +17,9 @@ prometheus:
       storage.tsdb.min-block-duration: 2h
       storage.tsdb.max-block-duration: 2h
       storage.tsdb.retention: 2w
-    # these were previously being set by default.
-    # securityContext:
-    #   runAsNonRoot: true
-    #   runAsUser: 1001
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1001
     extraVolumes:
     - name: object-store-volume
       secret:
@@ -29,14 +28,13 @@ prometheus:
     enableAdminApi: true
     sidecarContainers:
     - name: thanos-sidecar
-      image: thanosio/thanos:v0.32.5
-      # these were previously being set by default.
-      # securityContext:
-      #   allowPrivilegeEscalation: false
-      #   readOnlyRootFilesystem: true
-      #   capabilities:
-      #     drop:
-      #     - ALL
+      image: thanosio/thanos:v0.29.0
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+          - ALL
       args:
       - sidecar
       - --log.level=debug

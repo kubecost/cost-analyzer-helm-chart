@@ -14,6 +14,9 @@ spec:
       {{- include "cost-analyzer.selectorLabels" . | nindent 6 }}
   policyTypes:
   - Egress
+  egress:
+  - to:
+    - namespaceSelector: {}
 {{- else }}
 {{- if .Values.networkPolicy.sameNamespace}}
 metadata:

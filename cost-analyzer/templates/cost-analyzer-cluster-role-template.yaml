@@ -29,6 +29,7 @@ rules:
       - ''
     resources:
       - configmaps
+      - deployments
       - nodes
       - pods
       - events
@@ -40,6 +41,16 @@ rules:
       - persistentvolumes
       - namespaces
       - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+      - deployments
+      - replicasets
     verbs:
       - get
       - list
@@ -61,7 +72,6 @@ rules:
       - daemonsets
       - replicasets
     verbs:
-      - get
       - list
       - watch
   - apiGroups:

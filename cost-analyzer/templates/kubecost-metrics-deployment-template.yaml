@@ -32,10 +32,12 @@ spec:
 {{- with .Values.kubecostMetrics.exporter.labels }}
 {{ toYaml . | indent 8 }}
 {{- end }}
-      {{- with .Values.global.podAnnotations}}
+{{- if .Values.global.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+{{- with .Values.global.podAnnotations }}
+{{ toYaml . | indent 8 }}
+{{- end }}
+{{- end }}
     spec:
       {{- if .Values.kubecostFrontend.tls }}
       {{- if .Values.kubecostFrontend.tls.enabled }}
@@ -75,7 +77,7 @@ spec:
           secret:
             secretName: {{ .Values.kubecostProductConfigs.gcpSecretName }}
             items:
-            - key: {{ .Values.kubecostProductConfigs.gcpSecretKeyName | default "compute-viewer-kubecost-key.json" }}
+            - key: compute-viewer-kubecost-key.json
               path: service-key.json
         {{- end }}
         {{- if .Values.kubecostProductConfigs.serviceKeySecretName }}

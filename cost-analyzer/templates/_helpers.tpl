@@ -11,15 +11,6 @@ Expand the name of the chart.
 {{- define "federator.name" -}}
 {{- default "federator" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- define "aggregator.name" -}}
-{{- default "aggregator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- define "cloudCost.name" -}}
-{{- default "cloud-cost" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- define "etlUtils.name" -}}
-{{- default "etl-utils" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -47,28 +38,8 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "diagnostics.fullname" -}}
-{{- if .Values.diagnosticsFullnameOverride -}}
-{{- .Values.diagnosticsFullnameOverride | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- end -}}
-
 {{- define "federator.fullname" -}}
 {{- printf "%s-%s" .Release.Name "federator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "aggregator.fullname" -}}
-{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "cloudCost.fullname" -}}
-{{- printf "%s-%s" .Release.Name (include "cloudCost.name" .) | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{- define "etlUtils.fullname" -}}
-{{- printf "%s-%s" .Release.Name (include "etlUtils.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -117,50 +88,6 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name "query-service-load-balancer" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "diagnostics.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- define "aggregator.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "aggregator" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-{{- define "cloudCost.serviceName" -}}
-{{ include "cloudCost.fullname" . }}
-{{- end -}}
-{{- define "etlUtils.serviceName" -}}
-{{ include "etlUtils.fullname" . }}
-{{- end -}}
-
-{{/*
-Create the name of the service account
-*/}}
-{{- define "cost-analyzer.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "query-service.serviceAccountName" -}}
-{{- if .Values.kubecostDeployment.queryService.serviceAccount.create -}}
-    {{ default (include "query-service.fullname" .) .Values.kubecostDeployment.queryService.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.kubecostDeployment.queryService.serviceAccount.name }}
-{{- end -}}
-{{- end -}}
-{{- define "aggregator.serviceAccountName" -}}
-{{- if .Values.kubecostAggregator.serviceAccountName -}}
-    {{ .Values.kubecostAggregator.serviceAccountName }}
-{{- else -}}
-    {{ template "cost-analyzer.serviceAccountName" . }}
-{{- end -}}
-{{- end -}}
-{{- define "cloudCost.serviceAccountName" -}}
-{{- if .Values.kubecostAggregator.cloudCost.serviceAccountName -}}
-    {{ .Values.kubecostAggregator.cloudCost.serviceAccountName }}
-{{- else -}}
-    {{ template "cost-analyzer.serviceAccountName" . }}
-{{- end -}}
-{{- end -}}
 {{/*
 Network Costs name used to tie autodiscovery of metrics to daemon set pods
 */}}
@@ -183,19 +110,8 @@ Network Costs name used to tie autodiscovery of metrics to daemon set pods
 {{- end -}}
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "cost-analyzer.chart" -}}
-{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
 Create the chart labels.
 */}}
-{{- define "cost-analyzer.chartLabels" -}}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
 {{- define "kubecost.chartLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
@@ -214,13 +130,32 @@ helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
-{{- define "kubecost.aggregator.chartLabels" -}}
-app.kubernetes.io/name: {{ include "aggregator.name" . }}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "cost-analyzer.chart" -}}
+{{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Create the name of the service account
+*/}}
+{{- define "cost-analyzer.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "cost-analyzer.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
+{{- define "query-service.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create -}}
+    {{ default (include "query-service.fullname" .) .Values.serviceAccount.name }}
+{{- else -}}
+    {{ default "default" .Values.serviceAccount.name }}
+{{- end -}}
+{{- end -}}
 
 {{/*
 Create the common labels.
@@ -240,44 +175,6 @@ app: query-service
 {{ include "kubecost.federator.chartLabels" . }}
 app: federator
 {{- end -}}
-{{- define "aggregator.commonLabels" -}}
-{{ include "cost-analyzer.chartLabels" . }}
-app: aggregator
-{{- end -}}
-{{- define "diagnostics.commonLabels" -}}
-{{ include "cost-analyzer.chartLabels" . }}
-app: diagnostics
-{{- end -}}
-{{- define "cloudCost.commonLabels" -}}
-{{ include "cost-analyzer.chartLabels" . }}
-{{ include "cloudCost.selectorLabels" . }}
-{{- end -}}
-{{- define "etlUtils.commonLabels" -}}
-{{ include "cost-analyzer.chartLabels" . }}
-{{ include "etlUtils.selectorLabels" . }}
-{{- end -}}
-
-{{/*
-Create the networkcosts common labels. Note that because this is a daemonset, we don't want app.kubernetes.io/instance: to take the release name, which allows the scrape config to be static.
-*/}}
-{{- define "networkcosts.commonLabels" -}}
-app.kubernetes.io/instance: kubecost
-app.kubernetes.io/name: network-costs
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-app: {{ template "cost-analyzer.networkCostsName" . }}
-{{- end -}}
-{{- define "networkcosts.selectorLabels" -}}
-app: {{ template "cost-analyzer.networkCostsName" . }}
-{{- end }}
-{{- define "diagnostics.selectorLabels" -}}
-app.kubernetes.io/name: diagnostics
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: diagnostics
-{{- end }}
-
-{{/*
-{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -296,21 +193,6 @@ app: query-service
 app.kubernetes.io/name: {{ include "federator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: federator
-{{- end -}}
-{{- define "aggregator.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "aggregator.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: aggregator
-{{- end -}}
-{{- define "cloudCost.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "cloudCost.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ include "cloudCost.name" . }}
-{{- end -}}
-{{- define "etlUtils.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "etlUtils.name" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: {{ include "etlUtils.name" . }}
 {{- end -}}
 
 {{/*
@@ -359,9 +241,9 @@ Return the appropriate apiVersion for podsecuritypolicy.
 
 {{/*
 Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
-will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map
-is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the
-map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the
+will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map 
+is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the 
+map. If it does exist, we omit the inner map traversal iff enabled is false. This filter writes the 
 enabled only version to the output .r
 */}}
 {{- define "cost-analyzer.filter" -}}
@@ -399,8 +281,8 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
 
 {{/*
 This template runs the full check for leader/follower requirements in order to determine
-whether it should be configured. This template will return true if it's enabled and all
-requirements are met.
+whether it should be configured. This template will return true if it's enabled and all 
+requirements are met. 
 */}}
 {{- define "cost-analyzer.leaderFollowerEnabled" }}
     {{- if .Values.kubecostDeployment }}

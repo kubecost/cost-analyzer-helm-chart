@@ -50,13 +50,13 @@ spec:
           image: "{{ .Values.configmapReload.prometheus.image.repository }}:{{ .Values.configmapReload.prometheus.image.tag }}"
           imagePullPolicy: "{{ .Values.configmapReload.prometheus.image.pullPolicy }}"
           args:
-            - --watched-dir=/etc/config
-            - --reload-url=http://127.0.0.1:9090{{ .Values.server.prefixURL }}/-/reload
+            - --volume-dir=/etc/config
+            - --webhook-url=http://127.0.0.1:9090{{ .Values.server.prefixURL }}/-/reload
           {{- range $key, $value := .Values.configmapReload.prometheus.extraArgs }}
             - --{{ $key }}={{ $value }}
           {{- end }}
           {{- range .Values.configmapReload.prometheus.extraVolumeDirs }}
-            - --watched-dir={{ . }}
+            - --volume-dir={{ . }}
           {{- end }}
           resources:
           {{- toYaml .Values.configmapReload.prometheus.resources | nindent 12 }}
@@ -173,25 +173,18 @@ spec:
       {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-        {{ toYaml .Values.imagePullSecrets | indent 0 }}
+       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
     {{- if .Values.server.nodeSelector }}
       nodeSelector:
       {{- toYaml .Values.server.nodeSelector | nindent 8 }}
     {{- end }}
-    {{- if .Values.server.securityContext }}
-      securityContext:
-        {{- if not .Values.server.securityContext.fsGroup }}
-        fsGroupChangePolicy: OnRootMismatch
-        fsGroup: 1001
-        {{- end }}
-    {{- toYaml .Values.server.securityContext | nindent 8 }}
-    {{- else if and (.Values.global.platforms.openshift.enabled) (.Values.global.platforms.openshift.securityContext) }}
-      securityContext:
-    {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
-    {{- else if .Values.global.securityContext }}
+    {{- if .Values.global.securityContext }}
       securityContext:
     {{- toYaml .Values.global.securityContext | nindent 8 }}
+    {{- else if .Values.server.securityContext }}
+      securityContext2:
+    {{- toYaml .Values.server.securityContext | nindent 8 }}
     {{- end }}
     {{- if .Values.server.tolerations }}
       tolerations:

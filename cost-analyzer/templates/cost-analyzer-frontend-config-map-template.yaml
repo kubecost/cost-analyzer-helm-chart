@@ -1,4 +1,3 @@
-{{- if .Values.kubecostFrontend.enabled }}
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $nginxPort := .Values.service.targetPort | default 9090 -}}
@@ -108,25 +107,6 @@ data:
     }
   {{- end }}
 
-  {{- if .Values.kubecostAggregator.enabled }}
-    upstream aggregator {
-        server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
-    }
-  {{- end }}
-  {{- if .Values.kubecostAggregator.cloudCost.enabled }}
-    upstream cloudCost {
-        server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
-    }
-  {{- end }}
-
-    {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-    upstream multi-cluster-diagnostics {
-        server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
-    }
-    {{- end }}
-    {{- end }}
-
     server {
         server_name _;
         root /var/www;
@@ -203,9 +183,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         location /model/ {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://model/;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -321,17 +301,11 @@ data:
         }
     {{- end }}
 
-    # Query Service Replicas (QSR) proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-
-      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
-      {{- fail "Query Service Replicas should not be used at the same time as the Kubecost Aggregator" }}
-      {{- end }}
-
         location /model/allocation {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://queryservice/allocation;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -341,9 +315,9 @@ data:
         }
 
         location /model/assets {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
+            proxy_connect_timeout       600;
+            proxy_send_timeout          600;
+            proxy_read_timeout          600;
             proxy_pass http://queryservice/assets;
             proxy_redirect off;
             proxy_http_version 1.1;
@@ -351,441 +325,11 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
-        # to get memory profile from query service need to prefix all request by queryservice/
-        # for example if you want heap dump from query service end point should be
-        # /model/queryservice/debug/pprof/heap to get queryservice heap dumps
-        location ~ /model/queryservice/(.*)$ {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_pass http://queryservice/$1;
-            proxy_redirect off;
-            proxy_http_version 1.1;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
     {{- end }}
-
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
-
-    # Aggregator proxy
-    {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-    {{- fail "The Kubecost Aggregator should not be used at the same time as Query Service Replicas" }}
-    {{- end }}
-
-        location = /model/allocation {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/allocation;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        {{- if not .Values.kubecostFrontend.trendsDisabled }}
-        location = /model/allocation/trends {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/allocation/trends;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        {{ end }}
-        location = /model/allocation/view {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/allocation/view;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/allocation/summary {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/allocation/summary;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/allocation/summary/topline {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/allocation/summary/topline;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/allocation/autocomplete {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/allocation/autocomplete;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/assets {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/assets;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/assets/topline {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/assets/topline;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/assets/graph {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/assets/graph;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/assets/totals {
-            return 501 "<b>Aggregator does not support this endpoint.</b>";
-        }
-        location = /model/assets/diff {
-            return 501 "<b>Aggregator does not support this endpoint.</b>";
-        }
-        location = /model/assets/breakdown {
-            return 501 "<b>Aggregator does not support this endpoint.</b>";
-        }
-        location = /model/assets/autocomplete {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/assets/autocomplete;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/requestSizingV2 {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/requestSizingV2;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/requestSizingV2/topline {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/requestSizingV2/topline;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/cloudCost;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/view/graph {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/cloudCost/view/graph;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/view/totals {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/cloudCost/view/totals;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/view/table {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/cloudCost/view/table;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/view/trends {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/cloudCost/view/trends;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/autocomplete {
-            proxy_read_timeout          300;
-            proxy_pass http://aggregator/cloudCost/autocomplete;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/clusters/status {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/clusters/status;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/abandonedWorkloads {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/abandonedWorkloads;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/abandonedWorkloads/topline {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/abandonedWorkloads/topline;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/unclaimedVolumes {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/unclaimedVolumes;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/localLowDisks {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/localLowDisks;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/savings/persistentVolumeSizing {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/savings/persistentVolumeSizing;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/reports/allocation {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/allocation;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/reports/asset {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/asset;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/reports/advanced {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/advanced;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/reports/cloudCost {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/cloudCost;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/reports/group {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/group;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        # this is a special case to handle /reports/group/:group in the Kubecost Aggregator. prior to aggregator, this endpoint
-        # was handled by /model/, so no special case proxies were required. without this, /model/reports/groups/?foo=bar
-        # will be directed to /reports/groups?foo=bar (note the missing /model prefix)
-        location ~ ^/model/reports/group/ {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/reports/group/$is_args$args;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/budget {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/budget;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/budgets {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/budgets;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/networkinsights {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/networkinsights;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/networkinsights/graph {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/networkinsights/graph;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-    {{- end }}
-
-        location = /model/hideOrphanedResources {
-            default_type 'application/json';
-            {{- if .Values.kubecostFrontend.hideOrphanedResources }}
-            return 200 '{"hideOrphanedResources": "true"}';
-            {{- else }}
-            return 200 '{"hideOrphanedResources": "false"}';
-            {{- end }}
-        }
-        location = /model/hideDiagnostics {
-            default_type 'application/json';
-            {{- if .Values.kubecostFrontend.hideDiagnostics }}
-            return 200 '{"hideDiagnostics": "true"}';
-            {{- else }}
-            return 200 '{"hideDiagnostics": "false"}';
-            {{- end }}
-        }
-    {{- if .Values.kubecostAggregator.cloudCost.enabled }}
-        location = /model/cloudCost/status {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/status;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/rebuild {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/rebuild;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/repair {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/repair;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/integration/export {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/export;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/integration/enable {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/enable;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location = /model/cloudCost/integration/disable {
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/disable;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-    {{- end }}
-
         {{- if .Values.kubecostFrontend.trendsDisabled }}
         location /model/allocation/trends {
             return 204 'endpoint disabled';
         }
         {{ end }}
-
-        location /model/multi-cluster-diagnostics-enabled {
-            default_type 'application/json';
-            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
-            {{- end }}
-            {{- else }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
-            {{- end }}
-        }
-        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-        location /model/multi-cluster-diagnostics {
-            default_type 'application/json';
-            proxy_read_timeout          300;
-            proxy_pass http://multi-cluster-diagnostics/status;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        # simple alias for support
-        location /model/mcd {
-            default_type 'application/json';
-            proxy_read_timeout          300;
-            proxy_pass http://multi-cluster-diagnostics/status?window=7d;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        {{- end }}
-        {{- end }}
-
-        location /model/aggregatorEnabled {
-            default_type 'application/json';
-            {{- if .Values.kubecostAggregator.enabled }}
-            return 200 '{"aggregatorEnabled": "true"}';
-            {{- else }}
-            return 200 '{"aggregatorEnabled": "false"}';
-            {{- end }}
-        }
-
     }
-{{- end }}
 {{- end }}
