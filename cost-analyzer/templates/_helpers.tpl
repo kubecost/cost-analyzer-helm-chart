@@ -591,18 +591,16 @@ Create the name of the service account to use for the server component
 {{/*
  Aggregator config reconciliation and common config
 */}}
-{{ if eq (include "aggregator.deployMethod") "statefulset" }}
+{{ if eq (include "aggregator.deployMethod" .) "statefulset" }}
   {{ if .Values.kubecostAggregator }}
     {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
       {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
     {{ end }}
   {{ end }}
 {{ end }}
-{{ if .Values.kubecostAggregator.cloudCost }}
-  {{ if .Values.kubecostAggregator.cloudCost.enabled }}
-    {{ if not (and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
-      {{ fail "If enabling Cloud Costs, a cloud integration secret must be configured" }}
-    {{ end }}
+{{ if eq (include "cloudCost.deployMethod" .) "deployment" }}
+  {{ if not (and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+    {{ fail "If using Cloud Costs in an Enterprise configuration, a cloud integration secret must be configured via Helm values." }}
   {{ end }}
 {{ end }}
 
@@ -786,11 +784,13 @@ Create the name of the service account to use for the server component
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-    - name: cloud-integration
+  {{- if (and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+    - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
   {{- else }}
-    {{- fail "Cloud Costs requires cloudIntegrationSecret to be configured" }}
+    # In this case, the cloud-integration is expected to come from the UI.
+    - name: cloud-integration
+      mountPath: /var/configs/cloud-integration
   {{- end }}
   env:
     - name: CONFIG_PATH
