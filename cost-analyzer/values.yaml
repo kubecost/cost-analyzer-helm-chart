@@ -980,8 +980,9 @@ kubecostDeployment:
 ##
 kubecostAggregator:
   # deployMethod determines how Aggregator is deployed. Current options are
-  # "singlepod" (within cost-analyzer Pod) and "statefulset" (separate
-  # StatefulSet).
+  # "singlepod" (within cost-analyzer Pod) "statefulset" (separate
+  # StatefulSet), and "disabled". Only use "disabled" if this is a secondary
+  # Federated ETL cluster which does not need to answer queries.
   deployMethod: "singlepod"
 
   # For legacy configuration support, `enabled: true` overrides deployMethod

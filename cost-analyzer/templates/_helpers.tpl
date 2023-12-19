@@ -12,6 +12,8 @@ Set important variables before starting main templates
     {{- printf "singlepod" }}
   {{- else if eq .Values.kubecostAggregator.deployMethod "statefulset" }}
     {{- printf "statefulset" }}
+  {{- else if eq .Values.kubecostAggregator.deployMethod "disabled" }}
+    {{- printf "disabled" }}
   {{- else }}
     {{- fail "Unknown kubecostAggregator.deployMethod value" }}
   {{- end }}
@@ -23,6 +25,8 @@ enable it. */}}
 {{- define "cloudCost.deployMethod" -}}
   {{ if not (or .Values.kubecostModel.cloudCost.enabled .Values.kubecostAggregator.cloudCost.enabled) }}
     {{- printf "disabled" }}
+  {{ else if eq (include "aggregator.deployMethod" .) "none" }}
+    {{- printf "disabled" }}
   {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
     {{- printf "deployment" }}
   {{- else if eq (include "aggregator.deployMethod" .) "singlepod" }}
@@ -31,6 +35,7 @@ enable it. */}}
     {{ fail "Unable to set cloudCost.deployMethod" }}
   {{- end }}
 {{- end }}
+
 
 {{/*
 Kubecost 2.0 preconditions
