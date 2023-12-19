@@ -315,7 +315,7 @@ data:
         }
     {{- end }}
 
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     # TODO make aggregator route the default, start special-casing
     # cost-model APIs
 
