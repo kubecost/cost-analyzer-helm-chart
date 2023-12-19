@@ -40,6 +40,9 @@ Kubecost 2.0 preconditions
     {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
   {{ end }}
 {{ end }}
+{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
+  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+{{ end }}
 
 
 {{/*
