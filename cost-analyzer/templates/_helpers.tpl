@@ -17,6 +17,21 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
+{{/* Cloud Cost inherits its deploy method from Aggregator. Either
+kubecostModel.cloudCost.enabled OR kubecostAggregator.cloudCost.enabled will
+enable it. */}}
+{{- define "cloudCost.deployMethod" -}}
+  {{ if and (not .Values.kubecostModel.cloudCost.enabled) (not .Values.kubecostAggregator.cloudCost.enabled) }}
+    {{- printf "disabled" }}
+  {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
+    {{- printf "deployment" }}
+  {{- else if eq (include "aggregator.deployMethod" .) "singlepod" }}
+    {{- printf "singlepod" }}
+  {{- else }}
+    {{ fail "Unable to set cloudCost.deployMethod" }}
+  {{- end }}
+{{- end }}
+
 {{/*
 Kubecost 2.0 preconditions
 */}}

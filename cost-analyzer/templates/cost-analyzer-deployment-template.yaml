@@ -1119,14 +1119,13 @@ spec:
 
         {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
-
-        {{- if .Values.kubecostAggregator.cloudCost.enabled }}
-        {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
-        {{- end }}
-
         {{- if .Values.kubecostAggregator.jaeger.enabled }}
         {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
         {{- end }}
+        {{- end }}
+
+        {{- if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+        {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
 
     {{- if .Values.imagePullSecrets }}
