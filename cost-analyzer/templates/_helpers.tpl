@@ -21,7 +21,7 @@ Set important variables before starting main templates
 kubecostModel.cloudCost.enabled OR kubecostAggregator.cloudCost.enabled will
 enable it. */}}
 {{- define "cloudCost.deployMethod" -}}
-  {{ if and (not .Values.kubecostModel.cloudCost.enabled) (not .Values.kubecostAggregator.cloudCost.enabled) }}
+  {{ if not (or .Values.kubecostModel.cloudCost.enabled .Values.kubecostAggregator.cloudCost.enabled) }}
     {{- printf "disabled" }}
   {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
     {{- printf "deployment" }}
