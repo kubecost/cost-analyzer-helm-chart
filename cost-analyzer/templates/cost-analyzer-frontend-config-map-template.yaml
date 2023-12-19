@@ -101,12 +101,12 @@ data:
     }
 {{- end }}
 
-  {{- if .Values.kubecostAggregator.enabled }}
+  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
   {{- end }}
-  {{- if .Values.kubecostAggregator.cloudCost.enabled }}
+  {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
     upstream cloudCost {
         server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
     }
@@ -634,7 +634,7 @@ data:
             return 200 '{"hideDiagnostics": "false"}';
             {{- end }}
         }
-    {{- if .Values.kubecostAggregator.cloudCost.enabled }}
+    {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
         location = /model/cloudCost/status {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://cloudCost/cloudCost/status;
