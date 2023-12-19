@@ -600,7 +600,7 @@ Create the name of the service account to use for the server component
 {{ end }}
 {{ if .Values.kubecostAggregator.cloudCost }}
   {{ if .Values.kubecostAggregator.cloudCost.enabled }}
-    {{ if not .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+    {{ if not (and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
       {{ fail "If enabling Cloud Costs, a cloud integration secret must be configured" }}
     {{ end }}
   {{ end }}
@@ -789,6 +789,8 @@ Create the name of the service account to use for the server component
   {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
+  {{- else }}
+    {{- fail "Cloud Costs requires cloudIntegrationSecret to be configured" }}
   {{- end }}
   env:
     - name: CONFIG_PATH
