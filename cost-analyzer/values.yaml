@@ -991,12 +991,21 @@ kubecostAggregator:
   # Replicas sets the number of Aggregator replicas. It only has an effect if
   # `deployMethod: "statefulset"`
   replicas: 1
-  ## Creates a new pod to retrieve CloudCost data. By default it uses the same
-  ## serviceaccount as the cost-analyzer pod. A custom serviceaccount can be
-  ## specified.
+
+  ## Creates a new container/pod to retrieve CloudCost data. By default it uses
+  ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
+  ## can be specified.
   cloudCost:
+    # The cloudCost component of Aggregator depends on
+    # kubecostAggregator.deployMethod:
+    # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
+    # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
     enabled: false
     # serviceAccountName:
+
+  # Jaeger is an optional container attached to wherever the Aggregator
+  # container is running. It is used for performance investigation. Enable if
+  # Kubecost Support asks.
   jaeger:
     enabled: false
     image: jaegertracing/all-in-one
