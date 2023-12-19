@@ -367,6 +367,14 @@ kubecostFrontend:
     # limits:
     #   cpu: "100m"
     #   memory: "256Mi"
+  # Define a readiness probe for the Kubecost frontend container.
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 200
+
+  # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
     initialDelaySeconds: 30
@@ -528,8 +536,17 @@ kubecostModel:
     # limits:
     #   cpu: "800m"
     #   memory: "256Mi"
+
+  # Define a readiness probe for the Kubecost cost-model container.
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 200
+
+  # Define a liveness probe for the Kubecost cost-model container.
   livenessProbe:
-    enabled: false
+    enabled: true
     initialDelaySeconds: 30
     periodSeconds: 10
     failureThreshold: 200
