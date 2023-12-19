@@ -17,6 +17,15 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
+{{/*
+Kubecost 2.0 preconditions
+*/}}
+{{ if .Values.federatedETL }}
+  {{ if .Values.federatedETL.primaryCluster }}
+    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
+  {{ end }}
+{{ end }}
+
 
 {{/*
 Expand the name of the chart.

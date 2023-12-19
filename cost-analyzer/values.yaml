@@ -1197,9 +1197,6 @@ federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
-  ## This value must always be set to false in Kubecost 2.0+
-  primaryCluster: false
-
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
   redirectS3Backup: false

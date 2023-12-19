@@ -822,10 +822,6 @@ spec:
             - name: FEDERATED_CLUSTER
               value: "true"
             {{- end }}
-            {{- if .Values.federatedETL.primaryCluster }}
-            - name: FEDERATED_PRIMARY_CLUSTER
-              value: "true"
-            {{- end }}
             {{- if .Values.federatedETL.redirectS3Backup }}
             - name: FEDERATED_REDIRECT_BACKUP
               value: "true"
