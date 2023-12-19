@@ -728,11 +728,7 @@ data:
 
         location /model/aggregatorEnabled {
             default_type 'application/json';
-            {{- if .Values.kubecostAggregator.enabled }}
             return 200 '{"aggregatorEnabled": "true"}';
-            {{- else }}
-            return 200 '{"aggregatorEnabled": "false"}';
-            {{- end }}
         }
 
     }
