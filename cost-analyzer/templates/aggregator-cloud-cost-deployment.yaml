@@ -1,4 +1,4 @@
-{{- if and (eq (include "aggregator.deployMethod" .) "statefulset") kubecostAggregator.cloudCost.enabled }}
+{{- if eq (include "cloudCost.deployMethod" .) "statefulset" }}
 
 apiVersion: apps/v1
 kind: Deployment
