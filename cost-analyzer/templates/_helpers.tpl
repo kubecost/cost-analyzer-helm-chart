@@ -420,11 +420,6 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
     {{ end }}
   {{ end }}
 {{ end }}
-{{ if eq (include "cloudCost.deployMethod" .) "deployment" }}
-  {{ if not (and .Values.kubecostProductConfigs .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
-    {{ fail "If using Cloud Costs in an Enterprise configuration, a cloud integration secret must be configured via Helm values." }}
-  {{ end }}
-{{ end }}
 
 
 {{- define "aggregator.containerTemplate" }}
@@ -610,7 +605,8 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
   {{- else }}
-    # In this case, the cloud-integration is expected to come from the UI.
+    # In this case, the cloud-integration is expected to come from the UI or
+    # from workload identity.
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
