@@ -370,14 +370,14 @@ kubecostFrontend:
   # Define a readiness probe for the Kubecost frontend container.
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
 
   # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
   ipv6:
@@ -540,14 +540,14 @@ kubecostModel:
   # Define a readiness probe for the Kubecost cost-model container.
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
 
   # Define a liveness probe for the Kubecost cost-model container.
   livenessProbe:
     enabled: true
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
   extraArgs: []
