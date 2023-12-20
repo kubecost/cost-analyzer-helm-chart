@@ -1,5 +1,4 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
-{{- $nginxPort := int .Values.service.port | default 9090 -}}
 apiVersion: apps/v1
 {{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
 kind: StatefulSet

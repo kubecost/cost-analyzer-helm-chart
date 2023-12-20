@@ -1,6 +1,4 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
-{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
-{{- $servicePort := .Values.service.port | default 9090 -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -41,8 +39,8 @@ spec:
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
       {{- end }}
-      port: {{ $servicePort }}
-      targetPort: {{ $nginxPort }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
     {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}

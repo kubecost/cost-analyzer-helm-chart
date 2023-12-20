@@ -1,7 +1,6 @@
 {{- if .Values.kubecostFrontend.enabled }}
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- $serviceName := include "cost-analyzer.serviceName" . -}}
-{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
 {{- if .Values.saml.enabled }}
 {{- if .Values.oidc.enabled }}
 {{- fail "SAML and OIDC cannot both be enabled" }}
@@ -175,20 +174,20 @@ data:
 {{- end }}
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
-        listen {{ $nginxPort }} ssl;
+        listen {{ .Values.service.targetPort }} ssl;
 {{- if .Values.kubecostFrontend.ipv6.enabled }}
-        listen [::]:{{ $nginxPort }} ssl;
+        listen [::]:{{ .Values.service.targetPort }} ssl;
 {{- end }}
 {{- else }}
-        listen {{ $nginxPort }};
+        listen {{ .Values.service.targetPort }};
 {{- if .Values.kubecostFrontend.ipv6.enabled }}
-        listen [::]:{{ $nginxPort }};
+        listen [::]:{{ .Values.service.targetPort }};
 {{- end }}
 {{- end }}
 {{- else }}
-        listen {{ $nginxPort }};
+        listen {{ .Values.service.targetPort }};
 {{- if .Values.kubecostFrontend.ipv6.enabled }}
-        listen [::]:{{ $nginxPort }};
+        listen [::]:{{ .Values.service.targetPort }};
 {{- end }}
 {{- end }}
         location /api/ {
