@@ -1,6 +1,11 @@
 
 
 --------------------------------------------------
+{{- if .Values.thanos.store.enabled }}
+{{- fail "Kubecost no longer includes Thanos by default. Please see https://docs.kubecost.com/install-and-configure/install/thanos for more information." }}
+{{- end }}
+
+
 {{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
 {{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
 {{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
