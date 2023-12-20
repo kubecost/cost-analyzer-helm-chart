@@ -291,21 +291,23 @@ app: cost-analyzer
 {{- end -}}
 
 {{- define "aggregator.selectorLabels" -}}
-{{- if eq "aggregator.deployMethod" "statefulset" }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: aggregator
-{{- else if eq "aggregator.deployMethod" "singlepod" }}
+{{- else if eq (include "aggregator.deployMethod" .) "singlepod" }}
 {{- include "cost-analyzer.selectorLabels" . }}
+{{- else }}
+{{ fail "Failed to set aggregator.selectorLabels" }}
 {{- end }}
 {{- end }}
 
 {{- define "cloudCost.selectorLabels" -}}
-{{- if eq "aggregator.deployMethod" "statefulset" }}
+{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
-{{- else if eq "aggregator.deployMethod" "singlepod" }}
+{{- else if eq (include "cloudCost.deployMethod" .) "singlepod" }}
 {{- include "cost-analyzer.selectorLabels" . }}
 {{- end }}
 {{- end }}
