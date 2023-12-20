@@ -56,20 +56,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if .Values.kubecostFrontend.tls }}
-      {{- if .Values.kubecostFrontend.tls.enabled }}
-      securityContext:
-        runAsUser: 0
-      {{- else }}
-      securityContext:
-        runAsUser: 1001
-        runAsGroup: 1001
-        fsGroup: 1001
-      {{- end }}
-      {{- else if lt $nginxPort 1025 }}
-      securityContext:
-        runAsUser: 0
-      {{- else if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.securityContext }}
+      {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:
       {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
@@ -1155,13 +1142,6 @@ spec:
         {{- else }}
         - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
         {{- end }}
-          {{- if .Values.kubecostFrontend.tls }}
-          {{- if .Values.kubecostFrontend.tls.enabled }}
-          command: ["nginx", "-g", "daemon off;"]
-          ports:
-            - containerPort: 443
-          {{- end }}
-          {{- end }}
           env:
             - name: GET_HOSTS_FROM
               value: dns
@@ -1172,7 +1152,7 @@ spec:
         {{- if .Values.kubecostFrontend.securityContext }}
           securityContext:
             {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-          {{- else if and .Values.global.containerSecurityContext (gt $nginxPort 1025) }}
+          {{- else  }}
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           {{- end }}

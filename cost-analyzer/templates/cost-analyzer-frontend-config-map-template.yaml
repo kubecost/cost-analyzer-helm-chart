@@ -175,9 +175,9 @@ data:
 {{- end }}
         ssl_certificate     /etc/ssl/certs/kc.crt;
         ssl_certificate_key /etc/ssl/certs/kc.key;
-        listen 443 ssl;
+        listen {{ $nginxPort }} ssl;
 {{- if .Values.kubecostFrontend.ipv6.enabled }}
-        listen [::]:443 ssl;
+        listen [::]:{{ $nginxPort }} ssl;
 {{- end }}
 {{- else }}
         listen {{ $nginxPort }};
