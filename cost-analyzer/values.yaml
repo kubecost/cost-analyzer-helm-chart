@@ -1038,6 +1038,10 @@ kubecostDeployment:
       #   targetPort: 40000
       #   containerPort: 40000
 
+## Kubecost Forecasting
+forecasting:
+  enabled: false
+
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
 ## enabled when recommended by Kubecost staff.

@@ -1,0 +1,18 @@
+{{- if .Values.forecastingenabled }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "forecasting.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "forecasting.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "forecasting.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: tcp-api
+      port: 5000
+      targetPort: 5000
+{{- end }}
