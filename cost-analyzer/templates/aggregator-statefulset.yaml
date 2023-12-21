@@ -34,11 +34,11 @@ spec:
         requests:
           storage:  {{ .Values.kubecostAggregator.aggregatorDbStorage.storageRequest }}
   - metadata:
-      # FIXME: Should Aggregator and cost-model share the persistent-configs PV?
-      # Aggregator being a statefulset makes this weird
-      # In the StatefulSet config, all state should be stored in configmaps
-      # (I think?) not on this specific volume, so its probably safe for each
-      # replica to get its own Volume
+      # In the StatefulSet config, Aggregator should not share any filesystem
+      # state with the cost-model to maintain independence and improve
+      # stability (in the event of bad file-locking state). Still, there is
+      # a need to "mount" ConfigMap files (using the watcher) to a file system;
+      # that's what this per-replica Volume is used for.
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
