@@ -242,18 +242,22 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 app: cost-analyzer
 {{- end -}}
+
 {{- define "aggregator.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
 app: aggregator
 {{- end -}}
+
 {{- define "diagnostics.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
 app: diagnostics
 {{- end -}}
+
 {{- define "cloudCost.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "cloudCost.selectorLabels" . }}
 {{- end -}}
+
 {{- define "etlUtils.commonLabels" -}}
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "etlUtils.selectorLabels" . }}
