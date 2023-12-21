@@ -1,6 +1,4 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
-{{- $nginxPort := .Values.service.targetPort | default 9090 -}}
-{{- $servicePort := .Values.service.port | default 9090 -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -36,33 +34,13 @@ spec:
   {{- end }}
     {{- if .Values.kubecostFrontend.enabled }}
     - name: tcp-frontend
-      {{- if .Values.kubecostFrontend.tls }}
-      {{- if .Values.kubecostFrontend.tls.enabled }}
-      port: 443
-      targetPort: 443
       {{- if (eq .Values.service.type "NodePort") }}
       {{- if .Values.service.nodePort }}
       nodePort: {{ .Values.service.nodePort }}
       {{- end }}
       {{- end }}
-      {{- else }}
-      port: {{ $servicePort }}
-      targetPort: {{ $nginxPort }}
-      {{- if (eq .Values.service.type "NodePort") }}
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
-      {{- end }}
-      {{- end}}
-      {{- else }}
-      port: {{ $servicePort }}
-      targetPort: {{ $nginxPort }}
-      {{- if (eq .Values.service.type "NodePort") }}
-      {{- if .Values.service.nodePort }}
-      nodePort: {{ .Values.service.nodePort }}
-      {{- end }}
-      {{- end }}
-      {{- end }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
     {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
