@@ -1014,11 +1014,9 @@ kubecostAggregator:
     # containerSecurityContext:
   # fullImageName:
   resources:
-    # TODO: Benchmark requests to determine minimal
-    # stable set.
-    requests:
-      cpu: "1000m"
-      memory: "2Gi"
+    # requests:
+    #   cpu: "1000m"
+    #   memory: "1Gi"
   env:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"
