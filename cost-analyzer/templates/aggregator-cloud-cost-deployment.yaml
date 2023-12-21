@@ -1,4 +1,4 @@
-{{- if eq (include "cloudCost.deployMethod" .) "statefulset" }}
+{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
 
 apiVersion: apps/v1
 kind: Deployment
