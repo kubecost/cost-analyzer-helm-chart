@@ -107,6 +107,12 @@ data:
     }
   {{- end }}
 
+  {{- if .Values.forecasting.enabled }}
+    upstream forecasting {
+        server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
+    }
+  {{- end }}
+
   {{- if .Values.kubecostAggregator.enabled }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
@@ -784,6 +790,17 @@ data:
             return 200 '{"aggregatorEnabled": "false"}';
             {{- end }}
         }
+
+        {{- if .Values.forecasting.enabled }}
+        location = /model/forecasting/cloudcost {
+            proxy_read_timeout          300;
+            proxy_pass http://forecasting/cloudcost;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        {{ end }}
 
     }
 {{- end }}
