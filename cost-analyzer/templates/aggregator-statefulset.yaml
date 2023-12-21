@@ -16,14 +16,6 @@ spec:
     {{- include "aggregator.selectorLabels" . | nindent 6 }}
   volumeClaimTemplates:
   - metadata:
-      name: persistent-configs
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostAggregator.persistentConfigsStorage.storageClass }}
-      resources:
-        requests:
-          storage: {{ .Values.kubecostAggregator.persistentConfigsStorage.storageRequest }}
-  - metadata:
       name: aggregator-db-storage
     spec:
       accessModes: [ "ReadWriteOnce" ]
