@@ -44,31 +44,25 @@ spec:
           {{- else }}
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
           {{ end }}
+          args: ["forecasting"]
           readinessProbe:
             httpGet:
               path: /healthz
-              port: 9005
+              port: 5000
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 200
           imagePullPolicy: Always
-          args: ["forecasting"]
           ports:
             - name: tcp-api
-              containerPort: 9005
+              containerPort: 5000
               protocol: TCP
           resources:
             {{- toYaml .Values.forecasting.resources | nindent 12 }}
           volumeMounts:
-          {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
-            - name: federated-storage-config
-              mountPath: /var/configs/etl/federated
-              readOnly: true
-          {{- end }}
           env:
             - name: CONFIG_PATH
               value: /var/configs/
-
             {{- range $key, $value := .Values.forecasting.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
