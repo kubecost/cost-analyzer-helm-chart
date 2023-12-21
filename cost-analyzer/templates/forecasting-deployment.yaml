@@ -26,7 +26,6 @@ spec:
       {{- end }}
     spec:
       restartPolicy: Always
-      serviceAccountName: {{ template "forecasting.serviceAccountName" . }}
       containers:
         - name: forecasting
           {{- if .Values.kubecostModel }}
@@ -45,6 +44,9 @@ spec:
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
           {{ end }}
           args: ["forecasting"]
+          {{/*
+          fix readinessProbe
+
           readinessProbe:
             httpGet:
               path: /healthz
@@ -52,6 +54,7 @@ spec:
             initialDelaySeconds: 10
             periodSeconds: 5
             failureThreshold: 200
+          */}}
           imagePullPolicy: Always
           ports:
             - name: tcp-api

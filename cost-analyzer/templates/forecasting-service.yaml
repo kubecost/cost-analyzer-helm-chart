@@ -1,4 +1,4 @@
-{{- if .Values.forecastingenabled }}
+{{- if .Values.forecasting.enabled }}
 
 kind: Service
 apiVersion: v1
