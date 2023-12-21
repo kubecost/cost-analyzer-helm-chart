@@ -13,9 +13,7 @@ spec:
   serviceName: {{ template "aggregator.serviceName" . }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: aggregator
-      app.kubernetes.io/instance: {{ .Release.Name }}
-      app: aggregator
+    {{- include "aggregator.selectorLabels" . | nindent 6 }}
   volumeClaimTemplates:
   - metadata:
       name: persistent-configs
