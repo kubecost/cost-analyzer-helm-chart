@@ -15,10 +15,5 @@ sources:
 - https://github.com/prometheus/prometheus
 - https://github.com/prometheus/pushgateway
 - https://github.com/prometheus/node_exporter
-- https://github.com/kubernetes/kube-state-metrics
 tillerVersion: '>=2.8.0'
 version: 11.0.2
-dependencies:
-  - condition: kube-state-metrics.disabled
-    name: kube-state-metrics
-    repository: file://./charts/kube-state-metrics

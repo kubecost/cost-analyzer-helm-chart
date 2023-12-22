@@ -48,9 +48,6 @@ kubecostMetrics:
 prometheus:
   nodeExporter:
     enabled: false
-  kube-state-metrics:
-    enabled: false
-    disabled: true
   extraScrapeConfigs: |
     - job_name: kubecost-agent
       honor_labels: true
