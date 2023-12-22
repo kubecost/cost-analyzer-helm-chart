@@ -173,8 +173,6 @@ prometheus:
       ##
       resources: {}
 
-  kube-state-metrics:
-    disabled: true
   nodeExporter:
     enabled: false
 

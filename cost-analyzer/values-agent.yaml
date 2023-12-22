@@ -44,9 +44,26 @@ kubecostFrontend:
 prometheus:
   nodeExporter:
     enabled: false
-  kube-state-metrics:
-    enabled: false
-    disabled: true
+  extraScrapeConfigs: |
+    - job_name: kubecost-agent
+      honor_labels: true
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - kubecost-agent-agent
+        type: 'A'
+        port: 9005
+    - job_name: kubecost-networking
+      kubernetes_sd_configs:
+        - role: pod
+      relabel_configs:
+      # Scrape only the the targets matching the following metadata
+        - source_labels: [__meta_kubernetes_pod_label_app]
+          action: keep
+          regex:  {{ template "cost-analyzer.networkCostsName" . }}
   server:
     retention: 50h
     # retentionSize: 1Gi

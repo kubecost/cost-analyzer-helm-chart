@@ -26,10 +26,6 @@ global:
     enabled: false
     proxy: false
 prometheus:
-  kubeStateMetrics:
-    enabled: false
-  kube-state-metrics:
-    disabled: true
   nodeExporter:
     enabled: false
   server:

@@ -387,12 +387,6 @@ configmapReload:
     ##
     resources: {}
 
-kube-state-metrics:
-  ## If false, kube-state-metrics sub-chart will not be installed
-  ## Please see https://github.com/helm/charts/tree/master/stable/kube-state-metrics for configurable values
-  ##
-  enabled: true
-
 nodeExporter:
   ## If false, node-exporter will not be installed
   ##
@@ -1295,7 +1289,7 @@ serverFiles:
             regex: true
           - source_labels: [__meta_kubernetes_endpoints_name]
             action: keep
-            regex: (.*kube-state-metrics|.*node-exporter|kubecost-network-costs)
+            regex: (.*node-exporter|kubecost-network-costs)
           - source_labels: [__meta_kubernetes_service_annotation_prometheus_io_scheme]
             action: replace
             target_label: __scheme__

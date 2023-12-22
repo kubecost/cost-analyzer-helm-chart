@@ -775,10 +775,6 @@ prometheus:
 
   ## Default disabled since Kubecost already emits KSMv1 metrics.
   ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
-  kubeStateMetrics:
-    enabled: false
-  kube-state-metrics:
-    disabled: true
 
   pushgateway:
     enabled: false

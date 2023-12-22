@@ -14,9 +14,6 @@ prometheus:
   server:
     nodeSelector:
       kubernetes.io/os: linux
-  kube-state-metrics:
-    nodeSelector:
-      kubernetes.io/os: linux
   nodeExporter:
     enabled: true
     affinity:
