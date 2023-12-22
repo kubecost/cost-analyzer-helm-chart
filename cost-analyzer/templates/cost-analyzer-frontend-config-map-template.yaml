@@ -119,7 +119,7 @@ data:
   {{- end }}
 
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+    {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
     }
@@ -766,7 +766,7 @@ data:
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+            {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
             {{- end }}
             {{- else }}
@@ -774,7 +774,7 @@ data:
             {{- end }}
         }
         {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+        {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;

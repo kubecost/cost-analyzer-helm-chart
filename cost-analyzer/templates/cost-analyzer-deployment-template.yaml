@@ -98,14 +98,11 @@ spec:
           emptyDir: { }
         {{- end }}
         {{- /*
-          If Thanos is enabled, then enable ETL backups by default.
           To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
         */}}
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
-        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
-            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
         {{- if $etlBackupBucketSecret }}
         - name: etl-bucket-config
@@ -719,18 +716,6 @@ spec:
             - name: REMOTE_WRITE_PASSWORD
               value: {{ .Values.remoteWrite.postgres.auth.password }}
             {{- end }}
-            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
-            - name: MC_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: USERNAME
-            - name: MC_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: PASSWORD
-            {{- end }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
             - name: DB_BASIC_AUTH_USERNAME
               valueFrom:
@@ -748,13 +733,6 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.prometheus.queryServiceBearerTokenSecretName }}
-                  key: TOKEN
-            {{- end }}
-            {{- if .Values.global.thanos.queryServiceBearerTokenSecretName }}
-            - name: MC_BEARER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBearerTokenSecretName }}
                   key: TOKEN
             {{- end }}
             {{- if .Values.global.prometheus.insecureSkipVerify }}
@@ -959,38 +937,6 @@ spec:
             - name: ADVANCED_NETWORK_STATS
               value: "false"
             {{- end}}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- /*
-              If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
-              to ensure that the custom query service target is used. The global.thanos.enabled
-              flag does not have any affect on this behavior.
-            */}}
-            {{- if .Values.global.thanos.queryService }}
-            - name: THANOS_ENABLED
-              value: "true"
-            - name: THANOS_QUERY_URL
-              value: {{ .Values.global.thanos.queryService }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- else if and .Values.global.thanos.enabled .Values.thanos }}
-            {{- if .Values.thanos.query }}
-            {{- if .Values.thanos.query.enabled }}
-            - name: THANOS_ENABLED
-            {{- if .Values.hosted }}
-              value: "false"
-            {{- else }}
-              value: "true"
-            {{- end }}
-            - name: THANOS_QUERY_URL
-              value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- end }}
             {{- end }}
             {{- end }}
