@@ -1,5 +1,5 @@
 {{- if .Values.diagnostics.enabled }}
-{{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+{{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 
 {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
 {{- fail "Error: The 'cluster_id' is set to default 'cluster-one'. Please update so that the diagnostics service can uniquely identify data coming from this cluster." }}
@@ -46,14 +46,6 @@ spec:
           secret:
            defaultMode: 420
            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- else if .Values.global.thanos.enabled }}
-        - name: federated-storage-config
-          secret:
-            defaultMode: 420
-            secretName: {{ .Values.thanos.storeSecretName }}
-            items:
-            - key: object-store.yaml
-              path: federated-store.yaml
         {{- end }}
         - name: config-db
           {{- /* #TODO: make pv? */}}

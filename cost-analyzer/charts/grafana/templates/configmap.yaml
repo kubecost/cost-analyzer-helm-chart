@@ -31,18 +31,7 @@ data:
   datasources.yaml: |
     apiVersion: 1
     datasources:
-{{- if .Values.global.thanos.enabled }}
-    - access: proxy
-      isDefault: true
-      name: Thanos
-      type: prometheus
-      url:  http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:10902
-      jsonData:
-        timeInterval: 1m
-        prometheusType: Thanos
-        prometheusVersion: 0.29.0
-        httpMethod: POST
-{{- else if .Values.global.prometheus.enabled }}
+{{- if .Values.global.prometheus.enabled }}
     - access: proxy
       isDefault: true
       name: Prometheus

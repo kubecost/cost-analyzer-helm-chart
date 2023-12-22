@@ -7,14 +7,6 @@ global:
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
-  # Durable storage option, product key required
-  thanos:
-    enabled: false
-    # queryService: http://kubecost-thanos-query-frontend-http.kubecost:{{ .Values.thanos.queryFrontend.http.port }} # an address of the thanos query-frontend endpoint, if different from installed thanos
-    # queryServiceBasicAuthSecretName: mcdbsecret #  kubectl create secret generic mcdbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD <---enter basic auth credentials like that
-    # queryServiceBearerTokenSecretName mcdbsecret # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
-    # queryOffset: 3h # The offset to apply to all thanos queries in order to achieve synchronization on all cluster block stores
-
   grafana:
     enabled: true  # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc  # example grafana domain Ignored if enabled: true

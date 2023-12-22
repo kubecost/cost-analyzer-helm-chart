@@ -120,7 +120,7 @@ data:
   {{- end }}
 
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+    {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
     }
@@ -746,7 +746,7 @@ data:
         location /model/multi-cluster-diagnostics-enabled {
             default_type 'application/json';
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+            {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
             {{- end }}
             {{- else }}
@@ -754,7 +754,7 @@ data:
             {{- end }}
         }
         {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+        {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
             proxy_read_timeout          300;

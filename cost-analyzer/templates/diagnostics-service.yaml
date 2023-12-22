@@ -1,6 +1,6 @@
 {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
 {{- if .Values.diagnostics.enabled }}
-{{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+{{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 apiVersion: v1
 kind: Service
 metadata:
