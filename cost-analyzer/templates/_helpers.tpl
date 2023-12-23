@@ -426,3 +426,210 @@ requirements are met.
         {{- "" }}
     {{- end }}
 {{- end }}
+
+
+{{/*
+==============================================================
+Begin Prometheus templates
+==============================================================
+*/}}
+
+
+{{/*
+Expand the name of the chart.
+*/}}
+{{- define "prometheus.name" -}}
+{{- default "prometheus" .Values.prometheus.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create chart name and version as used by the chart label.
+*/}}
+{{- define "prometheus.chart" -}}
+{{- printf "%s-%s" "prometheus" .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create unified labels for prometheus components
+*/}}
+{{- define "prometheus.common.matchLabels" -}}
+app: {{ template "prometheus.name" . }}
+release: {{ .Release.Name }}
+{{- end -}}
+
+{{- define "prometheus.common.metaLabels" -}}
+chart: {{ template "prometheus.chart" . }}
+heritage: {{ .Release.Service }}
+{{- end -}}
+
+{{- define "prometheus.alertmanager.labels" -}}
+{{ include "prometheus.alertmanager.matchLabels" . }}
+{{ include "prometheus.common.metaLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.alertmanager.matchLabels" -}}
+component: {{ .Values.prometheus.alertmanager.name | quote }}
+{{ include "prometheus.common.matchLabels" . }}
+{{- end -}}
+
+
+{{- define "prometheus.nodeExporter.labels" -}}
+{{ include "prometheus.nodeExporter.matchLabels" . }}
+{{ include "prometheus.common.metaLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.nodeExporter.matchLabels" -}}
+component: {{ .Values.prometheus.nodeExporter.name | quote }}
+{{ include "prometheus.common.matchLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.pushgateway.labels" -}}
+{{ include "prometheus.pushgateway.matchLabels" . }}
+{{ include "prometheus.common.metaLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.pushgateway.matchLabels" -}}
+component: {{ .Values.prometheus.pushgateway.name | quote }}
+{{ include "prometheus.common.matchLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.server.labels" -}}
+{{ include "prometheus.server.matchLabels" . }}
+{{ include "prometheus.common.metaLabels" . }}
+{{- end -}}
+
+{{- define "prometheus.server.matchLabels" -}}
+component: {{ .Values.prometheus.server.name | quote }}
+{{ include "prometheus.common.matchLabels" . }}
+{{- end -}}
+
+{{/*
+Create a default fully qualified app name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "prometheus.fullname" -}}
+{{- if .Values.prometheus.fullnameOverride -}}
+{{- .Values.prometheus.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "prometheus" .Values.prometheus.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create a fully qualified alertmanager name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+
+{{- define "prometheus.alertmanager.fullname" -}}
+{{- if .Values.prometheus.alertmanager.fullnameOverride -}}
+{{- .Values.prometheus.alertmanager.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "prometheus" .Values.prometheus.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.prometheus.alertmanager.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.prometheus.alertmanager.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+
+{{/*
+Create a fully qualified node-exporter name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "prometheus.nodeExporter.fullname" -}}
+{{- if .Values.prometheus.nodeExporter.fullnameOverride -}}
+{{- .Values.prometheus.nodeExporter.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "prometheus" .Values.prometheus.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.prometheus.nodeExporter.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.prometheus.nodeExporter.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create a fully qualified Prometheus server name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "prometheus.server.fullname" -}}
+{{- if .Values.prometheus.server.fullnameOverride -}}
+{{- .Values.prometheus.server.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "prometheus" .Values.prometheus.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.prometheus.server.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.prometheus.server.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create a fully qualified pushgateway name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "prometheus.pushgateway.fullname" -}}
+{{- if .Values.prometheus.pushgateway.fullnameOverride -}}
+{{- .Values.prometheus.pushgateway.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default "prometheus" .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- printf "%s-%s" .Release.Name .Values.prometheus.pushgateway.name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s-%s" .Release.Name $name .Values.prometheus.pushgateway.name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use for the alertmanager component
+*/}}
+{{- define "prometheus.serviceAccountName.alertmanager" -}}
+{{- if .Values.prometheus.serviceAccounts.alertmanager.create -}}
+    {{ default (include "prometheus.alertmanager.fullname" .) .Values.prometheus.serviceAccounts.alertmanager.name }}
+{{- else -}}
+    {{ default "default" .Values.prometheus.serviceAccounts.alertmanager.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use for the nodeExporter component
+*/}}
+{{- define "prometheus.serviceAccountName.nodeExporter" -}}
+{{- if .Values.prometheus.serviceAccounts.nodeExporter.create -}}
+    {{ default (include "prometheus.nodeExporter.fullname" .) .Values.prometheus.serviceAccounts.nodeExporter.name }}
+{{- else -}}
+    {{ default "default" .Values.prometheus.serviceAccounts.nodeExporter.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use for the pushgateway component
+*/}}
+{{- define "prometheus.serviceAccountName.pushgateway" -}}
+{{- if .Values.prometheus.serviceAccounts.pushgateway.create -}}
+    {{ default (include "prometheus.pushgateway.fullname" .) .Values.prometheus.serviceAccounts.pushgateway.name }}
+{{- else -}}
+    {{ default "default" .Values.prometheus.serviceAccounts.pushgateway.name }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Create the name of the service account to use for the server component
+*/}}
+{{- define "prometheus.serviceAccountName.server" -}}
+{{- if .Values.prometheus.serviceAccounts.server.create -}}
+    {{ default (include "prometheus.server.fullname" .) .Values.prometheus.serviceAccounts.server.name }}
+{{- else -}}
+    {{ default "default" .Values.prometheus.serviceAccounts.server.name }}
+{{- end -}}
+{{- end -}}
