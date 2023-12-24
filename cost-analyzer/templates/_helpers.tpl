@@ -433,71 +433,87 @@ requirements are met.
 Begin Prometheus templates
 ==============================================================
 */}}
-
-
 {{/*
 Expand the name of the chart.
 */}}
 {{- define "prometheus.name" -}}
-{{- default "prometheus" .Values.prometheus.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- "prometheus" -}}
 {{- end -}}
 
 {{/*
-Create chart name and version as used by the chart label.
-*/}}
-{{- define "prometheus.chart" -}}
-{{- printf "%s-%s" "prometheus" .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
-
-{{/*
-Create unified labels for prometheus components
+Define common selector labels for all Prometheus components
 */}}
 {{- define "prometheus.common.matchLabels" -}}
 app: {{ template "prometheus.name" . }}
 release: {{ .Release.Name }}
 {{- end -}}
 
+{{/*
+Define common top-level labels for all Prometheus components
+*/}}
 {{- define "prometheus.common.metaLabels" -}}
-chart: {{ template "prometheus.chart" . }}
 heritage: {{ .Release.Service }}
 {{- end -}}
 
+{{/*
+Define top-level labels for Alert Manager
+*/}}
 {{- define "prometheus.alertmanager.labels" -}}
 {{ include "prometheus.alertmanager.matchLabels" . }}
 {{ include "prometheus.common.metaLabels" . }}
 {{- end -}}
 
+{{/*
+Define selector labels for Alert Manager
+*/}}
 {{- define "prometheus.alertmanager.matchLabels" -}}
 component: {{ .Values.prometheus.alertmanager.name | quote }}
 {{ include "prometheus.common.matchLabels" . }}
 {{- end -}}
 
-
+{{/*
+Define top-level labels for Node Exporter
+*/}}
 {{- define "prometheus.nodeExporter.labels" -}}
 {{ include "prometheus.nodeExporter.matchLabels" . }}
 {{ include "prometheus.common.metaLabels" . }}
 {{- end -}}
 
+{{/*
+Define selector labels for Node Exporter
+*/}}
 {{- define "prometheus.nodeExporter.matchLabels" -}}
 component: {{ .Values.prometheus.nodeExporter.name | quote }}
 {{ include "prometheus.common.matchLabels" . }}
 {{- end -}}
 
+{{/*
+Define top-level labels for Push Gateway
+*/}}
 {{- define "prometheus.pushgateway.labels" -}}
 {{ include "prometheus.pushgateway.matchLabels" . }}
 {{ include "prometheus.common.metaLabels" . }}
 {{- end -}}
 
+{{/*
+Define selector labels for Push Gateway
+*/}}
 {{- define "prometheus.pushgateway.matchLabels" -}}
 component: {{ .Values.prometheus.pushgateway.name | quote }}
 {{ include "prometheus.common.matchLabels" . }}
 {{- end -}}
 
+{{/*
+Define top-level labels for Server
+*/}}
 {{- define "prometheus.server.labels" -}}
 {{ include "prometheus.server.matchLabels" . }}
 {{ include "prometheus.common.metaLabels" . }}
 {{- end -}}
 
+{{/*
+Define selector labels for Server
+*/}}
 {{- define "prometheus.server.matchLabels" -}}
 component: {{ .Values.prometheus.server.name | quote }}
 {{ include "prometheus.common.matchLabels" . }}
