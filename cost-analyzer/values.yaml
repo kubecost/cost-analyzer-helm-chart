@@ -1084,9 +1084,11 @@ prometheus:
     ## Vertical Pod Autoscaler config
     ## Ref: https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler
     verticalAutoscaler:
-      ## If true a VPA object will be created for the controller (either StatefulSet or Deployemnt, based on above configs)
+      ## If true a VPA object will be created for the controller (either StatefulSet or Deployment, based on above configs)
       enabled: false
+      ## Optional. Defaults to "Auto" if not specified.
       # updateMode: "Auto"
+      ## Mandatory. Without, VPA will not be created.
       # containerPolicies:
       # - containerName: 'prometheus-server'
 
