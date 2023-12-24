@@ -1,7 +1,4 @@
-{{ if .Values.global.prometheus.enabled }}
-{{- if .Values.prometheus.server.enabled -}}
-{{- if .Values.prometheus.server.ingress.enabled -}}
-{{- $releaseName := .Release.Name -}}
+{{- if and (.Values.global.prometheus.enabled) (.Values.prometheus.server.enabled) (.Values.prometheus.server.ingress.enabled) }}
 {{- $serviceName := include "prometheus.server.fullname" . }}
 {{- $servicePort := .Values.prometheus.server.service.servicePort -}}
 {{- $extraPaths := .Values.prometheus.server.ingress.extraPaths -}}
@@ -42,6 +39,4 @@ spec:
   tls:
 {{ toYaml .Values.prometheus.server.ingress.tls | indent 4 }}
   {{- end -}}
-{{- end -}}
-{{- end -}}
-{{ end }}
+{{- end }}
