@@ -1,6 +1,6 @@
 {{- if .Values.networkCosts -}}
 {{- if .Values.networkCosts.enabled -}}
-apiVersion: {{ include "cost-analyzer.daemonset.apiVersion" . }}
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ template "cost-analyzer.networkCostsName" . }}

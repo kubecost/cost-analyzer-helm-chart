@@ -314,39 +314,6 @@ app: {{ include "etlUtils.name" . }}
 {{- end -}}
 
 {{/*
-Return the appropriate apiVersion for daemonset.
-*/}}
-{{- define "cost-analyzer.daemonset.apiVersion" -}}
-{{- if semverCompare "<1.9-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "extensions/v1beta1" -}}
-{{- else if semverCompare "^1.9-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "apps/v1" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the appropriate apiVersion for priorityClass.
-*/}}
-{{- define "cost-analyzer.priorityClass.apiVersion" -}}
-{{- if semverCompare "<1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "scheduling.k8s.io/v1beta1" -}}
-{{- else if semverCompare "^1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "scheduling.k8s.io/v1" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Return the appropriate apiVersion for networkpolicy.
-*/}}
-{{- define "cost-analyzer.networkPolicy.apiVersion" -}}
-{{- if semverCompare ">=1.4-0, <1.7-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "extensions/v1beta1" -}}
-{{- else if semverCompare "^1.7-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "networking.k8s.io/v1" -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
 Recursive filter which accepts a map containing an input map (.v) and an output map (.r). The template
 will traverse all values inside .v recursively writing non-map values to the output .r. If a nested map
 is discovered, we look for an 'enabled' key. If it doesn't exist, we continue traversing the
