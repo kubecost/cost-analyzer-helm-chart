@@ -656,9 +656,6 @@ networkPolicy:
     #   - selectors: # restrict egress to inside cluster
     #     - namespaceSelector: {}
 
-podSecurityPolicy:
-  enabled: false
-
 ## @param extraVolumes A list of volumes to be added to the pod
 ##
 extraVolumes: []
@@ -2084,9 +2081,6 @@ prometheus:
 ## Ref: https://github.com/kubecost/docs/blob/main/network-allocation.md
 networkCosts:
   enabled: false
-  podSecurityPolicy:
-    enabled: false
-    # annotations: {}  # Add annotations to the PodSecurityPolicy for network-costs.
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
     tag: v0.17.2
