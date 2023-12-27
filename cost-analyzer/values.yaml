@@ -1318,7 +1318,9 @@ costEventsAudit:
 # Values in this block override config changes in the Settings UI on pod restart
 #
 kubecostProductConfigs:
-  defaultWindow: 30d
+  defaultAllocationWindow: 30d
+  defaultAssetWindow: 30d
+  defaultRequestSizingnWindow: 30d
 
 # An optional list of cluster definitions that can be added for frontend access. The local
 # cluster is *always* included by default, so this list is for non-local clusters.

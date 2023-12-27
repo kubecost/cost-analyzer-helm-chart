@@ -785,11 +785,16 @@ data:
             {{- end }}
         }
 
-        location /model/defaultWindow {
+        location /productConfigs {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            return 200 '{"defaultWindow": "{{ .Values.kubecostProductConfigs.defaultWindow }}"}';
+            return 200 '\n
+                {"defaultAssetWindow": "{{ .Values.kubecostProductConfigs.defaultAssetWindow }}"}\n
+                {"defaultAllocationWindow": "{{ .Values.kubecostProductConfigs.defaultAllocationWindow }}"}\n
+                {"defaultRequestSizingnWindow": "{{ .Values.kubecostProductConfigs.defaultRequestSizingnWindow }}"}\n
+                {"clusterControlerEnabled" : "{{ .Values.clusterController.enabled }}"}
+            ';
         }
 
     }
