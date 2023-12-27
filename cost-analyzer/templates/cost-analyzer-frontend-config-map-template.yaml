@@ -742,18 +742,8 @@ data:
         }
         {{ end }}
 
-        location /model/multi-cluster-diagnostics-enabled {
-            default_type 'application/json';
-            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
-            {{- end }}
-            {{- else }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
-            {{- end }}
-        }
-        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+
+        {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
             proxy_read_timeout          300;
@@ -774,7 +764,6 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         {{- end }}
-        {{- end }}
 
         location /model/aggregatorEnabled {
             default_type 'application/json';
@@ -794,6 +783,7 @@ data:
                 {"defaultAllocationWindow": "{{ .Values.kubecostProductConfigs.defaultAllocationWindow }}"}\n
                 {"defaultRequestSizingnWindow": "{{ .Values.kubecostProductConfigs.defaultRequestSizingnWindow }}"}\n
                 {"clusterControlerEnabled" : "{{ .Values.clusterController.enabled }}"}
+                {"isDiagnosticsPrimary": "{{ .Values.diagnostics.isDiagnosticsPrimary.enabled }}"}
             ';
         }
 
