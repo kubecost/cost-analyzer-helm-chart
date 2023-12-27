@@ -669,22 +669,6 @@ data:
         }
     {{- end }}
 
-        location = /model/hideOrphanedResources {
-            default_type 'application/json';
-            {{- if .Values.kubecostFrontend.hideOrphanedResources }}
-            return 200 '{"hideOrphanedResources": "true"}';
-            {{- else }}
-            return 200 '{"hideOrphanedResources": "false"}';
-            {{- end }}
-        }
-        location = /model/hideDiagnostics {
-            default_type 'application/json';
-            {{- if .Values.kubecostFrontend.hideDiagnostics }}
-            return 200 '{"hideDiagnostics": "true"}';
-            {{- else }}
-            return 200 '{"hideDiagnostics": "false"}';
-            {{- end }}
-        }
     {{- if .Values.kubecostAggregator.cloudCost.enabled }}
         location = /model/cloudCost/status {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
@@ -782,8 +766,10 @@ data:
                 {"defaultAssetWindow": "{{ .Values.kubecostProductConfigs.defaultAssetWindow }}"}\n
                 {"defaultAllocationWindow": "{{ .Values.kubecostProductConfigs.defaultAllocationWindow }}"}\n
                 {"defaultRequestSizingnWindow": "{{ .Values.kubecostProductConfigs.defaultRequestSizingnWindow }}"}\n
-                {"clusterControlerEnabled" : "{{ .Values.clusterController.enabled }}"}
-                {"isDiagnosticsPrimary": "{{ .Values.diagnostics.isDiagnosticsPrimary.enabled }}"}
+                {"clusterControlerEnabled" : "{{ .Values.clusterController.enabled }}"}\n
+                {"isDiagnosticsPrimary": "{{ .Values.diagnostics.isDiagnosticsPrimary.enabled }}"}\n
+                {"hideOrphanedResources": "{{ .Values.kubecostProductConfigs.hideOrphanedResources }}"}\n
+                {"hideDiagnostics": "{{ .Values.kubecostProductConfigs.hideDiagnostics }}"}\n
             ';
         }
 
