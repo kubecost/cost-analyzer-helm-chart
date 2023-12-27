@@ -766,7 +766,7 @@ data:
                 {"defaultAssetWindow": "{{ .Values.kubecostProductConfigs.defaultAssetWindow }}"}\n
                 {"defaultAllocationWindow": "{{ .Values.kubecostProductConfigs.defaultAllocationWindow }}"}\n
                 {"defaultRequestSizingnWindow": "{{ .Values.kubecostProductConfigs.defaultRequestSizingnWindow }}"}\n
-                {"clusterControlerEnabled" : "{{ .Values.clusterController.enabled }}"}\n
+                {"clusterControllerEnabled" : "{{ .Values.clusterController.enabled }}"}\n
                 {"isDiagnosticsPrimary": "{{ .Values.diagnostics.isDiagnosticsPrimary.enabled }}"}\n
                 {"hideOrphanedResources": "{{ .Values.kubecostProductConfigs.hideOrphanedResources }}"}\n
                 {"hideDiagnostics": "{{ .Values.kubecostProductConfigs.hideDiagnostics }}"}\n
