@@ -1013,10 +1013,10 @@ kubecostAggregator:
     imageVersion: latest
     # containerSecurityContext:
   # fullImageName:
-  resources:
+  resources: {}
     # requests:
-    #   cpu: "1000m"
-    #   memory: "1Gi"
+    #   cpu: 1000m
+    #   memory: 1Gi
   env:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"
