@@ -614,7 +614,6 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-
   {{- if .Values.kubecostProductConfigs }}
   {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
@@ -630,7 +629,6 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
-
   env:
     - name: CONFIG_PATH
       value: /var/configs/
