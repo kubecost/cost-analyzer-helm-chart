@@ -8,6 +8,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "aggregator.commonLabels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: {{ .Values.kubecostAggregator.replicas }}
   serviceName: {{ template "aggregator.serviceName" . }}
@@ -44,6 +47,10 @@ spec:
         app: aggregator
       {{- with .Values.global.podAnnotations}}
       annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.global.additionalLabels }}
+      labels:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
