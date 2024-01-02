@@ -1002,6 +1002,10 @@ kubecostAggregator:
     # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
     # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
     enabled: false
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 1Gi
     # serviceAccountName:
 
   # Jaeger is an optional container attached to wherever the Aggregator
