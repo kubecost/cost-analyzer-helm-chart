@@ -320,9 +320,8 @@ data:
         }
     {{- end }}
 
-    # Query Service Replicas (QSR) proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-
+        # Query Service Replicas (QSR) proxy
       {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
       {{- fail "Query Service Replicas should not be used at the same time as the Kubecost Aggregator" }}
       {{- end }}
