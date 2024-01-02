@@ -497,6 +497,11 @@ kubecostModel:
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
+  # The name of the Secret containing a bucket config for ETL backup.
+  # etlBucketConfigSecret:
+  # The name of the Secret containing a bucket config for Federated storage.
+  # federatedStorageConfigSecret:
+
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
   cloudCost:
