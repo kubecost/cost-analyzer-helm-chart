@@ -453,13 +453,15 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
   {{- else }}
   image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
   {{- end }}
+  {{- if .Values.kubecostAggregator.readinessProbe.enabled }}
   readinessProbe:
     httpGet:
       path: /healthz
       port: 9004
-    initialDelaySeconds: 10
-    periodSeconds: 5
-    failureThreshold: 200
+    initialDelaySeconds: {{ .Values.kubecostAggregator.readinessProbe.initialDelaySeconds }}
+    periodSeconds: {{ .Values.kubecostAggregator.readinessProbe.periodSeconds }}
+    failureThreshold: {{ .Values.kubecostAggregator.readinessProbe.failureThreshold }}
+  {{- end }}
   imagePullPolicy: Always
   args: ["waterfowl"]
   ports:
@@ -584,13 +586,15 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
   {{- else }}
   image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
   {{ end }}
+  {{- if .Values.kubecostAggregator.cloudCost.readinessProbe.enabled }}
   readinessProbe:
     httpGet:
       path: /healthz
       port: 9005
-    initialDelaySeconds: 10
-    periodSeconds: 5
-    failureThreshold: 200
+    initialDelaySeconds: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.initialDelaySeconds }}
+    periodSeconds: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.periodSeconds }}
+    failureThreshold: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.failureThreshold }}
+  {{- end }}
   imagePullPolicy: Always
   args: ["cloud-cost"]
   ports:
