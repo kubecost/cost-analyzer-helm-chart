@@ -641,9 +641,9 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
       value: "true"
     {{- end}}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
-      value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default  6 | quote }}
+      value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
-      value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays  | default  7 | quote }}
+      value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
 
