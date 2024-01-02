@@ -343,6 +343,11 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
+# imageVersion uses the base image name (image:) but overrides the version
+# pulled. It should be avoided. If non-default behavior is needed, use
+# fullImageName for the relevant component.
+# imageVersion:
+
 kubecostFrontend:
   enabled: true
   image: "gcr.io/kubecost1/frontend"
