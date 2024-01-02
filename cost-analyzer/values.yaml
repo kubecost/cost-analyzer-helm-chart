@@ -2243,6 +2243,9 @@ kubecostAggregator:
       # requests:
       #   cpu: 1000m
       #   memory: 1Gi
+    # refreshRateHours:
+    # queryWindowDays:
+    # runWindowDays:
     # serviceAccountName:
 
   # Jaeger is an optional container attached to wherever the Aggregator
