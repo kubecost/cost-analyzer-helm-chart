@@ -680,6 +680,10 @@ persistentVolume:
   labels: {}
   annotations: {}
 
+  # Enables a separate PV specifically for ETL data. This should be avoided, but
+  # is kept for legacy compatibility.
+  dbPVEnabled: false
+
 service:
   type: ClusterIP
   port: 9090
