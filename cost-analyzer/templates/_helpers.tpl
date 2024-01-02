@@ -810,11 +810,11 @@ Create the name of the service account to use for the server component
       value: /var/configs/
     {{- if .Values.kubecostModel.etlBucketConfigSecret }}
     - name: ETL_BUCKET_CONFIG
-      value: "/var/configs/etl/object-store.yaml"
+      value: /var/configs/etl/object-store.yaml
     {{- end}}
     {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
     - name: FEDERATED_STORE_CONFIG
-      value: "/var/configs/etl/federated/federated-store.yaml"
+      value: /var/configs/etl/federated/federated-store.yaml
     - name: FEDERATED_CLUSTER
       value: "true"
     {{- end}}
