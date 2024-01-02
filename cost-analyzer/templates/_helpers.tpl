@@ -718,11 +718,11 @@ Create the name of the service account to use for the server component
     # initialization will probably fail otherwise.
     - name: ETL_BUCKET_CONFIG
       {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
-      value: "/var/configs/etl/object-store.yaml"
+      value: /var/configs/etl/object-store.yaml
       {{- else  }}
-      value: "/var/configs/etl/federated-store.yaml"
+      value: /var/configs/etl/federated-store.yaml
     - name: FEDERATED_STORE_CONFIG
-      value: "/var/configs/etl/federated-store.yaml"
+      value: /var/configs/etl/federated-store.yaml
     - name: FEDERATED_PRIMARY_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
       value: "true"
     - name: FEDERATED_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
