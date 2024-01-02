@@ -619,7 +619,7 @@ Create the name of the service account to use for the server component
 {{- else if .Values.global.containerSecurityContext }}
   securityContext:
     {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
-{{ end }}
+{{- end }}
   {{- if .Values.kubecostModel }}
   {{- if .Values.kubecostAggregator.fullImageName }}
   image: {{ .Values.kubecostAggregator.fullImageName }}
@@ -627,10 +627,10 @@ Create the name of the service account to use for the server component
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-  {{ end }}
+  {{- end }}
   {{- else }}
   image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-  {{ end }}
+  {{- end }}
   readinessProbe:
     httpGet:
       path: /healthz
