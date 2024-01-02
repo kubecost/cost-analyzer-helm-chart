@@ -671,6 +671,8 @@ data:
 
         location = /model/hideOrphanedResources {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if .Values.kubecostFrontend.hideOrphanedResources }}
             return 200 '{"hideOrphanedResources": "true"}';
             {{- else }}
@@ -679,6 +681,8 @@ data:
         }
         location = /model/hideDiagnostics {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if .Values.kubecostFrontend.hideDiagnostics }}
             return 200 '{"hideDiagnostics": "true"}';
             {{- else }}
@@ -744,6 +748,8 @@ data:
 
         location /model/multi-cluster-diagnostics-enabled {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
             {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
@@ -756,6 +762,8 @@ data:
         {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             proxy_read_timeout          300;
             proxy_pass http://multi-cluster-diagnostics/status;
             proxy_redirect off;
@@ -766,6 +774,8 @@ data:
         # simple alias for support
         location /model/mcd {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             proxy_read_timeout          300;
             proxy_pass http://multi-cluster-diagnostics/status?window=7d;
             proxy_redirect off;
@@ -778,6 +788,8 @@ data:
 
         location /model/aggregatorEnabled {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if .Values.kubecostAggregator.enabled }}
             return 200 '{"aggregatorEnabled": "true"}';
             {{- else }}
