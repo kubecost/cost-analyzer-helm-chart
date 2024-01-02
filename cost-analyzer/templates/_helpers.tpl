@@ -792,7 +792,6 @@ Create the name of the service account to use for the server component
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-
   {{- if .Values.kubecostProductConfigs }}
   {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
@@ -808,7 +807,6 @@ Create the name of the service account to use for the server component
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
-
   env:
     - name: CONFIG_PATH
       value: /var/configs/
