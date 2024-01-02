@@ -118,12 +118,10 @@ data:
     }
   {{- end }}
 
-    {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-    {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+    {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
     }
-    {{- end }}
     {{- end }}
 
     server {
@@ -744,18 +742,19 @@ data:
 
         location /model/multi-cluster-diagnostics-enabled {
             default_type 'application/json';
-            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-            {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
-            {{- end }}
             {{- else }}
             return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
             {{- end }}
         }
-        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-        {{- if or .Values.global.thanos.enabled (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+        {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
         location /model/multi-cluster-diagnostics {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             proxy_read_timeout          300;
             proxy_pass http://multi-cluster-diagnostics/status;
             proxy_redirect off;
@@ -766,6 +765,8 @@ data:
         # simple alias for support
         location /model/mcd {
             default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             proxy_read_timeout          300;
             proxy_pass http://multi-cluster-diagnostics/status?window=7d;
             proxy_redirect off;
@@ -773,7 +774,6 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        {{- end }}
         {{- end }}
 
         location /model/aggregatorEnabled {

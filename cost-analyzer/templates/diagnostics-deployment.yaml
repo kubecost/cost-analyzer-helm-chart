@@ -1,8 +1,11 @@
-{{- if .Values.diagnostics.enabled }}
-{{- if or ( not (empty .Values.prometheus.server.extraSecretMounts )) (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
+{{- if or .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+{{- if or ( not (empty .Values.prometheus.server.extraSecretMounts )) (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) .Values.diagnostics.isDiagnosticsPrimary.enabled -}}
 
-{{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
-{{- fail "Error: The 'cluster_id' is set to default 'cluster-one'. Please update so that the diagnostics service can uniquely identify data coming from this cluster." }}
+{{- if .Values.diagnostics.enabled }}
+    {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
+      {{- fail "Error: The 'cluster_id' is set to default 'cluster-one'. Please update so that the diagnostics service can uniquely identify data coming from this cluster." }}
+    {{- end }}
+  {{- end }}
 {{- end }}
 
 apiVersion: apps/v1
