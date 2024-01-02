@@ -518,7 +518,7 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
       value: "false" # this container should never run KC's concept of "ETL"
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
-  {{- if .Values.systemProxy.enabled }}
+    {{- if .Values.systemProxy.enabled }}
     - name: HTTP_PROXY
       value: {{ .Values.systemProxy.httpProxyUrl }}
     - name: http_proxy
