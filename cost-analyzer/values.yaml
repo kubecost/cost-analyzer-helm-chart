@@ -1014,32 +1014,7 @@ kubecostAggregator:
   # `deployMethod: "statefulset"`
   replicas: 1
 
-  ## Creates a new container/pod to retrieve CloudCost data. By default it uses
-  ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
-  ## can be specified.
-  cloudCost:
-    # The cloudCost component of Aggregator depends on
-    # kubecostAggregator.deployMethod:
-    # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
-    # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
-    enabled: false
-    resources: {}
-      # requests:
-      #   cpu: 1000m
-      #   memory: 1Gi
-    # refreshRateHours:
-    # queryWindowDays:
-    # runWindowDays:
-    # serviceAccountName:
 
-  # Jaeger is an optional container attached to wherever the Aggregator
-  # container is running. It is used for performance investigation. Enable if
-  # Kubecost Support asks.
-  jaeger:
-    enabled: false
-    image: jaegertracing/all-in-one
-    imageVersion: latest
-    # containerSecurityContext:
   # fullImageName:
   resources: {}
     # requests:
@@ -1087,6 +1062,33 @@ kubecostAggregator:
     #   targetPort: 40000
     #   containerPort: 40000
   securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
+
+  ## Creates a new container/pod to retrieve CloudCost data. By default it uses
+  ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
+  ## can be specified.
+  cloudCost:
+    # The cloudCost component of Aggregator depends on
+    # kubecostAggregator.deployMethod:
+    # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
+    # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
+    enabled: false
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 1Gi
+    # refreshRateHours:
+    # queryWindowDays:
+    # runWindowDays:
+    # serviceAccountName:
+
+  # Jaeger is an optional container attached to wherever the Aggregator
+  # container is running. It is used for performance investigation. Enable if
+  # Kubecost Support asks.
+  jaeger:
+    enabled: false
+    image: jaegertracing/all-in-one
+    imageVersion: latest
+    # containerSecurityContext:
 
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
