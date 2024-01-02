@@ -2252,7 +2252,6 @@ kubecostAggregator:
   replicas: 1
 
 
-  # fullImageName:
   resources: {}
     # requests:
     #   cpu: 1000m
