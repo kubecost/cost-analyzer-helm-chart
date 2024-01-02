@@ -2270,6 +2270,13 @@ kubecostAggregator:
     # default storage class
     storageClass: ""
     storageRequest: 128Gi
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
+
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -2316,6 +2323,11 @@ kubecostAggregator:
     # queryWindowDays:
     # runWindowDays:
     # serviceAccountName:
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 200
 
   # Jaeger is an optional container attached to wherever the Aggregator
   # container is running. It is used for performance investigation. Enable if
