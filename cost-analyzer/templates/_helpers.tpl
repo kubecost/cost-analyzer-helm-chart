@@ -471,7 +471,6 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
   {{- end }}
   resources:
     {{- toYaml .Values.kubecostAggregator.resources | nindent 4 }}
-
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
@@ -493,7 +492,6 @@ The implied use case is {{ template "cost-analyzer.filterEnabled" .Values }}
     - name: aggregator-storage
       mountPath: /var/configs/waterfowl/duckdb
     {{- end }}
-
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
