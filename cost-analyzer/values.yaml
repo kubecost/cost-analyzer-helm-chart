@@ -343,10 +343,19 @@ systemProxy:
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
+# imageVersion uses the base image name (image:) but overrides the version
+# pulled. It should be avoided. If non-default behavior is needed, use
+# fullImageName for the relevant component.
+# imageVersion:
+
 kubecostFrontend:
   enabled: true
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
+  # fullImageName overrides the default image construction logic. The exact
+  # image provided (registry, image, tag) will be used for the frontend.
+  # fullImageName:
+
   # extraEnv:
   # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
   #   value: "1"
@@ -457,8 +466,10 @@ sigV4Proxy:
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: Always
-  # set to 'true' to utilize images on the public Quay repository
-  # openSourceOnly: false
+  # fullImageName overrides the default image construction logic. The exact
+  # image provided (registry, image, tag) will be used for cost-model.
+  # fullImageName:
+
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -469,8 +480,6 @@ kubecostModel:
   outOfClusterPromMetricsEnabled: false
   # Build local cost allocation cache
   warmCache: false
-  # Build local savings cache
-  warmSavingsCache: true
   # Run allocation ETL pipelines
   etl: true
   # Enable the ETL filestore backing storage
@@ -487,6 +496,11 @@ kubecostModel:
   etlWeeklyStoreDurationWeeks: 53
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
+
+  # The name of the Secret containing a bucket config for ETL backup.
+  # etlBucketConfigSecret:
+  # The name of the Secret containing a bucket config for Federated storage.
+  # federatedStorageConfigSecret:
 
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
@@ -673,6 +687,10 @@ persistentVolume:
   labels: {}
   annotations: {}
 
+  # Enables a separate PV specifically for ETL data. This should be avoided, but
+  # is kept for legacy compatibility.
+  dbPVEnabled: false
+
 service:
   type: ClusterIP
   port: 9090
@@ -683,22 +701,6 @@ service:
   sessionAffinity:
     enabled: false  # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
     timeoutSeconds: 10800
-
-# Enabling long-term durable storage with Postgres requires an enterprise license
-remoteWrite:
-  postgres:
-    enabled: false
-    initImage: "gcr.io/kubecost1/sql-init"
-    initImagePullPolicy: Always
-    installLocal: true
-    remotePostgresAddress: ""  # ignored if installing locally
-    ## PriorityClassName
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-    priorityClassName: ""
-    persistentVolume:
-      size: 200Gi
-    auth:
-      password: admin  # change me
 
 prometheus:
   rbac:
@@ -1905,14 +1907,14 @@ prometheus:
               replacement: /api/v1/nodes/$1/proxy/metrics/cadvisor
 
           metric_relabel_configs:
-            - source_labels: [ __name__ ]
+            - source_labels: [__name__]
               regex: (container_cpu_usage_seconds_total|container_memory_working_set_bytes|container_network_receive_errors_total|container_network_transmit_errors_total|container_network_receive_packets_dropped_total|container_network_transmit_packets_dropped_total|container_memory_usage_bytes|container_cpu_cfs_throttled_periods_total|container_cpu_cfs_periods_total|container_fs_usage_bytes|container_fs_limit_bytes|container_cpu_cfs_periods_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_usage_bytes|container_fs_limit_bytes|container_cpu_cfs_throttled_periods_total|container_cpu_cfs_periods_total|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_inodes_free|container_fs_inodes_total|container_fs_usage_bytes|container_fs_limit_bytes|container_spec_cpu_shares|container_spec_memory_limit_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|container_fs_reads_bytes_total|container_network_receive_bytes_total|container_fs_writes_bytes_total|container_fs_reads_bytes_total|cadvisor_version_info|kubecost_pv_info)
               action: keep
-            - source_labels: [ container ]
+            - source_labels: [container]
               target_label: container_name
               regex: (.+)
               action: replace
-            - source_labels: [ pod ]
+            - source_labels: [pod]
               target_label: pod_name
               regex: (.+)
               action: replace
@@ -1961,8 +1963,8 @@ prometheus:
               replacement: /api/v1/nodes/$1/proxy/metrics
 
           metric_relabel_configs:
-            - source_labels: [ __name__ ]
-              regex: (kubelet_volume_stats_used_bytes) # this metric is in alpha
+            - source_labels: [__name__]
+              regex: (kubelet_volume_stats_used_bytes)  # this metric is in alpha
               action: keep
 
         # Scrape config for service endpoints.
@@ -2013,10 +2015,9 @@ prometheus:
               action: replace
               target_label: kubernetes_node
           metric_relabel_configs:
-            - source_labels: [ __name__ ]
+            - source_labels: [__name__]
               regex: (container_cpu_allocation|container_cpu_usage_seconds_total|container_fs_limit_bytes|container_fs_writes_bytes_total|container_gpu_allocation|container_memory_allocation_bytes|container_memory_usage_bytes|container_memory_working_set_bytes|container_network_receive_bytes_total|container_network_transmit_bytes_total|DCGM_FI_DEV_GPU_UTIL|deployment_match_labels|kube_daemonset_status_desired_number_scheduled|kube_daemonset_status_number_ready|kube_deployment_spec_replicas|kube_deployment_status_replicas|kube_deployment_status_replicas_available|kube_job_status_failed|kube_namespace_annotations|kube_namespace_labels|kube_node_info|kube_node_labels|kube_node_status_allocatable|kube_node_status_allocatable_cpu_cores|kube_node_status_allocatable_memory_bytes|kube_node_status_capacity|kube_node_status_capacity_cpu_cores|kube_node_status_capacity_memory_bytes|kube_node_status_condition|kube_persistentvolume_capacity_bytes|kube_persistentvolume_status_phase|kube_persistentvolumeclaim_info|kube_persistentvolumeclaim_resource_requests_storage_bytes|kube_pod_container_info|kube_pod_container_resource_limits|kube_pod_container_resource_limits_cpu_cores|kube_pod_container_resource_limits_memory_bytes|kube_pod_container_resource_requests|kube_pod_container_resource_requests_cpu_cores|kube_pod_container_resource_requests_memory_bytes|kube_pod_container_status_restarts_total|kube_pod_container_status_running|kube_pod_container_status_terminated_reason|kube_pod_labels|kube_pod_owner|kube_pod_status_phase|kube_replicaset_owner|kube_statefulset_replicas|kube_statefulset_status_replicas|kubecost_cluster_info|kubecost_cluster_management_cost|kubecost_cluster_memory_working_set_bytes|kubecost_load_balancer_cost|kubecost_network_internet_egress_cost|kubecost_network_region_egress_cost|kubecost_network_zone_egress_cost|kubecost_node_is_spot|kubecost_pod_network_egress_bytes_total|node_cpu_hourly_cost|node_cpu_seconds_total|node_disk_reads_completed|node_disk_reads_completed_total|node_disk_writes_completed|node_disk_writes_completed_total|node_filesystem_device_error|node_gpu_count|node_gpu_hourly_cost|node_memory_Buffers_bytes|node_memory_Cached_bytes|node_memory_MemAvailable_bytes|node_memory_MemFree_bytes|node_memory_MemTotal_bytes|node_network_transmit_bytes_total|node_ram_hourly_cost|node_total_hourly_cost|pod_pvc_allocation|pv_hourly_cost|service_selector_labels|statefulSet_match_labels|kubecost_pv_info|up)
               action: keep
-
 
 
   #  prometheus.yml: # Sample block -- enable if using an in cluster durable store.
@@ -2223,8 +2224,6 @@ kubecostDeployment:
   statefulSet:
     enabled: false
   replicas: 1
-  leaderFollower:
-    enabled: false
   # deploymentStrategy:
   #   rollingUpdate:
   #     maxSurge: 1
@@ -2233,82 +2232,55 @@ kubecostDeployment:
   labels: {}
   annotations: {}
 
-  ## QueryServiceReplicas
-  ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
-  ##
-  queryServiceReplicas: 0
-  queryService:
-    serviceAccount:
-      create: true
-      annotations: {}
-      # name: kc-qs-test
-    securityContext: {}  # Define a custom securityContext for the query service. This will take the highest precedence.
-      # runAsGroup: 1001
-      # runAsUser: 1001
-      # fsGroup: 1001
-      # fsGroupChangePolicy: OnRootMismatch
-      # runAsNonRoot: false
-      # seccompProfile:
-      #   type: RuntimeDefault
-    containerSecurityContext:
-      allowPrivilegeEscalation: true
-      readOnlyRootFilesystem: false
-      capabilities:
-        drop:
-        - ALL
-    resources:
-      requests:
-        ## You can use the Kubecost savings report for 'Right-size your
-        ## container requests' to determine the recommended resource requests
-        ## once the pod has run for 24 hours.
-        cpu: 1000m
-        memory: 500Mi
-    ## default storage class
-    storageClass: ""
-    databaseVolumeSize: 100Gi
-    configVolumeSize: 1Gi
-    initImage: {}
-    # Optional - add extra ports to the query service container. For kubecost development purposes only - not recommended for users.
-    extraPorts: []
-      # - name: debug
-      #   port: 40000
-      #   targetPort: 40000
-      #   containerPort: 40000
-
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
 ## enabled when recommended by Kubecost staff.
 ##
 kubecostAggregator:
-  enabled: false
-  replicas: 1
-  ## Creates a new pod to retrieve CloudCost data. By default it uses the same
-  ## serviceaccount as the cost-analyzer pod. A custom serviceaccount can be
-  ## specified.
-  cloudCost:
-    enabled: false
-    # serviceAccountName:
-  jaeger:
-    enabled: false
-    image: jaegertracing/all-in-one
-    imageVersion: latest
-    # containerSecurityContext:
+  # deployMethod determines how Aggregator is deployed. Current options are
+  # "singlepod" (within cost-analyzer Pod) "statefulset" (separate
+  # StatefulSet), and "disabled". Only use "disabled" if this is a secondary
+  # Federated ETL cluster which does not need to answer queries.
+  deployMethod: singlepod
+
+  # fullImageName overrides the default image construction logic. The exact
+  # image provided (registry, image, tag) will be used for aggregator.
   # fullImageName:
+
+  # For legacy configuration support, `enabled: true` overrides deployMethod
+  # and causes `deployMethod: "statefulset"`
+  enabled: false
+
+  # Replicas sets the number of Aggregator replicas. It only has an effect if
+  # `deployMethod: "statefulset"`
+  replicas: 1
+
+
   resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 1Gi
   env:
     "LOG_LEVEL": "info"
+    "DB_READ_THREADS": "1"
+    "DB_WRITE_THREADS": "1"
+    "DB_MEMORY_LIMIT": "500MB"
+    "DB_CONCURRENT_INGESTION_COUNT": "3"
   persistentConfigsStorage:
     # default storage class
     storageClass: ""
     storageRequest: 1Gi
-  aggregatorStorage:
-    # default storage class
-    storageClass: ""
-    storageRequest: 20Gi
   aggregatorDbStorage:
     # default storage class
     storageClass: ""
     storageRequest: 128Gi
+
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
+
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -2337,6 +2309,38 @@ kubecostAggregator:
     #   targetPort: 40000
     #   containerPort: 40000
   securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
+
+  ## Creates a new container/pod to retrieve CloudCost data. By default it uses
+  ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
+  ## can be specified.
+  cloudCost:
+    # The cloudCost component of Aggregator depends on
+    # kubecostAggregator.deployMethod:
+    # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
+    # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
+    enabled: false
+    resources: {}
+      # requests:
+      #   cpu: 1000m
+      #   memory: 1Gi
+    # refreshRateHours:
+    # queryWindowDays:
+    # runWindowDays:
+    # serviceAccountName:
+    readinessProbe:
+      enabled: true
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      failureThreshold: 200
+
+  # Jaeger is an optional container attached to wherever the Aggregator
+  # container is running. It is used for performance investigation. Enable if
+  # Kubecost Support asks.
+  jaeger:
+    enabled: false
+    image: jaegertracing/all-in-one
+    imageVersion: latest
+    # containerSecurityContext:
 
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
@@ -2483,12 +2487,6 @@ federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
-  ## If true, load ETL data from the combined storage bucket to display data
-  ## from all monitored clusters. Note, if this is your first time setting up
-  ## Federated ETL, ensure you see federated ETL data in combined storage before
-  ## setting this config to true.
-  primaryCluster: false
-
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
   redirectS3Backup: false
@@ -2496,39 +2494,6 @@ federatedETL:
   ## If true, will query metrics from a central PromQL DB (e.g. Amazon Managed
   ## Prometheus)
   useMultiClusterDB: false
-
-  ## The Federator is responsible for combining each cluster's ETL files located
-  ## in the federated storage bucket, and placing results in the combined
-  ## storage bucket.
-  federator:
-    enabled: false
-
-    ## Optional. Used when reconciliation is expected to occur on the Primary.
-    # primaryClusterID: "cluster_id"
-
-    ## Optional. Allowlist of which cluster_ids to federate. If not set, the
-    ## federator will attempt to federated all clusters pushing to the federated
-    ## storage.
-    clusters: []
-
-    ## Optional. A list of extra volumes to pass to the federator Pod.
-    # extraVolumes: []
-
-    ## Optional. A list of extra volume mounts to pass to the federator Pod.
-    # extraVolumeMounts: []
-
-    ## Optional. An RFC 3339-formatted string. All ETL files with windows that
-    ## fall before this time are not processed by the Federator. If this is not
-    ## set, the Federator will process all files regardless of date.
-    # federationCutoffDate: "2022-10-18T00:00:00.000Z"
-
-    ## Optional. You can use the Kubecost savings report for 'Right-size your
-    ## container requests' to determine the recommended resource requests once
-    ## the pod has run for 24 hours.
-    resources: {}
-      # requests:
-      #   cpu: 100m
-      #   memory: 500Mi
 
 ## Kubecost Admission Controller (beta feature)
 ## To use this feature, ensure you have run the `create-admission-controller.sh`

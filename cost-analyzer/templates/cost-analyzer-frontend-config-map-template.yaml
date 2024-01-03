@@ -101,18 +101,12 @@ data:
     }
 {{- end }}
 
-  {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-    upstream queryservice {
-        server {{ .Release.Name }}-query-service-load-balancer.{{ .Release.Namespace }}:9003;
-    }
-  {{- end }}
-
-  {{- if .Values.kubecostAggregator.enabled }}
+  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
   {{- end }}
-  {{- if .Values.kubecostAggregator.cloudCost.enabled }}
+  {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
     upstream cloudCost {
         server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
     }
@@ -320,53 +314,9 @@ data:
         }
     {{- end }}
 
-    {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-        # Query Service Replicas (QSR) proxy
-      {{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
-      {{- fail "Query Service Replicas should not be used at the same time as the Kubecost Aggregator" }}
-      {{- end }}
-
-        location /model/allocation {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_pass http://queryservice/allocation;
-            proxy_redirect off;
-            proxy_http_version 1.1;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-
-        location /model/assets {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_pass http://queryservice/assets;
-            proxy_redirect off;
-            proxy_http_version 1.1;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-
-        # to get memory profile from query service need to prefix all request by queryservice/
-        # for example if you want heap dump from query service end point should be
-        # /model/queryservice/debug/pprof/heap to get queryservice heap dumps
-        location ~ /model/queryservice/(.*)$ {
-            proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 600 }};
-            proxy_pass http://queryservice/$1;
-            proxy_redirect off;
-            proxy_http_version 1.1;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-    {{- end }}
-
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostDeployment) (.Values.kubecostAggregator) .Values.kubecostAggregator.enabled }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
+    # TODO make aggregator route the default, start special-casing
+    # cost-model APIs
 
     # Aggregator proxy
     {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
@@ -704,7 +654,7 @@ data:
             return 200 '{"hideDiagnostics": "false"}';
             {{- end }}
         }
-    {{- if .Values.kubecostAggregator.cloudCost.enabled }}
+    {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
         location = /model/cloudCost/status {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://cloudCost/cloudCost/status;
@@ -803,13 +753,7 @@ data:
 
         location /model/aggregatorEnabled {
             default_type 'application/json';
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            {{- if .Values.kubecostAggregator.enabled }}
             return 200 '{"aggregatorEnabled": "true"}';
-            {{- else }}
-            return 200 '{"aggregatorEnabled": "false"}';
-            {{- end }}
         }
 
     }

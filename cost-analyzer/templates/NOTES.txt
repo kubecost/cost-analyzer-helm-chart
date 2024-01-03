@@ -1,7 +1,10 @@
 
 
 --------------------------------------------------
-{{- if and (.Values.thanos) (.Values.thanos.store) (.Values.thanos.store.enabled) }}
+{{/*
+https://github.com/helm/helm/issues/8026#issuecomment-881216078
+*/}}
+{{- if ((.Values.thanos).store).enabled }}
 {{- fail "Kubecost no longer includes Thanos by default. Please see https://docs.kubecost.com/install-and-configure/install/thanos for more information." }}
 {{- end }}
 

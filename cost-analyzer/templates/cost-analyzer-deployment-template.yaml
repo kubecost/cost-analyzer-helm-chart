@@ -1,10 +1,6 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 apiVersion: apps/v1
-{{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-kind: StatefulSet
-{{- else }}
 kind: Deployment
-{{- end }}
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   namespace: {{ .Release.Namespace }}
@@ -20,9 +16,6 @@ metadata:
 spec:
 {{- if .Values.kubecostDeployment }}
   replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
-{{- end }}
-{{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-  serviceName: {{ template "cost-analyzer.serviceName" . }}
 {{- end }}
   selector:
     matchLabels:
@@ -257,7 +250,6 @@ spec:
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
-{{- if not (and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled) }}
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -274,8 +266,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-{{- end }}
-{{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled (not (and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled)) }}
+{{- if .Values.persistentVolume.dbPVEnabled }}
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -305,15 +296,15 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+          {{- if .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
-          {{- end}}
+          {{- end }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -449,9 +440,7 @@ spec:
             mountPath: /etc/ubbagent
         {{- end }}
         {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.openSourceOnly }}
-        - image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
-        {{- else if .Values.kubecostModel.fullImageName }}
+        {{- if .Values.kubecostModel.fullImageName }}
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
@@ -527,7 +516,7 @@ spec:
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
-            {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- else if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -710,12 +699,6 @@ spec:
               value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
             {{- end }}
             {{- end }}
-            {{- if .Values.remoteWrite.postgres.enabled }}
-            - name: REMOTE_WRITE_ENABLED
-              value: "true"
-            - name: REMOTE_WRITE_PASSWORD
-              value: {{ .Values.remoteWrite.postgres.auth.password }}
-            {{- end }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
             - name: DB_BASIC_AUTH_USERNAME
               valueFrom:
@@ -816,15 +799,11 @@ spec:
             {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
               value: "true"
-            {{- end}}
-            {{- if .Values.federatedETL.primaryCluster }}
-            - name: FEDERATED_PRIMARY_CLUSTER
-              value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.redirectS3Backup }}
             - name: FEDERATED_REDIRECT_BACKUP
               value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.useMultiClusterDB }}
             - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
@@ -995,13 +974,6 @@ spec:
                   name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
             {{- end }}
-            {{- if .Values.remoteWrite.postgres.installLocal }}
-            - name: SQL_ADDRESS
-              value: pgprometheus
-            {{- else }}
-            - name: SQL_ADDRESS
-              value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
-            {{- end }}
             {{- if .Values.kubecostModel.promClusterIDLabel }}
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
@@ -1022,41 +994,6 @@ spec:
             - name: COST_EVENTS_AUDIT_ENABLED
               value: {{ (quote .Values.costEventsAudit.enabled) | default (quote false) }}
             {{- end }}
-            {{- /*
-              Leader/Follower has baseline requirements before enabling:
-                * ETL FileStore Enabled
-                * Bucket Backup Configured
-                * Replicas > 1
-            */}}
-            {{- if .Values.kubecostDeployment }}
-            {{- if .Values.kubecostDeployment.leaderFollower }}
-            {{- if .Values.kubecostDeployment.leaderFollower.enabled -}}
-
-            {{- $etlFileStore := .Values.kubecostModel.etlFileStoreEnabled }}
-            {{- if not $etlFileStore }}
-            {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
-            {{- end -}}
-
-            {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
-            {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
-            {{- end -}}
-
-            {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
-            {{- if not (gt (int $replicas) 1) }}
-            {{- fail "Leader/Follower should be used with kubecostDeployment.replicas > 1" }}
-            {{- end }}
-            {{- /*
-              Checks to ensure that the named template returns true if we've made it here
-            */}}
-            {{- $result := include "cost-analyzer.leaderFollowerEnabled" . }}
-            {{- if not $result }}
-            {{- fail (quote $result) }}
-            {{- end }}
-            - name: LEADER_FOLLOWER_ENABLED
-              value: "true"
-            {{- end }}
-            {{- end }}
-            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
@@ -1071,10 +1008,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-            {{- if .Values.kubecostAggregator.enabled }}
             - name: WATERFOWL_ENABLED
               value: "true"
-            {{- end }}
         {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
@@ -1148,6 +1083,18 @@ spec:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
           {{- end }}
         {{ end }}
+
+        {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
+        {{- include "aggregator.containerTemplate" . | nindent 8 }}
+        {{- if .Values.kubecostAggregator.jaeger.enabled }}
+        {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+
+        {{- if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+        {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
+        {{- end }}
+
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
@@ -1177,39 +1124,4 @@ spec:
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-  volumeClaimTemplates:
-    - metadata:
-        name: persistent-configs
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        {{- if .Values.persistentVolume.storageClass }}
-        storageClassName: {{ .Values.persistentVolume.storageClass }}
-        {{ end }}
-        resources:
-          requests:
-          {{- if .Values.persistentVolume }}
-            storage: {{ .Values.persistentVolume.size }}
-          {{- else }}
-            storage: 32.0Gi
-          {{ end }}
-    {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
-    - metadata:
-        name: persistent-db
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        {{- if .Values.persistentVolume.dbStorageClass }}
-        storageClassName: {{ .Values.persistentVolume.dbStorageClass }}
-        {{ end }}
-        resources:
-          requests:
-          {{- if .Values.persistentVolume }}
-            storage: {{ .Values.persistentVolume.dbSize }}
-          {{- else }}
-            storage: 32.0Gi
-          {{ end }}
-    {{- end }}
-  {{- end }}
 {{- end }}
