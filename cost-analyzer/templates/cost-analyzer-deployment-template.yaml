@@ -713,18 +713,6 @@ spec:
               value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
             {{- end }}
             {{- end }}
-            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
-            - name: MC_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: USERNAME
-            - name: MC_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: PASSWORD
-            {{- end }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
             - name: DB_BASIC_AUTH_USERNAME
               valueFrom:
