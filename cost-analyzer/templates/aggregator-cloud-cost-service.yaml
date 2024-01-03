@@ -1,4 +1,4 @@
-{{- if .Values.kubecostAggregator.cloudCost.enabled }}
+{{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
 
 kind: Service
 apiVersion: v1

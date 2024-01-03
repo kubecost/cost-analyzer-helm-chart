@@ -48,7 +48,6 @@ kubecostModel:
   image: public.ecr.aws/kubecost/cost-model
   imagePullPolicy: Always
   warmCache: true
-  warmSavingsCache: true
   etl: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
