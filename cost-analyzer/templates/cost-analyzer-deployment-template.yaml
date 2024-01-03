@@ -487,6 +487,11 @@ spec:
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+        {{- if .Values.global.openDebugPorts }}
+          - name: debug
+            containerPort: 40000
+            protocol: TCP
+        {{- end }}
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}

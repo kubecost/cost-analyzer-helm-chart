@@ -80,6 +80,11 @@ spec:
             - name: tcp-api
               containerPort: 9005
               protocol: TCP
+          {{- if .Values.global.openDebugPorts }}
+            - name: debug
+              containerPort: 40000
+              protocol: TCP
+          {{- end }}
           resources:
             {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 12 }}
           volumeMounts:

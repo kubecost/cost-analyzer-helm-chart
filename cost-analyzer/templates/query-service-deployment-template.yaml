@@ -109,6 +109,11 @@ spec:
             - name: tcp-model
               containerPort: 9003
               protocol: TCP
+          {{- if .Values.global.openDebugPorts }}
+          - name: debug
+            containerPort: 40000
+            protocol: TCP
+          {{- end }}
           {{- with .Values.kubecostDeployment.queryService.extraPorts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}

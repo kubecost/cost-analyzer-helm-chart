@@ -29,6 +29,11 @@ spec:
     - name: tcp-model
       port: 9003
       targetPort: 9003
+  {{- if .Values.global.openDebugPorts }}
+    - name: debug
+      port: 40000
+      targetPort: 40000
+  {{- end }}
   {{- with .Values.kubecostModel.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}

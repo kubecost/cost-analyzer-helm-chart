@@ -15,4 +15,9 @@ spec:
     - name: tcp-api
       port: 9005
       targetPort: 9005
+  {{- if .Values.global.openDebugPorts }}
+    - name: debug
+      port: 40000
+      targetPort: 40000
+  {{- end }}
 {{- end }}

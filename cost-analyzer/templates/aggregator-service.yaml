@@ -16,6 +16,11 @@ spec:
     - name: tcp-api
       port: 9004
       targetPort: 9004
+  {{- if .Values.global.openDebugPorts }}
+    - name: debug
+      port: 40000
+      targetPort: 40000
+  {{- end }}
   {{- with .Values.kubecostAggregator.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}

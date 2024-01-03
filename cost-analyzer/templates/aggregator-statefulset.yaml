@@ -122,6 +122,11 @@ spec:
             - name: tcp-api
               containerPort: 9004
               protocol: TCP
+          {{- if .Values.global.openDebugPorts }}
+            - name: debug
+              containerPort: 40000
+              protocol: TCP
+          {{- end }}
           {{- with.Values.kubecostAggregator.extraPorts }}
             {{- toYaml . | nindent 12 }}
           {{- end }}

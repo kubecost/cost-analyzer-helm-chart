@@ -252,6 +252,7 @@ global:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+#  openDebugPorts: false # For internal development purposes only; opens up an exta port to back end services for debugger
 
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
