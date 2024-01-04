@@ -2449,7 +2449,7 @@ grafana:
   #           prometheusType: Prometheus
   #           prometheusVersion: 2.35.0
   #           timeInterval: 1m
-  
+
   ## Number of replicas for the Grafana deployment
   replicas: 1
 
@@ -2710,7 +2710,7 @@ grafana:
       url: https://grafana.net
     auth.anonymous:
       enabled: true
-      org_role:  Editor
+      org_role: Editor
       org_name: Main Org.
 
 serviceAccount:
