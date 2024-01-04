@@ -7,8 +7,3 @@ annotations:
   "artifacthub.io/links": |
     - name: Homepage
       url: https://www.kubecost.com
-dependencies:
-  - condition: global.grafana.enabled
-    name: grafana
-    repository: file://./charts/grafana
-    version: "~1.17.2"

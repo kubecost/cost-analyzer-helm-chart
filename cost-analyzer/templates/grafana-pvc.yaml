@@ -1,5 +1,5 @@
 {{ if .Values.global.grafana.enabled }}
-{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
+{{- if and .Values.grafana.persistence.enabled (not .Values.grafana.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -7,21 +7,20 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "grafana.name" . }}
-    chart: {{ template "grafana.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-  {{- with .Values.persistence.annotations  }}
+  {{- with .Values.grafana.persistence.annotations  }}
   annotations:
 {{ toYaml . | indent 4 }}
   {{- end }}
 spec:
   accessModes:
-    {{- range .Values.persistence.accessModes }}
+    {{- range .Values.grafana.persistence.accessModes }}
     - {{ . | quote }}
     {{- end }}
   resources:
     requests:
-      storage: {{ .Values.persistence.size | quote }}
-  storageClassName: {{ .Values.persistence.storageClassName }}
+      storage: {{ .Values.grafana.persistence.size | quote }}
+  storageClassName: {{ .Values.grafana.persistence.storageClassName }}
 {{- end -}}
 {{ end }}

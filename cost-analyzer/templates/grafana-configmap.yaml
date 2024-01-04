@@ -6,28 +6,27 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: {{ template "grafana.name" . }}
-    chart: {{ template "grafana.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-{{- if .Values.plugins }}
-  plugins: {{ join "," .Values.plugins }}
+{{- if .Values.grafana.plugins }}
+  plugins: {{ join "," .Values.grafana.plugins }}
 {{- end }}
   grafana.ini: |
-{{- range $key, $value := index .Values "grafana.ini" }}
+{{- range $key, $value := index .Values.grafana "grafana.ini" }}
     [{{ $key }}]
     {{- range $elem, $elemVal := $value }}
     {{ $elem }} = {{ $elemVal }}
     {{- end }}
 {{- end }}
 
-{{- if .Values.datasources }}
-  {{- range $key, $value := .Values.datasources }}
+{{- if .Values.grafana.datasources }}
+  {{- range $key, $value := .Values.grafana.datasources }}
   {{ $key }}: |
 {{ toYaml $value | trim | indent 4 }}
   {{- end -}}
 {{- end }}
-{{- if not .Values.datasources }}
+{{- if not .Values.grafana.datasources }}
   datasources.yaml: |
     apiVersion: 1
     datasources:
@@ -55,26 +54,26 @@ data:
         timeInterval: 1m
 {{- end -}}
 {{- end }}
-{{- if .Values.dashboardProviders }}
-  {{- range $key, $value := .Values.dashboardProviders }}
+{{- if .Values.grafana.dashboardProviders }}
+  {{- range $key, $value := .Values.grafana.dashboardProviders }}
   {{ $key }}: |
 {{ toYaml $value | indent 4 }}
   {{- end -}}
 {{- end -}}
 
-{{- if .Values.dashboards  }}
+{{- if .Values.grafana.dashboards  }}
   download_dashboards.sh: |
     #!/usr/bin/env sh
     set -euf
-    {{- if .Values.dashboardProviders }}
-      {{- range $key, $value := .Values.dashboardProviders }}
+    {{- if .Values.grafana.dashboardProviders }}
+      {{- range $key, $value := .Values.grafana.dashboardProviders }}
         {{- range $value.providers }}
     mkdir -p {{ .options.path }}
         {{- end }}
       {{- end }}
     {{- end }}
 
-  {{- range $provider, $dashboards := .Values.dashboards }}
+  {{- range $provider, $dashboards := .Values.grafana.dashboards }}
     {{- range $key, $value := $dashboards }}
       {{- if (or (hasKey $value "gnetId") (hasKey $value "url")) }}
     curl -sk \
