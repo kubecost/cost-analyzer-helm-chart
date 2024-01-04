@@ -505,7 +505,7 @@ kubecostModel:
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
   cloudCost:
-    enabled: true
+    # enabled: true
     labelList:
       IsIncludeList: false
       # format labels as comma separated string (ex. "label1,label2,label3")

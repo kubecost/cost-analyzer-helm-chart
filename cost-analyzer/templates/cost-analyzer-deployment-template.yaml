@@ -868,7 +868,7 @@ spec:
             {{- end }}
             {{- with .Values.kubecostModel.cloudCost }}
             - name: CLOUD_COST_ENABLED
-              value: {{ (quote .enabled) | default (quote true) }}
+              value: "true"
             {{- with .labelList }}
             - name: CLOUD_COST_IS_INCLUDE_LIST
               value: {{ (quote .IsIncludeList) | default (quote false) }}
@@ -1112,7 +1112,7 @@ spec:
         {{- end }}
         {{- end }}
 
-        {{- if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+        {{- if not (eq (include "aggregator.deployMethod" .) "statefulset") }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
 
