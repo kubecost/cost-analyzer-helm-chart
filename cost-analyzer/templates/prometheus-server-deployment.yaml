@@ -45,48 +45,6 @@ spec:
 {{ toYaml .Values.prometheus.server.extraInitContainers | indent 8 }}
       {{- end }}
       containers:
-        {{- if .Values.prometheus.configmapReload.prometheus.enabled }}
-        - name: {{ template "prometheus.name" . }}-{{ .Values.prometheus.server.name }}-{{ .Values.prometheus.configmapReload.prometheus.name }}
-          image: "{{ .Values.prometheus.configmapReload.prometheus.image.repository }}:{{ .Values.prometheus.configmapReload.prometheus.image.tag }}"
-          imagePullPolicy: "{{ .Values.prometheus.configmapReload.prometheus.image.pullPolicy }}"
-          args:
-            - --watched-dir=/etc/config
-            - --reload-url=http://127.0.0.1:9090{{ .Values.prometheus.server.prefixURL }}/-/reload
-          {{- range $key, $value := .Values.prometheus.configmapReload.prometheus.extraArgs }}
-            - --{{ $key }}={{ $value }}
-          {{- end }}
-          {{- range .Values.prometheus.configmapReload.prometheus.extraVolumeDirs }}
-            - --watched-dir={{ . }}
-          {{- end }}
-          resources:
-          {{- toYaml .Values.prometheus.configmapReload.prometheus.resources | nindent 12 }}
-          securityContext:
-          {{- if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else }}
-          securityContext:
-            {{- toYaml .Values.prometheus.configmapReload.prometheus.containerSecurityContext | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            {{- if .Values.prometheus.selfsignedCertConfigMapName }}
-            - name: {{ .Values.prometheus.selfsignedCertConfigMapName }}
-              mountPath: /etc/ssl/certs/my-cert.pem
-              subPath: my-cert.pem
-              readOnly: false
-            {{- end }}
-            - name: config-volume
-              mountPath: /etc/config
-              readOnly: true
-          {{- range .Values.prometheus.configmapReload.prometheus.extraConfigmapMounts }}
-            - name: {{ $.Values.prometheus.configmapReload.prometheus.name }}-{{ .name }}
-              mountPath: {{ .mountPath }}
-              subPath: {{ .subPath }}
-              readOnly: {{ .readOnly }}
-          {{- end }}
-        {{- end }}
-
         - name: {{ template "prometheus.name" . }}-{{ .Values.prometheus.server.name }}
           image: "{{ .Values.prometheus.server.image.repository }}:{{ .Values.prometheus.server.image.tag }}"
           imagePullPolicy: "{{ .Values.prometheus.server.image.pullPolicy }}"
@@ -231,11 +189,6 @@ spec:
           hostPath:
             path: {{ .hostPath }}
       {{- end }}
-      {{- range .Values.prometheus.configmapReload.prometheus.extraConfigmapMounts }}
-        - name: {{ $.Values.prometheus.configmapReload.prometheus.name }}-{{ .name }}
-          configMap:
-            name: {{ .configMap }}
-      {{- end }}
       {{- range .Values.prometheus.server.extraConfigmapMounts }}
         - name: {{ $.Values.prometheus.server.name }}-{{ .name }}
           configMap:
@@ -245,11 +198,6 @@ spec:
         - name: {{ .name }}
           secret:
             secretName: {{ tpl .secretName $ }}
-      {{- end }}
-      {{- range .Values.prometheus.configmapReload.prometheus.extraConfigmapMounts }}
-        - name: {{ .name }}
-          configMap:
-            name: {{ .configMap }}
       {{- end }}
 {{- end -}}
 {{- end -}}
