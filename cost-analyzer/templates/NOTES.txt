@@ -9,7 +9,7 @@ https://github.com/helm/helm/issues/8026#issuecomment-881216078
 {{- end }}
 
 {{- if (.Values.podSecurityPolicy).enabled }}
-{{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the upgrade again with the podSecurityPolicy values removed." }}
+{{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
 {{- end }}
 
 {{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
