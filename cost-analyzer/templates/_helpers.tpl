@@ -291,11 +291,11 @@ app: aggregator
 {{- end }}
 
 {{- define "cloudCost.selectorLabels" -}}
-{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
-{{- else if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+{{- else }}
 {{- include "cost-analyzer.selectorLabels" . }}
 {{- end }}
 {{- end }}
@@ -776,13 +776,19 @@ Create the name of the service account to use for the server component
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-
+  {{- if (eq (include "aggregator.deployMethod" .) "singlepod") }}
+  {{/*
+    persistent-configs is used to access cloud keys when configured via UI and
+    for storing CC data. In an enterprise config (aggregator statefulset) a CC
+    config secret is required and all data is uploaded to S3 rather than stored
+    in this PV, so it does not need to be mounted.
+  */}}
+    - name: persistent-configs
+      mountPath: /var/configs
+  {{- end }}
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
-
-
-
   {{- end }}
   env:
     - name: CONFIG_PATH
@@ -803,7 +809,16 @@ Create the name of the service account to use for the server component
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
-
+    {{- with .Values.kubecostModel.cloudCost }}
+    {{- with .labelList }}
+    - name: CLOUD_COST_IS_INCLUDE_LIST
+      value: {{ (quote .IsIncludeList) | default (quote false) }}
+    - name: CLOUD_COST_LABEL_LIST
+      value: {{ (quote .labels) }}
+    {{- end }}
+    - name: CLOUD_COST_TOP_N
+      value: {{ (quote .topNItems) | default (quote 1000) }}
+    {{- end }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
