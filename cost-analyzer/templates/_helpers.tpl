@@ -19,22 +19,6 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-{{/* Cloud Cost inherits its deploy method from Aggregator. Either
-kubecostModel.cloudCost.enabled OR kubecostAggregator.cloudCost.enabled will
-enable it. */}}
-{{- define "cloudCost.deployMethod" -}}
-  {{ if not (or .Values.kubecostModel.cloudCost.enabled .Values.kubecostAggregator.cloudCost.enabled) }}
-    {{- printf "disabled" }}
-  {{ else if eq (include "aggregator.deployMethod" .) "none" }}
-    {{- printf "disabled" }}
-  {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
-    {{- printf "deployment" }}
-  {{- else if eq (include "aggregator.deployMethod" .) "singlepod" }}
-    {{- printf "singlepod" }}
-  {{- else }}
-    {{ fail "Unable to set cloudCost.deployMethod" }}
-  {{- end }}
-{{- end }}
 
 
 {{/*
@@ -792,20 +776,13 @@ Create the name of the service account to use for the server component
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if .Values.kubecostProductConfigs }}
-  {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+
+  {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
-  {{- else }}
-    # In this case, the cloud-integration is expected to come from the UI or
-    # from workload identity.
-    - name: cloud-integration
-      mountPath: /var/configs/cloud-integration
-  {{- end }}
-    # In this case, the cloud-integration is expected to come from the UI or
-    # from workload identity.
-    - name: cloud-integration
-      mountPath: /var/configs/cloud-integration
+
+
+
   {{- end }}
   env:
     - name: CONFIG_PATH

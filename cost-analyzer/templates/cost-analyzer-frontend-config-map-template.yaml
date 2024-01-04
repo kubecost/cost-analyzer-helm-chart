@@ -106,7 +106,7 @@ data:
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
   {{- end }}
-  {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
+  {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
     upstream cloudCost {
         server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
     }
@@ -654,7 +654,7 @@ data:
             return 200 '{"hideDiagnostics": "false"}';
             {{- end }}
         }
-    {{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
+    {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
         location = /model/cloudCost/status {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://cloudCost/cloudCost/status;
