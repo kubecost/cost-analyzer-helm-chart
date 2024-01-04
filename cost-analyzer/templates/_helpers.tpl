@@ -789,9 +789,6 @@ Create the name of the service account to use for the server component
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
-
-
-
   {{- end }}
   env:
     - name: CONFIG_PATH
@@ -812,7 +809,16 @@ Create the name of the service account to use for the server component
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
-
+    {{- with .Values.kubecostModel.cloudCost }}
+    {{- with .labelList }}
+    - name: CLOUD_COST_IS_INCLUDE_LIST
+      value: {{ (quote .IsIncludeList) | default (quote false) }}
+    - name: CLOUD_COST_LABEL_LIST
+      value: {{ (quote .labels) }}
+    {{- end }}
+    - name: CLOUD_COST_TOP_N
+      value: {{ (quote .topNItems) | default (quote 1000) }}
+    {{- end }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
