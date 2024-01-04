@@ -776,7 +776,16 @@ Create the name of the service account to use for the server component
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-
+  {{- if (eq (include "aggregator.deployMethod" .) "singlepod") }}
+  {{/*
+    persistent-configs is used to access cloud keys when configured via UI and
+    for storing CC data. In an enterprise config (aggregator statefulset) a CC
+    config secret is required and all data is uploaded to S3 rather than stored
+    in this PV, so it does not need to be mounted.
+  */}}
+    - name: persistent-configs
+      mountPath: /var/configs
+  {{- end }}
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
