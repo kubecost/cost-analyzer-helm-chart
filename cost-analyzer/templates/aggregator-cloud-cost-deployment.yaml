@@ -1,4 +1,9 @@
-{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
+
+{{/*
+  A cloud integration secret is required for cloud cost to function as a dedicated pod.
+*/}}
+{{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -80,4 +85,5 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
 {{- end }}
