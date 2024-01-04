@@ -629,7 +629,7 @@ Create the name of the service account
 
 {{/*
 ==============================================================
-Begin Kuecost 2.0 templates
+Begin Kubecost 2.0 templates
 ==============================================================
 */}}
 {{/*
