@@ -8,6 +8,9 @@ https://github.com/helm/helm/issues/8026#issuecomment-881216078
 {{- fail "Kubecost no longer includes Thanos by default. Please see https://docs.kubecost.com/install-and-configure/install/thanos for more information." }}
 {{- end }}
 
+{{- if (.Values.podSecurityPolicy).enabled }}
+{{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the upgrade again with the podSecurityPolicy values removed." }}
+{{- end }}
 
 {{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
 {{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
