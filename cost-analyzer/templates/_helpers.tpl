@@ -291,11 +291,11 @@ app: aggregator
 {{- end }}
 
 {{- define "cloudCost.selectorLabels" -}}
-{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
-{{- else if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+{{- else }}
 {{- include "cost-analyzer.selectorLabels" . }}
 {{- end }}
 {{- end }}
