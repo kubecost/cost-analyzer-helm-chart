@@ -20,7 +20,6 @@ Set important variables before starting main templates
 {{- end }}
 
 
-
 {{/*
 Kubecost 2.0 preconditions
 */}}
@@ -638,15 +637,14 @@ Create the name of the service account to use for the server component
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-    {{- $etlBackupBucketSecret := "" }}
     {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
-    {{- end }}
-    {{- if $etlBackupBucketSecret }}
-    - name: etl-bucket-config
+    - name: federated-storage-config
       mountPath: /var/configs/etl
       readOnly: true
-    {{- else if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
+    {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
+    {{- fail "When in StatefulSet mode, Aggregator requires that kubecostModel.federatedStorageConfigSecret be set." }}
+    {{- end }}
+    {{- if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
     - name: persistent-db
       mountPath: /var/db
       # aggregator should only need read access to ETL data
@@ -699,13 +697,13 @@ Create the name of the service account to use for the server component
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
-    {{- if $etlBackupBucketSecret }}
+    {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
     # If this isn't set, we pretty much have to be in a read only state,
     # initialization will probably fail otherwise.
     - name: ETL_BUCKET_CONFIG
-      {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
+      {{- if not .Values.kubecostModel.federatedStorageConfigSecret }}
       value: /var/configs/etl/object-store.yaml
-      {{- else  }}
+      {{- else }}
       value: /var/configs/etl/federated-store.yaml
     - name: FEDERATED_STORE_CONFIG
       value: /var/configs/etl/federated-store.yaml
