@@ -1,5 +1,4 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (.Values.kubecostAggregator) }}
-{{- if .Values.kubecostAggregator.enabled }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 
 kind: Service
 apiVersion: v1
@@ -19,5 +18,4 @@ spec:
   {{- with .Values.kubecostAggregator.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-{{- end }}
 {{- end }}

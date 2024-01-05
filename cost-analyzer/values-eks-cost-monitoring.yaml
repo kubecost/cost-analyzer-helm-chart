@@ -30,9 +30,6 @@ priority:
 networkPolicy:
   enabled: false
 
-podSecurityPolicy:
-  enabled: false
-
 # Enable this flag if you need to install with specific image tags
 # imageVersion: prod-1.97.0
 
@@ -51,7 +48,6 @@ kubecostModel:
   image: public.ecr.aws/kubecost/cost-model
   imagePullPolicy: Always
   warmCache: true
-  warmSavingsCache: true
   etl: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
@@ -173,8 +169,6 @@ prometheus:
       ##
       resources: {}
 
-  kube-state-metrics:
-    disabled: true
   nodeExporter:
     enabled: false
 

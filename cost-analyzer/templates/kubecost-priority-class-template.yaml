@@ -1,7 +1,7 @@
 {{- if .Values.priority }}
 {{- if .Values.priority.enabled }}
 {{- if eq (len .Values.priority.name) 0 }}
-apiVersion: {{ include "cost-analyzer.priorityClass.apiVersion" . }}
+apiVersion: scheduling.k8s.io/v1
 kind: PriorityClass
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}-priority

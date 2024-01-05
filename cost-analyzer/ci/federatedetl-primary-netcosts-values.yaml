@@ -3,11 +3,7 @@ kubecostProductConfigs:
   # cloudIntegrationSecret: cloud-integration
 federatedETL:
   useExistingS3Config: false
-  primaryCluster: true
   federatedCluster: true
-  federator:
-    enabled: true
-    # primaryClusterID: CLUSTER_NAME # Add after initial setup. This will break the combined folder setup if included at deployment.
 kubecostModel:
   containerStatsEnabled: true
   cloudCost:
@@ -17,7 +13,6 @@ kubecostModel:
 serviceAccount:  # this example uses AWS IRSA, which creates a service account with rights to the s3 bucket. If using keys+secrets in the federated-store, set create: true
   create: true
 kubecostDeployment:
-  queryServiceReplicas: 0  # to improve performance, increase replica count. see: https://docs.kubecost.com/install-and-configure/install/etl-backup/query-service-replicas
 global:
   prometheus:
     enabled: true
@@ -26,10 +21,6 @@ global:
     enabled: false
     proxy: false
 prometheus:
-  kubeStateMetrics:
-    enabled: false
-  kube-state-metrics:
-    disabled: true
   nodeExporter:
     enabled: false
   server:

@@ -1,4 +1,4 @@
-{{- if .Values.kubecostAggregator.cloudCost.enabled }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 
 kind: Service
 apiVersion: v1

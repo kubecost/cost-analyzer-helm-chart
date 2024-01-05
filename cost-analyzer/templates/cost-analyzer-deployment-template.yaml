@@ -1,10 +1,6 @@
 {{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 apiVersion: apps/v1
-{{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-kind: StatefulSet
-{{- else }}
 kind: Deployment
-{{- end }}
 metadata:
   name: {{ template "cost-analyzer.fullname" . }}
   namespace: {{ .Release.Namespace }}
@@ -20,9 +16,6 @@ metadata:
 spec:
 {{- if .Values.kubecostDeployment }}
   replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
-{{- end }}
-{{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-  serviceName: {{ template "cost-analyzer.serviceName" . }}
 {{- end }}
   selector:
     matchLabels:
@@ -98,14 +91,11 @@ spec:
           emptyDir: { }
         {{- end }}
         {{- /*
-          If Thanos is enabled, then enable ETL backups by default.
           To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
         */}}
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.etlBucketConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
-        {{- else if and .Values.global.thanos.enabled (ne (typeOf .Values.kubecostModel.etlBucketConfigSecret) "string") }}
-            {{- $etlBackupBucketSecret = .Values.thanos.storeSecretName }}
         {{- end }}
         {{- if $etlBackupBucketSecret }}
         - name: etl-bucket-config
@@ -260,7 +250,6 @@ spec:
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
         {{- end }}
-{{- if not (and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled) }}
         - name: persistent-configs
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -277,8 +266,7 @@ spec:
           persistentVolumeClaim:
             claimName: {{ template "cost-analyzer.fullname" . }}
 {{- end }}
-{{- end }}
-{{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled (not (and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled)) }}
+{{- if .Values.persistentVolume.dbPVEnabled }}
         - name: persistent-db
 {{- if .Values.persistentVolume }}
 {{- if .Values.persistentVolume.enabled }}
@@ -308,15 +296,15 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+          {{- if .Values.persistentVolume.dbPVEnabled }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs && /bin/chmod -R 777 /var/db"]
           {{- else }}
           command: ["sh", "-c", "/bin/chmod -R 777 /var/configs"]
-          {{- end}}
+          {{- end }}
           volumeMounts:
             - name: persistent-configs
               mountPath: /var/configs
-            {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -452,9 +440,7 @@ spec:
             mountPath: /etc/ubbagent
         {{- end }}
         {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.openSourceOnly }}
-        - image: quay.io/kubecost1/kubecost-cost-model:{{ .Values.imageVersion }}
-        {{- else if .Values.kubecostModel.fullImageName }}
+        {{- if .Values.kubecostModel.fullImageName }}
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
@@ -530,7 +516,7 @@ spec:
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
-            {{- else if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
+            {{- else if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -678,6 +664,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            - name: CLOUD_COST_ENABLED
+              value: "false"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             {{- if .Values.kubecostProductConfigs }}
@@ -713,24 +701,6 @@ spec:
               value: {{ (quote .Values.kubecostProductConfigs.regionOverrides) }}
             {{- end }}
             {{- end }}
-            {{- if .Values.remoteWrite.postgres.enabled }}
-            - name: REMOTE_WRITE_ENABLED
-              value: "true"
-            - name: REMOTE_WRITE_PASSWORD
-              value: {{ .Values.remoteWrite.postgres.auth.password }}
-            {{- end }}
-            {{- if .Values.global.thanos.queryServiceBasicAuthSecretName}}
-            - name: MC_BASIC_AUTH_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: USERNAME
-            - name: MC_BASIC_AUTH_PW
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBasicAuthSecretName }}
-                  key: PASSWORD
-            {{- end }}
             {{- if .Values.global.prometheus.queryServiceBasicAuthSecretName}}
             - name: DB_BASIC_AUTH_USERNAME
               valueFrom:
@@ -748,13 +718,6 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.global.prometheus.queryServiceBearerTokenSecretName }}
-                  key: TOKEN
-            {{- end }}
-            {{- if .Values.global.thanos.queryServiceBearerTokenSecretName }}
-            - name: MC_BEARER_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.global.thanos.queryServiceBearerTokenSecretName }}
                   key: TOKEN
             {{- end }}
             {{- if .Values.global.prometheus.insecureSkipVerify }}
@@ -838,15 +801,11 @@ spec:
             {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
               value: "true"
-            {{- end}}
-            {{- if .Values.federatedETL.primaryCluster }}
-            - name: FEDERATED_PRIMARY_CLUSTER
-              value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.redirectS3Backup }}
             - name: FEDERATED_REDIRECT_BACKUP
               value: "true"
-            {{- end}}
+            {{- end }}
             {{- if .Values.federatedETL.useMultiClusterDB }}
             - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
@@ -895,24 +854,6 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- with .Values.kubecostModel.cloudCost }}
-            - name: CLOUD_COST_ENABLED
-              value: {{ (quote .enabled) | default (quote true) }}
-            {{- with .labelList }}
-            - name: CLOUD_COST_IS_INCLUDE_LIST
-              value: {{ (quote .IsIncludeList) | default (quote false) }}
-            - name: CLOUD_COST_LABEL_LIST
-              value: {{ (quote .labels) }}
-            {{- end }}
-            - name: CLOUD_COST_TOP_N
-              value: {{ (quote .topNItems) | default (quote 1000) }}
-            {{- end }}
-            - name: CLOUD_COST_REFRESH_RATE_HOURS
-              value: {{ .Values.kubecostModel.cloudCost.refreshRateHours | default .Values.kubecostModel.etlCloudRefreshRateHours | default  6 | quote }}
-            - name: CLOUD_COST_QUERY_WINDOW_DAYS
-              value: {{ .Values.kubecostModel.cloudCost.queryWindowDays | default .Values.kubecostModel.etlCloudQueryWindowDays | default  7 | quote }}
-            - name: CLOUD_COST_RUN_WINDOW_DAYS
-              value: {{ .Values.kubecostModel.cloudCost.runWindowDays | default .Values.kubecostModel.etlCloudRunWindowDays | default 3 | quote }}
             - name: CONTAINER_STATS_ENABLED
               value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote false) }}
             - name: RECONCILE_NETWORK
@@ -959,38 +900,6 @@ spec:
             - name: ADVANCED_NETWORK_STATS
               value: "false"
             {{- end}}
-            {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- /*
-              If queryService is set, the cost-analyzer will always pass THANOS_ENABLED as true
-              to ensure that the custom query service target is used. The global.thanos.enabled
-              flag does not have any affect on this behavior.
-            */}}
-            {{- if .Values.global.thanos.queryService }}
-            - name: THANOS_ENABLED
-              value: "true"
-            - name: THANOS_QUERY_URL
-              value: {{ .Values.global.thanos.queryService }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
-            {{- else if and .Values.global.thanos.enabled .Values.thanos }}
-            {{- if .Values.thanos.query }}
-            {{- if .Values.thanos.query.enabled }}
-            - name: THANOS_ENABLED
-            {{- if .Values.hosted }}
-              value: "false"
-            {{- else }}
-              value: "true"
-            {{- end }}
-            - name: THANOS_QUERY_URL
-              value: http://{{ .Release.Name }}-thanos-query-frontend-http.{{ .Release.Namespace }}:{{ .Values.thanos.queryFrontend.http.port }}
-            - name: THANOS_QUERY_OFFSET
-              value: {{ .Values.global.thanos.queryOffset | default "3h" }}
-            - name: THANOS_MAX_SOURCE_RESOLUTION
-              value: {{ .Values.kubecostModel.maxSourceResolution | default "raw" }}
             {{- end }}
             {{- end }}
             {{- end }}
@@ -1049,13 +958,6 @@ spec:
                   name: {{ .Values.prometheus.server.clusterIDConfigmap }}
                   key: CLUSTER_ID
             {{- end }}
-            {{- if .Values.remoteWrite.postgres.installLocal }}
-            - name: SQL_ADDRESS
-              value: pgprometheus
-            {{- else }}
-            - name: SQL_ADDRESS
-              value: {{ .Values.remoteWrite.postgres.remotePostgresAddress }}
-            {{- end }}
             {{- if .Values.kubecostModel.promClusterIDLabel }}
             - name: PROM_CLUSTER_ID_LABEL
               value: {{ .Values.kubecostModel.promClusterIDLabel }}
@@ -1076,41 +978,6 @@ spec:
             - name: COST_EVENTS_AUDIT_ENABLED
               value: {{ (quote .Values.costEventsAudit.enabled) | default (quote false) }}
             {{- end }}
-            {{- /*
-              Leader/Follower has baseline requirements before enabling:
-                * ETL FileStore Enabled
-                * Bucket Backup Configured
-                * Replicas > 1
-            */}}
-            {{- if .Values.kubecostDeployment }}
-            {{- if .Values.kubecostDeployment.leaderFollower }}
-            {{- if .Values.kubecostDeployment.leaderFollower.enabled -}}
-
-            {{- $etlFileStore := .Values.kubecostModel.etlFileStoreEnabled }}
-            {{- if not $etlFileStore }}
-            {{- fail "Leader/Follower requires kubecostModel.etlFileStoreEnabled be true." }}
-            {{- end -}}
-
-            {{- if (eq (quote .Values.kubecostModel.etlBucketConfigSecret) "") }}
-            {{- fail "Leader/Follower requires kubecostModel.etlBucketConfigSecret be valid." }}
-            {{- end -}}
-
-            {{- $replicas := .Values.kubecostDeployment.replicas | default 1 }}
-            {{- if not (gt (int $replicas) 1) }}
-            {{- fail "Leader/Follower should be used with kubecostDeployment.replicas > 1" }}
-            {{- end }}
-            {{- /*
-              Checks to ensure that the named template returns true if we've made it here
-            */}}
-            {{- $result := include "cost-analyzer.leaderFollowerEnabled" . }}
-            {{- if not $result }}
-            {{- fail (quote $result) }}
-            {{- end }}
-            - name: LEADER_FOLLOWER_ENABLED
-              value: "true"
-            {{- end }}
-            {{- end }}
-            {{- end }}
             - name: RELEASE_NAME
               value: {{ .Release.Name }}
             - name: KUBECOST_NAMESPACE
@@ -1125,10 +992,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
-            {{- if .Values.kubecostAggregator.enabled }}
             - name: WATERFOWL_ENABLED
               value: "true"
-            {{- end }}
         {{- if .Values.kubecostFrontend.enabled }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
@@ -1202,6 +1067,18 @@ spec:
           {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
           {{- end }}
         {{ end }}
+
+        {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
+        {{- include "aggregator.containerTemplate" . | nindent 8 }}
+        {{- if .Values.kubecostAggregator.jaeger.enabled }}
+        {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
+        {{- end }}
+        {{- end }}
+
+        {{- if not (eq (include "aggregator.deployMethod" .) "statefulset") }}
+        {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
+        {{- end }}
+
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
@@ -1231,39 +1108,4 @@ spec:
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-  {{- if and .Values.kubecostDeployment.statefulSet.enabled .Values.kubecostDeployment.leaderFollower.enabled }}
-  volumeClaimTemplates:
-    - metadata:
-        name: persistent-configs
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        {{- if .Values.persistentVolume.storageClass }}
-        storageClassName: {{ .Values.persistentVolume.storageClass }}
-        {{ end }}
-        resources:
-          requests:
-          {{- if .Values.persistentVolume }}
-            storage: {{ .Values.persistentVolume.size }}
-          {{- else }}
-            storage: 32.0Gi
-          {{ end }}
-    {{- if and (.Values.kubecostModel.etlToDisk | default true) .Values.persistentVolume.dbPVEnabled }}
-    - metadata:
-        name: persistent-db
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        {{- if .Values.persistentVolume.dbStorageClass }}
-        storageClassName: {{ .Values.persistentVolume.dbStorageClass }}
-        {{ end }}
-        resources:
-          requests:
-          {{- if .Values.persistentVolume }}
-            storage: {{ .Values.persistentVolume.dbSize }}
-          {{- else }}
-            storage: 32.0Gi
-          {{ end }}
-    {{- end }}
-  {{- end }}
 {{- end }}
