@@ -1,4 +1,4 @@
-{{- if not (eq (include "cloudCost.deployMethod" .) "disabled") }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 
 kind: Service
 apiVersion: v1

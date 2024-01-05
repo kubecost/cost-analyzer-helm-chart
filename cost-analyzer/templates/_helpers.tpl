@@ -19,23 +19,6 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-{{/* Cloud Cost inherits its deploy method from Aggregator. Either
-kubecostModel.cloudCost.enabled OR kubecostAggregator.cloudCost.enabled will
-enable it. */}}
-{{- define "cloudCost.deployMethod" -}}
-  {{ if not (or .Values.kubecostModel.cloudCost.enabled .Values.kubecostAggregator.cloudCost.enabled) }}
-    {{- printf "disabled" }}
-  {{ else if eq (include "aggregator.deployMethod" .) "none" }}
-    {{- printf "disabled" }}
-  {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
-    {{- printf "deployment" }}
-  {{- else if eq (include "aggregator.deployMethod" .) "singlepod" }}
-    {{- printf "singlepod" }}
-  {{- else }}
-    {{ fail "Unable to set cloudCost.deployMethod" }}
-  {{- end }}
-{{- end }}
-
 
 {{/*
 Kubecost 2.0 preconditions
@@ -307,11 +290,11 @@ app: aggregator
 {{- end }}
 
 {{- define "cloudCost.selectorLabels" -}}
-{{- if eq (include "cloudCost.deployMethod" .) "deployment" }}
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 app.kubernetes.io/name: {{ include "cloudCost.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "cloudCost.name" . }}
-{{- else if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+{{- else }}
 {{- include "cost-analyzer.selectorLabels" . }}
 {{- end }}
 {{- end }}
@@ -702,15 +685,14 @@ Aggregator config reconciliation and common config
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-    {{- $etlBackupBucketSecret := "" }}
     {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
-    {{- end }}
-    {{- if $etlBackupBucketSecret }}
-    - name: etl-bucket-config
+    - name: federated-storage-config
       mountPath: /var/configs/etl
       readOnly: true
-    {{- else if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
+    {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
+    {{- fail "When in StatefulSet mode, Aggregator requires that kubecostModel.federatedStorageConfigSecret be set." }}
+    {{- end }}
+    {{- if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
     - name: persistent-db
       mountPath: /var/db
       # aggregator should only need read access to ETL data
@@ -763,13 +745,13 @@ Aggregator config reconciliation and common config
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
-    {{- if $etlBackupBucketSecret }}
+    {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
     # If this isn't set, we pretty much have to be in a read only state,
     # initialization will probably fail otherwise.
     - name: ETL_BUCKET_CONFIG
-      {{- if not .Values.kubecostModel.federatedStorageConfigSecret}}
+      {{- if not .Values.kubecostModel.federatedStorageConfigSecret }}
       value: /var/configs/etl/object-store.yaml
-      {{- else  }}
+      {{- else }}
       value: /var/configs/etl/federated-store.yaml
     - name: FEDERATED_STORE_CONFIG
       value: /var/configs/etl/federated-store.yaml
@@ -840,19 +822,18 @@ Aggregator config reconciliation and common config
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if .Values.kubecostProductConfigs }}
-  {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-    - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-      mountPath: /var/configs/cloud-integration
-  {{- else }}
-    # In this case, the cloud-integration is expected to come from the UI or
-    # from workload identity.
-    - name: cloud-integration
-      mountPath: /var/configs/cloud-integration
+  {{- if (eq (include "aggregator.deployMethod" .) "singlepod") }}
+  {{/*
+    persistent-configs is used to access cloud keys when configured via UI and
+    for storing CC data. In an enterprise config (aggregator statefulset) a CC
+    config secret is required and all data is uploaded to S3 rather than stored
+    in this PV, so it does not need to be mounted.
+  */}}
+    - name: persistent-configs
+      mountPath: /var/configs
   {{- end }}
-    # In this case, the cloud-integration is expected to come from the UI or
-    # from workload identity.
-    - name: cloud-integration
+  {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+    - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
       mountPath: /var/configs/cloud-integration
   {{- end }}
   env:
@@ -874,7 +855,16 @@ Aggregator config reconciliation and common config
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
-
+    {{- with .Values.kubecostModel.cloudCost }}
+    {{- with .labelList }}
+    - name: CLOUD_COST_IS_INCLUDE_LIST
+      value: {{ (quote .IsIncludeList) | default (quote false) }}
+    - name: CLOUD_COST_LABEL_LIST
+      value: {{ (quote .labels) }}
+    {{- end }}
+    - name: CLOUD_COST_TOP_N
+      value: {{ (quote .topNItems) | default (quote 1000) }}
+    {{- end }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
