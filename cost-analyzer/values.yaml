@@ -505,7 +505,7 @@ kubecostModel:
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
   cloudCost:
-    enabled: true
+    # enabled: true # this logic is always enabled if cloud billing integration is configured. This option is no longer configurable.
     labelList:
       IsIncludeList: false
       # format labels as comma separated string (ex. "label1,label2,label3")
@@ -2430,8 +2430,11 @@ grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
   rbac:
-    # Manage the Grafana Pod Security Policy
-    pspEnabled: false
+    create: true
+
+  ## Configure grafana datasources
+  ## ref: http://docs.grafana.org/administration/provisioning/#datasources
+  ##
   # datasources:
   #   datasources.yaml:
   #     apiVersion: 1
@@ -2446,7 +2449,228 @@ grafana:
   #           prometheusType: Prometheus
   #           prometheusVersion: 2.35.0
   #           timeInterval: 1m
+
+  ## Number of replicas for the Grafana deployment
+  replicas: 1
+
+  ## Deployment strategy for the Grafana deployment
+  deploymentStrategy: RollingUpdate
+
+  ## Readiness probe for the Grafana deployment
+  readinessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+
+  ## Liveness probe for the Grafana deployment
+  livenessProbe:
+    httpGet:
+      path: /api/health
+      port: 3000
+    initialDelaySeconds: 60
+    timeoutSeconds: 30
+    failureThreshold: 10
+
+  ## Container image settings for the Grafana deployment
+  image:
+    repository: grafana/grafana
+    tag: 10.2.2
+    pullPolicy: IfNotPresent
+
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    # pullSecrets:
+    #   - myRegistrKeySecretName
+
+  ## Pod-level security context for the Grafana deployment. Recommended let global defaults take effect.
+  securityContext: {}
+    # runAsUser: 472
+    # fsGroup: 472
+
+  ## PriorityClassName for the Grafana deployment
+  priorityClassName: ""
+
+  ## Container image settings for Grafana initContainer used to download dashboards. Will only be used when dashboards are present.
+  downloadDashboardsImage:
+    repository: curlimages/curl
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  ## Pod Annotations for the Grafana deployment
+  podAnnotations: {}
+
+  ## Deployment annotations for the Grafana deployment
+  annotations: {}
+
+  ## Expose the Grafana service to be accessed from outside the cluster (LoadBalancer service).
+  ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
+  service:
+    type: ClusterIP
+    port: 80
+    annotations: {}
+    labels: {}
+
+  ## Ingress service for the Grafana deployment
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    labels: {}
+    path: /
+    pathType: Prefix
+    hosts:
+      - chart-example.local
+    tls: []
+    #  - secretName: chart-example-tls
+    #    hosts:
+    #      - chart-example.local
+
+  ## Resource requests and limits for the Grafana deployment
+  resources: {}
+  #  limits:
+  #    cpu: 100m
+  #    memory: 128Mi
+  #  requests:
+  #    cpu: 100m
+  #    memory: 128Mi
+
+  ## Node labels for pod assignment of the Grafana deployment
+  nodeSelector: {}
+
+  ## Tolerations for pod assignment of the Grafana deployment
+  tolerations: []
+
+  ## Affinity for pod assignment of the Grafana deployment
+  affinity: {}
+
+  ## Enable persistence using Persistent Volume Claims of the Grafana deployment
+  persistence:
+    enabled: false
+    # storageClassName: default
+    # accessModes:
+    #   - ReadWriteOnce
+    # size: 10Gi
+    # annotations: {}
+    # subPath: ""
+    # existingClaim:
+
+  ## Admin user for Grafana
+  adminUser: admin
+
+  ## Admin password for Grafana
+  adminPassword: strongpassword
+
+  ## Use an alternate scheduler for the Grafana deployment
+  # schedulerName:
+
+  ## Extra environment variables that will be passed onto Grafana deployment pods
+  env: {}
+
+  ## The name of a secret for Grafana in the same Kubernetes namespace which contain values to be added to the environment
+  ## This can be useful for auth tokens, etc
+  envFromSecret: ""
+
+  ## Additional Grafana server secret mounts
+  ## Defines additional mounts with secrets. Secrets must be manually created in the namespace.
+  extraSecretMounts: []
+    # - name: secret-files
+    #   mountPath: /etc/secrets
+    #   secretName: grafana-secret-files
+    #   readOnly: true
+
+  ## List of Grafana plugins
+  plugins: []
+    # - digrich-bubblechart-panel
+    # - grafana-clock-panel
+
+  ## Grafana dashboard providers
+  ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
+  ##
+  ## `path` must be /var/lib/grafana/dashboards/<provider_name>
+  ##
+  dashboardProviders: {}
+  #  dashboardproviders.yaml:
+  #    apiVersion: 1
+  #    providers:
+  #    - name: 'default'
+  #      orgId: 1
+  #     folder: ''
+  #      type: file
+  #      disableDeletion: false
+  #      editable: true
+  #      options:
+  #        path: /var/lib/grafana/dashboards/default
+
+  ## Configure Grafana dashboard to import
+  ## NOTE: To use dashboards you must also enable/configure dashboardProviders
+  ## ref: https://grafana.com/dashboards
+  ##
+  ## dashboards per provider, use provider name as key.
+  ##
+  dashboards: {}
+  #  default:
+  #    prometheus-stats:
+  #      gnetId: 3662
+  #      revision: 2
+  #      datasource: Prometheus
+
+  ## Reference to external Grafana ConfigMap per provider. Use provider name as key and ConfiMap name as value.
+  ## A provider dashboards must be defined either by external ConfigMaps or in values.yaml, not in both.
+  ## ConfigMap data example:
+  ##
+  ## data:
+  ##   example-dashboard.json: |
+  ##     RAW_JSON
+  ##
+  dashboardsConfigMaps: {}
+  #  default: ""
+
+  ## LDAP Authentication for Grafana can be enabled with the following values on grafana.ini
+  ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
+    # auth.ldap:
+    #   enabled: true
+    #   allow_sign_up: true
+    #   config_file: /etc/grafana/ldap.toml
+
+  ## Grafana's LDAP configuration
+  ## Templated by the template in _helpers.tpl
+  ## NOTE: To enable the grafana.ini must be configured with auth.ldap.enabled
+  ## ref: http://docs.grafana.org/installation/configuration/#auth-ldap
+  ## ref: http://docs.grafana.org/installation/ldap/#configuration
+  ldap:
+    # `existingSecret` is a reference to an existing secret containing the ldap configuration
+    # for Grafana in a key `ldap-toml`.
+    existingSecret: ""
+    # `config` is the content of `ldap.toml` that will be stored in the created secret
+    config: ""
+    # config: |-
+    #   verbose_logging = true
+
+    #   [[servers]]
+    #   host = "my-ldap-server"
+    #   port = 636
+    #   use_ssl = true
+    #   start_tls = false
+    #   ssl_skip_verify = false
+    #   bind_dn = "uid=%s,ou=users,dc=myorg,dc=com"
+
+  ## Grafana's SMTP configuration
+  ## NOTE: To enable, grafana.ini must be configured with smtp.enabled
+  ## ref: http://docs.grafana.org/installation/configuration/#smtp
+  smtp:
+    # `existingSecret` is a reference to an existing secret containing the smtp configuration
+    # for Grafana in keys `user` and `password`.
+    existingSecret: ""
+
+  ## Grafana sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
+  ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
+    image:
+      repository: kiwigrid/k8s-sidecar
+      tag: 1.25.3
+      pullPolicy: IfNotPresent
+    resources: {}
     dashboards:
       enabled: true
       # label that the configmaps with dashboards are marked with
@@ -2455,20 +2679,45 @@ grafana:
       # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
       annotations: {}
       error_throttle_sleep: 0
+      folder: /tmp/dashboards
     datasources:
       # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
       enabled: false
       error_throttle_sleep: 0
-#  For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
-#  set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
+      # label that the configmaps with datasources are marked with
+      label: grafana_datasource
+
+  ## Grafana's primary configuration
+  ## NOTE: values in map will be converted to ini format
+  ## ref: http://docs.grafana.org/installation/configuration/
+  ##
+  ## For grafana to be accessible, add the path to root_url. For example, if you run kubecost at www.foo.com:9090/kubecost
+  ## set root_url to "%(protocol)s://%(domain)s:%(http_port)s/kubecost/grafana". No change is necessary here if kubecost runs at a root URL
   grafana.ini:
     server:
       serve_from_sub_path: false  # Set to false on Grafana v10+
       root_url: "%(protocol)s://%(domain)s:%(http_port)s/grafana"
+    paths:
+      data: /var/lib/grafana/data
+      logs: /var/log/grafana
+      plugins: /var/lib/grafana/plugins
+      provisioning: /etc/grafana/provisioning
+    analytics:
+      check_for_updates: true
+    log:
+      mode: console
+    grafana_net:
+      url: https://grafana.net
+    auth.anonymous:
+      enabled: true
+      org_role: Editor
+      org_name: Main Org.
+
 serviceAccount:
   create: true  # Set this to false if you're bringing your own service account.
   annotations: {}
   # name: kc-test
+
 awsstore:
   useAwsStore: false
   imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.

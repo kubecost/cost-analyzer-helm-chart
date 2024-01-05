@@ -1,19 +1,18 @@
 {{ if .Values.global.grafana.enabled }}
-{{- if .Values.rbac.create }}
+{{- if .Values.grafana.rbac.create }}
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     app: {{ template "grafana.name" . }}
-    chart: {{ template "grafana.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- with .Values.annotations }}
+{{- with .Values.grafana.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}
   name: {{ template "grafana.fullname" . }}-clusterrole
-{{- if or .Values.sidecar.dashboards.enabled .Values.sidecar.datasources.enabled }}
+{{- if or .Values.grafana.sidecar.dashboards.enabled .Values.grafana.sidecar.datasources.enabled }}
 rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["configmaps"]
