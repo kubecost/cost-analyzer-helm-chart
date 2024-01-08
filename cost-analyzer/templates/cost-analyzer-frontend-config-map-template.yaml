@@ -199,7 +199,7 @@ data:
             proxy_connect_timeout       {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_send_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://model/;
+            proxy_pass http://aggregator/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
@@ -384,12 +384,6 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
     {{- end }}
-
-        {{- if .Values.kubecostFrontend.trendsDisabled }}
-        location /model/allocation/trends {
-            return 204 'endpoint disabled';
-        }
-        {{ end }}
 
         location /model/multi-cluster-diagnostics-enabled {
             default_type 'application/json';
