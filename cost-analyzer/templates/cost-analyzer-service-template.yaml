@@ -46,14 +46,14 @@ spec:
     {{- if .Values.saml.enabled }}
     - name: apiserver
       port: 9004
-      targetPort: 9004
+      targetPort: 9009
     {{- end }}
     {{- end }}
     {{- if .Values.oidc }}
     {{- if .Values.oidc.enabled }}
     - name: apiserver
       port: 9004
-      targetPort: 9004
+      targetPort: 9009
     {{- end }}
     {{- end }}
 {{- if .Values.service.sessionAffinity.enabled }}
