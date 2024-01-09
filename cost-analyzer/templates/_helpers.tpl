@@ -699,7 +699,7 @@ Aggregator config reconciliation and common config
       readOnly: true
     {{- end }}
     {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
-    - name: aggregator-storage
+    - name: aggregator-db-storage
       mountPath: /var/configs/waterfowl/duckdb
     {{- end }}
   env:

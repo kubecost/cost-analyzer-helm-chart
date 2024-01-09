@@ -72,6 +72,12 @@ spec:
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
         {{- if $etlBackupBucketSecret }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        - name: federated-storage-config
+          secret:
+            defaultMode: 420
+            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- end }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
