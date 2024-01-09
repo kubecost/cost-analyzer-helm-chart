@@ -19,19 +19,6 @@ spec:
     {{- include "aggregator.selectorLabels" . | nindent 6 }}
   volumeClaimTemplates:
   - metadata:
-      name: aggregator-db-storage
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.kubecostAggregator.aggregatorDbStorage.storageClass }}
-      resources:
-        requests:
-          storage:  {{ .Values.kubecostAggregator.aggregatorDbStorage.storageRequest }}
-  - metadata:
-      # In the StatefulSet config, Aggregator should not share any filesystem
-      # state with the cost-model to maintain independence and improve
-      # stability (in the event of bad file-locking state). Still, there is
-      # a need to "mount" ConfigMap files (using the watcher) to a file system;
-      # that's what this per-replica Volume is used for.
       name: persistent-configs
     spec:
       accessModes: [ "ReadWriteOnce" ]
@@ -39,6 +26,22 @@ spec:
       resources:
         requests:
           storage: {{ .Values.kubecostAggregator.persistentConfigsStorage.storageRequest }}
+  - metadata:
+      name: aggregator-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostAggregator.aggregatorStorage.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostAggregator.aggregatorStorage.storageRequest }}
+  - metadata:
+      name: aggregator-db-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.kubecostAggregator.aggregatorDbStorage.storageClass }}
+      resources:
+        requests:
+          storage:  {{ .Values.kubecostAggregator.aggregatorDbStorage.storageRequest }}
   template:
     metadata:
       labels:

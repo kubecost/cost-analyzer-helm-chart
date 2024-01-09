@@ -2270,6 +2270,10 @@ kubecostAggregator:
     # default storage class
     storageClass: ""
     storageRequest: 1Gi
+  aggregatorStorage:
+    # default storage class
+    storageClass: ""
+    storageRequest: 20Gi
   aggregatorDbStorage:
     # default storage class
     storageClass: ""

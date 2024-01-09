@@ -702,6 +702,10 @@ Aggregator config reconciliation and common config
     - name: aggregator-storage
       mountPath: /var/configs/waterfowl/duckdb
     {{- end }}
+    {{- if .Values.kubecostAggregator.aggregatorDbStorage }}
+    - name: aggregator-db-storage
+      mountPath: /var/configs/waterfowl/duckdb
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
