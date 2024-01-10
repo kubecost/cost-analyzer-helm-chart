@@ -830,14 +830,16 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlResolutionSeconds) | default (quote 300) }}
             - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
               value: {{ (quote .Values.kubecostModel.maxPrometheusQueryDurationMinutes) | default (quote 1440) }}
+              # these are hardcoded, since KCM no longer serves queries
+              # idea is to have just enough retention to push to s3 or be ingested by local aggregator
             - name: ETL_DAILY_STORE_DURATION_DAYS
-              value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+              value: "2" 
             - name: ETL_HOURLY_STORE_DURATION_HOURS
-              value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
+              value: "48"
             - name: ETL_WEEKLY_STORE_DURATION_WEEKS
-              value: {{ (quote .Values.kubecostModel.etlWeeklyStoreDurationWeeks) | default (quote 53) }}
+              value: "0"
             - name: ETL_FILE_STORE_ENABLED
-              value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
+              value: "0"
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
             - name: ETL_USE_UNBLENDED_COST
@@ -901,50 +903,6 @@ spec:
               value: "false"
             {{- end}}
             {{- end }}
-            {{- end }}
-            {{- end }}
-            {{- if .Values.oidc.enabled }}
-            - name: OIDC_ENABLED
-              value: "true"
-            - name: OIDC_SKIP_ONLINE_VALIDATION
-              value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
-            {{- end}}
-            {{- if .Values.saml }}
-            {{- if .Values.saml.enabled }}
-            - name: SAML_ENABLED
-              value: "true"
-            - name: IDP_URL
-              value: {{ .Values.saml.idpMetadataURL }}
-            - name: SP_HOST
-              value: {{ .Values.saml.appRootURL }}
-            {{- if .Values.saml.audienceURI }}
-            - name: AUDIENCE_URI
-              value: {{ .Values.saml.audienceURI }}
-            {{- end }}
-            {{- if .Values.saml.isGLUUProvider }}
-            - name: GLUU_SAML_PROVIDER
-              value: {{ (quote .Values.saml.isGLUUProvider) }}
-            {{- end }}
-            {{- if .Values.saml.nameIDFormat }}
-            - name: NAME_ID_FORMAT
-              value: {{ .Values.saml.nameIDFormat }}
-            {{- end}}
-            {{- if .Values.saml.authTimeout }}
-            - name: AUTH_TOKEN_TIMEOUT
-              value: {{ (quote .Values.saml.authTimeout) }}
-            {{- end}}
-            {{- if .Values.saml.redirectURL }}
-            - name: LOGOUT_REDIRECT_URL
-              value: {{ .Values.saml.redirectURL }}
-            {{- end}}
-            {{- if .Values.saml.rbac.enabled }}
-            - name: SAML_RBAC_ENABLED
-              value: "true"
-            {{- end }}
-            {{- if and .Values.saml.encryptionCertSecret .Values.saml.decryptionKeySecret }}
-            - name: SAML_RESPONSE_ENCRYPTED
-              value: "true"
-            {{- end}}
             {{- end }}
             {{- end }}
             {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}

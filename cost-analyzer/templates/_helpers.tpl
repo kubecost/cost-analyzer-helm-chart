@@ -741,6 +741,50 @@ Aggregator config reconciliation and common config
       value:  {{ .Values.systemProxy.noProxy }}
     - name: no_proxy
       value:  {{ .Values.systemProxy.noProxy }}
+    {{- if .Values.oidc.enabled }}
+    - name: OIDC_ENABLED
+      value: "true"
+    - name: OIDC_SKIP_ONLINE_VALIDATION
+      value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
+    {{- end}}
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    - name: SAML_ENABLED
+      value: "true"
+    - name: IDP_URL
+      value: {{ .Values.saml.idpMetadataURL }}
+    - name: SP_HOST
+      value: {{ .Values.saml.appRootURL }}
+    {{- if .Values.saml.audienceURI }}
+    - name: AUDIENCE_URI
+      value: {{ .Values.saml.audienceURI }}
+    {{- end }}
+    {{- if .Values.saml.isGLUUProvider }}
+    - name: GLUU_SAML_PROVIDER
+      value: {{ (quote .Values.saml.isGLUUProvider) }}
+    {{- end }}
+    {{- if .Values.saml.nameIDFormat }}
+    - name: NAME_ID_FORMAT
+      value: {{ .Values.saml.nameIDFormat }}
+    {{- end}}
+    {{- if .Values.saml.authTimeout }}
+    - name: AUTH_TOKEN_TIMEOUT
+      value: {{ (quote .Values.saml.authTimeout) }}
+    {{- end}}
+    {{- if .Values.saml.redirectURL }}
+    - name: LOGOUT_REDIRECT_URL
+      value: {{ .Values.saml.redirectURL }}
+    {{- end}}
+    {{- if .Values.saml.rbac.enabled }}
+    - name: SAML_RBAC_ENABLED
+      value: "true"
+    {{- end }}
+    {{- if and .Values.saml.encryptionCertSecret .Values.saml.decryptionKeySecret }}
+    - name: SAML_RESPONSE_ENCRYPTED
+      value: "true"
+    {{- end }}
+    {{- end }}
+    {{- end }}
     {{- end }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
