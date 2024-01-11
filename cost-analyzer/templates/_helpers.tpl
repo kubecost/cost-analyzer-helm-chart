@@ -4,7 +4,9 @@
 Set important variables before starting main templates
 */}}
 {{- define "aggregator.deployMethod" -}}
-  {{- if (not .Values.kubecostAggregator) }}
+  {{- if (.Values.federatedETL).primaryCluster }}
+    {{- printf "statefulset" }}
+  {{- else if (not .Values.kubecostAggregator) }}
     {{- printf "singlepod" }}
   {{- else if .Values.kubecostAggregator.enabled }}
     {{- printf "statefulset" }}
