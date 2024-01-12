@@ -704,6 +704,44 @@ Aggregator config reconciliation and common config
     - name: aggregator-db-storage
       mountPath: /var/configs/waterfowl/duckdb
     {{- end }}
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    {{- if .Values.saml.secretName }}
+    - name: secret-volume
+      mountPath: /var/configs/secret-volume
+    {{- end }}
+    {{- if .Values.saml.encryptionCertSecret }}
+    - name: saml-encryption-cert
+      mountPath: /var/configs/saml-encryption-cert
+    {{- end }}
+    {{- if .Values.saml.decryptionKeySecret }}
+    - name: saml-decryption-key
+      mountPath: /var/configs/saml-decryption-key
+    {{- end }}
+    {{- if .Values.saml.metadataSecretName }}
+    - name: metadata-secret-volume
+      mountPath: /var/configs/metadata-secret-volume
+    {{- end }}
+    {{- if .Values.saml.authSecretName }}
+    - name: saml-auth-secret
+      mountPath: /var/configs/saml-auth-secret
+    {{- end }}
+    {{- if .Values.saml.rbac.enabled }}
+    - name: saml-roles
+      mountPath: /var/configs/saml
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.oidc }}
+    {{- if .Values.oidc.enabled }}
+    - name: oidc-config
+      mountPath: /var/configs/oidc
+    {{- if .Values.oidc.secretName }}
+    - name: oidc-client-secret
+      mountPath: /var/configs/oidc-client-secret
+    {{- end }}
+    {{- end }}
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -770,6 +808,50 @@ Aggregator config reconciliation and common config
     {{- end }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
+    {{- if .Values.oidc.enabled }}
+    - name: OIDC_ENABLED
+      value: "true"
+    - name: OIDC_SKIP_ONLINE_VALIDATION
+      value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
+    {{- end}}
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    - name: SAML_ENABLED
+      value: "true"
+    - name: IDP_URL
+      value: {{ .Values.saml.idpMetadataURL }}
+    - name: SP_HOST
+      value: {{ .Values.saml.appRootURL }}
+    {{- if .Values.saml.audienceURI }}
+    - name: AUDIENCE_URI
+      value: {{ .Values.saml.audienceURI }}
+    {{- end }}
+    {{- if .Values.saml.isGLUUProvider }}
+    - name: GLUU_SAML_PROVIDER
+      value: {{ (quote .Values.saml.isGLUUProvider) }}
+    {{- end }}
+    {{- if .Values.saml.nameIDFormat }}
+    - name: NAME_ID_FORMAT
+      value: {{ .Values.saml.nameIDFormat }}
+    {{- end}}
+    {{- if .Values.saml.authTimeout }}
+    - name: AUTH_TOKEN_TIMEOUT
+      value: {{ (quote .Values.saml.authTimeout) }}
+    {{- end}}
+    {{- if .Values.saml.redirectURL }}
+    - name: LOGOUT_REDIRECT_URL
+      value: {{ .Values.saml.redirectURL }}
+    {{- end}}
+    {{- if .Values.saml.rbac.enabled }}
+    - name: SAML_RBAC_ENABLED
+      value: "true"
+    {{- end }}
+    {{- if and .Values.saml.encryptionCertSecret .Values.saml.decryptionKeySecret }}
+    - name: SAML_RESPONSE_ENCRYPTED
+      value: "true"
+    {{- end}}
+    {{- end }}
+    {{- end }}
 {{- end }}
 
 
