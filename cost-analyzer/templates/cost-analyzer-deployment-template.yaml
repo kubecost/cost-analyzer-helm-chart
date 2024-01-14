@@ -222,6 +222,11 @@ spec:
           secret:
             secretName: {{ .Values.saml.metadataSecretName }}
         {{- end }}
+        {{- if .Values.saml.authSecretName }}
+        - name: saml-auth-secret
+          secret:
+            secretName: {{ .Values.saml.authSecretName }}
+        {{- end }}
         {{- if .Values.saml.rbac.enabled }}
         - name: saml-roles
           configMap:
@@ -586,6 +591,10 @@ spec:
             {{- if .Values.saml.metadataSecretName }}
             - name: metadata-secret-volume
               mountPath: /var/configs/metadata-secret-volume
+            {{- end }}
+            {{- if .Values.saml.authSecretName }}
+            - name: saml-auth-secret
+              mountPath: /var/configs/saml-auth-secret
             {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: saml-roles

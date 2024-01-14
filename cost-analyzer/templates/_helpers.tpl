@@ -4,7 +4,9 @@
 Set important variables before starting main templates
 */}}
 {{- define "aggregator.deployMethod" -}}
-  {{- if (not .Values.kubecostAggregator) }}
+  {{- if (.Values.federatedETL).primaryCluster }}
+    {{- printf "statefulset" }}
+  {{- else if (not .Values.kubecostAggregator) }}
     {{- printf "singlepod" }}
   {{- else if .Values.kubecostAggregator.enabled }}
     {{- printf "statefulset" }}
@@ -699,7 +701,7 @@ Aggregator config reconciliation and common config
       readOnly: true
     {{- end }}
     {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
-    - name: aggregator-storage
+    - name: aggregator-db-storage
       mountPath: /var/configs/waterfowl/duckdb
     {{- end }}
   env:
