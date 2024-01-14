@@ -1,14 +1,13 @@
 {{ if .Values.global.grafana.enabled }}
-{{- if .Values.sidecar.dashboards.enabled }}
+{{- if .Values.grafana.sidecar.dashboards.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   labels:
     app: {{ template "grafana.name" . }}
-    chart: {{ template "grafana.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
-{{- with .Values.annotations }}
+{{- with .Values.grafana.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
 {{- end }}
@@ -24,6 +23,6 @@ data:
       type: file
       disableDeletion: false
       options:
-        path: {{ .Values.sidecar.dashboards.folder }}
+        path: {{ .Values.grafana.sidecar.dashboards.folder }}
 {{- end}}
 {{ end }}

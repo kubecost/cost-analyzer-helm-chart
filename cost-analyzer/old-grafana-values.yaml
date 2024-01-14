@@ -1,55 +1,3 @@
-rbac:
-  create: true
-  pspEnabled: false
-  pspUseAppArmor: true
-serviceAccount:
-  create: true
-  name:
-
-replicas: 1
-
-deploymentStrategy: RollingUpdate
-
-readinessProbe:
-  httpGet:
-    path: /api/health
-    port: 3000
-
-livenessProbe:
-  httpGet:
-    path: /api/health
-    port: 3000
-  initialDelaySeconds: 60
-  timeoutSeconds: 30
-  failureThreshold: 10
-
-image:
-  repository: grafana/grafana
-  tag: 10.2.2
-  pullPolicy: IfNotPresent
-
-  ## Optionally specify an array of imagePullSecrets.
-  ## Secrets must be manually created in the namespace.
-  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-  ##
-  # pullSecrets:
-  #   - myRegistrKeySecretName
-
-securityContext: {}
-  # runAsUser: 472
-  # fsGroup: 472
-
-downloadDashboardsImage:
-  repository: curlimages/curl
-  tag: latest
-  pullPolicy: IfNotPresent
-
-## Pod Annotations
-# podAnnotations: {}
-
-## Deployment annotations
-# annotations: {}
-
 ## Expose the grafana service to be accessed from outside the cluster (LoadBalancer service).
 ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
 ## ref: http://kubernetes.io/docs/user-guide/services/
@@ -140,19 +88,6 @@ plugins: []
   # - digrich-bubblechart-panel
   # - grafana-clock-panel
 
-## Configure grafana datasources
-## ref: http://docs.grafana.org/administration/provisioning/#datasources
-##
-datasources: {}
-#  datasources.yaml:
-#    apiVersion: 1
-#    datasources:
-#    - name: Prometheus2
-#      type: prometheus
-#      url: http://prometheus-server.default.svc
-#      access: proxy
-#      isDefault: false
-
 ## Configure grafana dashboard providers
 ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
 ##
@@ -194,27 +129,6 @@ dashboards: {}
 ##
 dashboardsConfigMaps: {}
 #  default: ""
-
-## Grafana's primary configuration
-## NOTE: values in map will be converted to ini format
-## ref: http://docs.grafana.org/installation/configuration/
-##
-grafana.ini:
-  paths:
-    data: /var/lib/grafana/data
-    logs: /var/log/grafana
-    plugins: /var/lib/grafana/plugins
-    provisioning: /etc/grafana/provisioning
-  analytics:
-    check_for_updates: true
-  log:
-    mode: console
-  grafana_net:
-    url: https://grafana.net
-  auth.anonymous:
-    enabled: true
-    org_role:  Editor
-    org_name: Main Org.
 
 ## LDAP Authentication can be enabled with the following values on grafana.ini
 ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
@@ -272,6 +186,23 @@ sidecar:
     # label that the configmaps with datasources are marked with
     label: grafana_datasource
 
-## PriorityClassName
-## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
-priorityClassName: ""
+## Grafana's primary configuration
+## NOTE: values in map will be converted to ini format
+## ref: http://docs.grafana.org/installation/configuration/
+##
+grafana.ini:
+  paths:
+    data: /var/lib/grafana/data
+    logs: /var/log/grafana
+    plugins: /var/lib/grafana/plugins
+    provisioning: /etc/grafana/provisioning
+  analytics:
+    check_for_updates: true
+  log:
+    mode: console
+  grafana_net:
+    url: https://grafana.net
+  auth.anonymous:
+    enabled: true
+    org_role:  Editor
+    org_name: Main Org.

@@ -678,6 +678,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            - name: CLOUD_COST_ENABLED
+              value: "false"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             {{- if .Values.kubecostProductConfigs }}
@@ -866,24 +868,6 @@ spec:
             {{- end }}
             {{- end }}
             {{- end }}
-            {{- with .Values.kubecostModel.cloudCost }}
-            - name: CLOUD_COST_ENABLED
-              value: {{ (quote .enabled) | default (quote true) }}
-            {{- with .labelList }}
-            - name: CLOUD_COST_IS_INCLUDE_LIST
-              value: {{ (quote .IsIncludeList) | default (quote false) }}
-            - name: CLOUD_COST_LABEL_LIST
-              value: {{ (quote .labels) }}
-            {{- end }}
-            - name: CLOUD_COST_TOP_N
-              value: {{ (quote .topNItems) | default (quote 1000) }}
-            {{- end }}
-            - name: CLOUD_COST_REFRESH_RATE_HOURS
-              value: {{ .Values.kubecostModel.cloudCost.refreshRateHours | default .Values.kubecostModel.etlCloudRefreshRateHours | default  6 | quote }}
-            - name: CLOUD_COST_QUERY_WINDOW_DAYS
-              value: {{ .Values.kubecostModel.cloudCost.queryWindowDays | default .Values.kubecostModel.etlCloudQueryWindowDays | default  7 | quote }}
-            - name: CLOUD_COST_RUN_WINDOW_DAYS
-              value: {{ .Values.kubecostModel.cloudCost.runWindowDays | default .Values.kubecostModel.etlCloudRunWindowDays | default 3 | quote }}
             - name: CONTAINER_STATS_ENABLED
               value: {{ (quote .Values.kubecostModel.containerStatsEnabled) | default (quote false) }}
             - name: RECONCILE_NETWORK
@@ -1112,7 +1096,7 @@ spec:
         {{- end }}
         {{- end }}
 
-        {{- if eq (include "cloudCost.deployMethod" .) "singlepod" }}
+        {{- if not (eq (include "aggregator.deployMethod" .) "statefulset") }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
 
