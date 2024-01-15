@@ -41,7 +41,7 @@ spec:
         {{- if eq (typeOf .Values.networkCosts.image) "string" }}
         image: {{ .Values.networkCosts.image }}
         {{- else }}
-        image: {{ .Values.networkCosts.image.repository }}:{{ .Values.networkCosts.image.tag }}
+        image: "{{ .Values.networkCosts.image.repository }}:{{ .Values.networkCosts.image.tag }}"
         {{- end}}
         {{- if .Values.networkCosts.extraArgs }}
         args:
