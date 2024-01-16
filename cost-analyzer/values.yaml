@@ -897,6 +897,7 @@ prometheus:
       ## If true, Prometheus server Ingress will be created
       ##
       enabled: false
+      # className: nginx
 
       ## Prometheus server Ingress annotations
       ##
