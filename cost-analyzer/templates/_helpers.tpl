@@ -722,10 +722,8 @@ Aggregator config reconciliation and common config
     - name: metadata-secret-volume
       mountPath: /var/configs/metadata-secret-volume
     {{- end }}
-    {{- if .Values.saml.authSecretName }}
     - name: saml-auth-secret
       mountPath: /var/configs/saml-auth-secret
-    {{- end }}
     {{- if .Values.saml.rbac.enabled }}
     - name: saml-roles
       mountPath: /var/configs/saml
