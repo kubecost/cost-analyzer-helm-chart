@@ -66,6 +66,10 @@ spec:
           env:
             - name: CONFIG_PATH
               value: /var/configs/
+            - name: KCM_BASE_URL
+              value: "https://aggregator.nightly.kubecost.xyz/model"
+            - name: MODEL_STORAGE_PATH
+              value: "/tmp/localrun/models"
             {{- range $key, $value := .Values.forecasting.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
