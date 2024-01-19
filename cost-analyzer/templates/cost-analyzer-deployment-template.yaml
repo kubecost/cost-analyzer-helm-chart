@@ -905,6 +905,12 @@ spec:
             - name: ADVANCED_NETWORK_STATS
               value: "false"
             {{- end}}
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.kubecostModel }}
+            {{- if .Values.kubecostModel.collections }}
+            {{- if .Values.kubecostModel.collections.cache }}
             - name: COLLECTIONS_MEMORY_CACHE_ENABLED
               value: {{ (quote .Values.kubecostModel.collections.cache.enabled) | default (quote true) }}
             {{- end }}
