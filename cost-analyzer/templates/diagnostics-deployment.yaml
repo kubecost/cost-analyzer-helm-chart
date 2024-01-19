@@ -119,7 +119,7 @@ spec:
             {{- else }}
               value: "false"
             {{- end }}
-            {{- if and .Values.diagnostics.isDiagnosticsPrimary.enabled .Values.diagnostics.isDiagnosticsPrimary.retention }}
+            {{- if and .Values.diagnostics.isDiagnosticsPrimary.enabled }}
             - name: DIAGNOSTICS_RETENTION
               value: {{ .Values.diagnostics.isDiagnosticsPrimary.retention | default "7d" }}
             {{- end }}
