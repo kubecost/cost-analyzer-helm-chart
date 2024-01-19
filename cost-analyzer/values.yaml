@@ -2258,6 +2258,11 @@ kubecostAggregator:
   # `deployMethod: "statefulset"`
   replicas: 1
 
+  # Collections queries are cached in memory. Turning it off is not recommended
+  # For most users, but can be done by uncommenting the following lines.
+  # collections:
+  #   cache:
+  #     enabled: false
 
   resources: {}
     # requests:
