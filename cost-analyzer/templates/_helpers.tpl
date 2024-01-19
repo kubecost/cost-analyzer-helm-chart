@@ -812,6 +812,14 @@ Aggregator config reconciliation and common config
     - name: OIDC_SKIP_ONLINE_VALIDATION
       value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
     {{- end}}
+    {{- if .Values.kubecostAggregator }}
+    {{- if .Values.kubecostAggregator.collections }}
+    {{- if (((.Values.kubecostAggregator).collections).cache) }}
+    - name: COLLECTIONS_MEMORY_CACHE_ENABLED
+      value: {{ (quote .Values.kubecostAggregator.collections.cache.enabled) | default (quote true) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     - name: SAML_ENABLED
