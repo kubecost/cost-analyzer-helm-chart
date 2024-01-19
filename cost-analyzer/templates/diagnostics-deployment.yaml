@@ -113,6 +113,16 @@ spec:
             {{- else }}
               value: "false"
             {{- end }}
+            - name: DIAGNOSTICS_PRIMARY_READONLY
+            {{- if and .Values.diagnostics.isDiagnosticsPrimary.enabled .Values.diagnostics.isDiagnosticsPrimary.readonly }}
+              value: "true"
+            {{- else }}
+              value: "false"
+            {{- end }}
+            {{- if and .Values.diagnostics.isDiagnosticsPrimary.enabled .Values.diagnostics.isDiagnosticsPrimary.retention }}
+            - name: DIAGNOSTICS_RETENTION
+              value: {{ .Values.diagnostics.isDiagnosticsPrimary.retention | default "7d" }}
+            {{- end }}
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
             {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
               value: "true"
