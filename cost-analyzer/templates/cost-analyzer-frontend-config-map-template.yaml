@@ -101,20 +101,13 @@ data:
     }
 {{- end }}
 
-  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
-  {{- if and (.Values.kubecostDeployment) (.Values.kubecostDeployment.queryServiceReplicas) (gt (.Values.kubecostDeployment.queryServiceReplicas | toString | atoi) 0) }}
-    upstream queryservice {
-        server {{ .Release.Name }}-query-service-load-balancer.{{ .Release.Namespace }}:9003;
-    }
-  {{- end }}
-
   {{- if .Values.forecasting.enabled }}
     upstream forecasting {
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
     }
   {{- end }}
 
-  {{- if .Values.kubecostAggregator.enabled }}
+  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
     }
