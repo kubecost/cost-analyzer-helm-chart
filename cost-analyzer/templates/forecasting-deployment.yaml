@@ -28,18 +28,10 @@ spec:
       restartPolicy: Always
       containers:
         - name: forecasting
-          {{- if .Values.kubecostModel }}
           {{- if .Values.forecasting.fullImageName }}
           image: {{ .Values.forecasting.fullImageName }}
-          {{- else if .Values.kubecostModel.fullImageName }}
-          image: {{ .Values.kubecostModel.fullImageName }}
-          {{- else if .Values.imageVersion }}
-          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
           {{- else }}
-          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-          {{ end }}
-          {{- else }}
-          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          image: gcr.io/kubecost1/forecasting:prod-{{ $.Chart.AppVersion }}
           {{ end }}
           args: ["forecasting"]
           {{/*
