@@ -10,7 +10,7 @@ metadata:
 spec:
   selector:
 {{ include "forecasting.selectorLabels" . | nindent 4 }}
-  type: "ClusterIP"
+  type: ClusterIP
   ports:
     - name: tcp-api
       port: 5000
