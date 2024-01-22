@@ -6,10 +6,10 @@ metadata:
   name: {{ template "forecasting.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "forecasting.commonLabels" . | nindent 4 }}
+    {{- include "forecasting.commonLabels" . | nindent 4 }}
 spec:
   selector:
-{{ include "forecasting.selectorLabels" . | nindent 4 }}
+    {{- include "forecasting.selectorLabels" . | nindent 4 }}
   type: ClusterIP
   ports:
     - name: tcp-api
