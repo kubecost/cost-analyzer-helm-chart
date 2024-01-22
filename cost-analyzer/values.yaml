@@ -2235,7 +2235,8 @@ kubecostDeployment:
   labels: {}
   annotations: {}
 
-## Kubecost Forecasting
+## Kubecost Forecasting forecasts future cost patterns based on historical
+## patterns observed by Kubecost.
 forecasting:
   enabled: false
 
