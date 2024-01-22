@@ -2239,6 +2239,27 @@ kubecostDeployment:
 forecasting:
   enabled: false
 
+  # fullImageName overrides the default image construction logic. The exact
+  # image provided (registry, image, tag) will be used for the forecasting
+  # container.
+  # Example: fullImageName: gcr.io/kubecost1/forecasting:prod-2.0.0
+  # fullImageName:
+
+  # Resource specification block for the forecasting container.
+  resources: {}
+
+  # Environment variable map to template in to the forecasting container as
+  # k/v pairs.
+  env: {}
+
+  # priority:
+  #   enabled:
+  #   name:
+
+  nodeSelector: {}
+  tolerations: {}
+  affinity: {}
+
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
 ## enabled when recommended by Kubecost staff.
