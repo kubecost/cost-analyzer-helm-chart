@@ -2246,7 +2246,13 @@ forecasting:
   fullImageName: gcr.io/kubecost1/kubecost-modeling:6ff46def0575545eb37c5dae179e5035a1de279f
 
   # Resource specification block for the forecasting container.
-  resources: {}
+  resources:
+    requests:
+      cpu: 200m
+      memory: 300Mi
+    limits:
+      cpu: 1500m
+      memory: 1Gi
 
   # Set environment variables for the forecasting container as key/value pairs.
   env: {}
