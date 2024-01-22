@@ -27,8 +27,32 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
     spec:
+      {{- if .Values.global.platforms.openshift.enabled }}
+      securityContext:
+      {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
+      {{- else if .Values.global.securityContext }}
+      securityContext:
+      {{- toYaml .Values.global.securityContext | nindent 8 }}
+      {{- else }}
+      securityContext:
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      {{- end }}
+
       restartPolicy: Always
+
+      volumes:
+      - name: models
+        {{/*
+        An emptyDir for models is necessary because of the
+        readOnlyRootFilesystem default In the future, this may optionally be a
+        PV
+        */}}
+        emptyDir: {}
+
       containers:
         - name: forecasting
           {{- if .Values.forecasting.fullImageName }}
@@ -48,6 +72,12 @@ spec:
             periodSeconds: 5
             failureThreshold: 200
           */}}
+          volumeMounts:
+            - name: models
+              {{/* In the future, this path should be configurable and not under /tmp */}}
+              mountPath: /tmp/localrun/models
+          securityContext:
+            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           imagePullPolicy: Always
           ports:
             - name: tcp-api
@@ -55,7 +85,6 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.forecasting.resources | nindent 12 }}
-          volumeMounts:
           env:
             - name: CONFIG_PATH
               value: /var/configs/
