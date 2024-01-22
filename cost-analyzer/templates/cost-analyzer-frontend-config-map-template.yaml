@@ -922,23 +922,12 @@ data:
         }
 
         {{- if .Values.forecasting.enabled }}
-        location /model/forecast/ {
+        location /forecasting {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             proxy_read_timeout          300;
-            proxy_pass http://forecasting/forecast/;
-            proxy_redirect off;
-            proxy_set_header Connection "";
-            proxy_set_header  X-Real-IP  $remote_addr;
-            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-        }
-        location /model/anomalies/ {
-            default_type 'application/json';
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            proxy_read_timeout          300;
-            proxy_pass http://forecasting/anomaly/detect/;
+            proxy_pass http://forecasting/;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
