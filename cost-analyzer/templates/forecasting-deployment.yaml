@@ -1,12 +1,11 @@
 {{- if .Values.forecasting.enabled }}
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "forecasting.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "forecasting.commonLabels" . | nindent 4 }}
+    {{- include "forecasting.commonLabels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -14,7 +13,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{ include "forecasting.selectorLabels" . | nindent 6 }}
+      {{- include "forecasting.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
@@ -27,7 +26,6 @@ spec:
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
     spec:
       {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:
@@ -41,21 +39,7 @@ spec:
         runAsGroup: 1001
         fsGroup: 1001
       {{- end }}
-
       restartPolicy: Always
-
-      volumes:
-      - name: tmp
-        {{/*
-        An emptyDir for models is necessary because of the
-        readOnlyRootFilesystem default In the future, this may optionally be a
-        PV. To allow Python to auto-detect a temp directory, which the code
-        currently relies on, we mount it at /tmp. In the future this will be a
-        configurable path.
-        */}}
-        emptyDir:
-          sizeLimit: 500Mi
-
       containers:
         - name: forecasting
           {{- if .Values.forecasting.fullImageName }}
@@ -67,7 +51,7 @@ spec:
           {{- if .Values.forecasting.readinessProbe.enabled }}
           volumeMounts:
             - name: tmp
-              {{/* In the future, this path should be configurable and not under /tmp */}}
+              {{- /* In the future, this path should be configurable and not under tmp */}}
               mountPath: /tmp
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
@@ -76,8 +60,10 @@ spec:
             - name: tcp-api
               containerPort: 5000
               protocol: TCP
+          {{- with .Values.forecasting.resources }}
           resources:
-            {{- toYaml .Values.forecasting.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           env:
             - name: CONFIG_PATH
               value: /var/configs/
@@ -106,16 +92,16 @@ spec:
             periodSeconds: {{ .Values.forecasting.livenessProbe.periodSeconds  }}
             failureThreshold: {{ .Values.forecasting.livenessProbe.failureThreshold  }}
           {{- end }}
-    {{- if .Values.imagePullSecrets }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- end }}
       {{- if .Values.forecasting.priority }}
       {{- if .Values.forecasting.priority.enabled }}
       {{- if .Values.forecasting.priority.name }}
       priorityClassName: {{ .Values.forecasting.priority.name }}
       {{- else }}
-      priorityClassName: {{ template "cost-analyzer.fullname" . }}-forecasting-priority
+      priorityClassName: {{ template "forecasting.fullname" . }}-priority
       {{- end }}
       {{- end }}
       {{- end }}
@@ -131,4 +117,15 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+      - name: tmp
+        {{- /*
+        An emptyDir for models is necessary because of the
+        readOnlyRootFilesystem default In the future, this may optionally be a
+        PV. To allow Python to auto-detect a temp directory, which the code
+        currently relies on, we mount it at /tmp. In the future this will be a
+        configurable path.
+        */}}
+        emptyDir:
+          sizeLimit: 500Mi
 {{- end }}
