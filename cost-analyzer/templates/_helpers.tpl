@@ -314,7 +314,6 @@ app: {{ include "cloudCost.name" . }}
 {{- end }}
 {{- end }}
 
-{{- end -}}
 {{- define "forecasting.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "forecasting.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
