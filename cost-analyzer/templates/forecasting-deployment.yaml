@@ -53,7 +53,8 @@ spec:
         currently relies on, we mount it at /tmp. In the future this will be a
         configurable path.
         */}}
-        emptyDir: {}
+        emptyDir:
+          sizeLimit: 500Mi
 
       containers:
         - name: forecasting
