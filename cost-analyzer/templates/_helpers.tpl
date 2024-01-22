@@ -658,6 +658,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostAggregator.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{- end }}
@@ -878,6 +880,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostModel.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{ end }}
