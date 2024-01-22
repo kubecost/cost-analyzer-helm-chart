@@ -27,6 +27,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      automountServiceAccountToken: false
       {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:
       {{- toYaml .Values.global.platforms.openshift.securityContext | nindent 8 }}
