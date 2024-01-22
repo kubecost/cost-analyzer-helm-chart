@@ -2235,48 +2235,6 @@ kubecostDeployment:
   labels: {}
   annotations: {}
 
-  ## QueryServiceReplicas
-  ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/query-service-replicas
-  ##
-  queryServiceReplicas: 0
-  queryService:
-    serviceAccount:
-      create: true
-      annotations: {}
-      # name: kc-qs-test
-    securityContext: {}  # Define a custom securityContext for the query service. This will take the highest precedence.
-      # runAsGroup: 1001
-      # runAsUser: 1001
-      # fsGroup: 1001
-      # fsGroupChangePolicy: OnRootMismatch
-      # runAsNonRoot: false
-      # seccompProfile:
-      #   type: RuntimeDefault
-    containerSecurityContext:
-      allowPrivilegeEscalation: true
-      readOnlyRootFilesystem: false
-      capabilities:
-        drop:
-        - ALL
-    resources:
-      requests:
-        ## You can use the Kubecost savings report for 'Right-size your
-        ## container requests' to determine the recommended resource requests
-        ## once the pod has run for 24 hours.
-        cpu: 1000m
-        memory: 500Mi
-    ## default storage class
-    storageClass: ""
-    databaseVolumeSize: 100Gi
-    configVolumeSize: 1Gi
-    initImage: {}
-    # Optional - add extra ports to the query service container. For kubecost development purposes only - not recommended for users.
-    extraPorts: []
-      # - name: debug
-      #   port: 40000
-      #   targetPort: 40000
-      #   containerPort: 40000
-
 ## Kubecost Forecasting
 forecasting:
   enabled: false
