@@ -259,7 +259,7 @@ data:
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
-            proxy_pass http://model/oidc/;
+            proxy_pass http://aggregator/oidc/;
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
@@ -281,11 +281,7 @@ data:
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
-            {{- if .Values.saml.enabled }}
             proxy_pass http://aggregator/login;
-            {{- else }}
-            proxy_pass http://model/login;
-            {{- end }}
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
@@ -298,11 +294,7 @@ data:
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
             proxy_read_timeout          180;
-            {{- if .Values.saml.enabled }}
             proxy_pass http://aggregator/logout;
-            {{- else }}
-            proxy_pass http://model/logout;
-            {{- end }}
             proxy_redirect off;
             proxy_http_version 1.1;
             proxy_set_header Connection "";
@@ -326,7 +318,7 @@ data:
     {{ end }}
     {{- if .Values.oidc.enabled }}
         location /auth {
-            proxy_pass http://model/isAuthenticated;
+            proxy_pass http://aggregator/isAuthenticated;
         }
     {{- end }}
     {{- if .Values.saml.enabled }}
@@ -732,6 +724,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/collection/cache/status {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/collection/cache/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/networkinsights {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/networkinsights;
@@ -791,6 +791,14 @@ data:
         location = /model/debug/orchestrator {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/debug/orchestrator;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/prediction/speccost {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/prediction/speccost;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;

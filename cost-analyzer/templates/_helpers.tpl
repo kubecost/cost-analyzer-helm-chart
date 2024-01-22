@@ -677,6 +677,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostAggregator.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{- end }}
@@ -831,6 +833,14 @@ Aggregator config reconciliation and common config
     - name: OIDC_SKIP_ONLINE_VALIDATION
       value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
     {{- end}}
+    {{- if .Values.kubecostAggregator }}
+    {{- if .Values.kubecostAggregator.collections }}
+    {{- if (((.Values.kubecostAggregator).collections).cache) }}
+    - name: COLLECTIONS_MEMORY_CACHE_ENABLED
+      value: {{ (quote .Values.kubecostAggregator.collections.cache.enabled) | default (quote true) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     - name: SAML_ENABLED
@@ -889,6 +899,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostModel.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{ end }}
