@@ -2261,6 +2261,20 @@ forecasting:
   tolerations: {}
   affinity: {}
 
+  # Define a readiness probe for the Kubecost forecasting container
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
+
+  # Define a liveness probe for the Kubecost forecasting container.
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
+
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
 ## enabled when recommended by Kubecost staff.

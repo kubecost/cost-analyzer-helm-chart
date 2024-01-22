@@ -63,17 +63,7 @@ spec:
           image: gcr.io/kubecost1/kubecost-modeling:prod-{{ $.Chart.AppVersion }}
           {{ end }}
           args: ["forecasting"]
-          {{/*
-          fix readinessProbe
-
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 5
-            failureThreshold: 200
-          */}}
+          {{- if .Values.forecasting.readinessProbe.enabled }}
           volumeMounts:
             - name: tmp
               {{/* In the future, this path should be configurable and not under /tmp */}}
@@ -98,6 +88,23 @@ spec:
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: {{ .Values.forecasting.readinessProbe.initialDelaySeconds  }}
+            periodSeconds: {{ .Values.forecasting.readinessProbe.periodSeconds  }}
+            failureThreshold: {{ .Values.forecasting.readinessProbe.failureThreshold  }}
+            {{- end }}
+          {{- if .Values.forecasting.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 5000
+            initialDelaySeconds: {{ .Values.forecasting.livenessProbe.initialDelaySeconds  }}
+            periodSeconds: {{ .Values.forecasting.livenessProbe.periodSeconds  }}
+            failureThreshold: {{ .Values.forecasting.livenessProbe.failureThreshold  }}
+          {{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
