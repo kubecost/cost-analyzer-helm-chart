@@ -60,7 +60,7 @@ spec:
           {{- if .Values.forecasting.fullImageName }}
           image: {{ .Values.forecasting.fullImageName }}
           {{- else }}
-          image: gcr.io/kubecost1/forecasting:prod-{{ $.Chart.AppVersion }}
+          image: gcr.io/kubecost1/kubecost-modeling:prod-{{ $.Chart.AppVersion }}
           {{ end }}
           args: ["forecasting"]
           {{/*
