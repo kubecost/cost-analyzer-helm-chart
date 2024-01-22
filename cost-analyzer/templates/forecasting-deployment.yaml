@@ -29,9 +29,7 @@ spec:
       containers:
         - name: forecasting
           {{- if .Values.kubecostModel }}
-          {{- if .Values.kubecostModel.openSourceOnly }}
-          {{- fail "Kubecost Forecasting cannot be used with open source only" }}
-          {{- else if .Values.forecasting.fullImageName }}
+          {{- if .Values.forecasting.fullImageName }}
           image: {{ .Values.forecasting.fullImageName }}
           {{- else if .Values.kubecostModel.fullImageName }}
           image: {{ .Values.kubecostModel.fullImageName }}
