@@ -45,11 +45,13 @@ spec:
       restartPolicy: Always
 
       volumes:
-      - name: models
+      - name: tmp
         {{/*
         An emptyDir for models is necessary because of the
         readOnlyRootFilesystem default In the future, this may optionally be a
-        PV
+        PV. To allow Python to auto-detect a temp directory, which the code
+        currently relies on, we mount it at /tmp. In the future this will be a
+        configurable path.
         */}}
         emptyDir: {}
 
@@ -73,9 +75,9 @@ spec:
             failureThreshold: 200
           */}}
           volumeMounts:
-            - name: models
+            - name: tmp
               {{/* In the future, this path should be configurable and not under /tmp */}}
-              mountPath: /tmp/localrun/models
+              mountPath: /tmp
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           imagePullPolicy: Always
