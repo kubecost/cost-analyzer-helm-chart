@@ -47,7 +47,6 @@ spec:
           {{- else }}
           image: gcr.io/kubecost1/kubecost-modeling:prod-{{ $.Chart.AppVersion }}
           {{ end }}
-          args: ["forecasting"]
           {{- if .Values.forecasting.readinessProbe.enabled }}
           volumeMounts:
             - name: tmp
