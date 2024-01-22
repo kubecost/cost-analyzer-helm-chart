@@ -1,5 +1,4 @@
 {{- if .Values.forecasting.enabled }}
-
 kind: Service
 apiVersion: v1
 metadata:
