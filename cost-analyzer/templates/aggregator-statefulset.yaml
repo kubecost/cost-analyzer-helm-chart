@@ -67,6 +67,9 @@ spec:
     {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
+        - name: aggregator-staging
+          emptyDir:
+            sizeLimit: {{ .Values.kubecostAggregator.stagingEmptyDirSizeLimit }}
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
