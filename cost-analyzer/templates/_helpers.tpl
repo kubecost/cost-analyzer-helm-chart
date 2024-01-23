@@ -723,6 +723,16 @@ Aggregator config reconciliation and common config
     {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
     - name: aggregator-db-storage
       mountPath: /var/configs/waterfowl/duckdb
+    - name: aggregator-staging
+      # Aggregator uses /var/configs/waterfowl as a "staging" directory for
+      # things like intermediate-state files pre-ingestion. In order to avoid a
+      # permission problem similar to
+      # https://github.com/kubernetes/kubernetes/issues/81676, we create an
+      # emptyDir at this path.
+      #
+      # This hasn't been observed as a problem in cost-analyzer, likely because
+      # of the init container that gives everything under /var/configs 777.
+      mountPath: /var/configs/waterfowl
     {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
