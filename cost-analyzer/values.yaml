@@ -2243,7 +2243,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:4fb1ad526bd42e9883a0bf8b43408688e86e8fb2
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:54b0247a8986e4d2eb781f424487dcdd85e3e559
 
   # Resource specification block for the forecasting container.
   resources:
