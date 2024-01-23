@@ -2317,7 +2317,6 @@ kubecostAggregator:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"
     "DB_WRITE_THREADS": "1"
-    "DB_MEMORY_LIMIT": "500MB"
     "DB_CONCURRENT_INGESTION_COUNT": "3"
   persistentConfigsStorage:
     # default storage class
