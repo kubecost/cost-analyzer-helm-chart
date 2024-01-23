@@ -101,6 +101,12 @@ data:
     }
 {{- end }}
 
+  {{- if .Values.forecasting.enabled }}
+    upstream forecasting {
+        server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
+    }
+  {{- end }}
+
   {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
@@ -914,6 +920,20 @@ data:
             default_type 'application/json';
             return 200 '{"aggregatorEnabled": "true"}';
         }
+
+        {{- if .Values.forecasting.enabled }}
+        location /forecasting {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            proxy_read_timeout          300;
+            proxy_pass http://forecasting/;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        {{ end }}
 
     }
 {{- end }}

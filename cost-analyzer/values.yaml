@@ -638,7 +638,6 @@ topologySpreadConstraints: []
 priority:
   enabled: false
   name: ""  # Provide name of existing priority class only. If left blank, upstream chart will create one from default template.
-  # value: 1000000
 
 # If true, enable creation of NetworkPolicy resources.
 networkPolicy:
@@ -2234,6 +2233,57 @@ kubecostDeployment:
   #   type: RollingUpdate
   labels: {}
   annotations: {}
+
+## Kubecost Forecasting forecasts future cost patterns based on historical
+## patterns observed by Kubecost.
+forecasting:
+  enabled: false
+
+  # fullImageName overrides the default image construction logic. The exact
+  # image provided (registry, image, tag) will be used for the forecasting
+  # container.
+  # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:4fb1ad526bd42e9883a0bf8b43408688e86e8fb2
+
+  # Resource specification block for the forecasting container.
+  resources:
+    requests:
+      cpu: 200m
+      memory: 300Mi
+    limits:
+      cpu: 1500m
+      memory: 1Gi
+
+  # Set environment variables for the forecasting container as key/value pairs.
+  env: {}
+
+  # Define a priority class for the forecasting Deployment.
+  priority:
+    enabled: false
+    name: ""
+
+  # Define a nodeSelector for the forecasting Deployment.
+  nodeSelector: {}
+
+  # Define tolerations for the forecasting Deployment.
+  tolerations: {}
+
+  # Define Pod affinity for the forecasting Deployment.
+  affinity: {}
+
+  # Define a readiness probe for the forecasting container
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
+
+  # Define a liveness probe for the forecasting container.
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    failureThreshold: 200
 
 ## The Kubecost Aggregator is a high scale implementation of Kubecost intended
 ## for large datasets and/or high query load. At present, this should only be
