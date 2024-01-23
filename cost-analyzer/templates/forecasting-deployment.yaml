@@ -68,7 +68,7 @@ spec:
             - name: CONFIG_PATH
               value: /var/configs/
             - name: KCM_BASE_URL
-              value: {{ template "cost-analyzer.serviceName" . }}:9090/model
+              value: http://{{ template "cost-analyzer.serviceName" . }}:9090/model
             - name: MODEL_STORAGE_PATH
               value: "/tmp/localrun/models"
             {{- range $key, $value := .Values.forecasting.env }}
