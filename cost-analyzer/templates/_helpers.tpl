@@ -26,8 +26,8 @@ Set important variables before starting main templates
 Kubecost 2.0 preconditions
 */}}
 {{ define "kubecostV2-preconditions" }}
-  {{ if and (semverCompare "<2.0.0-0" .Chart.Version) (not .Values.upgradeToKubecostV2) }}
-    {{ fail "\n\nYou are attempting to upgrade to Kubecost 2.0. Please refer to the following documentation and talk to your Kubecost representative before upgrading, as there are potential breaking changes: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2 \n\nWhen ready to upgrade, set `.Values.upgradeToKubecostV2=true`." }}
+  {{ if and (semverCompare "<2.0.0-0" .Chart.Version) (not .Values.upgrade.toV2) }}
+    {{ fail "\n\nYou are attempting to upgrade to Kubecost 2.0. Please refer to the following documentation and talk to your Kubecost representative before upgrading, as there are potential breaking changes: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2 \n\nWhen ready to upgrade, set `.Values.upgrade.toV2=true`." }}
   {{ end }}
   {{ if .Values.federatedETL }}
     {{ if .Values.federatedETL.primaryCluster }}
