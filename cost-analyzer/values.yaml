@@ -2439,6 +2439,7 @@ clusterController:
   priorityClassName: ""
   # Set custom tolerations for the cluster controller.
   tolerations: []
+  actionConfigs: null
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
     # automatically right-sized on a regular basis.

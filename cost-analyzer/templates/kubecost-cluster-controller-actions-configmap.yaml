@@ -1,0 +1,12 @@
+{{- if .Values.clusterController.actionConfigs }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  {{ template "kubecost.clusterControllerName" . }}-actions-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  action-configs.yaml: |
+{{- toYaml .Values.clusterController.actionConfigs | nindent 4 }}
+{{- end }}
