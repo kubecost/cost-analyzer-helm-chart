@@ -2822,6 +2822,12 @@ kubecostAdmissionController:
 costEventsAudit:
   enabled: false
 
+## This flag is only required for users upgrading from 1.x to 2.x. Ensure users
+## are aware of any changes that might need to be made to their architecture
+## before continuing with the upgrade.
+## 
+upgradeToKubecostV2: false
+
 ## Disable updates to kubecost from the frontend UI and via POST request
 ##
 # readonly: false

@@ -25,13 +25,18 @@ Set important variables before starting main templates
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
+{{ define "kubecostV2-preconditions" }}
+  {{ if and (semverCompare "<2.0.0-0" .Chart.Version) (not .Values.upgradeToKubecostV2) }}
+    {{ fail "\n\nYou are attempting to upgrade to Kubecost 2.0. Please refer to the following documentation and talk to your Kubecost representative before upgrading, as there are potential breaking changes: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2 \n\nWhen ready to upgrade, set `.Values.upgradeToKubecostV2=true`." }}
   {{ end }}
-{{ end }}
-{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+  {{ if .Values.federatedETL }}
+    {{ if .Values.federatedETL.primaryCluster }}
+      {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
+    {{ end }}
+  {{ end }}
+  {{ if not .Values.kubecostModel.etlFileStoreEnabled }}
+    {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+  {{ end }}
 {{ end }}
 
 
