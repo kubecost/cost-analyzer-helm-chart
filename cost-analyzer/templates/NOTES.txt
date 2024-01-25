@@ -1,6 +1,8 @@
 
 
 --------------------------------------------------
+{{ include "kubecostV2-preconditions" . }}
+
 {{/*
 https://github.com/helm/helm/issues/8026#issuecomment-881216078
 */}}

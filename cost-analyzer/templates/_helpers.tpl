@@ -25,13 +25,32 @@ Set important variables before starting main templates
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
+{{ define "kubecostV2-preconditions" }}
+  {{/*Get all StatefulSets in this namespace. Iterate through them and fail if any include the name "aggregator"*/}}
+  {{ if and (semverCompare "<2.0.0-0" .Chart.Version)}}
+    {{ $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") }}
+    {{ if not (empty $sts.items) }}
+      {{ range $index, $sts := $sts.items }}
+        {{ if contains "aggregator" $sts.metadata.name }}
+          {{ fail "Detected an existing Aggregator StatefulSet in your namespace. Please `kubectl delete` this Statefulset before installing Kubecost 2.0. Refer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
   {{ end }}
-{{ end }}
-{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+
+  {{ if .Values.federatedETL }}
+    {{ if .Values.federatedETL.primaryCluster }}
+      {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
+    {{ end }}
+  {{ end }}
+
+  {{ if not .Values.kubecostModel.etlFileStoreEnabled }}
+    {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+  {{ end }}
+
+  {{ if not .Values.kubecostModel.etlFileStoreEnabled }}
+    {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
+  {{ end }}
 {{ end }}
 
 
