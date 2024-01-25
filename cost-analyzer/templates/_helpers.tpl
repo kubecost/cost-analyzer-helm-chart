@@ -21,18 +21,47 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
-  {{ end }}
-{{ end }}
-{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
-{{ end }}
+{{ define "kubecostV2-preconditions" }}
+  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
+  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
+  documentation for how to properly upgrade to Kubecost 2.0 */}}
+  {{- $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") -}}
+  {{- if not (empty $sts.items) -}}
+    {{- range $index, $sts := $sts.items -}}
+      {{- if contains "aggregator" $sts.metadata.name -}}
+        {{- if $sts.metadata.labels -}}
+          {{- $stsLabels := $sts.metadata.labels -}}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
+          {{- if hasKey $stsLabels "helm.sh/chart" -}}
+            {{- $chartLabel := index $stsLabels "helm.sh/chart" -}}   {{/* cost-analyzer-1.108.1 */}}
+            {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
+            {{- if gt (len $chartNameAndVersion) 2 -}}
+              {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
+              {{- if semverCompare "<2.0.0-0" $chartVersion -}}
+                {{- fail "Detected an existing Aggregator StatefulSet in your namespace. Before upgrading to Kubecost 2.0, please `kubectl delete` this Statefulset. Refer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
+              {{- end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
+  {{- if ((.Values.thanos).store).enabled -}}
+  {{- fail "Kubecost no longer includes Thanos by default. Please see https://docs.kubecost.com/install-and-configure/install/thanos for more information." -}}
+  {{- end -}}
+
+  {{- if (.Values.federatedETL).primaryCluster -}}
+    {{- fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." -}}
+  {{- end -}}
+
+  {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
+    {{- fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
+  {{- end -}}
+{{- end -}}
 
 
 {{/*
