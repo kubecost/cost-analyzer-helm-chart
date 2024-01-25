@@ -47,10 +47,6 @@ Kubecost 2.0 preconditions
   {{ if not .Values.kubecostModel.etlFileStoreEnabled }}
     {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
   {{ end }}
-
-  {{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-    {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
-  {{ end }}
 {{ end }}
 
 
