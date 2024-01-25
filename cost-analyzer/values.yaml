@@ -2255,7 +2255,10 @@ forecasting:
       memory: 1Gi
 
   # Set environment variables for the forecasting container as key/value pairs.
-  env: {}
+  env:
+    # -t is the worker timeout which primarily affects model training time;
+    # if it is not high enough, training workers may die mid training
+    "GUNICORN_CMD_ARGS": "--log-level info -t 1200"
 
   # Define a priority class for the forecasting Deployment.
   priority:
