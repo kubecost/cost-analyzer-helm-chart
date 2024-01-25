@@ -26,13 +26,25 @@ Set important variables before starting main templates
 Kubecost 2.0 preconditions
 */}}
 {{ define "kubecostV2-preconditions" }}
-  {{/*Get all StatefulSets in this namespace. Iterate through them and fail if any include the name "aggregator"*/}}
-  {{ if and (semverCompare "<2.0.0-0" .Chart.Version)}}
-    {{ $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") }}
-    {{ if not (empty $sts.items) }}
-      {{ range $index, $sts := $sts.items }}
-        {{ if contains "aggregator" $sts.metadata.name }}
-          {{ fail "Detected an existing Aggregator StatefulSet in your namespace. Please `kubectl delete` this Statefulset before installing Kubecost 2.0. Refer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" }}
+  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
+  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
+  documentation for how to properly upgrade to Kubecost 2.0 */}}
+  {{ $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") }}
+  {{ if not (empty $sts.items) }}
+    {{ range $index, $sts := $sts.items }}
+      {{ if contains "aggregator" $sts.metadata.name }}
+        {{ if $sts.metadata.labels }}
+          {{ $stsLabels := $sts.metadata.labels }}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
+          {{ if hasKey $stsLabels "helm.sh/chart" }}
+            {{ $chartLabel := index $stsLabels "helm.sh/chart" }}   {{/* cost-analyzer-1.108.1 */}}
+            {{ $chartNameAndVersion := split "-" $chartLabel }}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
+            {{ if gt (len $chartNameAndVersion) 2 }}
+              {{ $chartVersion := $chartNameAndVersion._2 }}        {{/* 1.108.1 */}}
+              {{ if semverCompare "<2.0.0-0" $chartVersion }}
+                {{ fail "Detected an existing Aggregator StatefulSet in your namespace. Before upgrading to Kubecost 2.0, please `kubectl delete` this Statefulset. Refer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" }}
+              {{ end }}
+            {{ end }}
+          {{ end }}
         {{ end }}
       {{ end }}
     {{ end }}
