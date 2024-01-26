@@ -939,7 +939,14 @@ data:
             return 405 '{"forecastingEnabled": "false"}';
         }
         {{- end }}
-
+        location /model/productConfigs {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            return 200 '\n
+                {"ssoConfigured": "{{ template "ssoEnabled" . }}"}\n
+            ';
+        }
     }
 {{- end }}
 {{- end }}
