@@ -2411,7 +2411,7 @@ kubecostAggregator:
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
 ## repairing & alerting from the primary.
-## Ref: https://docs.kubecost.com/install-and-configure/install/diagnostics
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster-diagnostics
 ##
 diagnostics:
   enabled: true
