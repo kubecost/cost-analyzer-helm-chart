@@ -69,7 +69,7 @@ Kubecost 2.0 preconditions
   {{/* Aggregator config reconciliation and common config */}}
   {{- if eq (include "aggregator.deployMethod" .) "statefulset" -}}
     {{- if .Values.kubecostAggregator -}}
-      {{- if (not .values.kubecostAggregator.aggregatorDbStorage) -}}
+      {{- if (not .Values.kubecostAggregator.aggregatorDbStorage) -}}
         {{- fail "In Enterprise configuration, Aggregator DB storage is required" -}}
       {{- end -}}
     {{- end -}}
