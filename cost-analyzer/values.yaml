@@ -245,6 +245,13 @@ global:
         seccompProfile:
           type: RuntimeDefault
 
+## This flag is only required for users upgrading to a new version of Kubecost.
+## The flag is used to ensure users are aware of important
+## (potentially breaking) changes included in the new version.
+##
+upgrade:
+  toV2: false
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
 
