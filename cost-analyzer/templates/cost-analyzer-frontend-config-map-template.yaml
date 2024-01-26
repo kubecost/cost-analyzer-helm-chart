@@ -936,7 +936,7 @@ data:
         {{- else }}
         location /forecasting {
             default_type 'application/json';
-            return 404 '{"forecastingEnabled": "false"}';
+            return 405 '{"forecastingEnabled": "false"}';
         }
         {{- end }}
 
