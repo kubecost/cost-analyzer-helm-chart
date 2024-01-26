@@ -1035,3 +1035,14 @@ Aggregator config reconciliation and common config
       value: {{ .Values.systemProxy.noProxy }}
     {{- end }}
 {{- end }}
+
+{{/*
+SSO enabled flag for nginx configmap
+*/}}
+{{- define "ssoEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
