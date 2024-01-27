@@ -21,18 +21,55 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
-  {{ end }}
-{{ end }}
-{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
-{{ end }}
+{{ define "kubecostV2-preconditions" }}
+  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
+  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
+  documentation for how to properly upgrade to Kubecost 2.0 */}}
+  {{- $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") -}}
+  {{- if not (empty $sts.items) -}}
+    {{- range $index, $sts := $sts.items -}}
+      {{- if contains "aggregator" $sts.metadata.name -}}
+        {{- if $sts.metadata.labels -}}
+          {{- $stsLabels := $sts.metadata.labels -}}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
+          {{- if hasKey $stsLabels "helm.sh/chart" -}}
+            {{- $chartLabel := index $stsLabels "helm.sh/chart" -}}   {{/* cost-analyzer-1.108.1 */}}
+            {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
+            {{- if gt (len $chartNameAndVersion) 2 -}}
+              {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
+              {{- if semverCompare "<2.0.0-0" $chartVersion -}}
+                {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
+              {{- end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
+  {{- if ((.Values.thanos).store).enabled -}}
+    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
+
+  {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
+    {{- if or (not (.Values.federatedETL).federatedCluster) (not (.Values.upgrade).toV2) -}}
+      {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+    {{- if (not (.Values.upgrade).toV2) -}}
+      {{- fail "\n\nSSO with RBAC is enabled.\nNote that Kubecost 2.x has significant architectural changes that may impact RBAC.\nThis should be tested before giving end-users access to the UI.\nKubecost has tested various configurations and believe that 2.x will be 100% compatible with existing configurations.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
+    {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
+  {{- end -}}
+{{- end -}}
 
 
 {{/*
@@ -49,6 +86,9 @@ Expand the name of the chart.
 {{- end -}}
 {{- define "etlUtils.name" -}}
 {{- default "etl-utils" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "forecasting.name" -}}
+{{- default "forecasting" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -87,6 +127,9 @@ If release name contains chart name it will be used as a full name.
 
 {{- define "etlUtils.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "etlUtils.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "forecasting.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "forecasting.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -142,6 +185,9 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 {{- define "etlUtils.serviceName" -}}
 {{ include "etlUtils.fullname" . }}
+{{- end -}}
+{{- define "forecasting.serviceName" -}}
+{{ include "forecasting.fullname" . }}
 {{- end -}}
 
 {{/*
@@ -247,6 +293,10 @@ app: diagnostics
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "etlUtils.selectorLabels" . }}
 {{- end -}}
+{{- define "forecasting.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+{{ include "forecasting.selectorLabels" . }}
+{{- end -}}
 
 {{/*
 Create the networkcosts common labels. Note that because this is a daemonset, we don't want app.kubernetes.io/instance: to take the release name, which allows the scrape config to be static.
@@ -301,6 +351,11 @@ app: {{ include "cloudCost.name" . }}
 {{- end }}
 {{- end }}
 
+{{- define "forecasting.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "forecasting.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "forecasting.name" . }}
+{{- end -}}
 {{- define "etlUtils.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "etlUtils.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
@@ -658,6 +713,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostAggregator.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{- end }}
@@ -703,6 +760,52 @@ Aggregator config reconciliation and common config
     {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
     - name: aggregator-db-storage
       mountPath: /var/configs/waterfowl/duckdb
+    - name: aggregator-staging
+      # Aggregator uses /var/configs/waterfowl as a "staging" directory for
+      # things like intermediate-state files pre-ingestion. In order to avoid a
+      # permission problem similar to
+      # https://github.com/kubernetes/kubernetes/issues/81676, we create an
+      # emptyDir at this path.
+      #
+      # This hasn't been observed as a problem in cost-analyzer, likely because
+      # of the init container that gives everything under /var/configs 777.
+      mountPath: /var/configs/waterfowl
+    {{- end }}
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    {{- if .Values.saml.secretName }}
+    - name: secret-volume
+      mountPath: /var/configs/secret-volume
+    {{- end }}
+    {{- if .Values.saml.encryptionCertSecret }}
+    - name: saml-encryption-cert
+      mountPath: /var/configs/saml-encryption-cert
+    {{- end }}
+    {{- if .Values.saml.decryptionKeySecret }}
+    - name: saml-decryption-key
+      mountPath: /var/configs/saml-decryption-key
+    {{- end }}
+    {{- if .Values.saml.metadataSecretName }}
+    - name: metadata-secret-volume
+      mountPath: /var/configs/metadata-secret-volume
+    {{- end }}
+    - name: saml-auth-secret
+      mountPath: /var/configs/saml-auth-secret
+    {{- if .Values.saml.rbac.enabled }}
+    - name: saml-roles
+      mountPath: /var/configs/saml
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.oidc }}
+    {{- if .Values.oidc.enabled }}
+    - name: oidc-config
+      mountPath: /var/configs/oidc
+    {{- if .Values.oidc.secretName }}
+    - name: oidc-client-secret
+      mountPath: /var/configs/oidc-client-secret
+    {{- end }}
+    {{- end }}
     {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
@@ -770,6 +873,58 @@ Aggregator config reconciliation and common config
     {{- end }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
+    {{- if .Values.oidc.enabled }}
+    - name: OIDC_ENABLED
+      value: "true"
+    - name: OIDC_SKIP_ONLINE_VALIDATION
+      value: {{ (quote .Values.oidc.skipOnlineTokenValidation) | default (quote false) }}
+    {{- end}}
+    {{- if .Values.kubecostAggregator }}
+    {{- if .Values.kubecostAggregator.collections }}
+    {{- if (((.Values.kubecostAggregator).collections).cache) }}
+    - name: COLLECTIONS_MEMORY_CACHE_ENABLED
+      value: {{ (quote .Values.kubecostAggregator.collections.cache.enabled) | default (quote true) }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.saml }}
+    {{- if .Values.saml.enabled }}
+    - name: SAML_ENABLED
+      value: "true"
+    - name: IDP_URL
+      value: {{ .Values.saml.idpMetadataURL }}
+    - name: SP_HOST
+      value: {{ .Values.saml.appRootURL }}
+    {{- if .Values.saml.audienceURI }}
+    - name: AUDIENCE_URI
+      value: {{ .Values.saml.audienceURI }}
+    {{- end }}
+    {{- if .Values.saml.isGLUUProvider }}
+    - name: GLUU_SAML_PROVIDER
+      value: {{ (quote .Values.saml.isGLUUProvider) }}
+    {{- end }}
+    {{- if .Values.saml.nameIDFormat }}
+    - name: NAME_ID_FORMAT
+      value: {{ .Values.saml.nameIDFormat }}
+    {{- end}}
+    {{- if .Values.saml.authTimeout }}
+    - name: AUTH_TOKEN_TIMEOUT
+      value: {{ (quote .Values.saml.authTimeout) }}
+    {{- end}}
+    {{- if .Values.saml.redirectURL }}
+    - name: LOGOUT_REDIRECT_URL
+      value: {{ .Values.saml.redirectURL }}
+    {{- end}}
+    {{- if .Values.saml.rbac.enabled }}
+    - name: SAML_RBAC_ENABLED
+      value: "true"
+    {{- end }}
+    {{- if and .Values.saml.encryptionCertSecret .Values.saml.decryptionKeySecret }}
+    - name: SAML_RESPONSE_ENCRYPTED
+      value: "true"
+    {{- end}}
+    {{- end }}
+    {{- end }}
 {{- end }}
 
 
@@ -790,6 +945,8 @@ Aggregator config reconciliation and common config
   image: {{ .Values.kubecostModel.fullImageName }}
   {{- else if .Values.imageVersion }}
   image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+  image: gcr.io/kubecost1/cost-model-nightly:latest
   {{- else }}
   image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
   {{ end }}
@@ -886,3 +1043,14 @@ Aggregator config reconciliation and common config
       value: {{ .Values.systemProxy.noProxy }}
     {{- end }}
 {{- end }}
+
+{{/*
+SSO enabled flag for nginx configmap
+*/}}
+{{- define "ssoEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
