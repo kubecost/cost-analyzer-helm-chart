@@ -1,4 +1,4 @@
-{{ if .Values.global.grafana.enabled }}
+{{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true") }}
 {{- if .Values.grafana.ingress.enabled -}}
 {{- $fullName := include "grafana.fullname" . -}}
 {{- $servicePort := .Values.service.port -}}
