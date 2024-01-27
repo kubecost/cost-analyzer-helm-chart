@@ -222,11 +222,9 @@ spec:
           secret:
             secretName: {{ .Values.saml.metadataSecretName }}
         {{- end }}
-        {{- if .Values.saml.authSecretName }}
         - name: saml-auth-secret
           secret:
-            secretName: {{ .Values.saml.authSecretName }}
-        {{- end }}
+            secretName: {{ .Values.saml.authSecretName | default "kubecost-saml-secret" }}
         {{- if .Values.saml.rbac.enabled }}
         - name: saml-roles
           configMap:
@@ -449,6 +447,8 @@ spec:
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+        {{- else if eq "development" .Chart.AppVersion }}
+        - image: gcr.io/kubecost1/cost-model-nightly:latest
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{- end }}
@@ -592,10 +592,8 @@ spec:
             - name: metadata-secret-volume
               mountPath: /var/configs/metadata-secret-volume
             {{- end }}
-            {{- if .Values.saml.authSecretName }}
             - name: saml-auth-secret
               mountPath: /var/configs/saml-auth-secret
-            {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: saml-roles
               mountPath: /var/configs/saml
@@ -1009,6 +1007,8 @@ spec:
         - image: {{ .Values.kubecostFrontend.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
+        {{- else if eq "development" .Chart.AppVersion }}
+        - image: gcr.io/kubecost1/frontend-nightly:latest
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{- end }}
