@@ -40,7 +40,7 @@ Kubecost 2.0 preconditions
             {{- if gt (len $chartNameAndVersion) 2 -}}
               {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
               {{- if semverCompare "<2.0.0-0" $chartVersion -}}
-                {{- fail "Detected an existing Aggregator StatefulSet in your namespace. Before upgrading to Kubecost 2.0, please `kubectl delete` this Statefulset. Refer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
+                {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
               {{- end -}}
             {{- end -}}
           {{- end -}}
@@ -51,7 +51,7 @@ Kubecost 2.0 preconditions
 
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
-  {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
   {{- end -}}
 
   {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
@@ -60,8 +60,14 @@ Kubecost 2.0 preconditions
     {{- end -}}
   {{- end -}}
 
+  {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+    {{- if (not (.Values.upgrade).toV2) -}}
+      {{- fail "\n\nSSO with RBAC is enabled.\nNote that Kubecost 2.x has significant architectural changes that may impact RBAC.\nThis should be tested before giving end-users access to the UI.\nKubecost has tested various configurations and believe that 2.x will be 100% compatible with existing configurations.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+    {{- end -}}
+  {{- end -}}
+
   {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
-    {{- fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
+    {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
   {{- end -}}
 {{- end -}}
 
