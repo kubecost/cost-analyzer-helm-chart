@@ -933,8 +933,20 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        {{ end }}
-
+        {{- else }}
+        location /forecasting {
+            default_type 'application/json';
+            return 405 '{"forecastingEnabled": "false"}';
+        }
+        {{- end }}
+        location /model/productConfigs {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            return 200 '\n
+                {"ssoConfigured": "{{ template "ssoEnabled" . }}"}\n
+            ';
+        }
     }
 {{- end }}
 {{- end }}
