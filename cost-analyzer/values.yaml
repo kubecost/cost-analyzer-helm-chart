@@ -783,7 +783,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.48.1
+      tag: v2.49.1
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -2546,7 +2546,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.2.2
+    tag: 10.2.3
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2805,6 +2805,10 @@ awsstore:
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
 ##
 federatedETL:
+
+  ## If true, installs the minimal set of components required for a Federated ETL cluster.
+  agentOnly: false
+
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
