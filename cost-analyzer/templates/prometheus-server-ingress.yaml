@@ -18,6 +18,9 @@ metadata:
   name: {{ template "prometheus.server.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
+{{- if .Values.prometheus.server.ingress.className }}
+  ingressClassName: {{ .Values.prometheus.server.ingress.className }}
+{{- end }}
   rules:
   {{- range .Values.prometheus.server.ingress.hosts }}
     {{- $url := splitList "/" . }}

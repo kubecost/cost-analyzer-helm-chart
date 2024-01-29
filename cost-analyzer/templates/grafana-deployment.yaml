@@ -1,4 +1,4 @@
-{{ if .Values.global.grafana.enabled }}
+{{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true") }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -160,7 +160,7 @@ spec:
               mountPath: "/var/lib/grafana/dashboards/{{ . }}"
   {{- end }}
 {{- end }}
-{{- if or .Values.grafana.datasources .Values.global.grafana.enabled }}
+{{- if or (.Values.grafana.datasources) (include "cost-analyzer.grafanaEnabled" .)  }}
             - name: config
               mountPath: "/etc/grafana/provisioning/datasources/datasources.yaml"
               subPath: datasources.yaml
