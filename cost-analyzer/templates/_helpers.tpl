@@ -1054,3 +1054,11 @@ SSO enabled flag for nginx configmap
     {{- printf "false" -}}
   {{- end -}}
 {{- end -}}
+
+{{- define "cost-analyzer.grafanaEnabled" -}}
+  {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
