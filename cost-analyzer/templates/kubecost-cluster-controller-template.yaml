@@ -238,10 +238,6 @@ spec:
         volumeMounts:
         - name: cluster-controller-keys
           mountPath: /var/keys
-      {{- if .Values.clusterController.actionConfigs }}
-        - name: cluster-controller-config
-          mountPath: /var/configs/action
-        {{- end }}
         env:
         - name: POD_NAME
           valueFrom:
@@ -292,12 +288,6 @@ spec:
           # partially or fully initialize based on the presence of these keys
           # and their validity.
           optional: true
-        # if there are actions defined in config, mount those 
-      {{- if .Values.clusterController.actionConfigs }}
-      - name: cluster-controller-config
-        configMap:
-          name: {{ template "kubecost.clusterControllerName" . }}-actions-config
-      {{- end }}
 ---
 apiVersion: v1
 kind: Service
