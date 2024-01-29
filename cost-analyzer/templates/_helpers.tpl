@@ -70,8 +70,21 @@ Kubecost 2.0 preconditions
     {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
   {{- end -}}
 
+
   {{- if (.Values.agent) -}}
     {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
+  {{- if .Values.kubecostModel.openSourceOnly -}}
+    {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
+  {{- end -}}
+
+  {{/* Aggregator config reconciliation and common config */}}
+  {{- if eq (include "aggregator.deployMethod" .) "statefulset" -}}
+    {{- if .Values.kubecostAggregator -}}
+      {{- if (not .Values.kubecostAggregator.aggregatorDbStorage) -}}
+        {{- fail "In Enterprise configuration, Aggregator DB storage is required" -}}
+      {{- end -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -669,39 +682,11 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 
-
-
 {{/*
 ==============================================================
 Begin Kubecost 2.0 templates
 ==============================================================
 */}}
-{{/*
-Check KC 2.0 values requirements that may differ
-*/}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
-  {{ end }}
-{{ end }}
-
-{{ if .Values.kubecostModel }}
-  {{ if .Values.kubecostModel.openSourceOnly }}
-    {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
-  {{ end }}
-{{ end }}
-
-{{/*
-Aggregator config reconciliation and common config
-*/}}
-{{ if eq (include "aggregator.deployMethod" .) "statefulset" }}
-  {{ if .Values.kubecostAggregator }}
-    {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
-      {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
 
 {{- define "aggregator.containerTemplate" }}
 - name: aggregator
@@ -1053,6 +1038,14 @@ SSO enabled flag for nginx configmap
 */}}
 {{- define "ssoEnabled" -}}
   {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "cost-analyzer.grafanaEnabled" -}}
+  {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}

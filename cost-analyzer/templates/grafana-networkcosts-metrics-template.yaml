@@ -1,7 +1,7 @@
 {{- if .Values.grafana -}}
 {{- if .Values.grafana.sidecar -}}
 {{- if .Values.grafana.sidecar.dashboards -}}
-{{- if .Values.grafana.sidecar.dashboards.enabled -}}
+{{- if and (.Values.grafana.sidecar.dashboards.enabled ) (eq (include "cost-analyzer.grafanaEnabled" .) "true") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:

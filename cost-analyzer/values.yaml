@@ -1443,7 +1443,7 @@ prometheus:
     prometheus:
       ## If false, the configmap-reload container will not be deployed
       ##
-      enabled: true
+      enabled: false
 
       ## configmap-reload container name
       ##
@@ -2805,6 +2805,10 @@ awsstore:
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
 ##
 federatedETL:
+
+  ## If true, installs the minimal set of components required for a Federated ETL cluster.
+  agentOnly: false
+
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 

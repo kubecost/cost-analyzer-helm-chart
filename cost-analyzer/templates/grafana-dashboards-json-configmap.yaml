@@ -1,4 +1,4 @@
-{{ if .Values.global.grafana.enabled }}
+{{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true")  }}
 {{- if .Values.grafana.dashboards }}
   {{- range $provider, $dashboards := .Values.grafana.dashboards }}
 ---
@@ -21,4 +21,4 @@ data:
   {{- end }}
   {{- end }}
 {{- end }}
-{{ end }}
+{{- end }}
