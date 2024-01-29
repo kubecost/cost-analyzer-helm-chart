@@ -6,12 +6,16 @@ metadata:
   name: {{ template "etlUtils.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "etlUtils.commonLabels" . | nindent 4 }}
+    {{- include "etlUtils.commonLabels" . | nindent 4 }}
+  {{- with .Values.global.podAnnotations}}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{ include "etlUtils.selectorLabels" . | nindent 6 }}
+      {{- include "etlUtils.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
