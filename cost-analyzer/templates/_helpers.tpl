@@ -70,6 +70,10 @@ Kubecost 2.0 preconditions
     {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
   {{- end -}}
 
+
+  {{- if (.Values.agent) -}}
+    {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
   {{- if .Values.kubecostModel.openSourceOnly -}}
     {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
   {{- end -}}
