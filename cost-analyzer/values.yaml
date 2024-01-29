@@ -245,6 +245,13 @@ global:
         seccompProfile:
           type: RuntimeDefault
 
+## This flag is only required for users upgrading to a new version of Kubecost.
+## The flag is used to ensure users are aware of important
+## (potentially breaking) changes included in the new version.
+##
+upgrade:
+  toV2: false
+
 # generated at http://kubecost.com/install, used for alerts tracking and free trials
 kubecostToken:  # ""
 
@@ -776,7 +783,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.48.1
+      tag: v2.49.1
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1436,7 +1443,7 @@ prometheus:
     prometheus:
       ## If false, the configmap-reload container will not be deployed
       ##
-      enabled: true
+      enabled: false
 
       ## configmap-reload container name
       ##
@@ -1514,9 +1521,10 @@ prometheus:
 
   # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
-    ## If false, node-exporter will not be installed
+    ## If false, node-exporter will not be installed.
+    ## This is disabled by default in Kubecost 2.0, though it can be enabled as needed.
     ##
-    enabled: true
+    enabled: false
 
     ## If true, node-exporter pods share the host network namespace
     ##
@@ -2242,8 +2250,8 @@ forecasting:
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
-  # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:54b0247a8986e4d2eb781f424487dcdd85e3e559
+  # Example: fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.0.1
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:d80ab74
 
   # Resource specification block for the forecasting container.
   resources:
@@ -2255,7 +2263,10 @@ forecasting:
       memory: 1Gi
 
   # Set environment variables for the forecasting container as key/value pairs.
-  env: {}
+  env:
+    # -t is the worker timeout which primarily affects model training time;
+    # if it is not high enough, training workers may die mid training
+    "GUNICORN_CMD_ARGS": "--log-level info -t 1200"
 
   # Define a priority class for the forecasting Deployment.
   priority:
@@ -2407,7 +2418,7 @@ kubecostAggregator:
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
 ## repairing & alerting from the primary.
-## Ref: https://docs.kubecost.com/install-and-configure/install/diagnostics
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster-diagnostics
 ##
 diagnostics:
   enabled: true
@@ -2536,7 +2547,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.2.2
+    tag: 10.2.3
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2795,6 +2806,10 @@ awsstore:
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
 ##
 federatedETL:
+
+  ## If true, installs the minimal set of components required for a Federated ETL cluster.
+  agentOnly: false
+
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
