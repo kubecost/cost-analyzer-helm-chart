@@ -76,7 +76,7 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
-        {{- if .Values.kubecostFrontend.enabled }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -222,11 +222,9 @@ spec:
           secret:
             secretName: {{ .Values.saml.metadataSecretName }}
         {{- end }}
-        {{- if .Values.saml.authSecretName }}
         - name: saml-auth-secret
           secret:
-            secretName: {{ .Values.saml.authSecretName }}
-        {{- end }}
+            secretName: {{ .Values.saml.authSecretName | default "kubecost-saml-secret" }}
         {{- if .Values.saml.rbac.enabled }}
         - name: saml-roles
           configMap:
@@ -449,6 +447,8 @@ spec:
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+        {{- else if eq "development" .Chart.AppVersion }}
+        - image: gcr.io/kubecost1/cost-model-nightly:latest
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{- end }}
@@ -592,10 +592,8 @@ spec:
             - name: metadata-secret-volume
               mountPath: /var/configs/metadata-secret-volume
             {{- end }}
-            {{- if .Values.saml.authSecretName }}
             - name: saml-auth-secret
               mountPath: /var/configs/saml-auth-secret
-            {{- end }}
             {{- if .Values.saml.rbac.enabled }}
             - name: saml-roles
               mountPath: /var/configs/saml
@@ -615,7 +613,7 @@ spec:
           env:
             {{- if .Values.global.grafana }}
             - name: GRAFANA_ENABLED
-              value: {{ (quote .Values.global.grafana.enabled) | default (quote false) }}
+              value: "{{ template "cost-analyzer.grafanaEnabled" . }}"
             {{- end}}
             {{- if .Values.kubecostModel.extraEnv -}}
             {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
@@ -1003,12 +1001,14 @@ spec:
                   key: kubecost-token
             - name: WATERFOWL_ENABLED
               value: "true"
-        {{- if .Values.kubecostFrontend.enabled }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
+        {{- else if eq "development" .Chart.AppVersion }}
+        - image: gcr.io/kubecost1/frontend-nightly:latest
         {{- else }}
         - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
         {{- end }}
@@ -1077,14 +1077,11 @@ spec:
           {{- end }}
         {{ end }}
 
-        {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
+        {{- if and (eq (include "aggregator.deployMethod" .) "singlepod") (not .Values.federatedETL.agentOnly) }}
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
         {{- if .Values.kubecostAggregator.jaeger.enabled }}
         {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
         {{- end }}
-        {{- end }}
-
-        {{- if not (eq (include "aggregator.deployMethod" .) "statefulset") }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
 

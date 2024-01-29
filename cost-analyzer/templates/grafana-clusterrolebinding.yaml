@@ -1,4 +1,4 @@
-{{ if .Values.global.grafana.enabled }}
+{{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true") }}
 {{- if .Values.grafana.rbac.create }}
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
