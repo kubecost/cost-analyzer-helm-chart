@@ -39,7 +39,7 @@ Kubecost 2.0 preconditions
             {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
             {{- if gt (len $chartNameAndVersion) 2 -}}
               {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
-              {{- if semverCompare "<2.0.0-0" $chartVersion -}}
+              {{- if (and (semverCompare ">=1.107.0-0" $chartVersion) (semverCompare "<2.0.0-0" $chartVersion)) -}}  {{/* Nightly charts are 0.0.X. The only released versions that need this guard are 1.107.X and 1.108.X */}}
                 {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
               {{- end -}}
             {{- end -}}
