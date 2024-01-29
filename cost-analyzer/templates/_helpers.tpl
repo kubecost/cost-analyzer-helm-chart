@@ -21,18 +21,72 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, there is no such thing as a federated primary. If you are a Federated ETL user, this setting has been removed. Make sure you have kubecostAggregator.deployMethod set to 'statefulset' and federatedETL.federatedCluster set to 'true'." }}
-  {{ end }}
-{{ end }}
-{{ if not .Values.kubecostModel.etlFileStoreEnabled }}
-  {{ fail "Kubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." }}
-{{ end }}
+{{ define "kubecostV2-preconditions" }}
+  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
+  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
+  documentation for how to properly upgrade to Kubecost 2.0 */}}
+  {{- $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") -}}
+  {{- if not (empty $sts.items) -}}
+    {{- range $index, $sts := $sts.items -}}
+      {{- if contains "aggregator" $sts.metadata.name -}}
+        {{- if $sts.metadata.labels -}}
+          {{- $stsLabels := $sts.metadata.labels -}}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
+          {{- if hasKey $stsLabels "helm.sh/chart" -}}
+            {{- $chartLabel := index $stsLabels "helm.sh/chart" -}}   {{/* cost-analyzer-1.108.1 */}}
+            {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
+            {{- if gt (len $chartNameAndVersion) 2 -}}
+              {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
+              {{- if semverCompare ">=1.0.0-0 <2.0.0-0" $chartVersion -}}
+                {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
+              {{- end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
+  {{- if ((.Values.thanos).store).enabled -}}
+    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
+
+  {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
+    {{- if or (not (.Values.federatedETL).federatedCluster) (not (.Values.upgrade).toV2) -}}
+      {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+    {{- if (not (.Values.upgrade).toV2) -}}
+      {{- fail "\n\nSSO with RBAC is enabled.\nNote that Kubecost 2.x has significant architectural changes that may impact RBAC.\nThis should be tested before giving end-users access to the UI.\nKubecost has tested various configurations and believe that 2.x will be 100% compatible with existing configurations.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
+    {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
+  {{- end -}}
+
+
+  {{- if (.Values.agent) -}}
+    {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
+  {{- if .Values.kubecostModel.openSourceOnly -}}
+    {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
+  {{- end -}}
+
+  {{/* Aggregator config reconciliation and common config */}}
+  {{- if eq (include "aggregator.deployMethod" .) "statefulset" -}}
+    {{- if .Values.kubecostAggregator -}}
+      {{- if (not .Values.kubecostAggregator.aggregatorDbStorage) -}}
+        {{- fail "In Enterprise configuration, Aggregator DB storage is required" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 
 
 {{/*
@@ -628,39 +682,11 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 
-
-
 {{/*
 ==============================================================
 Begin Kubecost 2.0 templates
 ==============================================================
 */}}
-{{/*
-Check KC 2.0 values requirements that may differ
-*/}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
-  {{ end }}
-{{ end }}
-
-{{ if .Values.kubecostModel }}
-  {{ if .Values.kubecostModel.openSourceOnly }}
-    {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
-  {{ end }}
-{{ end }}
-
-{{/*
-Aggregator config reconciliation and common config
-*/}}
-{{ if eq (include "aggregator.deployMethod" .) "statefulset" }}
-  {{ if .Values.kubecostAggregator }}
-    {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
-      {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
 
 {{- define "aggregator.containerTemplate" }}
 - name: aggregator
@@ -1006,3 +1032,22 @@ Aggregator config reconciliation and common config
       value: {{ .Values.systemProxy.noProxy }}
     {{- end }}
 {{- end }}
+
+{{/*
+SSO enabled flag for nginx configmap
+*/}}
+{{- define "ssoEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "cost-analyzer.grafanaEnabled" -}}
+  {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}

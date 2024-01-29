@@ -43,7 +43,7 @@ alertmanager:
   ##
   image:
     repository: quay.io/prometheus/alertmanager
-    tag: v0.25.0
+    tag: v0.26.0
     pullPolicy: IfNotPresent
 
   ## alertmanager priorityClassName
@@ -321,7 +321,7 @@ configmapReload:
     ##
     image:
       repository: quay.io/prometheus-operator/prometheus-config-reloader
-      tag: v0.70.0
+      tag: v0.71.2
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -361,7 +361,7 @@ configmapReload:
     ##
     image:
       repository: quay.io/prometheus-operator/prometheus-config-reloader
-      tag: v0.70.0
+      tag: v0.71.2
       pullPolicy: IfNotPresent
 
     ## Additional configmap-reload container arguments
@@ -537,7 +537,7 @@ server:
   ##
   image:
     repository: quay.io/prometheus/prometheus
-    tag: v2.48.1
+    tag: v2.49.1
     pullPolicy: IfNotPresent
 
   ## prometheus server priorityClassName
