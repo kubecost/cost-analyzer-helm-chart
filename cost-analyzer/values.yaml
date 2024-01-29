@@ -2245,7 +2245,7 @@ kubecostDeployment:
 ## Kubecost Forecasting forecasts future cost patterns based on historical
 ## patterns observed by Kubecost.
 forecasting:
-  enabled: false
+  enabled: true
 
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the forecasting
