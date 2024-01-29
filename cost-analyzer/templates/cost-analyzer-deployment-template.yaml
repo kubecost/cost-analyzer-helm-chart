@@ -76,7 +76,7 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
-        {{- if .Values.kubecostFrontend.enabled }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -613,7 +613,7 @@ spec:
           env:
             {{- if .Values.global.grafana }}
             - name: GRAFANA_ENABLED
-              value: {{ (quote .Values.global.grafana.enabled) | default (quote false) }}
+              value: "{{ template "cost-analyzer.grafanaEnabled" . }}"
             {{- end}}
             {{- if .Values.kubecostModel.extraEnv -}}
             {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
@@ -1001,7 +1001,7 @@ spec:
                   key: kubecost-token
             - name: WATERFOWL_ENABLED
               value: "true"
-        {{- if .Values.kubecostFrontend.enabled }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
@@ -1077,14 +1077,11 @@ spec:
           {{- end }}
         {{ end }}
 
-        {{- if eq (include "aggregator.deployMethod" .) "singlepod" }}
+        {{- if and (eq (include "aggregator.deployMethod" .) "singlepod") (not .Values.federatedETL.agentOnly) }}
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
         {{- if .Values.kubecostAggregator.jaeger.enabled }}
         {{- include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
         {{- end }}
-        {{- end }}
-
-        {{- if not (eq (include "aggregator.deployMethod" .) "statefulset") }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
 
