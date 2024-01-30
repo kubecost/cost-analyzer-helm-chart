@@ -24,7 +24,7 @@ Set important variables before starting main templates
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ define "kubecostV2-preconditions" }}
+{{- define "kubecostV2-preconditions" -}}
   {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
   a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
   documentation for how to properly upgrade to Kubecost 2.0 */}}
@@ -39,7 +39,7 @@ Kubecost 2.0 preconditions
             {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
             {{- if gt (len $chartNameAndVersion) 2 -}}
               {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
-              {{- if semverCompare "<2.0.0-0" $chartVersion -}}
+              {{- if semverCompare ">=1.0.0-0 <2.0.0-0" $chartVersion -}}
                 {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
               {{- end -}}
             {{- end -}}
@@ -69,8 +69,44 @@ Kubecost 2.0 preconditions
   {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
     {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
   {{- end -}}
+
+
+  {{- if (.Values.agent) -}}
+    {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+  {{- end -}}
+  {{- if .Values.kubecostModel.openSourceOnly -}}
+    {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
+  {{- end -}}
+
+  {{/* Aggregator config reconciliation and common config */}}
+  {{- if eq (include "aggregator.deployMethod" .) "statefulset" -}}
+    {{- if .Values.kubecostAggregator -}}
+      {{- if (not .Values.kubecostAggregator.aggregatorDbStorage) -}}
+        {{- fail "In Enterprise configuration, Aggregator DB storage is required" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+
+  {{- if (.Values.podSecurityPolicy).enabled }}
+    {{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
+  {{- end }}
+
 {{- end -}}
 
+{{/*
+Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
+*/}}
+{{- define "eksCheck" }}
+{{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
+{{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
+{{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
+{{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
+{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled $EBSCSINotExists) -}}
+
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
+
+{{- end -}}
+{{- end -}}
 
 {{/*
 Expand the name of the chart.
@@ -665,39 +701,11 @@ Create the name of the service account
 {{- end -}}
 {{- end -}}
 
-
-
 {{/*
 ==============================================================
 Begin Kubecost 2.0 templates
 ==============================================================
 */}}
-{{/*
-Check KC 2.0 values requirements that may differ
-*/}}
-{{ if .Values.federatedETL }}
-  {{ if .Values.federatedETL.primaryCluster }}
-    {{ fail "In Kubecost 2.0, all federated configurations must be set up as secondary" }}
-  {{ end }}
-{{ end }}
-
-{{ if .Values.kubecostModel }}
-  {{ if .Values.kubecostModel.openSourceOnly }}
-    {{ fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" }}
-  {{ end }}
-{{ end }}
-
-{{/*
-Aggregator config reconciliation and common config
-*/}}
-{{ if eq (include "aggregator.deployMethod" .) "statefulset" }}
-  {{ if .Values.kubecostAggregator }}
-    {{ if (not .values.kubecostAggregator.aggregatorDbStorage) }}
-      {{ fail "In Enterprise configuration, Aggregator DB storage is required" }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
 
 {{- define "aggregator.containerTemplate" }}
 - name: aggregator
