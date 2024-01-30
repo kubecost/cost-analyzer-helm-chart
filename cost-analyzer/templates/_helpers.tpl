@@ -979,6 +979,8 @@ Begin Kubecost 2.0 templates
   resources:
     {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
   volumeMounts:
+    - name: persistent-configs
+      mountPath: /var/configs
   {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
@@ -988,16 +990,6 @@ Begin Kubecost 2.0 templates
     - name: etl-bucket-config
       mountPath: /var/configs/etl
       readOnly: true
-  {{- end }}
-  {{- if (eq (include "aggregator.deployMethod" .) "singlepod") }}
-  {{/*
-    persistent-configs is used to access cloud keys when configured via UI and
-    for storing CC data. In an enterprise config (aggregator statefulset) a CC
-    config secret is required and all data is uploaded to S3 rather than stored
-    in this PV, so it does not need to be mounted.
-  */}}
-    - name: persistent-configs
-      mountPath: /var/configs
   {{- end }}
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
