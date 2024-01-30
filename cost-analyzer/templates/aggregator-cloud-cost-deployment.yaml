@@ -57,9 +57,12 @@ spec:
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
+        {{/* Titled persistent-configs to be compatible with single-pod install.
+        All data stored here is ephemeral, and does not require a PV. */}}
+        - name: persistent-configs
+          emptyDir: {}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
-
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
