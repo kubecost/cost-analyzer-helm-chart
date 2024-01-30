@@ -24,7 +24,7 @@ Set important variables before starting main templates
 {{/*
 Kubecost 2.0 preconditions
 */}}
-{{ define "kubecostV2-preconditions" }}
+{{- define "kubecostV2-preconditions" -}}
   {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
   a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
   documentation for how to properly upgrade to Kubecost 2.0 */}}
@@ -86,8 +86,27 @@ Kubecost 2.0 preconditions
       {{- end -}}
     {{- end -}}
   {{- end -}}
+
+  {{- if (.Values.podSecurityPolicy).enabled }}
+    {{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
+  {{- end }}
+
 {{- end -}}
 
+{{/*
+Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
+*/}}
+{{- define "eksCheck" }}
+{{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
+{{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
+{{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
+{{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
+{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled $EBSCSINotExists) -}}
+
+ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
+
+{{- end -}}
+{{- end -}}
 
 {{/*
 Expand the name of the chart.
