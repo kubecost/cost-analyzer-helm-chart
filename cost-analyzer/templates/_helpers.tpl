@@ -115,7 +115,7 @@ Verify the cloud integration secret exists with the expected key when cloud inte
 {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail "The cloud integration secret does not exist or does not contain the expected key 'cloud-integration.json'" }}
+    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
 {{- end -}}
 {{- end -}}
