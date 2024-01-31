@@ -109,6 +109,18 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 {{- end -}}
 
 {{/*
+Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
+*/}}
+{{- define "cloudIntegrationSecretCheck" -}}
+{{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+  {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
+    {{- fail "The cloud integration secret does not exist or does not contain the expected key 'cloud-integration.json'" }}
+  {{- end }}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "cost-analyzer.name" -}}
