@@ -6,19 +6,35 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-data:
+binaryData:
   config: |
-{{- toJson .Values.clusterController.clusterRightsize | nindent 4 }}
+{{- toJson .Values.clusterController.actionConfigs.clusterRightsize | b64enc | nindent 4 }}
 {{- end }}
-{{- if .Values.clusterController.actionConfigs.clusterRightsize }}
+---
+{{- if .Values.clusterController.actionConfigs.namespaceTurndown }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name:  cluster-controller-continuous-cluster-sizing
+  name:  cluster-controller-nsturndown-config
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-data:
+binaryData:
+{{- range .Values.clusterController.actionConfigs.namespaceTurndown }}
+  {{ .name }}: |
+      {{- toJson . | b64enc | nindent 4 }}
+{{- end }}
+{{- end }}
+---
+{{- if .Values.clusterController.actionConfigs.containerRightsize }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name:  cluster-controller-container-rightsizing-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+binaryData:
   config: |
-{{- toJson .Values.clusterController.clusterRightsize | nindent 4 }}
+{{- toJson .Values.clusterController.actionConfigs.containerRightsize | b64enc | nindent 4 }}
 {{- end }}
