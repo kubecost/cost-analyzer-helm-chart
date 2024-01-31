@@ -1,4 +1,3 @@
-{{- if .Values.clusterController.actionConfigs.clusterRightsize }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,12 +5,13 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.clusterController.actionConfigs.clusterRightsize }}
 binaryData:
   config: |
 {{- toJson .Values.clusterController.actionConfigs.clusterRightsize | b64enc | nindent 4 }}
 {{- end }}
 ---
-{{- if .Values.clusterController.actionConfigs.namespaceTurndown }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -19,6 +19,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.clusterController.actionConfigs.namespaceTurndown }}
 binaryData:
 {{- range .Values.clusterController.actionConfigs.namespaceTurndown }}
   {{ .name }}: |
@@ -26,7 +27,6 @@ binaryData:
 {{- end }}
 {{- end }}
 ---
-{{- if .Values.clusterController.actionConfigs.containerRightsize }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -34,6 +34,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.clusterController.actionConfigs.containerRightsize }}
 binaryData:
   config: |
 {{- toJson .Values.clusterController.actionConfigs.containerRightsize | b64enc | nindent 4 }}
