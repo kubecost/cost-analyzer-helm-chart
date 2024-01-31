@@ -805,29 +805,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-    {{- end }}
 
-        location = /model/hideOrphanedResources {
-            default_type 'application/json';
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            {{- if .Values.kubecostFrontend.hideOrphanedResources }}
-            return 200 '{"hideOrphanedResources": "true"}';
-            {{- else }}
-            return 200 '{"hideOrphanedResources": "false"}';
-            {{- end }}
-        }
-        location = /model/hideDiagnostics {
-            default_type 'application/json';
-            add_header 'Access-Control-Allow-Origin' '*' always;
-            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            {{- if .Values.kubecostFrontend.hideDiagnostics }}
-            return 200 '{"hideDiagnostics": "true"}';
-            {{- else }}
-            return 200 '{"hideDiagnostics": "false"}';
-            {{- end }}
-        }
-    {{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
+        #Cloud Cost Endpoints
         location = /model/cloudCost/status {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://cloudCost/cloudCost/status;
@@ -876,7 +855,27 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-    {{- end }}
+{{- end }}
+        location = /model/hideOrphanedResources {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            {{- if .Values.kubecostFrontend.hideOrphanedResources }}
+            return 200 '{"hideOrphanedResources": "true"}';
+            {{- else }}
+            return 200 '{"hideOrphanedResources": "false"}';
+            {{- end }}
+        }
+        location = /model/hideDiagnostics {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            {{- if .Values.kubecostFrontend.hideDiagnostics }}
+            return 200 '{"hideDiagnostics": "true"}';
+            {{- else }}
+            return 200 '{"hideDiagnostics": "false"}';
+            {{- end }}
+        }
 
         {{- if .Values.kubecostFrontend.trendsDisabled }}
         location /model/allocation/trends {
