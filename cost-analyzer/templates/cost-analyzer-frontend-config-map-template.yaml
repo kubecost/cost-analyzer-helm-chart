@@ -116,6 +116,10 @@ data:
     upstream cloudCost {
         server {{ template "cloudCost.fullname" . }}.{{ .Release.Namespace }}:9005;
     }
+  {{- else }}
+    upstream cloudCost {
+        server {{ $serviceName }}.{{ .Release.Namespace }}:9005;
+    }
   {{- end }}
 
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
