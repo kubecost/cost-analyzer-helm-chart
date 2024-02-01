@@ -1017,10 +1017,7 @@ Begin Kubecost 2.0 templates
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
-    - name: cloud-integration
-      mountPath: /var/configs/cloud-integration
-  {{- else if (.Values.kubecostProductConfigs).cloudIntegrationJSON }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
