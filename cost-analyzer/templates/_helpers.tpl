@@ -1004,7 +1004,7 @@ Begin Kubecost 2.0 templates
       readOnly: true
   {{- end }}
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
-    - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+    - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
   env:
