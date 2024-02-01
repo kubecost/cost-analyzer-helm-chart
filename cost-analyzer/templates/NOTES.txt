@@ -2,6 +2,7 @@
 {{- include "kubecostV2-preconditions" . -}}
 {{- include "cloudIntegrationSecretMutualExclusivityCheck" . -}}
 {{- include "eksCheck" . -}}
+{{- include "cloudIntegrationSecretCheck" . -}}
 {{- $servicePort := .Values.service.port | default 9090 }}
 Kubecost {{ .Chart.Version }} has been successfully installed.
 
