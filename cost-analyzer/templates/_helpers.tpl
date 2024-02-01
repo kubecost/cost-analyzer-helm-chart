@@ -97,7 +97,7 @@ Kubecost 2.0 preconditions
 Cloud integration Secret mutual exclusivity check. Either the Secret must be specified or the JSON, not both.
 */}}
 {{- define "cloudIntegrationSecretMutualExclusivityCheck" -}}
-  {{- if and .Values.kubecostProductConfigs.cloudIntegrationSecret .Values.kubecostProductConfigs.cloudIntegrationJSON -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
     {{- fail "cloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
   {{- end -}}
 {{- end -}}
