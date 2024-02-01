@@ -94,6 +94,18 @@ Kubecost 2.0 preconditions
 {{- end -}}
 
 {{/*
+Cloud integration Secret mutual exclusivity check. Either the Secret must be specified or the JSON, not both.
+*/}}
+{{- define "cloudIntegrationSecretMutualExclusivityCheck" -}}
+  {{- if and .Values.kubecostProductConfigs.cloudIntegrationSecret .Values.kubecostProductConfigs.cloudIntegrationJSON -}}
+    {{- fail "cloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+*/}}
+
+{{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
 */}}
 {{- define "eksCheck" }}
@@ -993,6 +1005,9 @@ Begin Kubecost 2.0 templates
   {{- end }}
   {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
     - name: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+      mountPath: /var/configs/cloud-integration
+  {{- else if (.Values.kubecostProductConfigs).cloudIntegrationJSON }}
+    - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
   env:
