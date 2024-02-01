@@ -2451,6 +2451,8 @@ clusterController:
   # Set custom tolerations for the cluster controller.
   tolerations: []
   actionConfigs:
+    # this configures the Kubecost Namespace Turndown action
+    # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#namespace-turndown
     namespaceTurndown:
       # - name: my-ns-turndown-action
       #   dryRun: false
@@ -2464,6 +2466,8 @@ clusterController:
       #     turndown: ignore
       #   params:
       #     minNamespaceAge: 4h
+        # this configures the Kubecost Cluster Sizing action
+    # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#cluster-sizing
     clusterRightsize:
         # startTime: '2024-01-02T15:04:05Z'
         # frequencyMinutes: 1440
@@ -2476,6 +2480,8 @@ clusterController:
         #   allowSharedCore: false
         # allowCostIncrease: false
         # recommendationType: ''
+    # this configures the Kubecost Request Sizing action
+    # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#automated-request-sizing
     containerRightsize:
       #  workloads:
       #   - clusterID: cluster-one
