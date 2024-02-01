@@ -66,6 +66,9 @@ kubecostModel:
     #  cpu: "800m"
     #  memory: "256Mi"
 
+forecasting:
+  fullImageName: public.ecr.aws/kubecost/kubecost-modeling:e59c4d9
+
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
   annotations: {}
@@ -110,7 +113,7 @@ prometheus:
     # clusterIDConfigmap: cluster-id-configmap
     image:
       repository: public.ecr.aws/kubecost/prometheus
-      tag: v2.48.1
+      tag: v2.49.1
     resources: {}
     # limits:
     #   cpu: 500m
@@ -148,7 +151,7 @@ prometheus:
       ## configmap-reload container image
       image:
         repository: public.ecr.aws/kubecost/prometheus-config-reloader
-        tag: v0.70.0
+        tag: v0.71.2
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
