@@ -93,6 +93,24 @@ Kubecost 2.0 preconditions
 
 {{- end -}}
 
+{{- define "cloudIntegrationFromProductConfigs" }}
+  {
+    "aws": [
+      {
+          "athenaBucketName": "{{ .Values.kubecostProductConfigs.athenaBucketName }}",
+          "athenaRegion": "{{ .Values.kubecostProductConfigs.athenaRegion }}",
+          "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
+          "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
+          "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
+          "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
+          "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
+          {{- end }}
+      }
+    ]
+  }
+{{- end }}
+
 {{/*
 Cloud integration source contents check. Either the Secret must be specified or the JSON, not both.
 Additionally, for upgrade protection, certain individual values populated under the kubecostProductConfigs map, if found,
@@ -100,10 +118,10 @@ will result in failure. Users are asked to select one of the two presently-avail
 */}}
 {{- define "cloudIntegrationSourceCheck" -}}
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
-    {{- fail "cloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+    {{- fail "\ncloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
   {{- end -}}
-  {{- if or ((.Values.kubecostProductConfigs).athenaProjectID) ((.Values.kubecostProductConfigs).bigQueryBillingDataDataset) ((.Values.kubecostProductConfigs).azureSubscriptionID) }}
-    {{- fail "Specifying cloud integration details as individual keys has been removed. Please use either cloudIntegrationSecret or cloudIntegrationJSON depending on your requirements and unset individual cloud-specific fields." -}}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
+    {{- fail "\nUsing a cloud-integration secret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
 {{- end -}}
 
@@ -1020,7 +1038,7 @@ Begin Kubecost 2.0 templates
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
