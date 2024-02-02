@@ -2399,7 +2399,10 @@ kubecostAggregator:
     #   port: 40000
     #   targetPort: 40000
     #   containerPort: 40000
-  securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
+  ## Define a securityContext for the aggregator pod. This will take highest precedence.
+  securityContext: {}
+  ## Define the container-level security context for the aggregator pod. This will take highest precedence.
+  # containerSecurityContext: {}
 
   ## Provide a Service Account name for aggregator.
   # serviceAccountName: ""
