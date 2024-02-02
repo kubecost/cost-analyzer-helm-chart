@@ -2429,6 +2429,8 @@ kubecostAggregator:
       initialDelaySeconds: 10
       periodSeconds: 10
       failureThreshold: 200
+    ## Define environment variables for cloud cost
+    # env: {}
 
     ## Configure the Collections service for aggregator.
     # collections:
