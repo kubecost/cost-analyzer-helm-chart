@@ -718,6 +718,8 @@ service:
 prometheus:
   ## Provide a full name override for Prometheus.
   # fullnameOverride: ""
+  ## Provide a name override for Prometheus.
+  # nameOverride: ""
 
   rbac:
     create: true  # Create the RBAC resources for Prometheus.
