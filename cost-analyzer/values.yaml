@@ -1163,6 +1163,9 @@ prometheus:
     ##
     enabled: false
 
+    ## Provide a full name override for Prometheus alertmanager.
+    # fullnameOverride: ""
+
     strategy:
       type: Recreate
       rollingUpdate: null
