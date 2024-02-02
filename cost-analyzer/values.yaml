@@ -2390,6 +2390,9 @@ kubecostAggregator:
     #   containerPort: 40000
   securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
 
+  ## Provide a Service Account name for aggregator.
+  # serviceAccountName: ""
+
   ## Creates a new container/pod to retrieve CloudCost data. By default it uses
   ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
   ## can be specified.
