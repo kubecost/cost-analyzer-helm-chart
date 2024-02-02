@@ -2440,6 +2440,9 @@ diagnostics:
       memory: "20Mi"
   securityContext: {}
 
+## Provide a full name override for the diagnostics Deployment.
+# diagnosticsFullnameOverride: ""
+
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
   enabled: false
