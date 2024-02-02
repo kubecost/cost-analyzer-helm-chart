@@ -57,7 +57,7 @@ spec:
             secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             items:
               - key: cloud-integration.json
-                path: cloud-integration.
+                path: cloud-integration.json
         {{- else if .Values.kubecostProductConfigs.cloudIntegrationJSON }}
         - name: cloud-integration
           secret:
