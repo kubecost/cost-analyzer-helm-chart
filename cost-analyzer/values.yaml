@@ -2443,7 +2443,7 @@ kubecostAggregator:
       initialDelaySeconds: 10
       periodSeconds: 10
       failureThreshold: 200
-    
+
     ## Add a nodeSelector for aggregator cloud costs
     # nodeSelector: {}
 
