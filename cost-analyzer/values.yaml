@@ -2911,6 +2911,8 @@ awsstore:
   # Use a custom nodeSelector for AWSStore.
   nodeSelector: {}
     # kubernetes.io/arch: amd64
+  ## Annotations for the AWSStore ServiceAccount.
+  annotations: {}
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
