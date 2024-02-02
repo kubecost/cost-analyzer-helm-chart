@@ -2372,6 +2372,11 @@ kubecostAggregator:
     periodSeconds: 10
     failureThreshold: 200
 
+  ## Add a priority class to the aggregator pod
+  # priority:
+  #   enabled: false
+  #   name: ""
+
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -2429,6 +2434,16 @@ kubecostAggregator:
       initialDelaySeconds: 10
       periodSeconds: 10
       failureThreshold: 200
+    
+    ## Add a nodeSelector for aggregator cloud costs
+    # nodeSelector: {}
+
+    ## Tolerations for the aggregator cloud costs
+    # tolerations: {}
+
+    ## Affinity for the aggregator cloud costs
+    # affinity: {}
+
     ## Define environment variables for cloud cost
     # env: {}
 
