@@ -245,6 +245,11 @@ global:
         seccompProfile:
           type: RuntimeDefault
 
+## Provide a name override for the chart.
+# nameOverride: ""
+## Provide a full name override option for the chart.
+# fullnameOverride: ""
+
 ## This flag is only required for users upgrading to a new version of Kubecost.
 ## The flag is used to ensure users are aware of important
 ## (potentially breaking) changes included in the new version.
