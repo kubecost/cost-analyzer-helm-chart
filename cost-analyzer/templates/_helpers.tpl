@@ -94,11 +94,16 @@ Kubecost 2.0 preconditions
 {{- end -}}
 
 {{/*
-Cloud integration Secret mutual exclusivity check. Either the Secret must be specified or the JSON, not both.
+Cloud integration source contents check. Either the Secret must be specified or the JSON, not both.
+Additionally, for upgrade protection, certain individual values populated under the kubecostProductConfigs map, if found,
+will result in failure. Users are asked to select one of the two presently-available sources for cloud integration information.
 */}}
-{{- define "cloudIntegrationSecretMutualExclusivityCheck" -}}
+{{- define "cloudIntegrationSourceCheck" -}}
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
     {{- fail "cloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+  {{- end -}}
+  {{- if or ((.Values.kubecostProductConfigs).athenaProjectID) ((.Values.kubecostProductConfigs).bigQueryBillingDataDataset) ((.Values.kubecostProductConfigs).azureSubscriptionID) }}
+    {{- fail "Specifying cloud integration details as individual keys has been removed. Please use either cloudIntegrationSecret or cloudIntegrationJSON depending on your requirements and unset individual cloud-specific fields." -}}
   {{- end -}}
 {{- end -}}
 

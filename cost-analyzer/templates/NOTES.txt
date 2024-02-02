@@ -1,6 +1,6 @@
 --------------------------------------------------
 {{- include "kubecostV2-preconditions" . -}}
-{{- include "cloudIntegrationSecretMutualExclusivityCheck" . -}}
+{{- include "cloudIntegrationSourceCheck" . -}}
 {{- include "eksCheck" . -}}
 {{- include "cloudIntegrationSecretCheck" . -}}
 {{- $servicePort := .Values.service.port | default 9090 }}
