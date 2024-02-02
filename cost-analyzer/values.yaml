@@ -2444,6 +2444,9 @@ kubecostAggregator:
     ## Affinity for the aggregator cloud costs
     # affinity: {}
 
+    ## ServiceAccount for the aggregator cloud costs
+    # serviceAccountName: ""
+
     ## Define environment variables for cloud cost
     # env: {}
 
