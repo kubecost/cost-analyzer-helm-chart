@@ -2412,6 +2412,15 @@ kubecostAggregator:
   ## Provide a Service Account name for aggregator.
   # serviceAccountName: ""
 
+  ## Define a nodeSelector for the aggregator pod
+  # nodeSelector: {}
+
+  ## Define tolerations for the aggregator pod
+  # tolerations: []
+
+  ## Define Pod affinity for the aggregator pod
+  # affinity: {}
+
   ## Creates a new container/pod to retrieve CloudCost data. By default it uses
   ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
   ## can be specified.
