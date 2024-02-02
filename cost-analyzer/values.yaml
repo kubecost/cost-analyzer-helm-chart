@@ -716,6 +716,9 @@ service:
     timeoutSeconds: 10800
 
 prometheus:
+  ## Provide a full name override for Prometheus.
+  # fullnameOverride: ""
+
   rbac:
     create: true  # Create the RBAC resources for Prometheus.
 
