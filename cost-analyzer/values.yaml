@@ -2997,6 +2997,8 @@ costEventsAudit:
 #  spotLabelValue: Ec2Spot
 #  gpuLabel: gpu
 #  gpuLabelValue: true
+#  alibabaServiceKeyName: ""
+#  alibabaServiceKeyPassword: ""
 #  awsServiceKeyName: ACCESSKEYID
 #  awsServiceKeyPassword:  fakepassword # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
 #  awsSpotDataRegion: us-east-1
