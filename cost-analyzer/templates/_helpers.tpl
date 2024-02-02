@@ -93,6 +93,39 @@ Kubecost 2.0 preconditions
 
 {{- end -}}
 
+{{- define "cloudIntegrationFromProductConfigs" }}
+  {
+    "aws": [
+      {
+          "athenaBucketName": "{{ .Values.kubecostProductConfigs.athenaBucketName }}",
+          "athenaRegion": "{{ .Values.kubecostProductConfigs.athenaRegion }}",
+          "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
+          "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
+          "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
+          "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
+          "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
+          {{- end }}
+      }
+    ]
+  }
+{{- end }}
+
+{{/*
+Cloud integration source contents check. Either the Secret must be specified or the JSON, not both.
+Additionally, for upgrade protection, certain individual values populated under the kubecostProductConfigs map, if found,
+will result in failure. Users are asked to select one of the two presently-available sources for cloud integration information.
+*/}}
+{{- define "cloudIntegrationSourceCheck" -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
+    {{- fail "\ncloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+  {{- end -}}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
+    {{- fail "\nUsing a cloud-integration secret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- end -}}
+{{- end -}}
+
+
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
 */}}
@@ -1005,7 +1038,7 @@ Begin Kubecost 2.0 templates
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
