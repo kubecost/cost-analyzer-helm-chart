@@ -107,8 +107,6 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- end -}}
 {{- end -}}
 
-{{/*
-*/}}
 
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
