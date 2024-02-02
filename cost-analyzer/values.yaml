@@ -3013,8 +3013,35 @@ costEventsAudit:
   #         "serviceKeyName": "AWS_cloud_integration_athena_serviceKeyName",
   #         "serviceKeySecret": "AWS_cloud_integration_athena_serviceKeySecret"
   #       }
+  #     ],
+  #     "azure": [
+  #       {
+  #         "azureSubscriptionID": "my-subscription-id",
+  #         "azureStorageAccount": "my-storage-account",
+  #         "azureStorageAccessKey": "my-storage-access-key",
+  #         "azureStorageContainer": "my-storage-container"
+  #       }
+  #     ],
+  #     "gcp": [
+  #       {
+  #         "projectID": "my-project-id",
+  #         "billingDataDataset": "detailedbilling.my-billing-dataset",
+  #         "key": {
+  #           "type": "service_account",
+  #           "project_id": "my-project-id",
+  #           "private_key_id": "my-private-key-id",
+  #           "private_key": "my-pem-encoded-private-key",
+  #           "client_email": "my-service-account-name@my-project-id.iam.gserviceaccount.com",
+  #           "client_id": "my-client-id",
+  #           "auth_uri": "auth-uri",
+  #           "token_uri": "token-uri",
+  #           "auth_provider_x509_cert_url": "my-x509-provider-cert",
+  #           "client_x509_cert_url": "my-x509-cert-url"
+  #         }
+  #       }
   #     ]
   #   }
+
   # ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
   # regionOverrides: "region1,region2,region3" # list of regions which will override default costmodel provider regions
 
