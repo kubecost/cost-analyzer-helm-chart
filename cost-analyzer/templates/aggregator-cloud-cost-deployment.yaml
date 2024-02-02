@@ -51,12 +51,21 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
+        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
         - name: cloud-integration
           secret:
             secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             items:
               - key: cloud-integration.json
+                path: cloud-integration.
+        {{- else if .Values.kubecostProductConfigs.cloudIntegrationJSON }}
+        - name: cloud-integration
+          secret:
+            secretName: cloud-integration
+            items:
+              - key: cloud-integration.json
                 path: cloud-integration.json
+        {{- end }}
         {{/* Titled persistent-configs to be compatible with single-pod install.
         All data stored here is ephemeral, and does not require a PV. */}}
         - name: persistent-configs
