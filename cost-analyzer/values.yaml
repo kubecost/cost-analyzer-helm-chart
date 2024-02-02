@@ -2573,8 +2573,10 @@ grafana:
   rbac:
     create: true
 
-  ## Provide a full name override for the grafana Deployment.
+  ## Provide a full name override for the Grafana Deployment.
   # fullnameOverride: ""
+  ## Provide a name override for the Grafana Deployment.
+  # nameOverride: ""
 
   ## Configure grafana datasources
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
