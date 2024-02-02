@@ -1676,6 +1676,9 @@ prometheus:
     ##
     enabled: false
 
+    ## Provide a full name override for Prometheus push gateway.
+    # fullnameOverride: ""
+
     ## Use an alternate scheduler, e.g. "stork".
     ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
     ##
