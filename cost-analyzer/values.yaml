@@ -2864,6 +2864,10 @@ federatedETL:
   ## Prometheus)
   useMultiClusterDB: false
 
+  federator:
+    enabled: true
+    primaryClusterID: my-primary-cluster-id
+
 ## Kubecost Admission Controller (beta feature)
 ## To use this feature, ensure you have run the `create-admission-controller.sh`
 ## script. This generates a k8s secret with TLS keys/certificats and a
