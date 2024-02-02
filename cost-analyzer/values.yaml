@@ -2466,7 +2466,7 @@ clusterController:
       #     turndown: ignore
       #   params:
       #     minNamespaceAge: 4h
-        # this configures the Kubecost Cluster Sizing action
+    # this configures the Kubecost Cluster Sizing action
     # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#cluster-sizing
     clusterRightsize:
         # startTime: '2024-01-02T15:04:05Z'
@@ -2485,14 +2485,16 @@ clusterController:
     containerRightsize:
       #  workloads:
       #   - clusterID: cluster-one
-      #     namespace: kube-system
+      #     namespace: my-namespace
       #     controllerKind: deployment
-      #     controllerName: kube-dns-autoscaler
+      #     controllerName: my-controller
       #  schedule:
-      #   start: 2024-01-30T00:00
-      #   frequencyMinutes: 1440
-      #   cpuTarget: 0.8
-      #   ramTarget: 0.8
+      #   start: "2024-01-30T15:04:05Z"
+      #   frequencyMinutes: 5
+      #   recommendationQueryWindow: "48h"
+      #   lastModified: ''
+      #   targetUtilizationCPU: 0.8
+      #   targetUtilizationMemory: 0.8
 
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
