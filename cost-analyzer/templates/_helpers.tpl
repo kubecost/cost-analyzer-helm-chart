@@ -368,9 +368,6 @@ app: diagnostics
 {{- end }}
 
 {{/*
-{{- end -}}
-
-{{/*
 Create the selector labels.
 */}}
 {{- define "cost-analyzer.selectorLabels" -}}
