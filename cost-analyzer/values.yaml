@@ -2430,6 +2430,11 @@ kubecostAggregator:
       periodSeconds: 10
       failureThreshold: 200
 
+    ## Configure the Collections service for aggregator.
+    # collections:
+    #   cache:
+    #     enabled: false
+
   # Jaeger is an optional container attached to wherever the Aggregator
   # container is running. It is used for performance investigation. Enable if
   # Kubecost Support asks.
