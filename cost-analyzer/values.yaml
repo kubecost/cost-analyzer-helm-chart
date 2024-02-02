@@ -2861,9 +2861,8 @@ federatedETL:
   ## Prometheus)
   useMultiClusterDB: false
 
-  federator:
-    enabled: true
-    primaryClusterID: my-primary-cluster-id
+  ## Define if this is the primary cluster
+  primaryCluster: false
 
 ## Kubecost Admission Controller (beta feature)
 ## To use this feature, ensure you have run the `create-admission-controller.sh`
