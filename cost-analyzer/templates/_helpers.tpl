@@ -118,10 +118,13 @@ will result in failure. Users are asked to select one of the two presently-avail
 */}}
 {{- define "cloudIntegrationSourceCheck" -}}
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
-    {{- fail "\ncloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
   {{- end -}}
-{{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
-    {{- fail "\nUsing a cloud-integration secret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- end -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationJSON and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
 {{- end -}}
 
