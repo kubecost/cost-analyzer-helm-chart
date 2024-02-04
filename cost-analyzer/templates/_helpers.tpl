@@ -92,11 +92,11 @@ Kubecost 2.0 preconditions
   {{- end }}
 
   {{- if ((.Values.kubecostDeployment).leaderFollower).enabled -}}
-    {{- fail "\nIn Kubecost 2.0, Leader Follower architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
+    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as leaderFollower. Please reach out to support to discuss upgrade paths." -}}
   {{- end -}}
 
   {{- if ((.Values.kubecostDeployment).statefulSet).enabled -}}
-    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. This architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
+    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. Please reach out to support to discuss upgrade paths." -}}
   {{- end -}}
 
 {{- end -}}
