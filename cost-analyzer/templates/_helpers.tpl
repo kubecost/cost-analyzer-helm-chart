@@ -91,6 +91,14 @@ Kubecost 2.0 preconditions
     {{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
   {{- end }}
 
+  {{- if (.Values.kubecostDeployment.leaderFollower).enabled -}}
+    {{- fail "\nIn Kubecost 2.0, Leader Follower architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
+  {{- end -}}
+
+  {{- if (.Values.kubecostDeployment.statefulSet).enabled -}}
+    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. This architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
+  {{- end -}}
+
 {{- end -}}
 
 {{- define "cloudIntegrationFromProductConfigs" }}
@@ -152,7 +160,7 @@ Verify the cloud integration secret exists with the expected key when cloud inte
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
 {{- end -}}
 {{- end -}}
