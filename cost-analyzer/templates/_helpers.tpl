@@ -91,11 +91,11 @@ Kubecost 2.0 preconditions
     {{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
   {{- end }}
 
-  {{- if (.Values.kubecostDeployment.leaderFollower).enabled -}}
+  {{- if ((.Values.kubecostDeployment).leaderFollower).enabled -}}
     {{- fail "\nIn Kubecost 2.0, Leader Follower architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
   {{- end -}}
 
-  {{- if (.Values.kubecostDeployment.statefulSet).enabled -}}
+  {{- if ((.Values.kubecostDeployment).statefulSet).enabled -}}
     {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. This architecture has been deprecated, please reach out to support to discuss upgrade paths." -}}
   {{- end -}}
 
