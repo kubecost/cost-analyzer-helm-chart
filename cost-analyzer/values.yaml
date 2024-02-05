@@ -2548,6 +2548,10 @@ grafana:
   rbac:
     create: true
 
+  serviceAccount:
+    create: true
+    name:
+
   ## Configure grafana datasources
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
   ##
