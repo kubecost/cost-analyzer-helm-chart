@@ -63,10 +63,7 @@ spec:
           securityContext:
           {{- if .Values.global.containerSecurityContext }}
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- else if .Values.global.containerSecurityContext }}
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
           {{- else }}
-          securityContext:
             {{- toYaml .Values.prometheus.configmapReload.prometheus.containerSecurityContext | nindent 12 }}
           {{- end }}
           volumeMounts:

@@ -45,12 +45,11 @@ spec:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: aggregator
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.global.podAnnotations}}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.global.additionalLabels }}
-      labels:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
@@ -67,6 +66,9 @@ spec:
     {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
+        - name: aggregator-staging
+          emptyDir:
+            sizeLimit: {{ .Values.kubecostAggregator.stagingEmptyDirSizeLimit }}
         {{- $etlBackupBucketSecret := "" }}
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
@@ -84,6 +86,55 @@ spec:
             secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
         {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- end }}
+        {{- if .Values.saml }}
+        {{- if .Values.saml.enabled }}
+        {{- if .Values.saml.secretName }}
+        - name: secret-volume
+          secret:
+            secretName: {{ .Values.saml.secretName }}
+        {{- end }}
+        {{- if .Values.saml.encryptionCertSecret }}
+        - name: saml-encryption-cert
+          secret:
+            secretName: {{ .Values.saml.encryptionCertSecret }}
+        {{- end }}
+        {{- if .Values.saml.decryptionKeySecret }}
+        - name: saml-decryption-key
+          secret:
+            secretName: {{ .Values.saml.decryptionKeySecret }}
+        {{- end }}
+        {{- if .Values.saml.metadataSecretName }}
+        - name: metadata-secret-volume
+          secret:
+            secretName: {{ .Values.saml.metadataSecretName }}
+        {{- end }}
+        - name: saml-auth-secret
+          secret:
+            secretName: {{ .Values.saml.authSecretName | default "kubecost-saml-secret" }}
+        {{- if .Values.saml.rbac.enabled }}
+        - name: saml-roles
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-saml
+        {{- end }}
+        {{- end }}
+        {{- end }}
+        {{- if .Values.oidc }}
+        {{- if .Values.oidc.enabled }}
+        - name: oidc-config
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-oidc
+        {{- if and (not .Values.oidc.existingCustomSecret.enabled) .Values.oidc.secretName }}
+        - name: oidc-client-secret
+          secret:
+            secretName: {{ .Values.oidc.secretName }}
+        {{- end }}
+        {{- if .Values.oidc.existingCustomSecret.enabled }}
+        - name: oidc-client-secret
+          secret:
+            secretName: {{ .Values.oidc.existingCustomSecret.name }}
+        {{- end }}
+        {{- end }}
         {{- end }}
       containers:
         {{- include "aggregator.containerTemplate" . | nindent 8 }}

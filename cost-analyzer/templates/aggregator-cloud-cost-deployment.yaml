@@ -3,7 +3,7 @@
 {{/*
   A cloud integration secret is required for cloud cost to function as a dedicated pod.
 */}}
-{{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+{{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -51,15 +51,27 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
+        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
         - name: cloud-integration
           secret:
             secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
+        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+        - name: cloud-integration
+          secret:
+            secretName: cloud-integration
+            items:
+              - key: cloud-integration.json
+                path: cloud-integration.json
+        {{- end }}
+        {{/* Titled persistent-configs to be compatible with single-pod install.
+        All data stored here is ephemeral, and does not require a PV. */}}
+        - name: persistent-configs
+          emptyDir: {}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
-
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}

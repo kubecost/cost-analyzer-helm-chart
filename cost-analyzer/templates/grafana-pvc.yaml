@@ -1,4 +1,4 @@
-{{ if .Values.global.grafana.enabled }}
+{{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true") }}
 {{- if and .Values.grafana.persistence.enabled (not .Values.grafana.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim

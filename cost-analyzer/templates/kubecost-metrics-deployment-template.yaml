@@ -58,7 +58,7 @@ spec:
       volumes:
         {{- if .Values.agent }}
         - name: config-store
-          {{- if .Values.agentCsi.enabled }}
+          {{- if ((.Values.agentCsi).enabled) }}
           csi:
             driver: secrets-store.csi.k8s.io
             readOnly: true
@@ -106,6 +106,13 @@ spec:
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
+        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON  ((.Values.kubecostProductConfigs).athenaProjectID) }}
+        - name: cloud-integration
+          secret:
+            secretName: cloud-integration
+            items:
+              - key: cloud-integration.json
+                path: cloud-integration.json
         {{- end }}
         {{- end }}
         - name: persistent-configs
@@ -147,6 +154,8 @@ spec:
         - image: {{ .Values.kubecostModel.fullImageName }}
         {{- else if .Values.imageVersion }}
         - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+        {{- else if eq "development" .Chart.AppVersion }}
+        - image: gcr.io/kubecost1/cost-model-nightly:latest
         {{- else }}
         - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
         {{ end }}
@@ -188,7 +197,7 @@ spec:
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+            {{- if or (.Values.kubecostProductConfigs.cloudIntegrationSecret) (.Values.kubecostProductConfigs.cloudIntegrationJSON) ((.Values.kubecostProductConfigs).athenaProjectID) }}
             - name: cloud-integration
               mountPath: /var/configs/cloud-integration
             {{- end }}
@@ -272,7 +281,7 @@ spec:
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
             {{- if .Values.cloudAgentClusterId }}
-            - name: CLUSTER_ID 
+            - name: CLUSTER_ID
               value: {{ .Values.cloudAgentClusterId }}
             {{- else if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
             - name: CLUSTER_ID

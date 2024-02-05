@@ -42,12 +42,10 @@ spec:
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
     {{- end }}
-    {{- if .Values.saml }}
-    {{- if .Values.saml.enabled }}
+    {{- if or .Values.saml.enabled .Values.oidc.enabled}}
     - name: apiserver
       port: 9004
       targetPort: 9009
-    {{- end }}
     {{- end }}
     {{- if .Values.oidc }}
     {{- if .Values.oidc.enabled }}
