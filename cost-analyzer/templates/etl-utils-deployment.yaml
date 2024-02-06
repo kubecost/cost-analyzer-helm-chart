@@ -39,6 +39,11 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
+        {{/*
+        Could rename this, I don't think it needs to persist
+        */}}
+        - name: persistent-configs
+          emptyDir: {}
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
         - name: {{ template "etlUtils.name" . }}
@@ -91,13 +96,63 @@ spec:
               value: /var/configs/
             {{- if .Values.etlUtils.thanosSourceBucketSecret }}
             - name: ETL_BUCKET_CONFIG
+            {{- if (.Values.kubecostModel).etlBucketConfigSecretFileName }}
+              value: "/var/configs/etl/{{ .Values.kubecostModel.etlBucketConfigSecretFileName }}"
+            {{- else }}
               value: "/var/configs/etl/object-store.yaml"
+            {{- end }}
             {{- end}}
             {{- range $key, $value := .Values.etlUtils.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
-
+{{- if .Values.etlUtils.thanosConverter.enabled }}
+        - name: thanos-converter
+          image: gcr.io/kubecost1/cost-model-nightly:latest
+          imagePullPolicy: Always
+          args: ["cost-model"]
+          resources:
+            {{- toYaml .Values.etlUtils.resources | nindent 12 }}
+          volumeMounts:
+            - name: persistent-configs
+              mountPath: /var/configs
+            - name: etl-bucket-config
+              mountPath: /var/configs/etl
+              readOnly: true
+          env:
+            - name: CONFIG_PATH
+              value: /var/configs/
+            {{- if .Values.etlUtils.thanosSourceBucketSecret }}
+            - name: ETL_BUCKET_CONFIG
+            {{- if (.Values.kubecostModel).etlBucketConfigSecretFileName }}
+              value: /var/configs/etl/{{ .Values.kubecostModel.etlBucketConfigSecretFileName }}
+            {{- else }}
+              value: "/var/configs/etl/object-store.yaml"
+            {{- end }}
+            {{- end }}
+            - name: MAX_QUERY_CONCURRENCY
+              value: {{ (quote .Values.kubecostModel.maxQueryConcurrency) | default (quote 10) }}
+            - name: THANOS_ENABLED
+              value: "true"
+            - name: THANOS_QUERY_URL
+              value: http://thanos-query-frontend.thanos:9090
+            - name: THANOS_QUERY_OFFSET
+              value: {{ (.Values.global.thanos).queryOffset | default "3h" }}
+            - name: THANOS_MAX_SOURCE_RESOLUTION
+              value: {{ (.Values.kubecostModel).maxSourceResolution | default "raw" }}
+            - name: PROMETHEUS_SERVER_ENDPOINT
+              value: http://thanos-query-frontend.thanos:9090
+            - name: CLOUD_PROVIDER_API_KEY
+              value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk"
+            - name: CLUSTER_ID
+              value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
+          {{- if .Values.etlUtils.thanosConverter.env }}
+          {{- range $key, $value := .Values.etlUtils.thanosConverter.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+          {{- end }}
+          {{- end }}
+{{- end }}
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
