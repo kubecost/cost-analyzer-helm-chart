@@ -44,8 +44,15 @@ spec:
     {{- end }}
     {{- if or .Values.saml.enabled .Values.oidc.enabled}}
     - name: apiserver
-      port: 9007
-      targetPort: 9007
+      port: 9004
+      targetPort: 9009
+    {{- end }}
+    {{- if .Values.oidc }}
+    {{- if .Values.oidc.enabled }}
+    - name: apiserver
+      port: 9004
+      targetPort: 9009
+    {{- end }}
     {{- end }}
 {{- if .Values.service.sessionAffinity.enabled }}
   sessionAffinity: ClientIP
