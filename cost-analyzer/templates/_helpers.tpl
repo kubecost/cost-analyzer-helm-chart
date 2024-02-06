@@ -131,7 +131,7 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
     {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
-  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
     {{- fail "\nkubecostProductConfigs.cloudIntegrationJSON and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
 {{- end -}}
