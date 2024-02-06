@@ -160,7 +160,7 @@ Verify the cloud integration secret exists with the expected key when cloud inte
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`. This requires Helm 3.13+." .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
 {{- end -}}
 {{- end -}}
