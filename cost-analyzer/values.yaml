@@ -401,6 +401,9 @@ kubecostFrontend:
   #   large_client_header_buffers 4 64k;
   # hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
   # hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
+  
+  # set to true to set all upstreams to use <service>.<namespace>.svc.cluster.local instead of just <service>.<namespace>
+  use_default_fqdn: false
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
