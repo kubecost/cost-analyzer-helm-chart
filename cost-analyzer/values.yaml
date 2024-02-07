@@ -405,6 +405,15 @@ kubecostFrontend:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
+#  forecasting:
+#    fqdn: kubecost-forcasting.kubecost.svc.cluster.local:5000
+#  aggregator:
+#    fqdn: kubecost-aggregator.kubecost.svc.cluster.local:9004
+#  cloudCost:
+#    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
+#  multi_cluster_diagnostics:
+#    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
+
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.

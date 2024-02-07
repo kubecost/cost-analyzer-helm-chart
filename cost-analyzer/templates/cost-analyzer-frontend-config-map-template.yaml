@@ -103,22 +103,46 @@ data:
 
   {{- if .Values.forecasting.enabled }}
     upstream forecasting {
+        {{- if .Values.kubecostFrontend.forcasting }}
+        {{- if .Values.kubecostFrontend.forcasting.fqdn }}
+        server {{ .Values.kubecostFrontend.forcasting.fqdn }};
+        {{- else }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
+        {{- end }}
+        {{- end }}
     }
   {{- end }}
 
   {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
+        {{- if .Values.kubecostFrontend.aggregator }}
+        {{- if .Values.kubecostFrontend.aggregator.fqdn }}
+        server {{ .Values.kubecostFrontend.aggregator.fqdn }};
+        {{- else }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
+        {{- end }}
+        {{- end }}
     }
     upstream cloudCost {
+        {{- if .Values.kubecostFrontend.cloudCost }}
+        {{- if .Values.kubecostFrontend.cloudCost.fqdn }}
+        server {{ .Values.kubecostFrontend.cloudCost.fqdn }};
+        {{- else }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
+        {{- end }}
+        {{- end }}
     }
   {{- end }}
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
     {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
+        {{- if .Values.kubecostFrontend.multi_cluster_diagnostics }}
+        {{- if .Values.kubecostFrontend.multi_cluster_diagnostics.fqdn }}
+        server {{ .Values.kubecostFrontend.multi_cluster_diagnostics.fqdn }};
+        {{- else }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
+        {{- end }}
+        {{- end }}
     }
     {{- end }}
     {{- end }}
