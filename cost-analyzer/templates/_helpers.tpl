@@ -102,6 +102,14 @@ Kubecost 2.0 preconditions
           "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
           "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
           "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{ if (.Values.kubecostProductConfigs).athenaWorkgroup }}
+          , "athenaWorkgroup": "{{ .Values.kubecostProductConfigs.athenaWorkgroup }}"
+          {{ else }}
+          , "athenaWorkgroup": "primary"
+          {{ end }}
+          {{ if (.Values.kubecostProductConfigs).masterPayerARN }}
+          , "masterPayerARN": "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
+          {{ end }}
           {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
           "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
           "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
