@@ -103,19 +103,22 @@ Kubecost 2.0 preconditions
 
 {{- define "cloudIntegrationFromProductConfigs" }}
   {
+    {{- if ((.Values.kubecostProductConfigs).athenaBucketName) }}
     "aws": [
       {
           "athenaBucketName": "{{ .Values.kubecostProductConfigs.athenaBucketName }}",
           "athenaRegion": "{{ .Values.kubecostProductConfigs.athenaRegion }}",
           "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
           "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
-          "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
-          {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
-          "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
+          "projectID": "{{ .Values.kubecostProductConfigs.projectID }}",
+          "athenaProjectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }}
+          , "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
           "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
           {{- end }}
       }
     ]
+    {{- end }}
   }
 {{- end }}
 
@@ -128,10 +131,10 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
     {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
   {{- end -}}
-  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaBucketName) }}
     {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
-{{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
     {{- fail "\nkubecostProductConfigs.cloudIntegrationJSON and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
 {{- end -}}
@@ -1049,7 +1052,7 @@ Begin Kubecost 2.0 templates
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
@@ -1120,3 +1123,42 @@ SSO enabled flag for nginx configmap
     {{- printf "false" -}}
   {{- end -}}
 {{- end -}}
+
+{{- define "gcpCloudIntegrationCheck" }}
+  {
+    "gcp":
+      {
+        [
+          {
+              "bigQueryBillingDataDataset": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}",
+              "bigQueryBillingDataProject": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataProject }}",
+              "bigQueryBillingDataTable": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataTable }}",
+              "projectID": "{{ .Values.kubecostProductConfigs.projectID }}"
+          }
+        ]
+      }
+  }
+{{- if ((.Values.kubecostProductConfigs).bigQueryBillingDataDataset) }}
+{{- fail "\nKubecost 2.0 requires a change to the method that cloud-provider billing integrations are configured.\nPlease use this output to create a cloud-integration.json config. See:\n<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>\nfor more information"}}
+{{- end }}
+{{- end }}
+
+
+{{- define "azureCloudIntegrationCheck" }}
+  {
+    "azure":
+      [
+        {
+            "azureStorageContainer": "{{ .Values.kubecostProductConfigs.azureStorageContainer }}",
+            "azureSubscriptionID": "{{ .Values.kubecostProductConfigs.azureSubscriptionID }}",
+            "azureStorageAccount": "{{ .Values.kubecostProductConfigs.azureStorageAccount }}",
+            "azureStorageAccessKey": "{{ .Values.kubecostProductConfigs.azureStorageKey }}",
+            "azureContainerPath": "{{ .Values.kubecostProductConfigs.azureContainerPath }}",
+            "azureCloud": "{{ .Values.kubecostProductConfigs.azureCloud }}"
+        }
+      ]
+  }
+{{- if ((.Values.kubecostProductConfigs).azureStorageContainer) }}
+{{- fail "\nKubecost 2.0 requires a change to the method that cloud-provider billing integrations are configured.\nPlease use this output to create a cloud-integration.json config. See:\n<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>\nfor more information"}}
+{{- end }}
+{{- end }}

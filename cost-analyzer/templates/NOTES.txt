@@ -3,6 +3,9 @@
 {{- include "cloudIntegrationSourceCheck" . -}}
 {{- include "eksCheck" . -}}
 {{- include "cloudIntegrationSecretCheck" . -}}
+{{- include "gcpCloudIntegrationCheck" . -}}
+{{- include "azureCloudIntegrationCheck" . -}}
+
 {{- $servicePort := .Values.service.port | default 9090 }}
 Kubecost {{ .Chart.Version }} has been successfully installed.
 
