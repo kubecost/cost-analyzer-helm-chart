@@ -2600,7 +2600,7 @@ grafana:
 
   serviceAccount:
     create: true
-    name:
+    name: ""
 
   ## Configure grafana datasources
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
