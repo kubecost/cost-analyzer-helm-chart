@@ -416,6 +416,8 @@ kubecostFrontend:
 #    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
 #  multi_cluster_diagnostics:
 #    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
+#  clusterController:
+#    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
 
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
