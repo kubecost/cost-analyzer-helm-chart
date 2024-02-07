@@ -147,8 +147,8 @@ data:
         {{- if .Values.kubecostFrontend.use_default_fqdn }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
         {{- else}}
-        {{- if and .Values.kubecostFrontend.multi_cluster_diagnostics .Values.kubecostFrontend.multi_cluster_diagnostics.fqdn }}
-        server {{ .Values.kubecostFrontend.multi_cluster_diagnostics.fqdn }};
+        {{- if and .Values.kubecostFrontend.multiClusterDiagnostics .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }}
+        server {{ .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }};
         {{- else }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
         {{- end }}

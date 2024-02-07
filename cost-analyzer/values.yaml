@@ -414,7 +414,7 @@ kubecostFrontend:
 #    fqdn: kubecost-aggregator.kubecost.svc.cluster.local:9004
 #  cloudCost:
 #    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
-#  multi_cluster_diagnostics:
+#  multiClusterDiagnostics:
 #    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
 #  clusterController:
 #    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
