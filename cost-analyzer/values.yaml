@@ -244,9 +244,9 @@ global:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-    # When deploying the chart with Argo CD, enable for access to the below configuration options.
-    argocd:
-      enabled: false  # Set to true when using Argo CD for access to the below configuration options.
+    # Set options for deploying with CI/CD tools like Argo CD.
+    cicd:
+      enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
 ## This flag is only required for users upgrading to a new version of Kubecost.

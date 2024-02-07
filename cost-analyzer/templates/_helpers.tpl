@@ -143,12 +143,12 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 
 {{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
-Skip the check if Argo CD is enabled and skipSanityChecks is set since Argo CD presently does not
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
 support templating a chart which uses the lookup function.
 */}}
 {{- define "cloudIntegrationSecretCheck" -}}
 {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
-{{- if not (and .Values.global.platforms.argocd.enabled .Values.global.platforms.argocd.skipSanityChecks) }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
