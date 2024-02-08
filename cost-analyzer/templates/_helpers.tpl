@@ -185,7 +185,6 @@ support templating a chart which uses the lookup function.
 {{- end -}}
 {{- end -}}
 
-
 {{/*
 Expand the name of the chart.
 */}}
