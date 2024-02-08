@@ -806,11 +806,7 @@ spec:
             {{- end }}
             {{- if $etlBackupBucketSecret }}
             - name: ETL_BUCKET_CONFIG
-            {{- if (.Values.kubecostModel).etlBucketConfigSecretFileName }}
-              value: "/var/configs/etl/{{ .Values.kubecostModel.etlBucketConfigSecretFileName }}"
-            {{- else }}
               value: "/var/configs/etl/object-store.yaml"
-            {{- end }}
             {{- end }}
             {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG

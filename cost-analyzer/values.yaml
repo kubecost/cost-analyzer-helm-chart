@@ -605,7 +605,7 @@ kubecostModel:
 etlUtils:
   enabled: false
   thanosSourceBucketSecret: federated-store
-  thanosSourceBucketSecretFileName: federated-store.yaml # or object-store.yaml are the expected value
+  thanosSourceBucketSecretFileName: federated-store.yaml  ## or object-store.yaml are the expected value
   fullImageName: null
   resources: {}
   env: {}
