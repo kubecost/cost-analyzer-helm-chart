@@ -52,7 +52,7 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
-{{- if .Values.kubecostFrontend.use_default_fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9001;
 {{- else if and .Values.kubecostFrontend.api .Values.kubecostFrontend.api.fqdn }}    
         server {{ .Values.kubecostFrontend.api.fqdn }};
@@ -62,7 +62,7 @@ data:
     }
 
     upstream model {
-{{- if .Values.kubecostFrontend.use_default_fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9003;
 {{- else if and .Values.kubecostFrontend.model .Values.kubecostFrontend.model.fqdn }}
         server {{ .Values.kubecostFrontend.model.fqdn }};
@@ -73,7 +73,7 @@ data:
 
 {{- if and .Values.clusterController .Values.clusterController.enabled }}
     upstream clustercontroller {
-{{- if .Values.kubecostFrontend.use_default_fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}.svc.cluster.local:9731;
 {{- else }}
 {{- if and .Values.kubecostFrontend.clusterController .Values.kubecostFrontend.clusterController.fqdn }}
@@ -88,7 +88,7 @@ data:
 {{- if .Values.global.grafana.proxy }}
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
-{{- if .Values.kubecostFrontend.use_default_fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local;
 {{- else }}
 {{- if .Values.global.grafana.fqdn }}
@@ -105,7 +105,7 @@ data:
 
   {{- if .Values.forecasting.enabled }}
     upstream forecasting {
-        {{- if .Values.kubecostFrontend.use_default_fqdn }}
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}.svc.cluster.local:5000;
         {{- else }}
         {{- if and .Values.kubecostFrontend.forcasting .Values.kubecostFrontend.forcasting.fqdn }}
@@ -119,7 +119,7 @@ data:
 
   {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
-        {{- if .Values.kubecostFrontend.use_default_fqdn }}
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}.svc.cluster.local:9004;
         {{- else }}
         {{- if and .Values.kubecostFrontend.aggregator .Values.kubecostFrontend.aggregator.fqdn }}
@@ -130,7 +130,7 @@ data:
         {{- end }}
     }
     upstream cloudCost {
-        {{- if .Values.kubecostFrontend.use_default_fqdn }}
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9005;
         {{- else }}
         {{- if and .Values.kubecostFrontend.cloudCost .Values.kubecostFrontend.cloudCost.fqdn }}
@@ -144,7 +144,7 @@ data:
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
     {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
-        {{- if .Values.kubecostFrontend.use_default_fqdn }}
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
         {{- else}}
         {{- if and .Values.kubecostFrontend.multiClusterDiagnostics .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }}
