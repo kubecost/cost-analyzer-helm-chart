@@ -508,7 +508,6 @@ kubecostModel:
 
   # The name of the Secret containing a bucket config for ETL backup.
   # etlBucketConfigSecret:
-  # etlBucketConfigSecretFileName: object-store.yaml
   # The name of the Secret containing a bucket config for Federated storage.
   # federatedStorageConfigSecret:
 
@@ -604,6 +603,7 @@ kubecostModel:
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
   enabled: false
+  etlBucketConfigSecretFileName: federated-store.yaml
   fullImageName: null
   resources: {}
   env: {}
@@ -612,7 +612,16 @@ etlUtils:
   affinity: {}
 
   thanosConverter:
+    ## thanosConverter is a utility to convert any multi-cluster prometheus metrics to kubecost object format (ETL)
     enabled: false
+    thanosEndpoint: http://thanos-query-frontend.thanos:9090
+    thanosSourceBucketSecret: federated-store.yaml # or object-store.yaml are the expected value
+    etlResolutionSeconds: "300"
+    etlMaxPrometheusQueryDurationMinutes: "1440"
+    etlDailyStoreDurationDays: "720"
+    etlHourlyStoreDurationHours: "49"
+    etlWeeklyStoreDurationWeeks: "156"
+    maxPrometheusQueryDurationMinutes: "1"
     fullImageName: null
     resources: {}
     env: {}
