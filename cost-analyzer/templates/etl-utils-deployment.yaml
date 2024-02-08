@@ -33,10 +33,6 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.etlUtils.thanosSourceBucketSecret }}
         {{- end }}
-
-        {{/*
-        Could rename this, I don't think it needs to persist
-        */}}
         - name: temp-configs
           emptyDir: {}
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
