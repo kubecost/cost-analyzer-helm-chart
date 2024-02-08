@@ -88,8 +88,8 @@ spec:
             - name: CONFIG_PATH
               value: /var/configs/
             - name: ETL_BUCKET_CONFIG
-            {{- if (.Values.etlUtils).etlBucketConfigSecretFileName }}
-              value: "/var/configs/etl/{{ .Values.etlUtils.etlBucketConfigSecretFileName }}"
+            {{- if (.Values.etlUtils).thanosSourceBucketSecretFileName }}
+              value: "/var/configs/etl/{{ .Values.etlUtils.thanosSourceBucketSecretFileName }}"
             {{- else }}
               value: "/var/configs/etl/object-store.yaml"
             {{- end }}
@@ -99,7 +99,23 @@ spec:
             {{- end }}
 {{- if .Values.etlUtils.thanosConverter.enabled }}
         - name: thanos-converter
-          image: gcr.io/kubecost1/cost-model:prod-1.108.1
+          {{- if .Values.kubecostModel }}
+          {{- if .Values.kubecostModel.openSourceOnly }}
+          {{- fail "ETL Utils cannot be used with open source only" }}
+          {{- else if .Values.etlUtils.thanosConverter.fullImageName }}
+          image: {{ .Values.etlUtils.thanosConverter.fullImageName }}
+          {{- else if .Values.kubecostModel.fullImageName }}
+          image: {{ .Values.kubecostModel.fullImageName }}
+          {{- else if .Values.imageVersion }}
+          image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+          {{- else if eq "development" .Chart.AppVersion }}
+          image: gcr.io/kubecost1/cost-model-nightly:latest
+          {{- else }}
+          image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
+          {{- else }}
+          image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+          {{ end }}
           imagePullPolicy: Always
           resources:
             {{- toYaml .Values.etlUtils.thanosConverter.resources | nindent 12 }}
@@ -115,7 +131,7 @@ spec:
             - name: CONFIG_PATH
               value: /var/configs/
             - name: ETL_BUCKET_CONFIG
-              value: /var/configs/etl/{{ .Values.etlUtils.thanosConverter.etlBucketConfigSecretFileName }}
+              value: /var/configs/etl/{{ .Values.etlUtils.thanosSourceBucketSecretFileName }}
             - name: MAX_QUERY_CONCURRENCY
               value: {{quote .Values.kubecostModel.maxQueryConcurrency }}
             - name: PROMETHEUS_SERVER_ENDPOINT
