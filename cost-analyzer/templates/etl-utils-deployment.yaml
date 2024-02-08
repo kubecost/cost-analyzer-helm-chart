@@ -126,6 +126,8 @@ spec:
               mountPath: /var/configs/etl
               readOnly: true
           env:
+            - name: DB_PATH
+              value: /var/db/
             - name: CONFIG_PATH
               value: /var/configs/
             - name: ETL_BUCKET_CONFIG
