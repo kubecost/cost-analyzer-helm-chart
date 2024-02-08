@@ -1,5 +1,5 @@
-{{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-{{- if .Values.diagnostics.enabled }}
+{{- if and .Values.diagnostics.enabled .Values.diagnostics.deployment.enabled }}
+{{- if .Values.diagnostics.primary.enabled }}
 {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 apiVersion: v1
 kind: Service
