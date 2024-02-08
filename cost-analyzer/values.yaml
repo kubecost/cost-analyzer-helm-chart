@@ -244,6 +244,10 @@ global:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
+    # Set options for deploying with CI/CD tools like Argo CD.
+    cicd:
+      enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
+      skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
 ## This flag is only required for users upgrading to a new version of Kubecost.
 ## The flag is used to ensure users are aware of important
@@ -2457,7 +2461,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.14.0
+    tag: v0.15.1
   imagePullPolicy: Always
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
