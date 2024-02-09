@@ -2347,6 +2347,14 @@ kubecostAggregator:
   # 2400Mi. In most environments, the default should suffice.
   stagingEmptyDirSizeLimit: 2Gi
 
+  # this is the number of partitions the datastore is split into for copying
+  # the higher this number, the lower the ram usage but the longer it takes for
+  # new data to show in the kubecost UI
+  # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
+  # the default of 25 is sufficient for 95%+ of users. This should only be modified
+  # after consulting with Kubecost's support team
+  numDBCopyPartitions: 25
+
   resources: {}
     # requests:
     #   cpu: 1000m

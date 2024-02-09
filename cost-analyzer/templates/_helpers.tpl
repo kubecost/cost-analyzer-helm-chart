@@ -886,6 +886,10 @@ Begin Kubecost 2.0 templates
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
     {{- end }}
+    {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
+    - name: NUM_DB_COPY_CHUNKS
+      value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
+    {{- end }}
     {{- if .Values.kubecostAggregator.jaeger.enabled }}
     - name: TRACING_URL
       value: "http://localhost:14268/api/traces"
