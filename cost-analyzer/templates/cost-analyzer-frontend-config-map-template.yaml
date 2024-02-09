@@ -115,7 +115,8 @@ data:
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
     }
   {{- end }}
-    {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+
+    {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
     {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
@@ -778,6 +779,22 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/serviceAccounts {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/serviceAccounts;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/serviceAccount {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/serviceAccount;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/debug/orchestrator {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/debug/orchestrator;
@@ -884,7 +901,7 @@ data:
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+            {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
             {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
             return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
             {{- end }}
@@ -892,9 +909,16 @@ data:
             return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
             {{- end }}
         }
-        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+
+        {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
+        # When the Multi-cluster Diagnostics Service is run within the
+        # cost-model container, its endpoint is available at
+        # `/model/diagnostics/multicluster`. No Nginx path forwarding needed.
+        # When the Multi-cluster Diagnostics Service is run as a K8s Deployment,
+        # we should forward that path to the K8s Service.
+
         {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-        location /model/multi-cluster-diagnostics {
+        location /diagnostics/api {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
@@ -906,7 +930,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         # simple alias for support
-        location /model/mcd {
+        location /mcd {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;

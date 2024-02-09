@@ -1,5 +1,4 @@
-{{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-{{- if .Values.diagnostics.enabled }}
+{{- if and .Values.diagnostics.enabled .Values.diagnostics.deployment.enabled .Values.diagnostics.primary.enabled }}
 {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 apiVersion: v1
 kind: Service
@@ -17,6 +16,5 @@ spec:
   selector:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
   type: ClusterIP
-{{- end }}
 {{- end }}
 {{- end }}
