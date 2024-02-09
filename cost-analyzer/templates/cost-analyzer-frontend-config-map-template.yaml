@@ -115,7 +115,8 @@ data:
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
     }
   {{- end }}
-    {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
+  
+    {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
     {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
