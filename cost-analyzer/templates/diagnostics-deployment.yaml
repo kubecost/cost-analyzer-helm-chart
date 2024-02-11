@@ -1,4 +1,4 @@
-{{- if .Values.diagnostics.enabled }}
+{{- if and .Values.diagnostics.enabled .Values.diagnostics.deployment.enabled }}
 {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 
 {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
@@ -12,8 +12,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
-    {{- if and .Values.diagnostics .Values.diagnostics.labels }}
-    {{- toYaml .Values.diagnostics.labels | nindent 4 }}
+    {{- if .Values.diagnostics.deployment.labels }}
+    {{- toYaml .Values.diagnostics.deployment.labels | nindent 4 }}
     {{- end }}
 spec:
   replicas: 1
@@ -32,9 +32,9 @@ spec:
         {{- end }}
     spec:
       restartPolicy: Always
-      {{- if .Values.diagnostics.securityContext }}
+      {{- if .Values.diagnostics.deployment.securityContext }}
       securityContext:
-        {{- toYaml .Values.diagnostics.securityContext | nindent 8 }}
+        {{- toYaml .Values.diagnostics.deployment.securityContext | nindent 8 }}
       {{- else if .Values.global.securityContext }}
       securityContext:
         {{- toYaml .Values.global.securityContext | nindent 8 }}
@@ -75,9 +75,9 @@ spec:
           imagePullSecrets:
           {{ toYaml .Values.imagePullSecrets | indent 2 }}
           {{- end }}
-          {{- if .Values.diagnostics.containerSecurityContext }}
+          {{- if .Values.diagnostics.deployment.containerSecurityContext }}
           securityContext:
-            {{- toYaml .Values.diagnostics.containerSecurityContext | nindent 12 }}
+            {{- toYaml .Values.diagnostics.deployment.containerSecurityContext | nindent 12 }}
           {{- else if .Values.global.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
@@ -103,30 +103,24 @@ spec:
             {{- end }}
             - name: FEDERATED_STORE_CONFIG
               value: /var/configs/etl/federated-store.yaml
+            - name: DIAGNOSTICS_RUN_IN_COST_MODEL
+              value: "false"
             - name: DIAGNOSTICS_KUBECOST_FQDN
               value: {{ template "cost-analyzer.serviceName" . }}
             - name: DIAGNOSTICS_KUBECOST_NAMESPACE
               value: {{ .Release.Namespace }}
-            - name: DIAGNOSTICS_POLLING_INTERVAL
-              value: {{ .Values.diagnostics.pollingInterval | default "300s" }}
             - name: DIAGNOSTICS_PRIMARY
-            {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled }}
-              value: "true"
-            {{- else }}
-              value: "false"
-            {{- end }}
-            - name: DIAGNOSTICS_COLLECT_HELM_VALUES
-            {{- if and .Values.reporting.valuesReporting .Values.diagnostics.collectHelmValues }}
-              value: "true"
-            {{- else }}
-              value: "false"
-            {{- end }}
+              value: {{ quote .Values.diagnostics.primary.enabled }}
+            - name: DIAGNOSTICS_RETENTION
+              value: {{ .Values.diagnostics.primary.retention }}
+            - name: DIAGNOSTICS_PRIMARY_READONLY
+              value: {{ quote .Values.diagnostics.primary.readonly }}
+            - name: DIAGNOSTICS_POLLING_INTERVAL
+              value: {{ .Values.diagnostics.pollingInterval }}
             - name: DIAGNOSTICS_KEEP_HISTORY
-            {{- if .Values.diagnostics.keepDiagnosticHistory }}
-              value: "true"
-            {{- else }}
-              value: "false"
-            {{- end }}
+              value: {{ quote .Values.diagnostics.keepDiagnosticHistory }}
+            - name: DIAGNOSTICS_COLLECT_HELM_VALUES
+              value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- if .Values.systemProxy.enabled }}
             - name: HTTP_PROXY
               value: {{ .Values.systemProxy.httpProxyUrl }}
@@ -141,12 +135,12 @@ spec:
             - name: no_proxy
               value:  {{ .Values.systemProxy.noProxy }}
             {{- end }}
-            {{- range $key, $value := .Values.diagnostics.env }}
+            {{- range $key, $value := .Values.diagnostics.deployment.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
           {{- /* TODO: heatlhcheck that validates the diagnotics pod is healthy */}}
-          {{- if .Values.diagnostics.isDiagnosticsPrimary.enabled}}
+          {{- if .Values.diagnostics.primary.enabled}}
           readinessProbe:
             httpGet:
               path: /healthz
@@ -157,18 +151,19 @@ spec:
               protocol: TCP
           {{- end }}
           resources:
-            {{- toYaml .Values.diagnostics.resources | nindent 12 }}
-      {{- with .Values.diagnostics.nodeSelector }}
+            {{- toYaml .Values.diagnostics.deployment.resources | nindent 12 }}
+      {{- with .Values.diagnostics.deployment.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.diagnostics.tolerations }}
+      {{- with .Values.diagnostics.deployment.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.diagnostics.affinity }}
+      {{- with .Values.diagnostics.deployment.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
 {{- end }}
 {{- end }}

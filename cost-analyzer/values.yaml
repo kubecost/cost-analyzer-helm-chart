@@ -405,10 +405,24 @@ kubecostFrontend:
   #   large_client_header_buffers 4 64k;
   # hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
   # hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
+
+  # set to true to set all upstreams to use <service>.<namespace>.svc.cluster.local instead of just <service>.<namespace>
+  useDefaultFqdn: false
 #  api:
 #    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
 #  model:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
+#  forecasting:
+#    fqdn: kubecost-forcasting.kubecost.svc.cluster.local:5000
+#  aggregator:
+#    fqdn: kubecost-aggregator.kubecost.svc.cluster.local:9004
+#  cloudCost:
+#    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
+#  multiClusterDiagnostics:
+#    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
+#  clusterController:
+#    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
+
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
@@ -2334,6 +2348,14 @@ kubecostAggregator:
   # 2400Mi. In most environments, the default should suffice.
   stagingEmptyDirSizeLimit: 2Gi
 
+  # this is the number of partitions the datastore is split into for copying
+  # the higher this number, the lower the ram usage but the longer it takes for
+  # new data to show in the kubecost UI
+  # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
+  # the default of 25 is sufficient for 95%+ of users. This should only be modified
+  # after consulting with Kubecost's support team
+  numDBCopyPartitions: 25
+
   resources: {}
     # requests:
     #   cpu: 1000m
@@ -2427,21 +2449,42 @@ kubecostAggregator:
 ##
 diagnostics:
   enabled: true
+
+  ## The primary aggregates all diagnostic data and handles API requests. It's
+  ## also responsible for deleting diagnostic data (on disk & bucket) beyond
+  ## retention. When in readonly mode it does not push its own diagnostic data
+  ## to the bucket.
+  primary:
+    enabled: false
+    retention: "7d"
+    readonly: false
+
   ## How frequently to run & push diagnostics. Defaults to 5 minutes.
   pollingInterval: "300s"
+
   ## Creates a new Diagnostic file in the bucket for every run.
   keepDiagnosticHistory: false
+
   ## Pushes the cluster's Kubecost Helm Values to the bucket once upon startup.
   ## This may contain sensitive information and is roughly 30kb per cluster.
   collectHelmValues: false
-  ## The primary aggregates all diagnostic data and serves HTTP queries.
-  isDiagnosticsPrimary:
+
+  ## By default, the Multi-cluster Diagnostics service runs within the
+  ## cost-model container in the cost-analyzer pod. For higher availability, it
+  ## can be run as a separate deployment.
+  deployment:
     enabled: false
-  resources:
-    requests:
-      cpu: "10m"
-      memory: "20Mi"
-  securityContext: {}
+    resources:
+      requests:
+        cpu: "10m"
+        memory: "20Mi"
+    env: {}
+    labels: {}
+    securityContext: {}
+    containerSecurityContext: {}
+    nodeSelector: {}
+    tolerations: {}
+    affinity: {}
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
