@@ -168,6 +168,24 @@ support templating a chart which uses the lookup function.
 {{- end -}}
 
 {{/*
+Verify the federated storage config secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
+*/}}
+{{- define "federatedStorageConfigSecretCheck" -}}
+{{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
+{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
+  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostModel.federatedStorageConfigSecret }}
+  {{- if or (not $secret) (not (index $secret.data "federated-store.yaml")) }}
+    {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
+  {{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "cost-analyzer.name" -}}
