@@ -21,6 +21,12 @@ kubecostModel:
   federatedStorageConfigSecret: federated-store
 clusterController:
   enabled: true
+  actionConfigs:
+    clusterTurndown:
+      - name: my-schedule2
+        start: "2024-02-09T00:00:00Z"
+        end: "2024-02-09T1:00:00Z"
+        repeat: weekly
 prometheus:
   nodeExporter:
     enabled: true
