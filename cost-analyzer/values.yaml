@@ -2508,7 +2508,7 @@ clusterController:
       #   repeat: daily
       # - name: my-schedule2
       #   start: "2024-02-09T00:00:00Z"
-      #   end: "2024-02-09T1:00:00Z"
+      #   end: "2024-02-09T01:00:00Z"
       #   repeat: weekly
     # this configures the Kubecost Namespace Turndown action
     # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#namespace-turndown
