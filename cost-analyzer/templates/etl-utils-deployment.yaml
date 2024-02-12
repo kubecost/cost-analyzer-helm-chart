@@ -113,6 +113,10 @@ spec:
           image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
           {{ end }}
           imagePullPolicy: Always
+          ports:
+          - containerPort: 9003
+            name: tcp-model
+            protocol: TCP
           resources:
             {{- toYaml .Values.etlUtils.thanosConverter.resources | nindent 12 }}
           volumeMounts:
@@ -122,8 +126,6 @@ spec:
               mountPath: /var/configs/etl
               readOnly: true
           env:
-            - name: DB_PATH
-              value: /var/db/
             - name: CONFIG_PATH
               value: /var/configs/
             - name: ETL_BUCKET_CONFIG
