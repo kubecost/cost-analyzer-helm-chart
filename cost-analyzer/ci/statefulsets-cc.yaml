@@ -22,6 +22,7 @@ kubecostModel:
 clusterController:
   enabled: true
   actionConfigs:
+    disableFinalizers: true
     clusterTurndown:
       - name: my-schedule2
         start: "2034-02-09T00:00:00Z"

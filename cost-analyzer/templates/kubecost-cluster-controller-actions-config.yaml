@@ -47,8 +47,10 @@ apiVersion: kubecost.com/v1alpha1
 kind: TurndownSchedule
 metadata:
   name: {{ .name }}
+  {{- if not ($.Values.clusterController.actionConfigs.disableFinalizers | default false) }}
   finalizers:
   - "finalizer.kubecost.com"
+  {{- end }}
 spec:
   start: {{ .start }}
   end: {{ .end }}
