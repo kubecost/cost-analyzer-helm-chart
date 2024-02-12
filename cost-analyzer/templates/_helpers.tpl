@@ -93,6 +93,47 @@ Kubecost 2.0 preconditions
 
 {{- end -}}
 
+{{- define "cloudIntegrationFromProductConfigs" }}
+  {
+    "aws": [
+      {
+          "athenaBucketName": "{{ .Values.kubecostProductConfigs.athenaBucketName }}",
+          "athenaRegion": "{{ .Values.kubecostProductConfigs.athenaRegion }}",
+          "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
+          "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
+          "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{ if (.Values.kubecostProductConfigs).athenaWorkgroup }}
+          , "athenaWorkgroup": "{{ .Values.kubecostProductConfigs.athenaWorkgroup }}"
+          {{ else }}
+          , "athenaWorkgroup": "primary"
+          {{ end }}
+          {{ if (.Values.kubecostProductConfigs).masterPayerARN }}
+          , "masterPayerARN": "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
+          {{ end }}
+          {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
+          "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
+          "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
+          {{- end }}
+      }
+    ]
+  }
+{{- end }}
+
+{{/*
+Cloud integration source contents check. Either the Secret must be specified or the JSON, not both.
+Additionally, for upgrade protection, certain individual values populated under the kubecostProductConfigs map, if found,
+will result in failure. Users are asked to select one of the two presently-available sources for cloud integration information.
+*/}}
+{{- define "cloudIntegrationSourceCheck" -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
+    {{- fail "\ncloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+  {{- end -}}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
+    {{- fail "\nUsing a cloud-integration secret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- end -}}
+{{- end -}}
+
+
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
 */}}
@@ -110,14 +151,36 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 
 {{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
 */}}
 {{- define "cloudIntegrationSecretCheck" -}}
 {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
     {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Verify the federated storage config secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
+*/}}
+{{- define "federatedStorageConfigSecretCheck" -}}
+{{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
+{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
+  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostModel.federatedStorageConfigSecret }}
+  {{- if or (not $secret) (not (index $secret.data "federated-store.yaml")) }}
+    {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
+  {{- end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -838,6 +901,10 @@ Begin Kubecost 2.0 templates
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
     {{- end }}
+    {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
+    - name: NUM_DB_COPY_CHUNKS
+      value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
+    {{- end }}
     {{- if .Values.kubecostAggregator.jaeger.enabled }}
     - name: TRACING_URL
       value: "http://localhost:14268/api/traces"
@@ -1002,7 +1069,7 @@ Begin Kubecost 2.0 templates
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
