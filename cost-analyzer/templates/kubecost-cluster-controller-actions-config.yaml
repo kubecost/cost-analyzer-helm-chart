@@ -47,8 +47,8 @@ apiVersion: kubecost.com/v1alpha1
 kind: TurndownSchedule
 metadata:
   name: {{ .name }}
-  # finalizers:
-  # - "finalizer.kubecost.com"
+  finalizers:
+  - "finalizer.kubecost.com"
 spec:
   start: {{ .start }}
   end: {{ .end }}
