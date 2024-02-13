@@ -203,6 +203,9 @@ Expand the name of the chart.
 {{- define "forecasting.name" -}}
 {{- default "forecasting" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "multiClusterTSDBConverter.name" -}}
+{{- default "multi-cluster-tsdb-converter" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -243,6 +246,9 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- define "forecasting.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "forecasting.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "multiClusterTSDBConverter.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "multiClusterTSDBConverter.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -301,6 +307,9 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 {{- define "forecasting.serviceName" -}}
 {{ include "forecasting.fullname" . }}
+{{- end -}}
+{{- define "multiClusterTSDBConverter.serviceName" -}}
+{{ include "multiClusterTSDBConverter.fullname" . }}
 {{- end -}}
 
 {{/*
@@ -410,6 +419,10 @@ app: diagnostics
 {{ include "cost-analyzer.chartLabels" . }}
 {{ include "forecasting.selectorLabels" . }}
 {{- end -}}
+{{- define "multiClusterTSDBConverter.commonLabels" -}}
+{{ include "cost-analyzer.chartLabels" . }}
+{{ include "multiClusterTSDBConverter.selectorLabels" . }}
+{{- end -}}
 
 {{/*
 Create the networkcosts common labels. Note that because this is a daemonset, we don't want app.kubernetes.io/instance: to take the release name, which allows the scrape config to be static.
@@ -473,6 +486,11 @@ app: {{ include "forecasting.name" . }}
 app.kubernetes.io/name: {{ include "etlUtils.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: {{ include "etlUtils.name" . }}
+{{- end -}}
+{{- define "multiClusterTSDBConverter.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "multiClusterTSDBConverter.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: {{ include "multiClusterTSDBConverter.name" . }}
 {{- end -}}
 
 {{/*

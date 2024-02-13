@@ -621,7 +621,33 @@ kubecostModel:
 
 # etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
 etlUtils:
+  etlStoreSecretName: federated-store
+  secretFileName: federated-store.yaml
   enabled: false
+  fullImageName: null
+  resources: {}
+  env: {}
+  nodeSelector: {}
+  tolerations: {}
+  affinity: {}
+
+## multiClusterTSDBConverter is a utility to convert any multi-cluster prometheus metrics to kubecost object format (ETL)
+## Kubecost 1.x, by default backs up ETL to the thanos bucket /etl folder. In Kubecost 2.x, this has been removed.
+## enable this container to continue converting from thanos to /etl
+multiClusterTSDBConverter:
+  enabled: false
+  tsdbEndpoint: http://thanos-query-frontend.thanos:9090
+  maxQueryConcurrency: "5"
+  etlStoreSecretName: federated-store
+  SecretFileName: federated-store.yaml
+  etlResolutionSeconds: "300"
+  maxSourceResolution: raw
+  queryOffset: 3h
+  etlMaxPrometheusQueryDurationMinutes: "1440"
+  etlDailyStoreDurationDays: "720"
+  etlHourlyStoreDurationHours: "49"
+  etlWeeklyStoreDurationWeeks: "156"
+  maxPrometheusQueryDurationMinutes: "1"
   fullImageName: null
   resources: {}
   env: {}
