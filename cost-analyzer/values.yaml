@@ -713,6 +713,7 @@ persistentVolume:
   # existingClaim: kubecost-cost-analyzer # a claim in the same namespace as kubecost
   labels: {}
   annotations: {}
+    # helm.sh/resource-policy: keep  # https://helm.sh/docs/howto/charts_tips_and_tricks/#tell-helm-not-to-uninstall-a-resource
 
   # Enables a separate PV specifically for ETL data. This should be avoided, but
   # is kept for legacy compatibility.
@@ -1009,6 +1010,7 @@ prometheus:
       ## Prometheus server data Persistent Volume annotations
       ##
       annotations: {}
+        # helm.sh/resource-policy: keep  # https://helm.sh/docs/howto/charts_tips_and_tricks/#tell-helm-not-to-uninstall-a-resource
 
       ## Prometheus server data Persistent Volume existing claim name
       ## Requires server.persistentVolume.enabled: true
