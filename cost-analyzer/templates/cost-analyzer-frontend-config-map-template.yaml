@@ -985,10 +985,10 @@ data:
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
             {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
+            return 200 '{"multi-cluster-diagnostics-enabled": true}';
             {{- end }}
             {{- else }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
+            return 200 '{"multi-cluster-diagnostics-enabled": false}';
             {{- end }}
         }
 
