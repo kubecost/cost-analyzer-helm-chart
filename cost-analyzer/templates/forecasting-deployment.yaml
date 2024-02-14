@@ -71,6 +71,8 @@ spec:
               value: http://{{ template "cost-analyzer.serviceName" . }}:9090/model
             - name: MODEL_STORAGE_PATH
               value: "/tmp/localrun/models"
+            - name: PAGE_ITEM_LIMIT
+              value: "1000"
             {{- range $key, $value := .Values.forecasting.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
