@@ -102,6 +102,14 @@ Kubecost 2.0 preconditions
           "athenaDatabase": "{{ .Values.kubecostProductConfigs.athenaDatabase }}",
           "athenaTable": "{{ .Values.kubecostProductConfigs.athenaTable }}",
           "projectID": "{{ .Values.kubecostProductConfigs.athenaProjectID }}"
+          {{ if (.Values.kubecostProductConfigs).athenaWorkgroup }}
+          , "athenaWorkgroup": "{{ .Values.kubecostProductConfigs.athenaWorkgroup }}"
+          {{ else }}
+          , "athenaWorkgroup": "primary"
+          {{ end }}
+          {{ if (.Values.kubecostProductConfigs).masterPayerARN }}
+          , "masterPayerARN": "{{ .Values.kubecostProductConfigs.masterPayerARN }}"
+          {{ end }}
           {{- if and ((.Values.kubecostProductConfigs).awsServiceKeyName) ((.Values.kubecostProductConfigs).awsServiceKeyPassword) }},
           "serviceKeyName": "{{ .Values.kubecostProductConfigs.awsServiceKeyName }}",
           "serviceKeySecret": "{{ .Values.kubecostProductConfigs.awsServiceKeyPassword }}"
@@ -143,14 +151,36 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 
 {{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
 */}}
 {{- define "cloudIntegrationSecretCheck" -}}
 {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
     {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Verify the federated storage config secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
+*/}}
+{{- define "federatedStorageConfigSecretCheck" -}}
+{{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
+{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
+  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostModel.federatedStorageConfigSecret }}
+  {{- if or (not $secret) (not (index $secret.data "federated-store.yaml")) }}
+    {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
+  {{- end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -254,7 +284,16 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 
 {{- define "cost-analyzer.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -874,6 +913,10 @@ Begin Kubecost 2.0 templates
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
     {{- end }}
+    {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
+    - name: NUM_DB_COPY_CHUNKS
+      value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
+    {{- end }}
     {{- if .Values.kubecostAggregator.jaeger.enabled }}
     - name: TRACING_URL
       value: "http://localhost:14268/api/traces"
@@ -1032,8 +1075,7 @@ Begin Kubecost 2.0 templates
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
-  {{- end }}
-  {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+  {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
     - name: etl-bucket-config
       mountPath: /var/configs/etl
       readOnly: true
