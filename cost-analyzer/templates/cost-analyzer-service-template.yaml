@@ -5,7 +5,7 @@ metadata:
   name: {{ template "cost-analyzer.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.service.labels }}
 {{ toYaml .Values.service.labels | indent 4 }}
 {{- end }}
@@ -15,7 +15,7 @@ metadata:
 {{- end }}
 spec:
   selector:
-    {{ include "cost-analyzer.selectorLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.selectorLabels" . | nindent 4 }}
 {{- if .Values.service -}}
 {{- if .Values.service.type }}
   type: "{{ .Values.service.type }}"
