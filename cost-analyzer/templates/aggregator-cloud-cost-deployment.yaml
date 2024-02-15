@@ -3,7 +3,7 @@
 {{/*
   A cloud integration secret is required for cloud cost to function as a dedicated pod.
 */}}
-{{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+{{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
 
 apiVersion: apps/v1
 kind: Deployment
