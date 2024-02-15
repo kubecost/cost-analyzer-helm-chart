@@ -1055,8 +1055,10 @@ data:
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             return 200 '\n
-                {"ssoConfigured": "{{ template "ssoEnabled" . }}"},\n
-                {"dataBackupConfigured": "{{ template "dataBackupConfigured" . }}"}\n
+                {
+                "ssoConfigured": "{{ template "ssoEnabled" . }}",
+                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}"
+                }
             ';
         }
     }
