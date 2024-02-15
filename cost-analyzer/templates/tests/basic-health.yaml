@@ -6,6 +6,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   annotations:
     {{- include "kubecost.test.annotations" . | nindent 4 }}
+  labels:
+    app: basic-health
+    app.kubernetes.io/name: basic-health
+    app.kubernetes.io/instance: {{ .Release.Name }}
 spec:
   automountServiceAccountToken: false
   restartPolicy: Never
