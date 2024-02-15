@@ -51,7 +51,7 @@ Kubecost 2.0 preconditions
 
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
-    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
   {{- end -}}
 
   {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
@@ -1124,7 +1124,12 @@ SSO enabled flag for nginx configmap
   {{- end -}}
 {{- end -}}
 
-{{- define "gcpCloudIntegrationCheck" }}
+{{- define "gcpCloudIntegrationJSON" }}
+Kubecost 2.x requires a change to the method that cloud-provider billing integrations are configured.
+Please use this output to create a cloud-integration.json config. See:
+<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>
+for more information
+
   {
     "gcp":
       {
@@ -1138,13 +1143,21 @@ SSO enabled flag for nginx configmap
         ]
       }
   }
+{{- end }}
+
+{{- define "gcpCloudIntegrationCheck" }}
 {{- if ((.Values.kubecostProductConfigs).bigQueryBillingDataDataset) }}
-{{- fail "\nKubecost 2.0 requires a change to the method that cloud-provider billing integrations are configured.\nPlease use this output to create a cloud-integration.json config. See:\n<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>\nfor more information"}}
+{{- fail (include "gcpCloudIntegrationJSON" .) }}
 {{- end }}
 {{- end }}
 
 
-{{- define "azureCloudIntegrationCheck" }}
+{{- define "azureCloudIntegrationJSON" }}
+
+Kubecost 2.x requires a change to the method that cloud-provider billing integrations are configured.
+Please use this output to create a cloud-integration.json config. See:
+<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>
+for more information
   {
     "azure":
       [
@@ -1158,7 +1171,10 @@ SSO enabled flag for nginx configmap
         }
       ]
   }
+{{- end }}
+
+{{- define "azureCloudIntegrationCheck" }}
 {{- if ((.Values.kubecostProductConfigs).azureStorageContainer) }}
-{{- fail "\nKubecost 2.0 requires a change to the method that cloud-provider billing integrations are configured.\nPlease use this output to create a cloud-integration.json config. See:\n<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>\nfor more information"}}
+{{- fail (include "azureCloudIntegrationJSON" .) }}
 {{- end }}
 {{- end }}
