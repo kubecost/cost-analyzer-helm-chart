@@ -52,48 +52,50 @@ data:
         text/x-cross-domain-policy;
 
     upstream api {
-{{- if.Values.kubecostFrontend.api }}
-{{- if.Values.kubecostFrontend.api.fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9001;
+{{- else if and .Values.kubecostFrontend.api .Values.kubecostFrontend.api.fqdn }}
         server {{ .Values.kubecostFrontend.api.fqdn }};
-{{- else }}
-        server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
-{{- end }}
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
 {{- end }}
     }
 
     upstream model {
-{{- if.Values.kubecostFrontend.model }}
-{{- if.Values.kubecostFrontend.model.fqdn }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9003;
+{{- else if and .Values.kubecostFrontend.model .Values.kubecostFrontend.model.fqdn }}
         server {{ .Values.kubecostFrontend.model.fqdn }};
-{{- else }}
-        server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
-{{- end }}
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
 {{- end }}
     }
 
-{{- if .Values.clusterController }}
-{{- if .Values.clusterController.enabled }}
+{{- if and .Values.clusterController .Values.clusterController.enabled }}
     upstream clustercontroller {
-{{- if .Values.clusterController.fqdn }}
-        server {{ .Values.clusterController.fqdn }};
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}.svc.cluster.local:9731;
+{{- else }}
+{{- if and .Values.kubecostFrontend.clusterController .Values.kubecostFrontend.clusterController.fqdn }}
+        server {{ .Values.kubecostFrontend.clusterController.fqdn }};
 {{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
 {{- end }}
-    }
 {{- end }}
+    }
 {{- end }}
 
 {{- if .Values.global.grafana.proxy }}
     upstream grafana {
 {{- if .Values.global.grafana.enabled }}
+{{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ .Release.Name }}-grafana.{{ .Release.Namespace }}.svc.cluster.local;
+{{- else }}
 {{- if .Values.global.grafana.fqdn }}
         server {{ .Values.global.grafana.fqdn }};
 {{- else }}
         server {{ .Release.Name }}-grafana.{{ .Release.Namespace }};
+{{- end }}
 {{- end }}
 {{- else }}
         server {{.Values.global.grafana.domainName}};
@@ -103,22 +105,55 @@ data:
 
   {{- if .Values.forecasting.enabled }}
     upstream forecasting {
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}.svc.cluster.local:5000;
+        {{- else }}
+        {{- if and .Values.kubecostFrontend.forcasting .Values.kubecostFrontend.forcasting.fqdn }}
+        server {{ .Values.kubecostFrontend.forcasting.fqdn }};
+        {{- else }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
+        {{- end }}
+        {{- end }}
     }
   {{- end }}
 
   {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     upstream aggregator {
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}.svc.cluster.local:9004;
+        {{- else }}
+        {{- if and .Values.kubecostFrontend.aggregator .Values.kubecostFrontend.aggregator.fqdn }}
+        server {{ .Values.kubecostFrontend.aggregator.fqdn }};
+        {{- else }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
+        {{- end }}
+        {{- end }}
     }
     upstream cloudCost {
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9005;
+        {{- else }}
+        {{- if and .Values.kubecostFrontend.cloudCost .Values.kubecostFrontend.cloudCost.fqdn }}
+        server {{ .Values.kubecostFrontend.cloudCost.fqdn }};
+        {{- else }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
+        {{- end }}
+        {{- end }}
     }
   {{- end }}
-    {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+
+    {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
     {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
     upstream multi-cluster-diagnostics {
+        {{- if .Values.kubecostFrontend.useDefaultFqdn }}
+        server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
+        {{- else}}
+        {{- if and .Values.kubecostFrontend.multiClusterDiagnostics .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }}
+        server {{ .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }};
+        {{- else }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
+        {{- end }}
+        {{- end }}
     }
     {{- end }}
     {{- end }}
@@ -778,6 +813,22 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/serviceAccounts {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/serviceAccounts;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/serviceAccount {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/serviceAccount;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/debug/orchestrator {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/debug/orchestrator;
@@ -797,6 +848,54 @@ data:
         location = /model/diagnostic/coreCount {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/diagnostic/coreCount;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containersPerDay {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containersPerDay;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/cloudCostsPerDay {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/cloudCostsPerDay;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containerWithoutMatchingNode {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containerWithoutMatchingNode;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containerDuplicateNoId {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containerDuplicateNoId;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containerDuplicateWithId {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containerDuplicateWithId;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/nodeDuplicateNoId {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/nodeDuplicateNoId;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -884,17 +983,24 @@ data:
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
-            {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+            {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
             {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
+            return 200 '{"multiClusterDiagnosticsEnabled": true}';
             {{- end }}
             {{- else }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
+            return 200 '{"multiClusterDiagnosticsEnabled": false}';
             {{- end }}
         }
-        {{- if and .Values.diagnostics.enabled .Values.diagnostics.isDiagnosticsPrimary.enabled }}
+
+        {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
         {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-        location /model/multi-cluster-diagnostics {
+
+        # When the Multi-cluster Diagnostics Service is run within the
+        # cost-model container, its endpoint is available at the path
+        # `/model/diagnostics/multicluster`. No additional Nginx path forwarding
+        # needed. When the Multi-cluster Diagnostics Service is run as a K8s
+        # Deployment, we should forward that path to the K8s Service.
+        location /model/diagnostics/multicluster {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
@@ -906,7 +1012,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
         # simple alias for support
-        location /model/mcd {
+        location /mcd {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
@@ -917,6 +1023,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+
         {{- end }}
         {{- end }}
 

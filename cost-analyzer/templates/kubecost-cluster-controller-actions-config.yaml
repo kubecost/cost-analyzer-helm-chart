@@ -1,3 +1,5 @@
+{{- if .Values.clusterController }}
+{{- if .Values.clusterController.enabled }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -38,4 +40,17 @@ metadata:
 binaryData:
   config: |
 {{- toJson .Values.clusterController.actionConfigs.containerRightsize | b64enc | nindent 4 }}
+{{- end }}
+{{- range .Values.clusterController.actionConfigs.clusterTurndown }}
+---
+apiVersion: kubecost.com/v1alpha1
+kind: TurndownSchedule
+metadata:
+  name: {{ .name }}
+spec:
+  start: {{ .start }}
+  end: {{ .end }}
+  repeat: {{ .repeat }}
+{{- end }}
+{{- end }}
 {{- end }}
