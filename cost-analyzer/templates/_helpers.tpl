@@ -1075,8 +1075,7 @@ Begin Kubecost 2.0 templates
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
-  {{- end }}
-  {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+  {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
     - name: etl-bucket-config
       mountPath: /var/configs/etl
       readOnly: true
