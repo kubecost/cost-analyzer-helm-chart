@@ -158,7 +158,7 @@ spec:
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
-        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
         - name: cloud-integration
           secret:
             secretName: cloud-integration
