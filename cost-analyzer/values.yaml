@@ -2554,8 +2554,8 @@ clusterController:
       #   frequencyMinutes: 5
       #   recommendationQueryWindow: "48h"
       #   lastModified: ''
-      #   targetUtilizationCPU: 0.8
-      #   targetUtilizationMemory: 0.8
+      #   targetUtilizationCPU: 0.8 # results in a cpu request setting that is 20% higher than the max seen over last 48h
+      #   targetUtilizationMemory: 0.8 # results in a RAM request setting that is 20% higher than the max seen over last 48h
 
   kubescaler:
     # If true, will cause all (supported) workloads to be have their requests
