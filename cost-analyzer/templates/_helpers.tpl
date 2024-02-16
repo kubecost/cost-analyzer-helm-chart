@@ -1159,6 +1159,17 @@ SSO enabled flag for nginx configmap
   {{- end -}}
 {{- end -}}
 
+{{/*
+Backups configured flag for nginx configmap
+*/}}
+{{- define "dataBackupConfigured" -}}
+  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "cost-analyzer.grafanaEnabled" -}}
   {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
     {{- printf "true" -}}
