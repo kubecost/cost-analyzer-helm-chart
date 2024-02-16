@@ -55,8 +55,10 @@ Kubecost 2.0 preconditions
   {{- end -}}
 
   {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
-    {{- if or (not (.Values.federatedETL).federatedCluster) (not (.Values.upgrade).toV2) -}}
+    {{- if (not (.Values.federatedETL).federatedCluster)  -}}
+      {{- if (not (.Values.upgrade).toV2) -}}
       {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+      {{- end -}}
     {{- end -}}
   {{- end -}}
 
@@ -1151,6 +1153,17 @@ SSO enabled flag for nginx configmap
 */}}
 {{- define "ssoEnabled" -}}
   {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Backups configured flag for nginx configmap
+*/}}
+{{- define "dataBackupConfigured" -}}
+  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}
