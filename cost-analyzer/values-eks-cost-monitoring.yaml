@@ -67,7 +67,19 @@ kubecostModel:
     #  memory: "256Mi"
 
 forecasting:
-  fullImageName: public.ecr.aws/kubecost/kubecost-modeling:e59c4d9
+  fullImageName: public.ecr.aws/kubecost/kubecost-modeling:v0.1.2
+
+networkCosts:
+  enabled: false
+  image:
+    repository: public.ecr.aws/kubecost/kubecost-modeling
+    tag: v0.17.2
+
+clusterController:
+  enabled: false
+  image:
+    repository: public.ecr.aws/kubecost/cluster-controller
+    tag: v0.15.2
 
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.

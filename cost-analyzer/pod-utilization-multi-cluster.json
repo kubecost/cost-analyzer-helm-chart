@@ -26,14 +26,14 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": 13,
+  "id": 4,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "Thanos"
       },
       "description": "Maximum CPU Core Usage vs avg Requested",
       "fieldConfig": {
@@ -42,6 +42,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -55,6 +56,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -86,7 +88,8 @@
               }
             ]
           },
-          "unit": "none"
+          "unit": "none",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -117,7 +120,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "max(irate(container_cpu_usage_seconds_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
@@ -134,7 +137,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -151,7 +154,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "Thanos"
       },
       "description": "Max memory used vs avg requested",
       "fieldConfig": {
@@ -160,6 +163,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -173,6 +177,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -204,7 +209,8 @@
               }
             ]
           },
-          "unit": "bytes"
+          "unit": "bytes",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -234,7 +240,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "max(max_over_time(container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",cluster_id=\"$cluster\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
@@ -250,7 +257,8 @@
         },
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "avg(kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\",container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
@@ -269,7 +277,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "Thanos"
       },
       "description": "Network traffic by pod",
       "fieldConfig": {
@@ -278,6 +286,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -291,6 +300,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -321,7 +331,8 @@
               }
             ]
           },
-          "unit": "Bps"
+          "unit": "Bps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -351,7 +362,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "sum(irate(container_network_receive_bytes_total\n  {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
@@ -367,7 +379,8 @@
         },
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "- sum(irate(container_network_transmit_bytes_total\n  {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
@@ -387,7 +400,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "Thanos"
       },
       "description": "Disk read writes",
       "fieldConfig": {
@@ -396,6 +409,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -409,6 +423,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -439,7 +454,8 @@
               }
             ]
           },
-          "unit": "Bps"
+          "unit": "Bps",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -469,7 +485,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
@@ -485,7 +502,8 @@
         },
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
@@ -505,7 +523,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${datasource}"
+        "uid": "Thanos"
       },
       "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
       "fieldConfig": {
@@ -514,6 +532,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -527,6 +546,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -558,7 +578,8 @@
               }
             ]
           },
-          "unit": "percent"
+          "unit": "percent",
+          "unitScale": true
         },
         "overrides": []
       },
@@ -588,7 +609,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "${datasource}"
+            "type": "prometheus",
+            "uid": "Thanos"
           },
           "editorMode": "code",
           "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id,namespace,pod,container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}[$__rate_interval]))",
@@ -607,20 +629,19 @@
   ],
   "refresh": "",
   "revision": 1,
-  "schemaVersion": 38,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [],
   "templating": {
     "list": [
       {
         "current": {
           "selected": false,
-          "text": "All",
-          "value": "$__all"
+          "text": "CostManagement",
+          "value": "CostManagement"
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${datasource}"
+          "uid": "Thanos"
         },
         "definition": "label_values(cluster_id)",
         "hide": 0,
@@ -640,10 +661,13 @@
       },
       {
         "current": {
-          "selected": false
+          "selected": false,
+          "text": "kubecost",
+          "value": "kubecost"
         },
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "Thanos"
         },
         "definition": "label_values(kube_namespace_labels{cluster_id=\"$cluster\"}, namespace) ",
         "hide": 0,
@@ -672,7 +696,8 @@
           "value": "$__all"
         },
         "datasource": {
-          "uid": "${datasource}"
+          "type": "prometheus",
+          "uid": "Thanos"
         },
         "definition": "label_values(kube_pod_labels{cluster_id=\"$cluster\",namespace=~\"$namespace\"}, pod) ",
         "hide": 0,
@@ -702,7 +727,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "${datasource}"
+          "uid": "Thanos"
         },
         "definition": "label_values(container_memory_working_set_bytes{cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
         "hide": 0,

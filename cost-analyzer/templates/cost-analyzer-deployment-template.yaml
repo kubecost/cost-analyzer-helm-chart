@@ -158,7 +158,7 @@ spec:
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
-        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
         - name: cloud-integration
           secret:
             secretName: cloud-integration
@@ -684,7 +684,6 @@ spec:
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             {{- if .Values.kubecostProductConfigs }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
-
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /var/configs/key.json
             {{- end }}
@@ -1008,6 +1007,33 @@ spec:
                   key: kubecost-token
             - name: WATERFOWL_ENABLED
               value: "true"
+            {{- /*A pre-requisite for running MultiClusterDiagnostics in the cost-model container is a configured federated-store secret and cluster_id*/}}
+            {{- if or (empty .Values.kubecostModel.federatedStorageConfigSecret) (eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one") }}
+            - name: DIAGNOSTICS_RUN_IN_COST_MODEL
+              value: "false"
+            {{- else if .Values.diagnostics.deployment.enabled }}
+            - name: DIAGNOSTICS_RUN_IN_COST_MODEL
+              value: "false"
+            {{- else }}
+            - name: DIAGNOSTICS_RUN_IN_COST_MODEL
+              value: "true"
+            - name: DIAGNOSTICS_KUBECOST_FQDN
+              value: "localhost"
+            - name: DIAGNOSTICS_KUBECOST_NAMESPACE
+              value: {{ .Release.Namespace }}
+            - name: DIAGNOSTICS_PRIMARY
+              value: {{ quote .Values.diagnostics.primary.enabled }}
+            - name: DIAGNOSTICS_RETENTION
+              value: {{ .Values.diagnostics.primary.retention }}
+            - name: DIAGNOSTICS_PRIMARY_READONLY
+              value: {{ quote .Values.diagnostics.primary.readonly }}
+            - name: DIAGNOSTICS_POLLING_INTERVAL
+              value: {{ .Values.diagnostics.pollingInterval }}
+            - name: DIAGNOSTICS_KEEP_HISTORY
+              value: {{ quote .Values.diagnostics.keepDiagnosticHistory }}
+            - name: DIAGNOSTICS_COLLECT_HELM_VALUES
+              value: {{ quote .Values.diagnostics.collectHelmValues }}
+            {{- end }}
         {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
