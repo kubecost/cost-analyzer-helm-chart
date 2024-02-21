@@ -1040,6 +1040,15 @@ Begin Kubecost 2.0 templates
 
 {{- define "aggregator.jaeger.sidecarContainerTemplate" }}
 - name: embedded-jaeger
+  env: 
+  - name: SPAN_STORAGE_TYPE
+    value: badger
+  - name: BADGER_EPHEMERAL
+    value: "true"
+  - name: BADGER_DIRECTORY_VALUE
+    value: /tmp/badger/data
+  - name: BADGER_DIRECTORY_KEY
+    value: /tmp/badger/key
   securityContext:
     {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 4 }}
   image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
