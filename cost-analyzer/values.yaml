@@ -248,7 +248,7 @@ global:
     cicd:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
-  
+
   integrations:
     postgres:
       enabled: false
@@ -368,7 +368,7 @@ systemProxy:
 
 ## A list of k8s secrets which are used to pull images from private registries
 ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-## 
+##
 # imagePullSecrets:
 # - name: "image-pull-secret"
 
