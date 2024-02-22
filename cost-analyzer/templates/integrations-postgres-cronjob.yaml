@@ -18,7 +18,7 @@ spec:
             imagePullPolicy: Always
             env:
             - name: KUBECOST_ENDPOINT
-              value: "{{ template "cost-analyzer.serviceName" . }}:9090"
+              value: "http://{{ template "cost-analyzer.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090/"
             {{- if .Values.global.integrations.postgres.databaseHost }}
             - name: DATABASE_HOST
               value: {{ .Values.global.integrations.postgres.databaseHost | quote }}
