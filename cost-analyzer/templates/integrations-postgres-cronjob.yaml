@@ -1,0 +1,44 @@
+{{ if .Values.global.integrations.postgres.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-data-export-postgres-cronjob
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          {{- if .Values.imagePullSecrets }}
+          imagePullSecrets:
+          {{ toYaml .Values.imagePullSecrets }}
+          {{- end }}
+          containers:
+          - name: data-export-postgres-cronjob
+            image: {{ .Values.global.integrations.postgres.image.repository }}:{{ .Values.global.integrations.postgres.image.tag }}
+            imagePullPolicy: Always
+            env:
+            - name: KUBECOST_ENDPOINT
+              value: "{{ template "cost-analyzer.serviceName" . }}:9090"
+            {{- if .Values.global.integrations.postgres.databaseHost }}
+            - name: DATABASE_HOST
+              value: {{ .Values.global.integrations.postgres.databaseHost | quote }}
+            {{- end }}
+            {{- if .Values.global.integrations.postgres.databasePort }}
+            - name: DATABASE_PORT
+              value: {{ .Values.global.integrations.postgres.databasePort | quote }}
+            {{- end }}
+            {{- if .Values.global.integrations.postgres.databaseName }}
+            - name: DATABASE_NAME
+              value: {{ .Values.global.integrations.postgres.databaseName | quote }}
+            {{- end }}
+            {{- if .Values.global.integrations.postgres.databaseUser }}
+            - name: DATABASE_USER
+              value: {{ .Values.global.integrations.postgres.databaseUser | quote }}
+            {{- end }}
+            {{- if .Values.global.integrations.postgres.databasePassword }}
+            - name: DATABASE_PASSWORD
+              value: {{ .Values.global.integrations.postgres.databasePassword | quote }}
+            {{- end }}
+          restartPolicy: OnFailure
+  schedule: {{ .Values.global.integrations.postgres.schedule }}
+{{ end }}
