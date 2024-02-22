@@ -969,25 +969,33 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/export {
+        location = /model/cloud/config {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/export;
+            proxy_pass http://cloudCost/cloud/config;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/enable {
+        location = /model/cloud/config/export {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/enable;
+            proxy_pass http://cloudCost/cloud/config/export;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/disable {
+        location = /model/cloud/config/enable {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/disable;
+            proxy_pass http://cloudCost/cloud/config/enable;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/cloud/config/disable {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://cloudCost/cloud/config/disable;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
