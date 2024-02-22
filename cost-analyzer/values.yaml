@@ -249,6 +249,11 @@ global:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
+## Provide a name override for the chart.
+# nameOverride: ""
+## Provide a full name override option for the chart.
+# fullnameOverride: ""
+
 ## This flag is only required for users upgrading to a new version of Kubecost.
 ## The flag is used to ensure users are aware of important
 ## (potentially breaking) changes included in the new version.
@@ -726,11 +731,17 @@ service:
   # nodePort:
   labels: {}
   annotations: {}
+  # loadBalancerSourceRanges: []
   sessionAffinity:
     enabled: false  # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
     timeoutSeconds: 10800
 
 prometheus:
+  ## Provide a full name override for Prometheus.
+  # fullnameOverride: ""
+  ## Provide a name override for Prometheus.
+  # nameOverride: ""
+
   rbac:
     create: true  # Create the RBAC resources for Prometheus.
 
@@ -789,6 +800,9 @@ prometheus:
     # This overrides the cluster_id set in prometheus.server.global.external_labels.
     # NOTE: This does not affect the external_labels set in prometheus config.
     # clusterIDConfigmap: cluster-id-configmap
+
+    ## Provide a full name override for the Prometheus server.
+    # fullnameOverride: ""
 
     ## Prometheus server container name
     ##
@@ -1176,6 +1190,9 @@ prometheus:
     ##
     enabled: false
 
+    ## Provide a full name override for Prometheus alertmanager.
+    # fullnameOverride: ""
+
     strategy:
       type: Recreate
       rollingUpdate: null
@@ -1547,6 +1564,9 @@ prometheus:
     ##
     enabled: false
 
+    ## Provide a full name override for node exporter.
+    # fullnameOverride: ""
+
     ## If true, node-exporter pods share the host network namespace
     ##
     hostNetwork: true
@@ -1677,6 +1697,9 @@ prometheus:
     ## If false, pushgateway will not be installed
     ##
     enabled: false
+
+    ## Provide a full name override for Prometheus push gateway.
+    # fullnameOverride: ""
 
     ## Use an alternate scheduler, e.g. "stork".
     ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -2251,9 +2274,6 @@ networkCosts:
 ## Used for HA mode in Business & Enterprise tier
 ##
 kubecostDeployment:
-  # Instead of a kubecost-analyzer Deployment, you can set it to be a StatefulSet as for volumeClaimTemplates usage and real stateful behaviour
-  statefulSet:
-    enabled: false
   replicas: 1
   # deploymentStrategy:
   #   rollingUpdate:
@@ -2382,6 +2402,11 @@ kubecostAggregator:
     periodSeconds: 10
     failureThreshold: 200
 
+  ## Add a priority class to the aggregator pod
+  # priority:
+  #   enabled: false
+  #   name: ""
+
   # extraEnv:
   # - name: SOME_VARIABLE
   #   value: "some_value"
@@ -2409,7 +2434,22 @@ kubecostAggregator:
     #   port: 40000
     #   targetPort: 40000
     #   containerPort: 40000
-  securityContext: {}  # Define a securityContext for the aggregator pod. This will take highest precedence.
+  ## Define a securityContext for the aggregator pod. This will take highest precedence.
+  securityContext: {}
+  ## Define the container-level security context for the aggregator pod. This will take highest precedence.
+  # containerSecurityContext: {}
+
+  ## Provide a Service Account name for aggregator.
+  # serviceAccountName: ""
+
+  ## Define a nodeSelector for the aggregator pod
+  # nodeSelector: {}
+
+  ## Define tolerations for the aggregator pod
+  # tolerations: []
+
+  ## Define Pod affinity for the aggregator pod
+  # affinity: {}
 
   ## Creates a new container/pod to retrieve CloudCost data. By default it uses
   ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
@@ -2433,6 +2473,26 @@ kubecostAggregator:
       initialDelaySeconds: 10
       periodSeconds: 10
       failureThreshold: 200
+
+    ## Add a nodeSelector for aggregator cloud costs
+    # nodeSelector: {}
+
+    ## Tolerations for the aggregator cloud costs
+    # tolerations: {}
+
+    ## Affinity for the aggregator cloud costs
+    # affinity: {}
+
+    ## ServiceAccount for the aggregator cloud costs
+    # serviceAccountName: ""
+
+    ## Define environment variables for cloud cost
+    # env: {}
+
+    ## Configure the Collections service for aggregator.
+    # collections:
+    #   cache:
+    #     enabled: false
 
   # Jaeger is an optional container attached to wherever the Aggregator
   # container is running. It is used for performance investigation. Enable if
@@ -2487,6 +2547,9 @@ diagnostics:
     nodeSelector: {}
     tolerations: {}
     affinity: {}
+
+## Provide a full name override for the diagnostics Deployment.
+# diagnosticsFullnameOverride: ""
 
 # Kubecost Cluster Controller for Right Sizing and Cluster Turndown
 clusterController:
@@ -2611,6 +2674,11 @@ grafana:
   rbac:
     create: true
 
+  ## Provide a full name override for the Grafana Deployment.
+  # fullnameOverride: ""
+  ## Provide a name override for the Grafana Deployment.
+  # nameOverride: ""
+
   ## Configure grafana datasources
   ## ref: http://docs.grafana.org/administration/provisioning/#datasources
   ##
@@ -2653,7 +2721,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.3.1
+    tag: 10.3.3
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2907,6 +2975,8 @@ awsstore:
   # Use a custom nodeSelector for AWSStore.
   nodeSelector: {}
     # kubernetes.io/arch: amd64
+  ## Annotations for the AWSStore ServiceAccount.
+  annotations: {}
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
@@ -2990,6 +3060,8 @@ costEventsAudit:
   # spotLabelValue: Ec2Spot
   # gpuLabel: gpu
   # gpuLabelValue: true
+#  alibabaServiceKeyName: ""
+#  alibabaServiceKeyPassword: ""
   # awsServiceKeyName: ACCESSKEYID
   # awsServiceKeyPassword:  fakepassword # Only use if your values.yaml are stored encrypted. Otherwise provide an existing secret via serviceKeySecretName
   # awsSpotDataRegion: us-east-1
@@ -3107,6 +3179,9 @@ costEventsAudit:
 
   # ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
   # regionOverrides: "region1,region2,region3" # list of regions which will override default costmodel provider regions
+
+# Explicit name of the ConfigMap to use for pricing overrides. If not set, a default will apply.
+# pricingConfigmapName: ""
 
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates
