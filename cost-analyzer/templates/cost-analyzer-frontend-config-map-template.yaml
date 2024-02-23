@@ -54,7 +54,7 @@ data:
     upstream api {
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9001;
-{{- else if and .Values.kubecostFrontend.api .Values.kubecostFrontend.api.fqdn }}
+{{- else if (.Values.kubecostFrontend.api).fqdn }}
         server {{ .Values.kubecostFrontend.api.fqdn }};
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
@@ -64,7 +64,7 @@ data:
     upstream model {
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9003;
-{{- else if and .Values.kubecostFrontend.model .Values.kubecostFrontend.model.fqdn }}
+{{- else if (.Values.kubecostFrontend.model).fqdn }}
         server {{ .Values.kubecostFrontend.model.fqdn }};
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
@@ -76,7 +76,7 @@ data:
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}.svc.cluster.local:9731;
 {{- else }}
-{{- if and .Values.kubecostFrontend.clusterController .Values.kubecostFrontend.clusterController.fqdn }}
+{{- if (.Values.kubecostFrontend.clusterController).fqdn }}
         server {{ .Values.kubecostFrontend.clusterController.fqdn }};
 {{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
@@ -108,7 +108,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}.svc.cluster.local:5000;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.forcasting .Values.kubecostFrontend.forcasting.fqdn }}
+        {{- if (.Values.kubecostFrontend.forcasting).fqdn }}
         server {{ .Values.kubecostFrontend.forcasting.fqdn }};
         {{- else }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
@@ -122,7 +122,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}.svc.cluster.local:9004;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.aggregator .Values.kubecostFrontend.aggregator.fqdn }}
+        {{- if (.Values.kubecostFrontend.aggregator).fqdn }}
         server {{ .Values.kubecostFrontend.aggregator.fqdn }};
         {{- else }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
@@ -133,7 +133,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9005;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.cloudCost .Values.kubecostFrontend.cloudCost.fqdn }}
+        {{- if (.Values.kubecostFrontend.cloudCost).fqdn }}
         server {{ .Values.kubecostFrontend.cloudCost.fqdn }};
         {{- else }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
@@ -148,7 +148,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
         {{- else}}
-        {{- if and .Values.kubecostFrontend.multiClusterDiagnostics .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }}
+        {{- if (.Values.kubecostFrontend.multiClusterDiagnostics).fqdn }}
         server {{ .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }};
         {{- else }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
@@ -586,7 +586,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        {{- if eq .Values.kubecostAggregator.env.MEMORY_INTENSIVE_CLUSTER_SIZING "enabled" }}
+        {{- if eq (default .Values.kubecostAggregator.env.MEMORY_INTENSIVE_CLUSTER_SIZING "disabled") "enabled" }}
         location = /model/savings/clusterSizingETL {
             proxy_read_timeout          600;
             proxy_pass http://aggregator/savings/clusterSizingETL;
