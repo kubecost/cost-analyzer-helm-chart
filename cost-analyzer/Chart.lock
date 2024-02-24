@@ -1,0 +1,12 @@
+dependencies:
+- name: grafana
+  repository: file://./charts/grafana
+  version: 1.17.2
+- name: prometheus
+  repository: file://./charts/prometheus
+  version: 11.0.2
+- name: thanos
+  repository: file://./charts/thanos
+  version: 0.29.0
+digest: sha256:83cfc854d81baa359b3299978f9652bf7bd8dde2b3fe31693c1cb11315488dff
+generated: "2023-12-20T12:54:26.217071-06:00"
