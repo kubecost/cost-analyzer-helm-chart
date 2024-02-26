@@ -72,7 +72,7 @@ forecasting:
 networkCosts:
   enabled: false
   image:
-    repository: public.ecr.aws/kubecost/kubecost-modeling
+    repository: public.ecr.aws/kubecost/kubecost-network-costs
     tag: v0.17.2
 
 clusterController:
