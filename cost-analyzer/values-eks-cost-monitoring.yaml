@@ -125,7 +125,7 @@ prometheus:
     # clusterIDConfigmap: cluster-id-configmap
     image:
       repository: public.ecr.aws/kubecost/prometheus
-      tag: v2.49.1
+      tag: v2.50.0
     resources: {}
     # limits:
     #   cpu: 500m
