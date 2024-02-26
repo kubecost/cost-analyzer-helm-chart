@@ -1007,8 +1007,11 @@ spec:
                   key: kubecost-token
             - name: WATERFOWL_ENABLED
               value: "true"
+            {{- if not (.Values.diagnostics.enabled) }}
+            - name: DIAGNOSTICS_RUN_IN_COST_MODEL
+              value: "false"
             {{- /*A pre-requisite for running MultiClusterDiagnostics in the cost-model container is a configured federated-store secret and cluster_id*/}}
-            {{- if or (empty .Values.kubecostModel.federatedStorageConfigSecret) (eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one") }}
+            {{- else if or (empty .Values.kubecostModel.federatedStorageConfigSecret) (eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one") }}
             - name: DIAGNOSTICS_RUN_IN_COST_MODEL
               value: "false"
             {{- else if .Values.diagnostics.deployment.enabled }}
