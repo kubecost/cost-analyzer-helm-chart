@@ -105,7 +105,7 @@ jobs:
         # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
 
       - name: Wait for ready 
-        run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+        run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=aggregator --timeout=120s
 
       - name: Run Helm tests 
         run: helm test -n kubecost kubecost
