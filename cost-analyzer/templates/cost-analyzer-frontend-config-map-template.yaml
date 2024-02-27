@@ -117,12 +117,12 @@ data:
     }
   {{- end }}
 
-  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
+  {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) (not .Values.kubecostAggregator.enabled) }}
     upstream aggregator {
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}.svc.cluster.local:9004;
         {{- else }}
-        {{- if (.Values.kubecostFrontend.aggregator).fqdn }}
+        {{- if and .Values.kubecostFrontend.aggregator .Values.kubecostFrontend.aggregator.fqdn }}
         server {{ .Values.kubecostFrontend.aggregator.fqdn }};
         {{- else }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
@@ -279,6 +279,7 @@ data:
 {{- else }}
             return 404;
 {{- end }}
+{{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
         }
         location /oidc/ {
             proxy_connect_timeout       180;
@@ -356,7 +357,7 @@ data:
         }
     {{- end }}
     {{- end }}
-
+{{- end}}
 
 {{- if and (not .Values.agent) (not .Values.cloudAgent) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
     # TODO make aggregator route the default, start special-casing
