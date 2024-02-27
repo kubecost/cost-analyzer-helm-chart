@@ -3069,7 +3069,7 @@ costEventsAudit:
 #   # use these custom monthly resource prices when reporting node costs. Note,
 #   # that the below configuration is for the monthly cost of the resource.
 #   # Kubecost considers there to be 730 hours in a month. Also note, that these
-#   # configurationsn will have no effect on metrics emitted such as
+#   # configurations will have no effect on metrics emitted such as
 #   # `node_ram_hourly_cost` or `node_cpu_hourly_cost`.
 #   # Ref: https://docs.kubecost.com/install-and-configure/install/provider-installations/air-gapped
 #   customPricesEnabled: false
