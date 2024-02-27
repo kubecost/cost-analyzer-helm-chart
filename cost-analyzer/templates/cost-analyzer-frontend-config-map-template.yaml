@@ -165,7 +165,7 @@ data:
 
         add_header Cache-Control "must-revalidate";
 
-        {{- if.Values.kubecostFrontend.extraServerConfig }}
+        {{- if .Values.kubecostFrontend.extraServerConfig }}
         {{- .Values.kubecostFrontend.extraServerConfig | toString | nindent 8 -}}
         {{- else }}
         large_client_header_buffers 4 32k;
@@ -306,7 +306,7 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 {{- end }}
-{{-if or .Values.saml.enabled .Values.oidc.enabled}}
+{{- if or .Values.saml.enabled .Values.oidc.enabled}}
         location /login {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
