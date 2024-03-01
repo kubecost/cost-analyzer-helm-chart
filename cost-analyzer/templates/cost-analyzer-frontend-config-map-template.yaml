@@ -280,7 +280,8 @@ data:
             return 404;
 {{- end }}
         }
-{{- if .Values.oidc.enabled }}
+{{- if and (or .Values.saml.enabled .Values.oidc.enabled) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
+    {{- if .Values.oidc.enabled }}
         location /oidc/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -292,8 +293,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{- end }}
-{{- if .Values.saml.enabled }}
+    {{- end }}
+    {{- if .Values.saml.enabled }}
         location /saml/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -305,8 +306,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-{{- end }}
-{{- if or .Values.saml.enabled .Values.oidc.enabled}}
+    {{- end }}
+    {{- if or .Values.saml.enabled .Values.oidc.enabled}}
         location /login {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -331,8 +332,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+    {{- end }}
 {{- end }}
-
     {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
         {{- if .Values.saml.enabled }}
