@@ -973,11 +973,6 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: ETL_ENABLED
       value: "false" # this container should never run KC's concept of "ETL"
-    - name: PROMETHEUS_SERVER_ENDPOINT
-      valueFrom:
-        configMapKeyRef:
-          name: {{ template "cost-analyzer.fullname" . }}
-          key: prometheus-server-endpoint
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
     {{- if .Values.systemProxy.enabled }}
