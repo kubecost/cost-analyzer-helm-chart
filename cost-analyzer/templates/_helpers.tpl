@@ -201,6 +201,38 @@ support templating a chart which uses the lookup function.
 {{- end -}}
 
 {{/*
+ Ensure that the Prometheus retention is not set too low
+*/}}
+{{- define "prometheusRetentionCheck" }}
+{{- if ((.Values.prometheus).server).enabled }}
+
+  {{- $retention := .Values.prometheus.server.retention }}
+  {{- $etlHourlyDurationHours := (int .Values.kubecostModel.etlHourlyStoreDurationHours) }}
+
+  {{- if (hasSuffix "d" $retention) }}
+    {{- $retentionDays := (int (trimSuffix "d" $retention)) }}
+    {{- if lt $retentionDays 3 }}
+      {{- fail (printf "With a daily resolution, Prometheus retention must be set >= 3 days. Provided retention is %s" $retention) }}
+    {{- else if le (mul $retentionDays 24) $etlHourlyDurationHours }}
+      {{- fail (printf "Prometheus retention (%s) must be greater than .Values.kubecostModel.etlHourlyStoreDurationHours (%d)" $retention $etlHourlyDurationHours) }}
+    {{- end }}
+
+  {{- else if (hasSuffix "h" $retention) }}
+    {{- $retentionHours := (int (trimSuffix "h" $retention)) }}
+    {{- if lt $retentionHours 50 }}
+      {{- fail (printf "With an hourly resolution, Prometheus retention must be set >= 50 hours. Provided retention is %s" $retention) }}
+    {{- else if le $retentionHours $etlHourlyDurationHours }}
+      {{- fail (printf "Prometheus retention (%s) must be greater than .Values.kubecostModel.etlHourlyStoreDurationHours (%d)" $retention $etlHourlyDurationHours) }}
+    {{- end }}
+
+  {{- else }}
+    {{- fail "prometheus.server.retention must be set in days (e.g. 5d) or hours (e.g. 97h)"}}
+
+  {{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "cost-analyzer.name" -}}
@@ -1089,6 +1121,10 @@ Begin Kubecost 2.0 templates
       protocol: TCP
   resources:
     {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
+  securityContext:
+    {{- if .Values.global.containerSecurityContext }}
+    {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
+    {{- end }}  
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
