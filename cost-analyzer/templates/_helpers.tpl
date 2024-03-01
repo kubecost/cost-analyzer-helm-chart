@@ -1121,6 +1121,10 @@ Begin Kubecost 2.0 templates
       protocol: TCP
   resources:
     {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
+  securityContext:
+    {{- if .Values.global.containerSecurityContext }}
+    {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
+    {{- end }}  
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
