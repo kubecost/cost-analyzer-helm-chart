@@ -54,7 +54,7 @@ data:
     upstream api {
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9001;
-{{- else if and .Values.kubecostFrontend.api .Values.kubecostFrontend.api.fqdn }}
+{{- else if (.Values.kubecostFrontend.api).fqdn }}
         server {{ .Values.kubecostFrontend.api.fqdn }};
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9001;
@@ -64,7 +64,7 @@ data:
     upstream model {
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ $serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:9003;
-{{- else if and .Values.kubecostFrontend.model .Values.kubecostFrontend.model.fqdn }}
+{{- else if (.Values.kubecostFrontend.model).fqdn }}
         server {{ .Values.kubecostFrontend.model.fqdn }};
 {{- else }}
         server {{ $serviceName }}.{{ .Release.Namespace }}:9003;
@@ -76,7 +76,7 @@ data:
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}.svc.cluster.local:9731;
 {{- else }}
-{{- if and .Values.kubecostFrontend.clusterController .Values.kubecostFrontend.clusterController.fqdn }}
+{{- if (.Values.kubecostFrontend.clusterController).fqdn }}
         server {{ .Values.kubecostFrontend.clusterController.fqdn }};
 {{- else }}
         server {{ template "kubecost.clusterControllerName" . }}-service.{{ .Release.Namespace }}:9731;
@@ -108,7 +108,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}.svc.cluster.local:5000;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.forcasting .Values.kubecostFrontend.forcasting.fqdn }}
+        {{- if (.Values.kubecostFrontend.forcasting).fqdn }}
         server {{ .Values.kubecostFrontend.forcasting.fqdn }};
         {{- else }}
         server {{ .Release.Name }}-forecasting.{{ .Release.Namespace }}:5000;
@@ -122,7 +122,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}.svc.cluster.local:9004;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.aggregator .Values.kubecostFrontend.aggregator.fqdn }}
+        {{- if (.Values.kubecostFrontend.aggregator).fqdn }}
         server {{ .Values.kubecostFrontend.aggregator.fqdn }};
         {{- else }}
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
@@ -133,7 +133,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9005;
         {{- else }}
-        {{- if and .Values.kubecostFrontend.cloudCost .Values.kubecostFrontend.cloudCost.fqdn }}
+        {{- if (.Values.kubecostFrontend.cloudCost).fqdn }}
         server {{ .Values.kubecostFrontend.cloudCost.fqdn }};
         {{- else }}
         server {{ template "cloudCost.serviceName" . }}.{{ .Release.Namespace }}:9005;
@@ -148,7 +148,7 @@ data:
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
         {{- else}}
-        {{- if and .Values.kubecostFrontend.multiClusterDiagnostics .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }}
+        {{- if (.Values.kubecostFrontend.multiClusterDiagnostics).fqdn }}
         server {{ .Values.kubecostFrontend.multiClusterDiagnostics.fqdn }};
         {{- else }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}:9007;
@@ -165,7 +165,7 @@ data:
 
         add_header Cache-Control "must-revalidate";
 
-        {{- if.Values.kubecostFrontend.extraServerConfig }}
+        {{- if .Values.kubecostFrontend.extraServerConfig }}
         {{- .Values.kubecostFrontend.extraServerConfig | toString | nindent 8 -}}
         {{- else }}
         large_client_header_buffers 4 32k;
@@ -280,6 +280,8 @@ data:
             return 404;
 {{- end }}
         }
+{{- if and (or .Values.saml.enabled .Values.oidc.enabled) (not (eq (include "aggregator.deployMethod" .) "disabled")) }}
+    {{- if .Values.oidc.enabled }}
         location /oidc/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -291,6 +293,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+    {{- end }}
+    {{- if .Values.saml.enabled }}
         location /saml/ {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -302,6 +306,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+    {{- end }}
+    {{- if or .Values.saml.enabled .Values.oidc.enabled}}
         location /login {
             proxy_connect_timeout       180;
             proxy_send_timeout          180;
@@ -326,7 +332,8 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-
+    {{- end }}
+{{- end }}
     {{- if .Values.global.grafana.proxy }}
         location /grafana/ {
         {{- if .Values.saml.enabled }}
@@ -586,6 +593,16 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        {{- if eq (default .Values.kubecostAggregator.env.MEMORY_INTENSIVE_CLUSTER_SIZING "disabled") "enabled" }}
+        location = /model/savings/clusterSizingETL {
+            proxy_read_timeout          600;
+            proxy_pass http://aggregator/savings/clusterSizingETL;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        {{- end }}
         location = /model/reports/allocation {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/reports/allocation;
@@ -853,9 +870,41 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/diagnostic/tableWindowCount {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/tableWindowCount;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/diagnostic/containersPerDay {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/diagnostic/containersPerDay;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/nodesPerDay {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/nodesPerDay;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containerLabelStats {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containerLabelStats;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/diagnostic/containerAnnotationStats {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/containerAnnotationStats;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -927,25 +976,41 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/export {
+        location = /model/cloud/config {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/export;
+            proxy_pass http://cloudCost/cloud/config;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/enable {
+        location = /model/cloud/config/export {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/enable;
+            proxy_pass http://cloudCost/cloud/config/export;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/cloudCost/integration/disable {
+        location = /model/cloud/config/enable {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://cloudCost/cloudCost/integration/disable;
+            proxy_pass http://cloudCost/cloud/config/enable;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/cloud/config/disable {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://cloudCost/cloud/config/disable;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/cloudCost/integration/validate {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://cloudCost/cloudCost/integration/validate;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -985,10 +1050,10 @@ data:
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
             {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "true"}';
+            return 200 '{"multiClusterDiagnosticsEnabled": true}';
             {{- end }}
             {{- else }}
-            return 200 '{"multi-cluster-diagnostics-enabled": "false"}';
+            return 200 '{"multiClusterDiagnosticsEnabled": false}';
             {{- end }}
         }
 
@@ -1055,7 +1120,10 @@ data:
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             return 200 '\n
-                {"ssoConfigured": "{{ template "ssoEnabled" . }}"}\n
+                {
+                "ssoConfigured": "{{ template "ssoEnabled" . }}",
+                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}"
+                }
             ';
         }
     }

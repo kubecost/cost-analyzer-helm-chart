@@ -51,12 +51,14 @@ Kubecost 2.0 preconditions
 
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
-    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.0.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
+    {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
   {{- end -}}
 
   {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
-    {{- if or (not (.Values.federatedETL).federatedCluster) (not (.Values.upgrade).toV2) -}}
+    {{- if (not (.Values.federatedETL).federatedCluster)  -}}
+      {{- if (not (.Values.upgrade).toV2) -}}
       {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
+      {{- end -}}
     {{- end -}}
   {{- end -}}
 
@@ -91,10 +93,19 @@ Kubecost 2.0 preconditions
     {{- fail "Kubecost no longer includes PodSecurityPolicy by default. Please take steps to preserve your existing PSPs before attempting the installation/upgrade again with the podSecurityPolicy values removed." }}
   {{- end }}
 
+  {{- if ((.Values.kubecostDeployment).leaderFollower).enabled -}}
+    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as leaderFollower. Please reach out to support to discuss upgrade paths." -}}
+  {{- end -}}
+
+  {{- if ((.Values.kubecostDeployment).statefulSet).enabled -}}
+    {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. Please reach out to support to discuss upgrade paths." -}}
+  {{- end -}}
+
 {{- end -}}
 
 {{- define "cloudIntegrationFromProductConfigs" }}
   {
+    {{- if ((.Values.kubecostProductConfigs).athenaBucketName) }}
     "aws": [
       {
           "athenaBucketName": "{{ .Values.kubecostProductConfigs.athenaBucketName }}",
@@ -116,6 +127,7 @@ Kubecost 2.0 preconditions
           {{- end }}
       }
     ]
+    {{- end }}
   }
 {{- end }}
 
@@ -126,10 +138,13 @@ will result in failure. Users are asked to select one of the two presently-avail
 */}}
 {{- define "cloudIntegrationSourceCheck" -}}
   {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON -}}
-    {{- fail "\ncloudIntegrationSecret and cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.cloudIntegrationJSON are mutually exclusive. Please specify only one." -}}
   {{- end -}}
-{{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaProjectID) }}
-    {{- fail "\nUsing a cloud-integration secret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- if and (.Values.kubecostProductConfigs).cloudIntegrationSecret ((.Values.kubecostProductConfigs).athenaBucketName) }}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationSecret and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
+  {{- end -}}
+{{- if and (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
+    {{- fail "\nkubecostProductConfigs.cloudIntegrationJSON and kubecostProductConfigs.athena* values are mutually exclusive. Please specifiy only one." -}}
   {{- end -}}
 {{- end -}}
 
@@ -160,7 +175,7 @@ support templating a chart which uses the lookup function.
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
   {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`. This requires Helm 3.13+." .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
   {{- end }}
 {{- end -}}
 {{- end -}}
@@ -184,6 +199,38 @@ support templating a chart which uses the lookup function.
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+ Ensure that the Prometheus retention is not set too low
+*/}}
+{{- define "prometheusRetentionCheck" }}
+{{- if ((.Values.prometheus).server).enabled }}
+
+  {{- $retention := .Values.prometheus.server.retention }}
+  {{- $etlHourlyDurationHours := (int .Values.kubecostModel.etlHourlyStoreDurationHours) }}
+
+  {{- if (hasSuffix "d" $retention) }}
+    {{- $retentionDays := (int (trimSuffix "d" $retention)) }}
+    {{- if lt $retentionDays 3 }}
+      {{- fail (printf "With a daily resolution, Prometheus retention must be set >= 3 days. Provided retention is %s" $retention) }}
+    {{- else if le (mul $retentionDays 24) $etlHourlyDurationHours }}
+      {{- fail (printf "Prometheus retention (%s) must be greater than .Values.kubecostModel.etlHourlyStoreDurationHours (%d)" $retention $etlHourlyDurationHours) }}
+    {{- end }}
+
+  {{- else if (hasSuffix "h" $retention) }}
+    {{- $retentionHours := (int (trimSuffix "h" $retention)) }}
+    {{- if lt $retentionHours 50 }}
+      {{- fail (printf "With an hourly resolution, Prometheus retention must be set >= 50 hours. Provided retention is %s" $retention) }}
+    {{- else if le $retentionHours $etlHourlyDurationHours }}
+      {{- fail (printf "Prometheus retention (%s) must be greater than .Values.kubecostModel.etlHourlyStoreDurationHours (%d)" $retention $etlHourlyDurationHours) }}
+    {{- end }}
+
+  {{- else }}
+    {{- fail "prometheus.server.retention must be set in days (e.g. 5d) or hours (e.g. 97h)"}}
+
+  {{- end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Expand the name of the chart.
@@ -284,7 +331,16 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 
 {{- define "cost-analyzer.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "cost-analyzer" | trunc 63 | trimSuffix "-" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- $name := default .Chart.Name .Values.nameOverride -}}
+{{- if contains $name .Release.Name -}}
+{{- .Release.Name | trunc 63 | trimSuffix "-" -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- end -}}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -429,9 +485,6 @@ app.kubernetes.io/name: diagnostics
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: diagnostics
 {{- end }}
-
-{{/*
-{{- end -}}
 
 {{/*
 Create the selector labels.
@@ -1019,6 +1072,15 @@ Begin Kubecost 2.0 templates
 
 {{- define "aggregator.jaeger.sidecarContainerTemplate" }}
 - name: embedded-jaeger
+  env: 
+  - name: SPAN_STORAGE_TYPE
+    value: badger
+  - name: BADGER_EPHEMERAL
+    value: "true"
+  - name: BADGER_DIRECTORY_VALUE
+    value: /tmp/badger/data
+  - name: BADGER_DIRECTORY_KEY
+    value: /tmp/badger/key
   securityContext:
     {{- toYaml .Values.kubecostAggregator.jaeger.containerSecurityContext | nindent 4 }}
   image: {{ .Values.kubecostAggregator.jaeger.image }}:{{ .Values.kubecostAggregator.jaeger.imageVersion }}
@@ -1059,6 +1121,10 @@ Begin Kubecost 2.0 templates
       protocol: TCP
   resources:
     {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
+  securityContext:
+    {{- if .Values.global.containerSecurityContext }}
+    {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
+    {{- end }}  
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
@@ -1066,13 +1132,12 @@ Begin Kubecost 2.0 templates
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
-  {{- end }}
-  {{- if .Values.kubecostModel.etlBucketConfigSecret }}
+  {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
     - name: etl-bucket-config
       mountPath: /var/configs/etl
       readOnly: true
   {{- end }}
-  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+  {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
@@ -1136,6 +1201,17 @@ SSO enabled flag for nginx configmap
   {{- end -}}
 {{- end -}}
 
+{{/*
+Backups configured flag for nginx configmap
+*/}}
+{{- define "dataBackupConfigured" -}}
+  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "cost-analyzer.grafanaEnabled" -}}
   {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
     {{- printf "true" -}}
@@ -1143,3 +1219,58 @@ SSO enabled flag for nginx configmap
     {{- printf "false" -}}
   {{- end -}}
 {{- end -}}
+
+{{- define "gcpCloudIntegrationJSON" }}
+Kubecost 2.x requires a change to the method that cloud-provider billing integrations are configured.
+Please use this output to create a cloud-integration.json config. See:
+<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>
+for more information
+
+  {
+    "gcp":
+      {
+        [
+          {
+              "bigQueryBillingDataDataset": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataDataset }}",
+              "bigQueryBillingDataProject": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataProject }}",
+              "bigQueryBillingDataTable": "{{ .Values.kubecostProductConfigs.bigQueryBillingDataTable }}",
+              "projectID": "{{ .Values.kubecostProductConfigs.projectID }}"
+          }
+        ]
+      }
+  }
+{{- end }}
+
+{{- define "gcpCloudIntegrationCheck" }}
+{{- if ((.Values.kubecostProductConfigs).bigQueryBillingDataDataset) }}
+{{- fail (include "gcpCloudIntegrationJSON" .) }}
+{{- end }}
+{{- end }}
+
+
+{{- define "azureCloudIntegrationJSON" }}
+
+Kubecost 2.x requires a change to the method that cloud-provider billing integrations are configured.
+Please use this output to create a cloud-integration.json config. See:
+<https://docs.kubecost.com/install-and-configure/install/cloud-integration#adding-a-cloud-integration>
+for more information
+  {
+    "azure":
+      [
+        {
+            "azureStorageContainer": "{{ .Values.kubecostProductConfigs.azureStorageContainer }}",
+            "azureSubscriptionID": "{{ .Values.kubecostProductConfigs.azureSubscriptionID }}",
+            "azureStorageAccount": "{{ .Values.kubecostProductConfigs.azureStorageAccount }}",
+            "azureStorageAccessKey": "{{ .Values.kubecostProductConfigs.azureStorageKey }}",
+            "azureContainerPath": "{{ .Values.kubecostProductConfigs.azureContainerPath }}",
+            "azureCloud": "{{ .Values.kubecostProductConfigs.azureCloud }}"
+        }
+      ]
+  }
+{{- end }}
+
+{{- define "azureCloudIntegrationCheck" }}
+{{- if ((.Values.kubecostProductConfigs).azureStorageContainer) }}
+{{- fail (include "azureCloudIntegrationJSON" .) }}
+{{- end }}
+{{- end }}

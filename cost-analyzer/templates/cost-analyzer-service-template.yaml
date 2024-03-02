@@ -5,7 +5,7 @@ metadata:
   name: {{ template "cost-analyzer.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 {{- if .Values.service.labels }}
 {{ toYaml .Values.service.labels | indent 4 }}
 {{- end }}
@@ -15,7 +15,7 @@ metadata:
 {{- end }}
 spec:
   selector:
-    {{ include "cost-analyzer.selectorLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.selectorLabels" . | nindent 4 }}
 {{- if .Values.service -}}
 {{- if .Values.service.type }}
   type: "{{ .Values.service.type }}"
@@ -25,6 +25,12 @@ spec:
 {{- else }}
   type: ClusterIP
 {{- end }}
+{{- if (eq .Values.service.type "LoadBalancer") }}
+  {{- if .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml .Values.service.loadBalancerSourceRanges | indent 4 }}
+  {{- end -}}
+{{- end }} 
   ports:
     - name: tcp-model
       port: 9003
