@@ -10,6 +10,8 @@ Kubecost strives to support as many versions of Kubernetes as possible. Below is
 |--------------------------------|----------------|----------------|
 | 1.107                          | 1.20           | 1.28           |
 | 1.108                          | 1.20           | 1.28           |
+| 2.1                            | 1.20           | 1.29           |
+| 2.2                            | 1.21           | 1.29           |
 
 ## Installation
 
