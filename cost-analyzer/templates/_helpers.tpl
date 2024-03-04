@@ -824,10 +824,10 @@ If release name contains chart name it will be used as a full name.
 Create the name of the service account
 */}}
 {{- define "grafana.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "grafana.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.grafana.serviceAccount.create -}}
+    {{ default (include "grafana.fullname" .) .Values.grafana.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ default "default" .Values.grafana.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 
@@ -1121,6 +1121,10 @@ Begin Kubecost 2.0 templates
       protocol: TCP
   resources:
     {{- toYaml .Values.kubecostAggregator.cloudCost.resources | nindent 4 }}
+  securityContext:
+    {{- if .Values.global.containerSecurityContext }}
+    {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
+    {{- end }}  
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
