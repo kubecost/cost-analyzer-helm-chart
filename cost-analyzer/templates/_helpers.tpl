@@ -824,10 +824,10 @@ If release name contains chart name it will be used as a full name.
 Create the name of the service account
 */}}
 {{- define "grafana.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "grafana.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.grafana.serviceAccount.create -}}
+    {{ default (include "grafana.fullname" .) .Values.grafana.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+    {{ default "default" .Values.grafana.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 
