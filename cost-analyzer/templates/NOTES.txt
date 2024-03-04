@@ -6,7 +6,6 @@
 {{- include "gcpCloudIntegrationCheck" . -}}
 {{- include "azureCloudIntegrationCheck" . -}}
 {{- include "federatedStorageConfigSecretCheck" . -}}
-{{- include "prometheusRetentionCheck" . -}}
 
 {{- $servicePort := .Values.service.port | default 9090 }}
 Kubecost {{ .Chart.Version }} has been successfully installed.
