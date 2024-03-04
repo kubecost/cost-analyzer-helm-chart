@@ -2699,6 +2699,10 @@ grafana:
   rbac:
     create: true
 
+  serviceAccount:
+    create: true
+    name: ""
+
   ## Provide a full name override for the Grafana Deployment.
   # fullnameOverride: ""
   ## Provide a name override for the Grafana Deployment.
