@@ -1,4 +1,4 @@
-{{- if and (.Capabilities.APIVersions.Has "security.openshift.io/v1/SecurityContextConstraints") (.Values.global.platforms.openshift.scc.networkCosts) (.Values.networkCosts.enabled) }}
+{{- if and (.Values.global.platforms.openshift.scc.networkCosts) (.Values.networkCosts.enabled) }}
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
 metadata:
