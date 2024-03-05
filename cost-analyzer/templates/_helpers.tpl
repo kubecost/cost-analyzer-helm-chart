@@ -21,6 +21,10 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
+{{/*
+Kubecost 2.0 preconditions
+*/}}
+{{- define "kubecostV2-preconditions" -}}
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
     {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
