@@ -21,34 +21,6 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
-{{/*
-Kubecost 2.0 preconditions
-*/}}
-{{- define "kubecostV2-preconditions" -}}
-  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
-  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
-  documentation for how to properly upgrade to Kubecost 2.0 */}}
-  {{- $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") -}}
-  {{- if not (empty $sts.items) -}}
-    {{- range $index, $sts := $sts.items -}}
-      {{- if contains "aggregator" $sts.metadata.name -}}
-        {{- if $sts.metadata.labels -}}
-          {{- $stsLabels := $sts.metadata.labels -}}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
-          {{- if hasKey $stsLabels "helm.sh/chart" -}}
-            {{- $chartLabel := index $stsLabels "helm.sh/chart" -}}   {{/* cost-analyzer-1.108.1 */}}
-            {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
-            {{- if gt (len $chartNameAndVersion) 2 -}}
-              {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
-              {{- if semverCompare ">=1.0.0-0 <2.0.0-0" $chartVersion -}}
-                {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
-              {{- end -}}
-            {{- end -}}
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
     {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
@@ -155,9 +127,7 @@ Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is n
 {{- define "eksCheck" }}
 {{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
 {{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
-{{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
-{{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
-{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled $EBSCSINotExists) -}}
+{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled) -}}
 
 ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
