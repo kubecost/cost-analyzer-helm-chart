@@ -348,19 +348,19 @@ Create the chart labels.
 */}}
 {{- define "cost-analyzer.chartLabels" -}}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 {{- define "kubecost.chartLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 {{- define "kubecost.aggregator.chartLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 
 
@@ -371,7 +371,7 @@ Create the common labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 app: cost-analyzer
 {{- end -}}
 
@@ -406,7 +406,7 @@ Create the networkcosts common labels. Note that because this is a daemonset, we
 app.kubernetes.io/instance: kubecost
 app.kubernetes.io/name: network-costs
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 app: {{ template "cost-analyzer.networkCostsName" . }}
 {{- end -}}
 {{- define "networkcosts.selectorLabels" -}}
@@ -527,7 +527,7 @@ release: {{ .Release.Name }}
 Define common top-level labels for all Prometheus components
 */}}
 {{- define "prometheus.common.metaLabels" -}}
-heritage: {{ .Release.Service }}
+heritage: Helm
 {{- end -}}
 
 {{/*
