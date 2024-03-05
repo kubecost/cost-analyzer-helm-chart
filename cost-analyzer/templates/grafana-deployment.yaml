@@ -7,7 +7,7 @@ metadata:
   labels:
     app: {{ template "grafana.name" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
 {{- with .Values.grafana.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}

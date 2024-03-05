@@ -11,7 +11,7 @@ metadata:
   labels:
     app: {{ template "grafana.name" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
 {{- if .Values.grafana.ingress.labels }}
 {{ toYaml .Values.grafana.ingress.labels | indent 4 }}
 {{- end }}

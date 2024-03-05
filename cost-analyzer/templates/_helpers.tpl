@@ -25,30 +25,6 @@ Set important variables before starting main templates
 Kubecost 2.0 preconditions
 */}}
 {{- define "kubecostV2-preconditions" -}}
-  {{/* Iterate through all StatefulSets in the namespace and check if any of them have a label indicating they are from
-  a pre-2.0 Helm Chart (e.g. "helm.sh/chart: cost-analyzer-1.108.1"). If so, return an error message with details and
-  documentation for how to properly upgrade to Kubecost 2.0 */}}
-  {{- $sts := (lookup "apps/v1" "StatefulSet" .Release.Namespace "") -}}
-  {{- if not (empty $sts.items) -}}
-    {{- range $index, $sts := $sts.items -}}
-      {{- if contains "aggregator" $sts.metadata.name -}}
-        {{- if $sts.metadata.labels -}}
-          {{- $stsLabels := $sts.metadata.labels -}}                  {{/* helm.sh/chart: cost-analyzer-1.108.1 */}}
-          {{- if hasKey $stsLabels "helm.sh/chart" -}}
-            {{- $chartLabel := index $stsLabels "helm.sh/chart" -}}   {{/* cost-analyzer-1.108.1 */}}
-            {{- $chartNameAndVersion := split "-" $chartLabel -}}     {{/* _0:cost _1:analyzer _2:1.108.1 */}}
-            {{- if gt (len $chartNameAndVersion) 2 -}}
-              {{- $chartVersion := $chartNameAndVersion._2 -}}        {{/* 1.108.1 */}}
-              {{- if semverCompare ">=1.0.0-0 <2.0.0-0" $chartVersion -}}
-                {{- fail "\n\nAn existing Aggregator StatefulSet was found in your namespace.\nBefore upgrading to Kubecost 2.x, please `kubectl delete` this Statefulset.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2" -}}
-              {{- end -}}
-            {{- end -}}
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
   {{/*https://github.com/helm/helm/issues/8026#issuecomment-881216078*/}}
   {{- if ((.Values.thanos).store).enabled -}}
     {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
@@ -155,48 +131,10 @@ Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is n
 {{- define "eksCheck" }}
 {{- $isEKS := (regexMatch ".*eks.*" (.Capabilities.KubeVersion | quote) )}}
 {{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
-{{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
-{{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
-{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled $EBSCSINotExists) -}}
+{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled) -}}
 
 ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
-{{- end -}}
-{{- end -}}
-
-{{/*
-Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
-Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
-support templating a chart which uses the lookup function.
-*/}}
-{{- define "cloudIntegrationSecretCheck" -}}
-{{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
-{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
-{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
-  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-  {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`. This requires Helm 3.13+." .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
-  {{- end }}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-{{/*
-Verify the federated storage config secret exists with the expected key when cloud integration is enabled.
-Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
-support templating a chart which uses the lookup function.
-*/}}
-{{- define "federatedStorageConfigSecretCheck" -}}
-{{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
-{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
-{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
-  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostModel.federatedStorageConfigSecret }}
-  {{- if or (not $secret) (not (index $secret.data "federated-store.yaml")) }}
-    {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
-  {{- end }}
-{{- end -}}
-{{- end -}}
 {{- end -}}
 {{- end -}}
 
@@ -384,19 +322,19 @@ Create the chart labels.
 */}}
 {{- define "cost-analyzer.chartLabels" -}}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 {{- define "kubecost.chartLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 {{- define "kubecost.aggregator.chartLabels" -}}
 app.kubernetes.io/name: {{ include "aggregator.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 {{- end -}}
 
 
@@ -407,7 +345,7 @@ Create the common labels.
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 app: cost-analyzer
 {{- end -}}
 
@@ -442,7 +380,7 @@ Create the networkcosts common labels. Note that because this is a daemonset, we
 app.kubernetes.io/instance: kubecost
 app.kubernetes.io/name: network-costs
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/managed-by: Helm
 app: {{ template "cost-analyzer.networkCostsName" . }}
 {{- end -}}
 {{- define "networkcosts.selectorLabels" -}}
@@ -563,7 +501,7 @@ release: {{ .Release.Name }}
 Define common top-level labels for all Prometheus components
 */}}
 {{- define "prometheus.common.metaLabels" -}}
-heritage: {{ .Release.Service }}
+heritage: Helm
 {{- end -}}
 
 {{/*
