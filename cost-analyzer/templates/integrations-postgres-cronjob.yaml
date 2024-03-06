@@ -1,8 +1,8 @@
-{{ if .Values.global.integrations.postgres.enabled }}
+{{- if .Values.global.integrations.postgres.enabled }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ .Release.Name }}-data-export-postgres-cronjob
+  name: {{ .Release.Name }}-exporter-postgres-cronjob
 spec:
   jobTemplate:
     spec:
@@ -17,8 +17,13 @@ spec:
             image: {{ .Values.global.integrations.postgres.image.repository }}:{{ .Values.global.integrations.postgres.image.tag }}
             imagePullPolicy: Always
             env:
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             - name: KUBECOST_ENDPOINT
-              value: "http://{{ template "cost-analyzer.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9090/"
+              value: "http://{{ template "aggregator.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9008/"
+            {{- else }}
+            - name: KUBECOST_ENDPOINT
+              value: "http://{{ template "aggregator.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:9004/"
+            {{- end }}
             {{- if .Values.global.integrations.postgres.databaseHost }}
             - name: DATABASE_HOST
               value: {{ .Values.global.integrations.postgres.databaseHost | quote }}
@@ -41,4 +46,4 @@ spec:
             {{- end }}
           restartPolicy: OnFailure
   schedule: {{ .Values.global.integrations.postgres.schedule }}
-{{ end }}
+{{- end }}
