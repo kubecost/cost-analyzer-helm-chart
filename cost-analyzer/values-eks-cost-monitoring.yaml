@@ -72,7 +72,7 @@ forecasting:
 networkCosts:
   enabled: false
   image:
-    repository: public.ecr.aws/kubecost/kubecost-modeling
+    repository: public.ecr.aws/kubecost/kubecost-network-costs
     tag: v0.17.2
 
 clusterController:
@@ -125,7 +125,7 @@ prometheus:
     # clusterIDConfigmap: cluster-id-configmap
     image:
       repository: public.ecr.aws/kubecost/prometheus
-      tag: v2.49.1
+      tag: v2.50.1
     resources: {}
     # limits:
     #   cpu: 500m
