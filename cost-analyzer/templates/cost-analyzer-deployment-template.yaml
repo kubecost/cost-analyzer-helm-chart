@@ -708,7 +708,7 @@ spec:
               value: {{ .Values.metricsConfigmapName }}
             {{- end }}
             - name: CUSTOM_COST_ENABLED
-              value: {{ .Values.plugins.enabled | quote }}
+              value: {{ .Values.kubecostModel.plugins.enabled | quote }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
