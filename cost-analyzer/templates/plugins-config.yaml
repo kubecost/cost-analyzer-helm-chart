@@ -1,0 +1,13 @@
+{{- if .Values.kubecostModel.plugins.enabled }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-plugins-config
+  labels:
+     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  {{- range $key, $config := .Values.kubecostModel.plugins.configs }}
+  {{ $key }}_config.json:
+    {{ $config | b64enc | indent 4}}
+  {{- end }}
+{{- end }}

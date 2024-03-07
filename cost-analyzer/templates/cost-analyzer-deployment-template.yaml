@@ -256,6 +256,18 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.kubecostModel.plugins.enabled  }}
+        {{- if .Values.kubecostModel.plugins.install.enabled}}
+        - name: install-script
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+        {{- end }}
+        - name: plugins-dir
+          emptyDir: {}
+        - name: plugins-config
+          secret:
+            secretName:  {{ template "cost-analyzer.fullname" . }}-plugins-config
+        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -296,6 +308,19 @@ spec:
 {{- end }}
 {{- if .Values.supportNFS }}
       initContainers:
+      {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
+        - name: plugin-installer
+          image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
+          command: ["sh", "/install/install_plugins.sh"]
+      {{- with .Values.kubecostModel.plugins.install.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+      {{- end }}
+          volumeMounts:
+            - name: install-script
+              mountPath: /install
+            - name: plugins-dir
+              mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      {{- end }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
@@ -518,6 +543,17 @@ spec:
               mountPath: /var/secrets
               readOnly: true
             {{- end }}
+            {{- if .Values.kubecostModel.plugins.enabled }} 
+            - mountPath: /opt/opencost/plugin
+              name: plugins-dir
+              readOnly: false
+            {{- range $key, $config := .Values.kubecostModel.plugins.configs }}
+            - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
+              subPath: {{$key}}_config.json
+              name: plugins-config
+              readOnly: true
+            {{- end }}
+            {{- end }}
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.extraVolumeMounts }}
@@ -671,6 +707,8 @@ spec:
             - name: METRICS_CONFIGMAP_NAME
               value: {{ .Values.metricsConfigmapName }}
             {{- end }}
+            - name: CUSTOM_COST_ENABLED
+              value: {{ .Values.plugins.enabled | quote }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
