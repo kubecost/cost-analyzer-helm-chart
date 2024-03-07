@@ -253,7 +253,7 @@ global:
     postgres:
       enabled: false
       image:
-        repository: gcr.io/guestbook-227502/kubecost-exporter-postgres
+        repository: gcr.io/kubecost1/kubecost-exporter-postgres
         tag: v0.1.0
       databaseHost: ""  # REQUIRED (ex: my.postgres.database.azure.com)
       databasePort: ""  # REQUIRED (ex: 5432)
