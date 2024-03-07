@@ -5,11 +5,10 @@
   UI based configuration is not supported for cloud cost with aggregator.
 */}}
 {{- if ((.Values.kubecostAggregator).cloudCost).enabled }}
-  {{- if not ( or ((.Values.kubecostProductConfigs).cloudIntegrationJSON) ((.Values.kubecostProductConfigs).athenaProjectID) ((.Values.kubecostProductConfigs).cloudIntegrationSecret)) }}
-  {{- fail "\n\nA cloud-integration secret is required when using the aggregator statefulset and cloudCost is enabled." }}
-  {{- end }}
+{{- if not ( or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName)) }}
+{{- fail "\n\nA cloud-integration secret is required when using the aggregator statefulset and cloudCost is enabled." }}
 {{- end }}
-
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
