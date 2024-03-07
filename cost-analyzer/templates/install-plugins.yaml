@@ -35,9 +35,9 @@ data:
       VER=$(curl --silent https://api.github.com/repos/opencost/opencost-plugins/releases/latest | grep ".tag_name" | awk -F\" '{print $4}')
       {{- end }}
       
-      {{- range $pluginName := .Values.kubecostModel.plugins.configs }}
-      curl -fsSLO "https://github.com/opencost/opencost-plugins/releases/download/$VER/$pluginName.ocplugin.$OS.$ARCH"
-      chmod a+rx "$pluginName.ocplugin.$OS.$ARCH"
+      {{- range $pluginName, $config := .Values.plugins.configs }}
+      curl -fsSLO "https://github.com/opencost/opencost-plugins/releases/download/$VER/{{ $pluginName }}.ocplugin.$OS.$ARCH"
+      chmod a+rx "{{ $pluginName }}.ocplugin.$OS.$ARCH"
       {{- end }}
     {{- end }}
 {{- end }}
