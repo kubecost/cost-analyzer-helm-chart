@@ -100,7 +100,9 @@ Kubecost 2.0 preconditions
   {{- if ((.Values.kubecostDeployment).statefulSet).enabled -}}
     {{- fail "\nIn Kubecost 2.0, kubecostDeployment does not support running as a statefulSet. Please reach out to support to discuss upgrade paths." -}}
   {{- end -}}
-
+  {{- if and (eq (include "aggregator.deployMethod" .) "statefulset") (.Values.federatedETL).agentOnly }}
+    {{- fail "\nKubecost does not support running federatedETL.agentOnly with the aggregator statefulset" }}
+  {{- end }}
 {{- end -}}
 
 {{- define "cloudIntegrationFromProductConfigs" }}
@@ -1072,7 +1074,7 @@ Begin Kubecost 2.0 templates
 
 {{- define "aggregator.jaeger.sidecarContainerTemplate" }}
 - name: embedded-jaeger
-  env: 
+  env:
   - name: SPAN_STORAGE_TYPE
     value: badger
   - name: BADGER_EPHEMERAL
@@ -1124,7 +1126,7 @@ Begin Kubecost 2.0 templates
   securityContext:
     {{- if .Values.global.containerSecurityContext }}
     {{- toYaml .Values.global.containerSecurityContext | nindent 4 }}
-    {{- end }}  
+    {{- end }}
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
@@ -1206,6 +1208,17 @@ Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
   {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+costEventsAuditEnabled flag for nginx configmap
+*/}}
+{{- define "costEventsAuditEnabled" -}}
+  {{- if or (.Values.costEventsAudit).enabled -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}

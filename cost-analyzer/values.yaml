@@ -536,7 +536,31 @@ kubecostModel:
   # The name of the Secret containing a bucket config for Federated storage. The contents should be stored
   # under a key named federated-store.yaml.
   # federatedStorageConfigSecret: ""
-
+  plugins:
+    enabled: false
+    install:
+      enabled: true
+      fullImageName: curlimages/curl:latest
+      securityContext:
+        allowPrivilegeEscalation: false
+        seccompProfile:
+          type: RuntimeDefault
+        capabilities:
+          drop:
+          - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1000
+    folder: /opt/opencost/plugin
+    # leave this commented to always download most recent version of plugins
+    # version: <INSERT_SPECIFIC_PLUGINS_VERSION>
+    configs:
+      # datadog: |
+      #   {
+      #   "datadog_site": "<INSERT_DATADOG_SITE>",
+      #   "datadog_api_key": "<INSERT_DATADOG_API_KEY>",
+      #   "datadog_app_key": "<INSERT_DATADOG_APP_KEY>"
+      #   }
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
   cloudCost:
@@ -1230,7 +1254,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/alertmanager
-      tag: v0.26.0
+      tag: v0.27.0
       pullPolicy: IfNotPresent
 
     ## alertmanager priorityClassName
@@ -1516,7 +1540,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.71.2
+        tag: v0.72.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1556,7 +1580,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.71.2
+        tag: v0.72.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -2163,7 +2187,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.2
+    tag: v0.17.3
   imagePullPolicy: Always
   updateStrategy:
     type: RollingUpdate
@@ -2750,7 +2774,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.3.3
+    tag: 10.3.4
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2944,7 +2968,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.25.6
+      tag: 1.26.0
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:

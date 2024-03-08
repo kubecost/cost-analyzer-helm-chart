@@ -2,9 +2,13 @@
 
 {{/*
   A cloud integration secret is required for cloud cost to function as a dedicated pod.
+  UI based configuration is not supported for cloud cost with aggregator.
 */}}
-{{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
-
+{{- if ((.Values.kubecostAggregator).cloudCost).enabled }}
+{{- if not ( or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName)) }}
+{{- fail "\n\nA cloud-integration secret is required when using the aggregator statefulset and cloudCost is enabled." }}
+{{- end }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -51,14 +55,14 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
-        {{- if .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+        {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
         - name: cloud-integration
           secret:
             secretName: {{ .Values.kubecostProductConfigs.cloudIntegrationSecret }}
             items:
               - key: cloud-integration.json
                 path: cloud-integration.json
-        {{- else if or .Values.kubecostProductConfigs.cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
+        {{- else if or (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaProjectID) }}
         - name: cloud-integration
           secret:
             secretName: cloud-integration
@@ -66,8 +70,9 @@ spec:
               - key: cloud-integration.json
                 path: cloud-integration.json
         {{- end }}
-        {{/* Titled persistent-configs to be compatible with single-pod install.
-        All data stored here is ephemeral, and does not require a PV. */}}
+        {{/* Despite the name, this is not persistent-configs.
+            The name is for compatibility with single-pod install.
+            All data stored here is ephemeral, and does not require persistence. */}}
         - name: persistent-configs
           emptyDir: {}
       containers:
@@ -97,5 +102,4 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-{{- end }}
 {{- end }}
