@@ -306,8 +306,7 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end }}
 {{- end }}
-{{- if .Values.supportNFS }}
-      initContainers:
+      initContainers:   
       {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
         - name: plugin-installer
           image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
@@ -321,6 +320,7 @@ spec:
             - name: plugins-dir
               mountPath: {{ .Values.kubecostModel.plugins.folder }}
       {{- end }}
+      {{- if .Values.supportNFS }}   
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
