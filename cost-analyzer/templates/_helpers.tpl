@@ -1214,6 +1214,17 @@ Backups configured flag for nginx configmap
   {{- end -}}
 {{- end -}}
 
+{{/*
+costEventsAuditEnabled flag for nginx configmap
+*/}}
+{{- define "costEventsAuditEnabled" -}}
+  {{- if or (.Values.costEventsAudit).enabled -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
 {{- define "cost-analyzer.grafanaEnabled" -}}
   {{- if and (.Values.global.grafana.enabled) (not .Values.federatedETL.agentOnly)  -}}
     {{- printf "true" -}}

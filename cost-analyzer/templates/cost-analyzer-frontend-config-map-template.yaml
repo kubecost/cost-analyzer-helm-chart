@@ -1120,7 +1120,8 @@ data:
             return 200 '\n
                 {
                 "ssoConfigured": "{{ template "ssoEnabled" . }}",
-                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}"
+                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}",
+                "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}"
                 }
             ';
         }
