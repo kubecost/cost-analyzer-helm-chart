@@ -1,6 +1,4 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
 {{- if not (eq .Values.kubecostAggregator.deployMethod "disabled") }}
-
 kind: Service
 apiVersion: v1
 metadata:
@@ -16,5 +14,4 @@ spec:
     - name: tcp-api
       port: 9005
       targetPort: 9005
-{{- end }}
 {{- end }}
