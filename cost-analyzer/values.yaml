@@ -363,7 +363,7 @@ systemProxy:
 
 kubecostFrontend:
   enabled: true
-  image: "gcr.io/kubecost1/frontend"
+  image: "709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/frontend"
   imagePullPolicy: Always
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the frontend.
@@ -491,7 +491,7 @@ sigV4Proxy:
   resources: {}
 
 kubecostModel:
-  image: "gcr.io/kubecost1/cost-model"
+  image: "709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cost-model"
   imagePullPolicy: Always
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for cost-model.
@@ -801,7 +801,7 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: quay.io/prometheus/prometheus
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus
       tag: v2.49.1
       pullPolicy: IfNotPresent
 
@@ -1185,7 +1185,7 @@ prometheus:
     ## alertmanager container image
     ##
     image:
-      repository: quay.io/prometheus/alertmanager
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus/alertmanager
       tag: v0.26.0
       pullPolicy: IfNotPresent
 
@@ -1471,7 +1471,7 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus-operator/prometheus-config-reloader
         tag: v0.71.2
         pullPolicy: IfNotPresent
 
@@ -1511,7 +1511,7 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus-operator/prometheus-config-reloader
         tag: v0.71.2
         pullPolicy: IfNotPresent
 
@@ -1564,7 +1564,7 @@ prometheus:
     ## node-exporter container image
     ##
     image:
-      repository: prom/node-exporter
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/node-exporter
       tag: v1.7.0
       pullPolicy: IfNotPresent
 
@@ -1688,7 +1688,7 @@ prometheus:
     ## pushgateway container image
     ##
     image:
-      repository: prom/pushgateway
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/pushgateway
       tag: v1.6.2
       pullPolicy: IfNotPresent
 
@@ -2112,7 +2112,7 @@ prometheus:
 networkCosts:
   enabled: false
   image:
-    repository: gcr.io/kubecost1/kubecost-network-costs
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/kubecost-network-costs
     tag: v0.17.2
   imagePullPolicy: Always
   updateStrategy:
@@ -2270,7 +2270,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.3
+  fullImageName: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/kubecost-modeling:v0.1.3
 
   # Resource specification block for the forecasting container.
   resources:
@@ -2490,7 +2490,7 @@ diagnostics:
 clusterController:
   enabled: false
   image:
-    repository: gcr.io/kubecost1/cluster-controller
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cluster-controller
     tag: v0.15.2
   imagePullPolicy: Always
   ## PriorityClassName
@@ -2639,7 +2639,7 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: grafana/grafana
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/grafana/grafana
     tag: 10.3.1
     pullPolicy: IfNotPresent
 
@@ -2833,7 +2833,7 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: kiwigrid/k8s-sidecar
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/k8s-sidecar
       tag: 1.25.4
       pullPolicy: IfNotPresent
     resources: {}
