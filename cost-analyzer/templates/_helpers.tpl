@@ -150,6 +150,14 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- end -}}
 {{- end -}}
 
+{{/*
+Verify helm client is at least
+*/}}
+{{- define "helmClientVersionCheck" -}}
+  {{- if (semverCompare "<v3.11.2" (.Capabilities.HelmVersion.Version )) -}}
+  {{- fail (printf "\nThe Helm client version must be at least 3.11.2\nPlease upgrade your Helm client.") }}
+  {{- end }}
+{{- end -}}
 
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
