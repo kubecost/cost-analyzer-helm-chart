@@ -67,8 +67,13 @@ spec:
           env:
             - name: CONFIG_PATH
               value: /var/configs/
+            {{- if or .Values.saml.enabled .Values.oidc.enabled }}
             - name: KCM_BASE_URL
-              value: http://{{ template "cost-analyzer.serviceName" . }}:9090/model
+              value: http://{{ template "aggregator.serviceName" . }}:9008
+            {{- else }}
+            - name: KCM_BASE_URL
+              value: http://{{ template "aggregator.serviceName" . }}:9004
+            {{- end }}
             - name: MODEL_STORAGE_PATH
               value: "/tmp/localrun/models"
             - name: PAGE_ITEM_LIMIT
