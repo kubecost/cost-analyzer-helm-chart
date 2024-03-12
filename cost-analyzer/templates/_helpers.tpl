@@ -941,7 +941,7 @@ Begin Kubecost 2.0 templates
     {{- if .Values.oidc.enabled }}
     - name: oidc-config
       mountPath: /var/configs/oidc
-    {{- if .Values.oidc.secretName }}
+    {{- if or .Values.oidc.existingCustomSecret.name .Values.oidc.secretName }}
     - name: oidc-client-secret
       mountPath: /var/configs/oidc-client-secret
     {{- end }}
