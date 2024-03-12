@@ -554,7 +554,15 @@ kubecostModel:
     folder: /opt/opencost/plugin
     # leave this commented to always download most recent version of plugins
     # version: <INSERT_SPECIFIC_PLUGINS_VERSION>
-    configs:
+    # the list of enabled plugins
+    enabledPlugins: []
+      # - datadog
+
+    # pre-existing secret for plugin configuration
+    configSecret: ""
+
+    # uncomment this to define plugin configuration via the values file
+    # configs:
       # datadog: |
       #   {
       #   "datadog_site": "<INSERT_DATADOG_SITE>",

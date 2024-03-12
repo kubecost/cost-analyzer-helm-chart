@@ -264,9 +264,14 @@ spec:
         {{- end }}
         - name: plugins-dir
           emptyDir: {}
+        
         - name: plugins-config
           secret:
-            secretName:  {{ template "cost-analyzer.fullname" . }}-plugins-config
+            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
+            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
+            {{- else }}
+            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
+            {{- end }}
         {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
@@ -547,7 +552,7 @@ spec:
             - mountPath: /opt/opencost/plugin
               name: plugins-dir
               readOnly: false
-            {{- range $key, $config := .Values.kubecostModel.plugins.configs }}
+            {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
             - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
               subPath: {{$key}}_config.json
               name: plugins-config
