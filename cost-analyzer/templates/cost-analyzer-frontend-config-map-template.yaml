@@ -188,6 +188,10 @@ data:
             error_page 401 = /login;
             try_files $uri $uri/ /index.html;
         }
+        location /healthz {
+            add_header 'Content-Type' 'text/plain';
+            return 200 "healthy\n";
+        }
 {{- else }}
         add_header Cache-Control "max-age=300";
         location / {
