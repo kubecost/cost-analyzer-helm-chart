@@ -1,4 +1,4 @@
-{{- if not (eq .Values.kubecostAggregator.deployMethod "disabled") }}
+{{- if not (eq (include "aggregator.deployMethod" .) "disabled") -}}
 kind: Service
 apiVersion: v1
 metadata:

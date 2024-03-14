@@ -6,6 +6,8 @@ Set important variables before starting main templates
 {{- define "aggregator.deployMethod" -}}
   {{- if or (.Values.federatedETL).primaryCluster .Values.kubecostDeployment.ha }}
     {{- printf "statefulset" }}
+  {{- else if or ((.Values.federatedETL).agentOnly) (.Values.agent) (.Values.cloudAgent) }}
+    {{- printf "disabled" }}
   {{- else if (not .Values.kubecostAggregator) }}
     {{- printf "singlepod" }}
   {{- else if .Values.kubecostAggregator.enabled }}
