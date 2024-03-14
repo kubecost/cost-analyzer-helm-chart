@@ -1,6 +1,4 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
-{{- if not (eq .Values.kubecostAggregator.deployMethod "disabled") }}
-
+{{- if not (eq (include "aggregator.deployMethod" .) "disabled") -}}
 kind: Service
 apiVersion: v1
 metadata:
@@ -24,6 +22,4 @@ spec:
   {{- with .Values.kubecostAggregator.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-
-{{- end }}
 {{- end }}
