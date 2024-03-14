@@ -1,0 +1,49 @@
+{{- if .Values.kubecostDeployment.ha }}
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "cost-analyzer-ha-fe.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.kubecostDeployment.ha.service.labels }}
+  {{- toYaml .Values.kubecostDeployment.ha.service.labels | nindent 4 }}
+{{- end }}
+{{- if .Values.kubecostDeployment.ha.service.annotations }}
+  annotations:
+{{ toYaml .Values.kubecostDeployment.ha.service.annotations | indent 4 }}
+{{- end }}
+spec:
+  selector:
+    {{- include "cost-analyzer-ha-fe.selectorLabels" . | nindent 4 }}
+{{- if .Values.kubecostDeployment.ha.service.type }}
+  type: "{{ .Values.kubecostDeployment.ha.service.type }}"
+{{- else }}
+  type: ClusterIP
+{{- end }}
+{{- if (eq .Values.kubecostDeployment.ha.service.type "LoadBalancer") }}
+  {{- if .Values.kubecostDeployment.ha.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{ toYaml .Values.kubecostDeployment.ha.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end -}}
+{{- end }}
+  ports:
+    - name: tcp-frontend
+      {{- if (eq .Values.kubecostDeployment.ha.service.type "NodePort") }}
+      {{- if .Values.kubecostDeployment.ha.service.nodePort }}
+      nodePort: {{ .Values.kubecostDeployment.ha.service.nodePort }}
+      {{- end }}
+      {{- end }}
+      port: {{ .Values.kubecostDeployment.ha.service.port }}
+      targetPort: {{ .Values.kubecostDeployment.ha.service.targetPort }}
+    {{- end }}
+{{- if .Values.kubecostDeployment.ha.service.sessionAffinity.enabled }}
+  sessionAffinity: ClientIP
+  {{- if .Values.kubecostDeployment.ha.service.sessionAffinity.timeoutSeconds }}
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: {{ .Values.kubecostDeployment.ha.service.sessionAffinity.timeoutSeconds }}
+  {{- end }}
+{{- else }}
+  sessionAffinity: None
+{{- end }}

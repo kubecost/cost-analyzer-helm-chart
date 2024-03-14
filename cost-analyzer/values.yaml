@@ -2340,6 +2340,29 @@ kubecostDeployment:
   labels: {}
   annotations: {}
 
+  ## Enables HA mode for Kubecost, currently only supported with Enterprise tier
+  ha:
+    enabled: false
+    frontend:
+      replicas: 2
+      # deploymentStrategy:
+      #   rollingUpdate:
+      #     maxSurge: 1
+      #     maxUnavailable: 1
+      #   type: RollingUpdate
+      labels: {}
+      annotations: {}
+    service:
+      type: ClusterIP
+      port: 9090
+      targetPort: 9090
+      # nodePort:
+      labels: {}
+      annotations: {}
+      # loadBalancerSourceRanges: []
+      sessionAffinity:
+        enabled: false  # Makes sure that connections from a client are passed to the same Pod each time, when set to `true`. You should set it when you enabled authentication through OIDC or SAML integration.
+        timeoutSeconds: 10800
 ## Kubecost Forecasting forecasts future cost patterns based on historical
 ## patterns observed by Kubecost.
 forecasting:

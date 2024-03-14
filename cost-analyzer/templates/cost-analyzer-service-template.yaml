@@ -30,7 +30,7 @@ spec:
   loadBalancerSourceRanges:
 {{ toYaml .Values.service.loadBalancerSourceRanges | indent 4 }}
   {{- end -}}
-{{- end }} 
+{{- end }}
   ports:
     - name: tcp-model
       port: 9003
@@ -38,7 +38,7 @@ spec:
   {{- with .Values.kubecostModel.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-    {{- if .Values.kubecostFrontend.enabled }}
+    {{- if and (.Values.kubecostFrontend.enabled) (not .Values.kubecostDeployment.ha) }}
     - name: tcp-frontend
       {{- if (eq .Values.service.type "NodePort") }}
       {{- if .Values.service.nodePort }}

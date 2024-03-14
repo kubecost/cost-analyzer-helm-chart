@@ -1,7 +1,6 @@
 {{- if .Values.ingress -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
-{{- $serviceName := include "cost-analyzer.serviceName" . -}}
 {{- $ingressPaths := .Values.ingress.paths -}}
 {{- $ingressPathType := .Values.ingress.pathType -}}
 apiVersion: networking.k8s.io/v1
@@ -42,7 +41,11 @@ spec:
             pathType: {{ $ingressPathType }}
             backend:
               service:
-                name: {{ $serviceName }}
+                {{- if .Values.kubecostDeployment.ha -}}
+                name: {{ $serviceName := include "cost-analyzer-ha-fe.serviceName" . }}
+                {{- else -}}
+                name: {{ $serviceName := include "cost-analyzer.serviceName" . }}
+                {{- end }}
                 port:
                   name: tcp-frontend
         {{- end }}

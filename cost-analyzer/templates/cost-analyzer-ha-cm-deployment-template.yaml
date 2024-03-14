@@ -1,8 +1,8 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) (not .Values.kubecostDeployment.ha) }}
+{{- if .Values.kubecostDeployment.ha }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "cost-analyzer.fullname" . }}
+  name: {{ template "cost-analyzer.fullname" . }}-cost-model
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
@@ -14,15 +14,12 @@ metadata:
     {{- toYaml .Values.kubecostDeployment.annotations | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.kubecostDeployment }}
-  replicas: {{ .Values.kubecostDeployment.replicas | default 1 }}
-{{- end }}
+  replicas: {{ .Values.kubecostDeployment.replicas | default 2 }}
   selector:
     matchLabels:
       {{- include "cost-analyzer.selectorLabels" . | nindent 8}}
-{{- if .Values.kubecostDeployment }}
-{{- if .Values.kubecostDeployment.deploymentStrategy }}
-{{- with .Values.kubecostDeployment.deploymentStrategy }}
+{{- if (.Values.kubecostDeployment).deploymentStrategy }}
+{{- with .Values.kubecostDeployment.costModel.deploymentStrategy }}
   strategy: {{ toYaml . | nindent 4 }}
 {{- end }}
 {{- else }}
@@ -31,7 +28,6 @@ spec:
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
-{{- end }}
 {{- end }}
   template:
     metadata:
@@ -73,16 +69,6 @@ spec:
           secret:
             defaultMode: 420
             secretName: kubecost-thanos
-        {{- end }}
-        - name: tmp
-          emptyDir: {}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
-        - name: nginx-conf
-          configMap:
-            name: nginx-conf
-            items:
-              - key: nginx.conf
-                path: default.conf
         {{- end }}
         {{- if .Values.global.containerSecuritycontext }}
         - name: var-run
@@ -179,18 +165,6 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
-        {{- end }}
-        {{- end }}
-        {{- if .Values.kubecostFrontend.tls }}
-        {{- if .Values.kubecostFrontend.tls.enabled }}
-        - name: tls
-          secret:
-            secretName : {{ .Values.kubecostFrontend.tls.secretName }}
-            items:
-            - key: tls.crt
-              path: kc.crt
-            - key: tls.key
-              path: kc.key
         {{- end }}
         {{- end }}
         {{- if .Values.kubecostAdmissionController }}
@@ -511,9 +485,6 @@ spec:
           ports:
           - name: tcp-model
             containerPort: 9003
-            protocol: TCP
-          - name: tcp-frontend
-            containerPort: 9090
             protocol: TCP
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
@@ -856,7 +827,7 @@ spec:
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
-            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- if or (.Values.federatedETL).federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
               value: "true"
             {{- end }}
@@ -1082,81 +1053,6 @@ spec:
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
               value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- end }}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
-        {{- if .Values.kubecostFrontend }}
-        {{- if .Values.kubecostFrontend.fullImageName }}
-        - image: {{ .Values.kubecostFrontend.fullImageName }}
-        {{- else if .Values.imageVersion }}
-        - image: {{ .Values.kubecostFrontend.image }}:{{ .Values.imageVersion }}
-        {{- else if eq "development" .Chart.AppVersion }}
-        - image: gcr.io/kubecost1/frontend-nightly:latest
-        {{- else }}
-        - image: {{ .Values.kubecostFrontend.image }}:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-        {{- else }}
-        - image: gcr.io/kubecost1/frontend:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-          env:
-            - name: GET_HOSTS_FROM
-              value: dns
-            {{- if .Values.kubecostFrontend.extraEnv -}}
-            {{ toYaml .Values.kubecostFrontend.extraEnv | nindent 12 }}
-            {{- end }}
-          name: cost-analyzer-frontend
-        {{- if .Values.kubecostFrontend.securityContext }}
-          securityContext:
-            {{- toYaml .Values.kubecostFrontend.securityContext | nindent 12 }}
-          {{- else  }}
-          securityContext:
-            {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            - name: tmp
-              mountPath: /tmp
-            - name: nginx-conf
-              mountPath: /etc/nginx/conf.d/
-            {{- if .Values.global.containerSecuritycontext }}
-            - mountPath: /var/cache/nginx
-              name: cache
-            - mountPath: /var/run
-              name: var-run
-            {{- end }}
-            {{- if .Values.kubecostFrontend.tls }}
-            {{- if .Values.kubecostFrontend.tls.enabled }}
-            - name: tls
-              mountPath: /etc/ssl/certs
-            {{- end }}
-            {{- end }}
-          resources:
-{{ toYaml .Values.kubecostFrontend.resources | indent 12 }}
-        {{- if .Values.kubecostFrontend.imagePullPolicy }}
-          imagePullPolicy: {{ .Values.kubecostFrontend.imagePullPolicy }}
-        {{- else }}
-          imagePullPolicy: Always
-        {{- end }}
-          {{- if .Values.kubecostFrontend.readinessProbe.enabled }}
-          readinessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: {{ .Values.kubecostFrontend.readinessProbe.initialDelaySeconds  }}
-            periodSeconds: {{ .Values.kubecostFrontend.readinessProbe.periodSeconds  }}
-            failureThreshold: {{ .Values.kubecostFrontend.readinessProbe.failureThreshold  }}
-            {{- end }}
-          {{- if .Values.kubecostFrontend.livenessProbe.enabled }}
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 9003
-            initialDelaySeconds: {{ .Values.kubecostFrontend.livenessProbe.initialDelaySeconds  }}
-            periodSeconds: {{ .Values.kubecostFrontend.livenessProbe.periodSeconds  }}
-            failureThreshold: {{ .Values.kubecostFrontend.livenessProbe.failureThreshold  }}
-          {{- end }}
-          {{- if .Values.global.containerSecuritycontext }}
-          securityContext:
-          {{- toYaml .Values.global.containerSecuritycontext | nindent 12 }}
-          {{- end }}
-        {{ end }}
 
         {{- if and (eq (include "aggregator.deployMethod" .) "singlepod") (not .Values.federatedETL.agentOnly) }}
         {{- include "aggregator.containerTemplate" . | nindent 8 }}

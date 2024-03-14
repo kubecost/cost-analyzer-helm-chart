@@ -4,7 +4,7 @@
 Set important variables before starting main templates
 */}}
 {{- define "aggregator.deployMethod" -}}
-  {{- if (.Values.federatedETL).primaryCluster }}
+  {{- if or (.Values.federatedETL).primaryCluster .Values.kubecostDeployment.ha }}
     {{- printf "statefulset" }}
   {{- else if (not .Values.kubecostAggregator) }}
     {{- printf "singlepod" }}
@@ -345,6 +345,10 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 {{- end -}}
 
+{{- define "cost-analyzer-ha-fe.serviceName" -}}
+{{- printf "%s-%s" .Release.Name "ha-fe" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{- define "diagnostics.serviceName" -}}
 {{- printf "%s-%s" .Release.Name "diagnostics" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
@@ -493,6 +497,15 @@ Create the selector labels.
 */}}
 {{- define "cost-analyzer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: cost-analyzer
+{{- end -}}
+
+{{/*
+Create the selector labels for HA frontend.
+*/}}
+{{- define "cost-analyzer-ha-fe.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cost-analyzer-ha-fe.serviceName" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
