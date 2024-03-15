@@ -1,8 +1,8 @@
-{{- if .Values.kubecostDeployment.ha }}
+{{- if eq (include "frontend.deployMethod" .) "ha-mode" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "cost-analyzer.fullname" . }}-frontend
+  name: {{ template "frontend.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
@@ -17,7 +17,7 @@ spec:
   replicas: {{ .Values.kubecostDeployment.ha.frontend.replicas | default 2 }}
   selector:
     matchLabels:
-      {{- include "cost-analyzer-ha-fe.selectorLabels" . | nindent 6 }}
+      {{- include "frontend.selectorLabels" . | nindent 6 }}
   {{- if ((.Values.kubecostDeployment.ha).frontend).deploymentStrategy }}
   {{- with .Values.kubecostDeployment.ha.frontend.deploymentStrategy }}
   strategy: {{ toYaml . | nindent 4 }}
@@ -36,7 +36,7 @@ spec:
         Force pod restarts on upgrades to ensure the nginx config is current
         */}}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
-        {{- include "cost-analyzer-ha-fe.selectorLabels" . | nindent 8 }}
+        {{- include "frontend.selectorLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{- toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}

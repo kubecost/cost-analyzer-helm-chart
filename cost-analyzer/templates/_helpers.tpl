@@ -23,6 +23,13 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
+{{- define "frontend.deployMethod" -}}
+  {{- if .Values.kubecostFrontend.deployMethod "ha-mode" }}
+    {{- printf "ha-mode" }}
+  {{- else }}
+    {{- printf "singlepod" }}
+{{- end }}
+
 {{/*
 Kubecost 2.0 preconditions
 */}}
@@ -254,6 +261,9 @@ Expand the name of the chart.
 {{- define "forecasting.name" -}}
 {{- default "forecasting" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "frontend.name" -}}
+{{- default "frontend" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -294,6 +304,9 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- define "forecasting.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "forecasting.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "frontend.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "frontend.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -347,8 +360,8 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 {{- end -}}
 
-{{- define "cost-analyzer-ha-fe.serviceName" -}}
-{{- printf "%s-%s" .Release.Name "ha-fe" | trunc 63 | trimSuffix "-" -}}
+{{- define "frontend.serviceName" -}}
+{{ include "frontend.name" . }}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -506,8 +519,8 @@ app: cost-analyzer
 {{/*
 Create the selector labels for HA frontend.
 */}}
-{{- define "cost-analyzer-ha-fe.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "cost-analyzer-ha-fe.serviceName" . }}
+{{- define "frontend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "frontend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}

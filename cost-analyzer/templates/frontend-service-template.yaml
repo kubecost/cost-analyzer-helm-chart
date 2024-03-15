@@ -1,8 +1,8 @@
-{{- if .Values.kubecostDeployment.ha.enabled }}
+{{- if eq (include "frontend.deployMethod" .) "ha-mode" }}
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ template "cost-analyzer-ha-fe.serviceName" . }}
+  name: {{ template "frontend.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
@@ -15,7 +15,7 @@ metadata:
 {{- end }}
 spec:
   selector:
-    {{- include "cost-analyzer-ha-fe.selectorLabels" . | nindent 4 }}
+    {{- include "frontend.selectorLabels" . | nindent 4 }}
 {{- if .Values.kubecostDeployment.ha.service.type }}
   type: "{{ .Values.kubecostDeployment.ha.service.type }}"
 {{- else }}

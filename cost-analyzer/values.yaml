@@ -368,6 +368,7 @@ systemProxy:
 
 kubecostFrontend:
   enabled: true
+  deployMethod: singlepod
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   # fullImageName overrides the default image construction logic. The exact

@@ -2,8 +2,8 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
 {{- $serviceName := "" -}}
-{{- if .Values.kubecostDeployment.ha.enabled }}
-{{- $serviceName = include  "cost-analyzer-ha-fe.serviceName" . }}
+{{- if eq (include "frontend.deployMethod" .) "ha-mode" }}
+{{- $serviceName = include  "frontend.serviceName" . }}
 {{- else }}
 {{- $serviceName = include "cost-analyzer.serviceName" . -}}
 {{- end }}
