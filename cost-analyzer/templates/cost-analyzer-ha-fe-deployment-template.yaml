@@ -32,6 +32,10 @@ spec:
   template:
     metadata:
       labels:
+        {{/*
+        Force pod restarts on upgrades to ensure the nginx config is current
+        */}}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         {{- include "cost-analyzer-ha-fe.selectorLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{- toYaml .Values.global.additionalLabels | nindent 8 }}

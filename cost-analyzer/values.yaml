@@ -389,16 +389,16 @@ kubecostFrontend:
   # Define a readiness probe for the Kubecost frontend container.
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    failureThreshold: 200
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    failureThreshold: 6
 
   # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    failureThreshold: 200
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    failureThreshold: 6
   ipv6:
     enabled: true  # disable if the cluster does not support ipv6
   # timeoutSeconds: 600  # should be rarely used, but can be increased if needed
@@ -1138,12 +1138,12 @@ prometheus:
     ## Prometheus server readiness and liveness probe initial delay and timeout
     ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
     ##
-    readinessProbeInitialDelay: 30
-    readinessProbeTimeout: 30
+    readinessProbeInitialDelay: 5
+    readinessProbeTimeout: 3
     readinessProbeFailureThreshold: 3
     readinessProbeSuccessThreshold: 1
-    livenessProbeInitialDelay: 30
-    livenessProbeTimeout: 30
+    livenessProbeInitialDelay: 5
+    livenessProbeTimeout: 3
     livenessProbeFailureThreshold: 3
     livenessProbeSuccessThreshold: 1
 
