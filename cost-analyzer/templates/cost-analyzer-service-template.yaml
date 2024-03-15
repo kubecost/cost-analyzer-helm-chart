@@ -38,7 +38,7 @@ spec:
   {{- with .Values.kubecostModel.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-    {{- if and (.Values.kubecostFrontend.enabled) (not .Values.kubecostDeployment.ha) }}
+    {{- if and (.Values.kubecostFrontend.enabled) (not .Values.kubecostDeployment.ha.enabled) }}
     - name: tcp-frontend
       {{- if (eq .Values.service.type "NodePort") }}
       {{- if .Values.service.nodePort }}

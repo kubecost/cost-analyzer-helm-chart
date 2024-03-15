@@ -1,4 +1,4 @@
-{{- if .Values.kubecostDeployment.ha }}
+{{- if .Values.kubecostDeployment.ha.enabled }}
 kind: Service
 apiVersion: v1
 metadata:
