@@ -249,6 +249,31 @@ global:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
+  ## Kubecost Integrations (beta)
+  ## Ref: https://docs.kubecost.com/integrations
+  integrations:
+    postgres:
+      enabled: false
+
+      ## The following configs are REQUIRED for the Postgres integration.
+      runInterval: "1h"  # How frequently to run the integration.
+      databaseHost: ""  # ex: my.postgres.database.azure.com
+      databasePort: ""  # ex: 5432
+      databaseName: ""  # ex: postgres
+      databaseTable: "kubecost_allocation_data"
+      databaseUser: ""  # ex: myusername
+      databasePassword: ""  # ex: mypassword
+
+      ## These are the default configs for the Allocation query run against
+      ## Kubecost, then written to Postgres. Refer to the docs for further
+      ## details: https://docs.kubecost.com/apis/apis-overview/api-allocation
+      window: "7d"
+      aggregate: "namespace"
+      idle: true
+      shareIdle: false
+      shareNamespaces: ""
+      shareLabels: ""
+
 ## Provide a name override for the chart.
 # nameOverride: ""
 ## Provide a full name override option for the chart.
