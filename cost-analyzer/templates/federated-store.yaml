@@ -1,0 +1,12 @@
+{{- if .Values.kubecostModel.federatedStorageJSON -}}
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: federated-store
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  federated-store.yaml: {{ .Values.kubecostModel.federatedStorageJSON | replace "\n" "" | b64enc }}
+{{- end }}

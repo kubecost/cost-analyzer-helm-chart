@@ -152,6 +152,16 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- end -}}
 {{- end -}}
 
+{{/*
+Federated Storage source contents check. Either the Secret must be specified or the JSON, not both.
+Additionally, for upgrade protection, certain individual values populated under the kubecostModel section, if found,
+will result in failure. Users are asked to select one of the two presently-available sources for federated storage.
+*/}}
+{{- define "federatedStorageSourceCheck" -}}
+  {{- if and (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageJSON -}}
+    {{- fail "\nkubecostkubecostModel.federatedStorageConfigSecret and kubecostModel.federatedStorageJSON are mutually exclusive. Please specify only one." -}}
+  {{- end -}}
+{{- end -}}
 
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
