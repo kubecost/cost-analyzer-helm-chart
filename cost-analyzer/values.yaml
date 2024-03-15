@@ -2661,14 +2661,47 @@ clusterController:
         #   allowSharedCore: false
         # allowCostIncrease: false
         # recommendationType: ''
-    # this configures the Kubecost Request Sizing action
-    # for more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#automated-request-sizing
+    # This configures the Kubecost Continuous Request Sizing Action
+    #
+    # Using this configuration overrides annotation-based configuration of
+    # Continuous Request Sizing. Annotation configuration will be ignored while
+    # this configuration method is present in the cluster.
+    #
+    # For more details, see documentation at https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/savings/savings-actions#automated-request-sizing
     containerRightsize:
+      # Workloads can be selected by an _exact_ key (namespace, controllerKind,
+      # controllerName). This will only match a single controller. The cluster
+      # ID is current irrelevant because Cluster Controller can only modify
+      # workloads within the cluster it is running in.
       #  workloads:
       #   - clusterID: cluster-one
       #     namespace: my-namespace
       #     controllerKind: deployment
       #     controllerName: my-controller
+      # An alternative to exact key selection is filter selection. The filters
+      # are syntactically identical to Kubecost's "v2" filters [1] but only
+      # support a small set of filter fields, those being:
+      # - namespace
+      # - controllerKind
+      # - controllerName
+      # - label
+      # - annotation
+      #
+      # If multiple filters are listed, they will be ORed together at the top
+      # level.
+      #
+      # See the examples below.
+      #
+      # [1] https://docs.kubecost.com/apis/apis-overview/filters-api
+      # filterConfig:
+      #   - filter: |
+      #       namespace:"abc"+controllerKind:"deployment"
+      #   - filter: |
+      #       controllerName:"abc123"+controllerKind:"daemonset"
+      #   - filter: |
+      #       namespace:"foo"+controllerKind!:"statefulset"
+      #   - filter: |
+      #       namespace:"bar","baz"
       #  schedule:
       #   start: "2024-01-30T15:04:05Z"
       #   frequencyMinutes: 5
