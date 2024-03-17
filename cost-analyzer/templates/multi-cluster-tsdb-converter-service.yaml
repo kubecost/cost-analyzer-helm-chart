@@ -1,0 +1,18 @@
+{{- if .Values.multiClusterTSDBConverter.enabled }}
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: {{ template "multiClusterTSDBConverter.serviceName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+{{ include "multiClusterTSDBConverter.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+{{ include "multiClusterTSDBConverter.selectorLabels" . | nindent 4 }}
+  type: "ClusterIP"
+  ports:
+    - name: api
+      port: 9003
+      targetPort: 9003
+{{- end }}

@@ -27,18 +27,10 @@ spec:
     spec:
       restartPolicy: Always
       volumes:
-        {{- if .Values.etlUtils.thanosSourceBucketSecret }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
-            secretName: {{ .Values.etlUtils.thanosSourceBucketSecret }}
-        {{- end }}
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
-        - name: federated-storage-config
-          secret:
-            defaultMode: 420
-            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
-        {{- end }}
+            secretName: {{ .Values.etlUtils.etlStoreSecretName }}
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
         - name: {{ template "etlUtils.name" . }}
@@ -81,18 +73,18 @@ spec:
           resources:
             {{- toYaml .Values.etlUtils.resources | nindent 12 }}
           volumeMounts:
-          {{- if .Values.etlUtils.thanosSourceBucketSecret }}
             - name: etl-bucket-config
               mountPath: /var/configs/etl
               readOnly: true
-          {{- end }}
           env:
             - name: CONFIG_PATH
               value: /var/configs/
-            {{- if .Values.etlUtils.thanosSourceBucketSecret }}
             - name: ETL_BUCKET_CONFIG
+            {{- if (.Values.etlUtils).secretFileName }}
+              value: "/var/configs/etl/{{ .Values.etlUtils.secretFileName }}"
+            {{- else }}
               value: "/var/configs/etl/object-store.yaml"
-            {{- end}}
+            {{- end }}
             {{- range $key, $value := .Values.etlUtils.env }}
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
