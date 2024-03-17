@@ -517,7 +517,7 @@ app: cost-analyzer
 {{- end -}}
 
 {{/*
-Create the selector labels for HA frontend.
+Create the selector labels for HA-mode frontend.
 */}}
 {{- define "frontend.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "frontend.name" . }}
