@@ -512,9 +512,11 @@ spec:
           - name: tcp-model
             containerPort: 9003
             protocol: TCP
+          {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+          {{- end }}
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
