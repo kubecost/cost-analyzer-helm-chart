@@ -993,6 +993,10 @@ Begin Kubecost 2.0 templates
     - name: no_proxy
       value:  {{ .Values.systemProxy.noProxy }}
     {{- end }}
+    {{- if .Values.kubecostProductConfigs.carbonEstimates }}
+    - name: CARBON_ESTIMATES_ENABLED
+      value: "true"
+    {{- end }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
