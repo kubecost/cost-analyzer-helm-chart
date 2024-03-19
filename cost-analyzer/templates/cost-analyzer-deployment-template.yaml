@@ -1087,15 +1087,15 @@ spec:
               value: "true"
             - name: INT_PG_RUN_INTERVAL
               value: {{ quote .Values.global.integrations.postgres.runInterval }}
-            - name: INT_PG_HOST
+            - name: INT_PG_DB_HOST
               value: {{ quote .Values.global.integrations.postgres.databaseHost }}
-            - name: INT_PG_PORT
+            - name: INT_PG_DB_PORT
               value: {{ quote .Values.global.integrations.postgres.databasePort }}
-            - name: INT_PG_NAME
+            - name: INT_PG_DB_NAME
               value: {{ quote .Values.global.integrations.postgres.databaseName }}
-            - name: INT_PG_USER
+            - name: INT_PG_DB_USER
               value: {{ quote .Values.global.integrations.postgres.databaseUser }}
-            - name: INT_PG_PASSWORD
+            - name: INT_PG_DB_PASSWORD
               value: {{ quote .Values.global.integrations.postgres.databasePassword }}
             - name: INT_PG_ALLOCATIONS_ENABLED
               value: {{ quote .Values.global.integrations.postgres.allocations.enabled }}
