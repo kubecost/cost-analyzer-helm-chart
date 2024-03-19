@@ -3236,6 +3236,7 @@ costEventsAudit:
 #     enabled: false
 #     secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }. If the secretname is specified, a configmap with the key will not be created
 #     mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "kc-b1325234" }
+#   carbonEstimates: false # Enables Kubecost beta carbon estimation endpoints /assets/carbon and /allocations/carbon
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
