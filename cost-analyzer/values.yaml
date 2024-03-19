@@ -605,7 +605,7 @@ kubecostModel:
   # please monitor Kubecost logs, Thanos query logs, and Thanos load closely.
   # We hope to make major improvements at scale here soon!
   #
-  # containerStatsEnabled: false
+  containerStatsEnabled: true  # enabled by default as of v2.2.0
 
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
