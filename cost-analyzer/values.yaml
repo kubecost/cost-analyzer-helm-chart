@@ -665,7 +665,7 @@ etlUtils:
   resources: {}
   env: {}
   nodeSelector: {}
-  tolerations: {}
+  tolerations: []
   affinity: {}
 
 # Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/main/ingress-examples.md
@@ -2375,7 +2375,7 @@ forecasting:
   nodeSelector: {}
 
   # Define tolerations for the forecasting Deployment.
-  tolerations: {}
+  tolerations: []
 
   # Define Pod affinity for the forecasting Deployment.
   affinity: {}
@@ -2535,7 +2535,7 @@ kubecostAggregator:
     # nodeSelector: {}
 
     ## Tolerations for the aggregator cloud costs
-    # tolerations: {}
+    # tolerations: []
 
     ## Affinity for the aggregator cloud costs
     # affinity: {}
@@ -2602,7 +2602,7 @@ diagnostics:
     securityContext: {}
     containerSecurityContext: {}
     nodeSelector: {}
-    tolerations: {}
+    tolerations: []
     affinity: {}
 
 ## Provide a full name override for the diagnostics Deployment.
