@@ -1,7 +1,12 @@
 {{- if .Values.ingress -}}
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
-{{- $serviceName := include "cost-analyzer.serviceName" . -}}
+{{- $serviceName := "" -}}
+{{- if eq (include "frontend.deployMethod" .) "haMode" }}
+{{- $serviceName = include  "frontend.serviceName" . }}
+{{- else }}
+{{- $serviceName = include "cost-analyzer.serviceName" . -}}
+{{- end }}
 {{- $ingressPaths := .Values.ingress.paths -}}
 {{- $ingressPathType := .Values.ingress.pathType -}}
 apiVersion: networking.k8s.io/v1

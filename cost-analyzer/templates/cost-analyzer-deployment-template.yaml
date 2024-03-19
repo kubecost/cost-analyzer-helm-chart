@@ -76,7 +76,7 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -264,7 +264,7 @@ spec:
         {{- end }}
         - name: plugins-dir
           emptyDir: {}
-        
+
         - name: plugins-config
           secret:
             {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
@@ -311,7 +311,7 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end }}
 {{- end }}
-      initContainers:   
+      initContainers:
       {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
         - name: plugin-installer
           image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
@@ -325,7 +325,7 @@ spec:
             - name: plugins-dir
               mountPath: {{ .Values.kubecostModel.plugins.folder }}
       {{- end }}
-      {{- if .Values.supportNFS }}   
+      {{- if .Values.supportNFS }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
@@ -548,7 +548,7 @@ spec:
               mountPath: /var/secrets
               readOnly: true
             {{- end }}
-            {{- if .Values.kubecostModel.plugins.enabled }} 
+            {{- if .Values.kubecostModel.plugins.enabled }}
             - mountPath: /opt/opencost/plugin
               name: plugins-dir
               readOnly: false
@@ -1082,7 +1082,7 @@ spec:
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
               value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- end }}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
