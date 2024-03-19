@@ -1,8 +1,8 @@
-{{- if and (not .Values.agent) (not .Values.cloudAgent) }}
+{{- if eq (include "frontend.deployMethod" .) "haMode" }}
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ template "cost-analyzer.serviceName" . }}
+  name: {{ template "frontend.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
@@ -15,7 +15,7 @@ metadata:
 {{- end }}
 spec:
   selector:
-    {{- include "cost-analyzer.selectorLabels" . | nindent 4 }}
+    {{- include "frontend.selectorLabels" . | nindent 4 }}
 {{- if .Values.service -}}
 {{- if .Values.service.type }}
   type: "{{ .Values.service.type }}"
@@ -32,13 +32,6 @@ spec:
   {{- end -}}
 {{- end }}
   ports:
-    - name: tcp-model
-      port: 9003
-      targetPort: 9003
-  {{- with .Values.kubecostModel.extraPorts }}
-    {{- toYaml . | nindent 4 }}
-  {{- end }}
-    {{- if and (.Values.kubecostFrontend.enabled) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
     - name: tcp-frontend
       {{- if (eq .Values.service.type "NodePort") }}
       {{- if .Values.service.nodePort }}
@@ -47,12 +40,6 @@ spec:
       {{- end }}
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
-    {{- end }}
-    {{- if or .Values.saml.enabled .Values.oidc.enabled}}
-    - name: apiserver
-      port: 9007
-      targetPort: 9007
-    {{- end }}
 {{- if .Values.service.sessionAffinity.enabled }}
   sessionAffinity: ClientIP
   {{- if .Values.service.sessionAffinity.timeoutSeconds }}
