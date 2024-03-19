@@ -1,4 +1,4 @@
-{{- if eq (include "frontend.deployMethod" .) "ha-mode" }}
+{{- if eq (include "frontend.deployMethod" .) "haMode" }}
 kind: Service
 apiVersion: v1
 metadata:

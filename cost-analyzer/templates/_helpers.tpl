@@ -24,11 +24,12 @@ Set important variables before starting main templates
 {{- end }}
 
 {{- define "frontend.deployMethod" -}}
-  {{- if .Values.kubecostFrontend.deployMethod "ha-mode" }}
-    {{- printf "ha-mode" }}
-  {{- else }}
-    {{- printf "singlepod" }}
-{{- end }}
+  {{- if eq .Values.kubecostFrontend.deployMethod "haMode" -}}
+    {{- printf "haMode" -}}
+  {{- else -}}
+    {{- printf "singlepod" -}}
+  {{- end -}}
+{{- end -}}
 
 {{/*
 Kubecost 2.0 preconditions
@@ -361,7 +362,7 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- end -}}
 
 {{- define "frontend.serviceName" -}}
-{{ include "frontend.name" . }}
+{{ include "frontend.fullname" . }}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -517,7 +518,7 @@ app: cost-analyzer
 {{- end -}}
 
 {{/*
-Create the selector labels for HA-mode frontend.
+Create the selector labels for haMode frontend.
 */}}
 {{- define "frontend.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "frontend.name" . }}

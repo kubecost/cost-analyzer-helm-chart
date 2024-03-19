@@ -2,7 +2,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "cost-analyzer.fullname" . -}}
 {{- $serviceName := "" -}}
-{{- if eq (include "frontend.deployMethod" .) "ha-mode" }}
+{{- if eq (include "frontend.deployMethod" .) "haMode" }}
 {{- $serviceName = include  "frontend.serviceName" . }}
 {{- else }}
 {{- $serviceName = include "cost-analyzer.serviceName" . -}}
