@@ -368,8 +368,8 @@ systemProxy:
 
 kubecostFrontend:
   enabled: true
-  deployMethod: singlepod # haMode or singlepod - haMode is currently only supported with Enterprise tier
-  haReplicas: 2 # only used with haMode
+  deployMethod: singlepod   haMode or singlepod - haMode is currently only supported with Enterprise tier
+  haReplicas: 2  # only used with haMode
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   # fullImageName overrides the default image construction logic. The exact
