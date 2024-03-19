@@ -368,6 +368,8 @@ systemProxy:
 
 kubecostFrontend:
   enabled: true
+  deployMethod: singlepod   haMode or singlepod - haMode is currently only supported with Enterprise tier
+  haReplicas: 2  # only used with haMode
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
   # fullImageName overrides the default image construction logic. The exact
@@ -386,19 +388,25 @@ kubecostFrontend:
     # limits:
     #   cpu: "100m"
     #   memory: "256Mi"
+  deploymentStrategy: {}
+  #   rollingUpdate:
+  #     maxSurge: 1
+  #     maxUnavailable: 1
+  #   type: RollingUpdate
+
   # Define a readiness probe for the Kubecost frontend container.
   readinessProbe:
     enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    failureThreshold: 200
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    failureThreshold: 6
 
   # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    failureThreshold: 200
+    initialDelaySeconds: 1
+    periodSeconds: 5
+    failureThreshold: 6
   ipv6:
     enabled: true  # disable if the cluster does not support ipv6
   # timeoutSeconds: 600  # should be rarely used, but can be increased if needed
@@ -427,7 +435,6 @@ kubecostFrontend:
 #    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
 #  clusterController:
 #    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
-
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
@@ -598,7 +605,7 @@ kubecostModel:
   # please monitor Kubecost logs, Thanos query logs, and Thanos load closely.
   # We hope to make major improvements at scale here soon!
   #
-  # containerStatsEnabled: false
+  containerStatsEnabled: true  # enabled by default as of v2.2.0
 
   # max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
@@ -762,7 +769,7 @@ service:
   type: ClusterIP
   port: 9090
   targetPort: 9090
-  # nodePort:
+  nodePort: {}
   labels: {}
   annotations: {}
   # loadBalancerSourceRanges: []
@@ -1138,12 +1145,12 @@ prometheus:
     ## Prometheus server readiness and liveness probe initial delay and timeout
     ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
     ##
-    readinessProbeInitialDelay: 30
-    readinessProbeTimeout: 30
+    readinessProbeInitialDelay: 5
+    readinessProbeTimeout: 3
     readinessProbeFailureThreshold: 3
     readinessProbeSuccessThreshold: 1
-    livenessProbeInitialDelay: 30
-    livenessProbeTimeout: 30
+    livenessProbeInitialDelay: 5
+    livenessProbeTimeout: 3
     livenessProbeFailureThreshold: 3
     livenessProbeSuccessThreshold: 1
 
@@ -2340,6 +2347,7 @@ kubecostDeployment:
   labels: {}
   annotations: {}
 
+
 ## Kubecost Forecasting forecasts future cost patterns based on historical
 ## patterns observed by Kubecost.
 forecasting:
@@ -3228,6 +3236,7 @@ costEventsAudit:
 #     enabled: false
 #     secretname: productkeysecret # create a secret out of a file named productkey.json of format { "key": "kc-b1325234" }. If the secretname is specified, a configmap with the key will not be created
 #     mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "kc-b1325234" }
+#   carbonEstimates: false # Enables Kubecost beta carbon estimation endpoints /assets/carbon and /allocations/carbon
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
