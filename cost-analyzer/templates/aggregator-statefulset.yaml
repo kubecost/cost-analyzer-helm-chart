@@ -85,7 +85,7 @@ spec:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
-        {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}

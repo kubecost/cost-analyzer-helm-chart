@@ -76,7 +76,7 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -264,9 +264,14 @@ spec:
         {{- end }}
         - name: plugins-dir
           emptyDir: {}
+
         - name: plugins-config
           secret:
-            secretName:  {{ template "cost-analyzer.fullname" . }}-plugins-config
+            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
+            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
+            {{- else }}
+            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
+            {{- end }}
         {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
@@ -306,7 +311,7 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end }}
 {{- end }}
-      initContainers:   
+      initContainers:
       {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
         - name: plugin-installer
           image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
@@ -320,7 +325,7 @@ spec:
             - name: plugins-dir
               mountPath: {{ .Values.kubecostModel.plugins.folder }}
       {{- end }}
-      {{- if .Values.supportNFS }}   
+      {{- if .Values.supportNFS }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
@@ -507,9 +512,11 @@ spec:
           - name: tcp-model
             containerPort: 9003
             protocol: TCP
+          {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+          {{- end }}
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -543,11 +550,13 @@ spec:
               mountPath: /var/secrets
               readOnly: true
             {{- end }}
-            {{- if .Values.kubecostModel.plugins.enabled }} 
+            {{- if .Values.kubecostModel.plugins.enabled }}
             - mountPath: /opt/opencost/plugin
               name: plugins-dir
               readOnly: false
-            {{- range $key, $config := .Values.kubecostModel.plugins.configs }}
+            - name: tmp
+              mountPath: /tmp
+            {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
             - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
               subPath: {{$key}}_config.json
               name: plugins-config
@@ -647,7 +656,7 @@ spec:
             {{- if .Values.oidc.enabled }}
             - name: oidc-config
               mountPath: /var/configs/oidc
-            {{- if .Values.oidc.secretName }}
+            {{- if or .Values.oidc.existingCustomSecret.name .Values.oidc.secretName }}
             - name: oidc-client-secret
               mountPath: /var/configs/oidc-client-secret
             {{- end }}
@@ -1075,7 +1084,7 @@ spec:
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
               value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- end }}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}
