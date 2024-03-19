@@ -2,48 +2,52 @@
 kind: Service
 apiVersion: v1
 metadata:
-  name: {{ template "frontend.fullname" . }}
+  name: {{ template "frontend.serviceName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-{{- if .Values.kubecostDeployment.ha.service.labels }}
-  {{- toYaml .Values.kubecostDeployment.ha.service.labels | nindent 4 }}
+{{- if .Values.service.labels }}
+{{ toYaml .Values.service.labels | indent 4 }}
 {{- end }}
-{{- if .Values.kubecostDeployment.ha.service.annotations }}
+{{- if .Values.service.annotations }}
   annotations:
-{{ toYaml .Values.kubecostDeployment.ha.service.annotations | indent 4 }}
+{{ toYaml .Values.service.annotations | indent 4 }}
 {{- end }}
 spec:
   selector:
     {{- include "frontend.selectorLabels" . | nindent 4 }}
-{{- if .Values.kubecostDeployment.ha.service.type }}
-  type: "{{ .Values.kubecostDeployment.ha.service.type }}"
+{{- if .Values.service -}}
+{{- if .Values.service.type }}
+  type: "{{ .Values.service.type }}"
 {{- else }}
   type: ClusterIP
 {{- end }}
-{{- if (eq .Values.kubecostDeployment.ha.service.type "LoadBalancer") }}
-  {{- if .Values.kubecostDeployment.ha.service.loadBalancerSourceRanges }}
+{{- else }}
+  type: ClusterIP
+{{- end }}
+{{- if (eq .Values.service.type "LoadBalancer") }}
+  {{- if .Values.service.loadBalancerSourceRanges }}
   loadBalancerSourceRanges:
-    {{ toYaml .Values.kubecostDeployment.ha.service.loadBalancerSourceRanges | nindent 4 }}
+{{ toYaml .Values.service.loadBalancerSourceRanges | indent 4 }}
   {{- end -}}
 {{- end }}
   ports:
     - name: tcp-frontend
-      {{- if (eq .Values.kubecostDeployment.ha.service.type "NodePort") }}
-      {{- if .Values.kubecostDeployment.ha.service.nodePort }}
-      nodePort: {{ .Values.kubecostDeployment.ha.service.nodePort }}
+      {{- if (eq .Values.service.type "NodePort") }}
+      {{- if .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
       {{- end }}
       {{- end }}
-      port: {{ .Values.kubecostDeployment.ha.service.port }}
-      targetPort: {{ .Values.kubecostDeployment.ha.service.targetPort }}
-    {{- end }}
-{{- if .Values.kubecostDeployment.ha.service.sessionAffinity.enabled }}
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort }}
+{{- if .Values.service.sessionAffinity.enabled }}
   sessionAffinity: ClientIP
-  {{- if .Values.kubecostDeployment.ha.service.sessionAffinity.timeoutSeconds }}
+  {{- if .Values.service.sessionAffinity.timeoutSeconds }}
   sessionAffinityConfig:
     clientIP:
-      timeoutSeconds: {{ .Values.kubecostDeployment.ha.service.sessionAffinity.timeoutSeconds }}
+      timeoutSeconds: {{ .Values.service.sessionAffinity.timeoutSeconds }}
   {{- end }}
 {{- else }}
   sessionAffinity: None
+{{- end }}
 {{- end }}
