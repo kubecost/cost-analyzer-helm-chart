@@ -1125,7 +1125,8 @@ data:
                 {
                 "ssoConfigured": "{{ template "ssoEnabled" . }}",
                 "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}",
-                "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}"
+                "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}",
+                "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}"
                 }
             ';
         }
