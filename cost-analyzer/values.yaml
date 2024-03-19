@@ -251,6 +251,7 @@ global:
 
   ## Kubecost Integrations (beta)
   ## Ref: https://docs.kubecost.com/integrations
+  ## 
   integrations:
     postgres:
       enabled: false
@@ -260,19 +261,21 @@ global:
       databaseHost: ""  # ex: my.postgres.database.azure.com
       databasePort: ""  # ex: 5432
       databaseName: ""  # ex: postgres
-      databaseTable: "kubecost_allocation_data"
       databaseUser: ""  # ex: myusername
       databasePassword: ""  # ex: mypassword
 
-      ## These are the default configs for the Allocation query run against
-      ## Kubecost, then written to Postgres. Refer to the docs for further
-      ## details: https://docs.kubecost.com/apis/apis-overview/api-allocation
-      window: "7d"
-      aggregate: "namespace"
-      idle: true
-      shareIdle: false
-      shareNamespaces: ""
-      shareLabels: ""
+      ## Configure the Allocations query parameters, and where to write the
+      ## data. Refer to the API docs for further details:
+      ## https://docs.kubecost.com/apis/apis-overview/api-allocation
+      allocations:
+        enabled: true
+        databaseTable: "kubecost_allocation_data"
+        window: "7d"
+        aggregate: "namespace"
+        idle: true
+        shareIdle: false
+        shareNamespaces: ""
+        shareLabels: ""
 
 ## Provide a name override for the chart.
 # nameOverride: ""
