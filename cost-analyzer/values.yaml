@@ -251,7 +251,7 @@ global:
 
   ## Kubecost Integrations (beta)
   ## Ref: https://docs.kubecost.com/integrations
-  ## 
+  ##
   integrations:
     postgres:
       enabled: false
