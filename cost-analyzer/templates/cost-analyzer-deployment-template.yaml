@@ -1082,38 +1082,6 @@ spec:
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
               value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- end }}
-            {{- if .Values.global.integrations.postgres.enabled }}
-            - name: INT_PG_ENABLED
-              value: "true"
-            - name: INT_PG_RUN_INTERVAL
-              value: {{ quote .Values.global.integrations.postgres.runInterval }}
-            - name: INT_PG_DB_HOST
-              value: {{ quote .Values.global.integrations.postgres.databaseHost }}
-            - name: INT_PG_DB_PORT
-              value: {{ quote .Values.global.integrations.postgres.databasePort }}
-            - name: INT_PG_DB_NAME
-              value: {{ quote .Values.global.integrations.postgres.databaseName }}
-            - name: INT_PG_DB_USER
-              value: {{ quote .Values.global.integrations.postgres.databaseUser }}
-            - name: INT_PG_DB_PASSWORD
-              value: {{ quote .Values.global.integrations.postgres.databasePassword }}
-            - name: INT_PG_ALLOCATIONS_ENABLED
-              value: {{ quote .Values.global.integrations.postgres.allocations.enabled }}
-            - name: INT_PG_ALLOCATIONS_TABLE
-              value: {{ quote .Values.global.integrations.postgres.allocations.databaseTable }}
-            - name: INT_PG_ALLOCATIONS_WINDOW
-              value: {{ quote .Values.global.integrations.postgres.allocations.window }}
-            - name: INT_PG_ALLOCATIONS_AGGREGATION
-              value: {{ quote .Values.global.integrations.postgres.allocations.aggregate }}
-            - name: INT_PG_ALLOCATIONS_IDLE
-              value: {{ quote .Values.global.integrations.postgres.allocations.idle }}
-            - name: INT_PG_ALLOCATIONS_SHAREIDLE
-              value: {{ quote .Values.global.integrations.postgres.allocations.shareIdle }}
-            - name: INT_PG_ALLOCATIONS_SHARENAMESPACES
-              value: {{ quote .Values.global.integrations.postgres.allocations.shareNamespaces }}
-            - name: INT_PG_ALLOCATIONS_SHARELABELS
-              value: {{ quote .Values.global.integrations.postgres.allocations.shareLabels }}
-            {{- end }}
         {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
