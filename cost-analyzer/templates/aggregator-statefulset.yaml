@@ -44,6 +44,8 @@ spec:
       labels:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
+        {{/* Force pod restarts on upgrades to ensure the nginx config is current */}}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         app: aggregator
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
@@ -85,7 +87,7 @@ spec:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
-        {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
