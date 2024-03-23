@@ -1020,7 +1020,7 @@ Begin Kubecost 2.0 templates
     - name: no_proxy
       value:  {{ .Values.systemProxy.noProxy }}
     {{- end }}
-    {{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
+    {{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
     - name: CARBON_ESTIMATES_ENABLED
       value: "true"
     {{- end }}
