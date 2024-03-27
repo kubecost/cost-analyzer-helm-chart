@@ -1338,7 +1338,7 @@ for more information
 {{- end -}}
 
 {{- define "pluginsEnabled" }}
-{{- if *(.Values.kubecostModel.plugins).install).enabled}}
+{{- if ((.Values.kubecostModel.plugins).install).enabled}}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}
