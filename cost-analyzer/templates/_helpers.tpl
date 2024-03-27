@@ -1336,3 +1336,11 @@ for more information
 {{- printf "false" -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "pluginsEnabled" }}
+{{- if *(.Values.kubecostModel.plugins).install).enabled}}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}

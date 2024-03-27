@@ -1151,6 +1151,7 @@ data:
                 "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}",
                 "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}",
                 "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}",
+                "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}"
                 }
             ';
