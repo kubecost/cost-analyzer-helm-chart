@@ -1,3 +1,16 @@
+# grafana is disabled by default, but can be enabled by setting the following values.
+# or proxy to an existing grafana: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-grafana
+global:
+  grafana:
+    enabled: false
+    proxy: false
+# grafana:
+#   image:
+#     repository: YOUR_REGISTRY/grafana
+#   sidecar:
+#     image:
+#       repository: YOUR_REGISTRY/k8s-sidecar
+
 kubecostFrontend:
   image: public.ecr.aws/kubecost/frontend
 
@@ -28,15 +41,3 @@ prometheus:
 reporting:
   productAnalytics: false
 
-# grafana is disabled by default, but can be enabled by setting the following values.
-# or proxy to an existing grafana: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-grafana
-global:
-  grafana:
-    enabled: false
-    proxy: false
-# grafana:
-#   image:
-#     repository: YOUR_REGISTRY/grafana
-#   sidecar:
-#     image:
-#       repository: YOUR_REGISTRY/k8s-sidecar
