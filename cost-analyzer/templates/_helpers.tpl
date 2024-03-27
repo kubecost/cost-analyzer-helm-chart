@@ -940,10 +940,6 @@ Begin Kubecost 2.0 templates
       # of the init container that gives everything under /var/configs 777.
       mountPath: /var/configs/waterfowl
     {{- end }}
-    {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
-    - name: productkey-secret
-      mountPath: /var/configs/productkey
-    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     {{- if .Values.saml.secretName }}
@@ -991,10 +987,6 @@ Begin Kubecost 2.0 templates
         configMapKeyRef:
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
-    {{- end }}
-    {{- if and ((.Values.kubecostProductConfigs).productKey).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
-    - name: PRODUCT_KEY_MOUNT_PATH
-      value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
     {{- end }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
@@ -1338,7 +1330,7 @@ for more information
 {{- end -}}
 
 {{- define "pluginsEnabled" }}
-{{- if (.Values.kubecostModel.plugins).enabled }}
+{{- if ((.Values.kubecostModel.plugins).install).enabled}}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}

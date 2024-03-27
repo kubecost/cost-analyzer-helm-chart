@@ -112,7 +112,8 @@ spec:
            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
-        {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
+        {{- if .Values.kubecostProductConfigs.productKey }}
+        {{- if and .Values.kubecostProductConfigs.productKey.enabled .Values.kubecostProductConfigs.productKey.secretname }}
         - name: productkey-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
@@ -120,6 +121,7 @@ spec:
             - key: productkey.json
               path: productkey.json
         {{- end }}
+        {{- end -}}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
@@ -512,11 +514,9 @@ spec:
           - name: tcp-model
             containerPort: 9003
             protocol: TCP
-          {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
-          {{- end }}
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -591,9 +591,11 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
-            {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.secretname }}
             - name: productkey-secret
               mountPath: /var/configs/productkey
+            {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
@@ -744,9 +746,11 @@ spec:
               value: production
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
-            {{- if ((.Values.kubecostProductConfigs).productKey).mountPath }}
+            {{- if .Values.kubecostProductConfigs.productKey }}
+            {{- if .Values.kubecostProductConfigs.productKey.mountPath }}
             - name: PRODUCT_KEY_MOUNT_PATH
               value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+            {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs.ingestPodUID }}
             - name: INGEST_POD_UID
