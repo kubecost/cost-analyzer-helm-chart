@@ -2215,6 +2215,8 @@ networkCosts:
   # every 30 minutes.
   trafficLogging: true
 
+  logLevel: info
+
   # Port will set both the containerPort and hostPort to this value.
   # These must be identical due to network-costs being run on hostNetwork
   port: 3001
