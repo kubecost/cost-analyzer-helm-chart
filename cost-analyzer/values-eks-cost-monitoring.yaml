@@ -79,7 +79,7 @@ clusterController:
   enabled: false
   image:
     repository: public.ecr.aws/kubecost/cluster-controller
-    tag: v0.15.2
+    tag: v0.16.0
 
 serviceAccount:
   create: true # Set this to false if you're bringing your own service account.
