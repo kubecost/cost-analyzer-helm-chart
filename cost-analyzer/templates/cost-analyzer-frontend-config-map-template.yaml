@@ -188,6 +188,10 @@ data:
             error_page 401 = /login;
             try_files $uri $uri/ /index.html;
         }
+        location /healthz {
+            add_header 'Content-Type' 'text/plain';
+            return 200 "healthy\n";
+        }
 {{- else }}
         add_header Cache-Control "max-age=300";
         location / {
@@ -424,6 +428,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/allocation/carbon {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/allocation/carbon;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/assets {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/assets;
@@ -460,6 +472,14 @@ data:
         location = /model/assets/autocomplete {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/assets/autocomplete;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/assets/carbon {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/assets/carbon;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -948,6 +968,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/enablements {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/enablements;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
 
         #Cloud Cost Endpoints
         location = /model/cloudCost/status {
@@ -1120,7 +1148,9 @@ data:
             return 200 '\n
                 {
                 "ssoConfigured": "{{ template "ssoEnabled" . }}",
-                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}"
+                "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}",
+                "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}",
+                "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}"
                 }
             ';
         }

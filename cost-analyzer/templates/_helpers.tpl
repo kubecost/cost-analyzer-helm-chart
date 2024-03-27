@@ -6,6 +6,8 @@ Set important variables before starting main templates
 {{- define "aggregator.deployMethod" -}}
   {{- if (.Values.federatedETL).primaryCluster }}
     {{- printf "statefulset" }}
+  {{- else if or ((.Values.federatedETL).agentOnly) (.Values.agent) (.Values.cloudAgent) }}
+    {{- printf "disabled" }}
   {{- else if (not .Values.kubecostAggregator) }}
     {{- printf "singlepod" }}
   {{- else if .Values.kubecostAggregator.enabled }}
@@ -20,6 +22,14 @@ Set important variables before starting main templates
     {{- fail "Unknown kubecostAggregator.deployMethod value" }}
   {{- end }}
 {{- end }}
+
+{{- define "frontend.deployMethod" -}}
+  {{- if eq .Values.kubecostFrontend.deployMethod "haMode" -}}
+    {{- printf "haMode" -}}
+  {{- else -}}
+    {{- printf "singlepod" -}}
+  {{- end -}}
+{{- end -}}
 
 {{/*
 Kubecost 2.0 preconditions
@@ -252,6 +262,9 @@ Expand the name of the chart.
 {{- define "forecasting.name" -}}
 {{- default "forecasting" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "frontend.name" -}}
+{{- default "frontend" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -292,6 +305,9 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- define "forecasting.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "forecasting.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "frontend.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "frontend.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -343,6 +359,10 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{- define "frontend.serviceName" -}}
+{{ include "frontend.fullname" . }}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -493,6 +513,15 @@ Create the selector labels.
 */}}
 {{- define "cost-analyzer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: cost-analyzer
+{{- end -}}
+
+{{/*
+Create the selector labels for haMode frontend.
+*/}}
+{{- define "frontend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "frontend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
@@ -911,6 +940,10 @@ Begin Kubecost 2.0 templates
       # of the init container that gives everything under /var/configs 777.
       mountPath: /var/configs/waterfowl
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: productkey-secret
+      mountPath: /var/configs/productkey
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     {{- if .Values.saml.secretName }}
@@ -941,7 +974,7 @@ Begin Kubecost 2.0 templates
     {{- if .Values.oidc.enabled }}
     - name: oidc-config
       mountPath: /var/configs/oidc
-    {{- if .Values.oidc.secretName }}
+    {{- if or .Values.oidc.existingCustomSecret.name .Values.oidc.secretName }}
     - name: oidc-client-secret
       mountPath: /var/configs/oidc-client-secret
     {{- end }}
@@ -958,6 +991,10 @@ Begin Kubecost 2.0 templates
         configMapKeyRef:
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
+    {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: PRODUCT_KEY_MOUNT_PATH
+      value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
     {{- end }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
@@ -990,6 +1027,10 @@ Begin Kubecost 2.0 templates
       value:  {{ .Values.systemProxy.noProxy }}
     - name: no_proxy
       value:  {{ .Values.systemProxy.noProxy }}
+    {{- end }}
+    {{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
+    - name: CARBON_ESTIMATES_ENABLED
+      value: "true"
     {{- end }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
@@ -1208,6 +1249,17 @@ Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
   {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
+    {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+costEventsAuditEnabled flag for nginx configmap
+*/}}
+{{- define "costEventsAuditEnabled" -}}
+  {{- if or (.Values.costEventsAudit).enabled -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}

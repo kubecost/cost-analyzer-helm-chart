@@ -1,0 +1,43 @@
+{{- if .Values.kubecostModel.plugins.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+  labels:
+   {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  install_plugins.sh: |-
+    {{- if .Values.kubecostModel.plugins.install.enabled }}
+      set -ex
+      rm -f {{ .Values.kubecostModel.plugins.folder }}/bin/*
+      mkdir -p {{ .Values.kubecostModel.plugins.folder }}/bin
+      cd {{ .Values.kubecostModel.plugins.folder }}/bin
+      OSTYPE=$(cat /etc/os-release)
+      OS=''
+      case "$OSTYPE" in
+        *Linux*) OS='linux';;
+        *)         echo "$OSTYPE is unsupported" && exit 1 ;;
+      esac
+
+      UNAME_OUTPUT=$(uname -m)
+      ARCH=''
+      case "$UNAME_OUTPUT" in
+        *x86_64*) ARCH='amd64';;
+        *amd64*) ARCH='amd64';;
+        *aarch64*) ARCH='arm64';;
+        *arm64*) ARCH='arm64';;
+        *)         echo "$UNAME_OUTPUT is unsupported" && exit 1 ;;
+      esac
+
+      {{- if .Values.kubecostModel.plugins.version  }}
+      VER={{ .Values.kubecostModel.plugins.version | quote}}
+      {{- else }}
+      VER=$(curl --silent https://api.github.com/repos/opencost/opencost-plugins/releases/latest | grep ".tag_name" | awk -F\" '{print $4}')
+      {{- end }}
+      
+      {{- range $pluginName := .Values.kubecostModel.plugins.enabledPlugins }}
+      curl -fsSLO "https://github.com/opencost/opencost-plugins/releases/download/$VER/{{ $pluginName }}.ocplugin.$OS.$ARCH"
+      chmod a+rx "{{ $pluginName }}.ocplugin.$OS.$ARCH"
+      {{- end }}
+    {{- end }}
+{{- end }}
