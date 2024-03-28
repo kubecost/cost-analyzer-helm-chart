@@ -858,7 +858,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.50.1
+      tag: v2.51.1
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
