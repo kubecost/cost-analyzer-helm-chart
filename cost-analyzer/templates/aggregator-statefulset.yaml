@@ -89,6 +89,14 @@ spec:
         {{- else }}
         {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
+        {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
+        - name: productkey-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
+            items:
+            - key: productkey.json
+              path: productkey.json
+        {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
         {{- if .Values.saml.secretName }}
