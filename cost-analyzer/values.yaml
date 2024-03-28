@@ -543,6 +543,8 @@ kubecostModel:
   # The name of the Secret containing a bucket config for Federated storage. The contents should be stored
   # under a key named federated-store.yaml.
   # federatedStorageConfigSecret: ""
+
+  # Installs Kubecost/OpenCost plugins
   plugins:
     enabled: false
     install:
@@ -559,8 +561,10 @@ kubecostModel:
         runAsNonRoot: true
         runAsUser: 1000
     folder: /opt/opencost/plugin
+
     # leave this commented to always download most recent version of plugins
     # version: <INSERT_SPECIFIC_PLUGINS_VERSION>
+
     # the list of enabled plugins
     enabledPlugins: []
       # - datadog
@@ -576,6 +580,7 @@ kubecostModel:
       #   "datadog_api_key": "<INSERT_DATADOG_API_KEY>",
       #   "datadog_app_key": "<INSERT_DATADOG_APP_KEY>"
       #   }
+
   ## Feature to view your out-of-cluster costs and their k8s utilization
   ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
   cloudCost:
