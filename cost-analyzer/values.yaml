@@ -543,7 +543,7 @@ kubecostModel:
   # The name of the Secret containing a bucket config for Federated storage. The contents should be stored
   # under a key named federated-store.yaml.
   # federatedStorageConfigSecret: ""
-  
+
   # Installs Kubecost/OpenCost plugins
   plugins:
     enabled: false
