@@ -546,7 +546,7 @@ kubecostModel:
 
   # Installs Kubecost/OpenCost plugins
   plugins:
-    enabled: false
+    enabled: true
     install:
       enabled: true
       fullImageName: curlimages/curl:latest
@@ -570,7 +570,7 @@ kubecostModel:
       # - datadog
 
     # pre-existing secret for plugin configuration
-    configSecret: ""
+    configSecret: kubecost-plugin-secret
 
     # uncomment this to define plugin configuration via the values file
     # configs:

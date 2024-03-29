@@ -1058,6 +1058,22 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/customCost/status {
+            proxy_read_timeout          300;
+            proxy_pass http://cloudCost/customCost/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/customCost/rebuild {
+            proxy_read_timeout          300;
+            proxy_pass http://cloudCost/customCost/rebuild;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
 {{- end }}
         location = /model/hideOrphanedResources {
             default_type 'application/json';
