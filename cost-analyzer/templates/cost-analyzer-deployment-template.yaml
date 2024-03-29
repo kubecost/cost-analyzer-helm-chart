@@ -65,6 +65,8 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        - name: plugins-dir
+          emptyDir: {}
         {{- if .Values.global.gcpstore.enabled }}
         - name: ubbagent-config
           configMap:
@@ -256,23 +258,6 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
-        {{- if .Values.kubecostModel.plugins.enabled  }}
-        {{- if .Values.kubecostModel.plugins.install.enabled}}
-        - name: install-script
-          configMap:
-            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
-        {{- end }}
-        - name: plugins-dir
-          emptyDir: {}
-
-        - name: plugins-config
-          secret:
-            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
-            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
-            {{- else }}
-            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
-            {{- end }}
-        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -312,19 +297,6 @@ spec:
 {{- end }}
 {{- end }}
       initContainers:
-      {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
-        - name: plugin-installer
-          image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
-          command: ["sh", "/install/install_plugins.sh"]
-      {{- with .Values.kubecostModel.plugins.install.securityContext }}
-          securityContext: {{- toYaml . | nindent 12 }}
-      {{- end }}
-          volumeMounts:
-            - name: install-script
-              mountPath: /install
-            - name: plugins-dir
-              mountPath: {{ .Values.kubecostModel.plugins.folder }}
-      {{- end }}
       {{- if .Values.supportNFS }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
@@ -548,19 +520,6 @@ spec:
               mountPath: /var/secrets
               readOnly: true
             {{- end }}
-            {{- if .Values.kubecostModel.plugins.enabled }}
-            - mountPath: /opt/opencost/plugin
-              name: plugins-dir
-              readOnly: false
-            - name: tmp
-              mountPath: /tmp
-            {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
-            - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
-              subPath: {{$key}}_config.json
-              name: plugins-config
-              readOnly: true
-            {{- end }}
-            {{- end }}
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.extraVolumeMounts }}
@@ -712,8 +671,6 @@ spec:
             - name: METRICS_CONFIGMAP_NAME
               value: {{ .Values.metricsConfigmapName }}
             {{- end }}
-            - name: CUSTOM_COST_ENABLED
-              value: {{ .Values.kubecostModel.plugins.enabled | quote }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
