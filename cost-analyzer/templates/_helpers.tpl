@@ -1186,6 +1186,19 @@ Begin Kubecost 2.0 templates
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
+    {{- if .Values.kubecostModel.plugins.enabled }}
+    - mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      name: plugins-dir
+      readOnly: false
+    - name: tmp
+      mountPath: /tmp
+    {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
+    - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
+      subPath: {{$key}}_config.json
+      name: plugins-config
+      readOnly: true
+    {{- end }}
+    {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/

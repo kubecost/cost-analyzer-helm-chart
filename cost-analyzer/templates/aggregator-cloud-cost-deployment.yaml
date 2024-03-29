@@ -75,6 +75,38 @@ spec:
             All data stored here is ephemeral, and does not require persistence. */}}
         - name: persistent-configs
           emptyDir: {}
+        {{- if .Values.kubecostModel.plugins.enabled  }}
+        {{- if .Values.kubecostModel.plugins.install.enabled}}
+        - name: install-script
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+        {{- end }}
+        - name: plugins-dir
+          emptyDir: {}
+        - name: plugins-config
+          secret:
+            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
+            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
+            {{- else }}
+            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
+            {{- end }}
+        - name: tmp
+          emptyDir: {}
+        {{- end }}
+      initContainers:
+      {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
+      - name: plugin-installer
+        image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
+        command: ["sh", "/install/install_plugins.sh"]
+      {{- with .Values.kubecostModel.plugins.install.securityContext }}
+        securityContext: {{- toYaml . | nindent 12 }}
+      {{- end }}
+        volumeMounts:
+          - name: install-script
+            mountPath: /install
+          - name: plugins-dir
+            mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      {{- end }}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
     {{- if .Values.imagePullSecrets }}
