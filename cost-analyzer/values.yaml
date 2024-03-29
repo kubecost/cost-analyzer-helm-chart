@@ -546,7 +546,7 @@ kubecostModel:
 
   # Installs Kubecost/OpenCost plugins
   plugins:
-    enabled: false
+    enabled: true
     install:
       enabled: true
       fullImageName: curlimages/curl:latest
