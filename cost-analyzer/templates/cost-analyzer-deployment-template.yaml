@@ -65,6 +65,8 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        - name: plugins-dir
+          emptyDir: {}
         {{- if .Values.global.gcpstore.enabled }}
         - name: ubbagent-config
           configMap:
