@@ -1193,8 +1193,7 @@ Begin Kubecost 2.0 templates
     - name: tmp
       mountPath: /tmp
     {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
-    - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config/{{$key}}_config.json
-      subPath: {{$key}}_config.json
+    - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
       name: plugins-config
       readOnly: true
     {{- end }}

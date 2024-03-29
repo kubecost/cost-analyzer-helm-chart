@@ -570,7 +570,7 @@ kubecostModel:
       # - datadog
 
     # pre-existing secret for plugin configuration
-    configSecret: ""
+    configSecret: kubecost-plugin-secret
 
     # uncomment this to define plugin configuration via the values file
     # configs:

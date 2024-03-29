@@ -29,6 +29,10 @@ spec:
   template:
     metadata:
       labels:
+        {{/*
+        Force pod restarts on upgrades to ensure the nginx config is current
+        */}}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         app.kubernetes.io/name: cloud-cost
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: cloud-cost
@@ -85,11 +89,10 @@ spec:
           emptyDir: {}
         - name: plugins-config
           secret:
-            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
-            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
-            {{- else }}
-            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
-            {{- end }}
+            secretName: {{ .Values.kubecostModel.plugins.configSecret }}
+            items:
+              - key: datadog_config.json
+                path: datadog_config.json
         - name: tmp
           emptyDir: {}
         {{- end }}
