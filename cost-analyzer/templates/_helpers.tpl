@@ -1370,3 +1370,11 @@ for more information
 {{- printf "false" -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "carbonEstimatesEnabled" }}
+{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}

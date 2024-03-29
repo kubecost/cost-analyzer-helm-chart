@@ -1184,6 +1184,7 @@ data:
                 "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}",
                 "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}",
                 "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
+                "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}"
                 }
             ';
