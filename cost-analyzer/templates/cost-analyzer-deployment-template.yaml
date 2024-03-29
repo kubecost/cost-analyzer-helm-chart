@@ -714,8 +714,6 @@ spec:
             - name: METRICS_CONFIGMAP_NAME
               value: {{ .Values.metricsConfigmapName }}
             {{- end }}
-            - name: CUSTOM_COST_ENABLED
-              value: {{ .Values.kubecostModel.plugins.enabled | quote }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -723,6 +721,8 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
+            - name: CUSTOM_COST_ENABLED
+              value: {{ .Values.kubecostModel.plugins.enabled | quote }}
             - name: CLOUD_COST_ENABLED
               value: "false"
             - name: CLOUD_PROVIDER_API_KEY
