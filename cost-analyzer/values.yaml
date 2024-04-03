@@ -2457,10 +2457,10 @@ kubecostAggregator:
     "DB_CONCURRENT_INGESTION_COUNT": "3"
 
   persistentConfigsStorage:
-    storageClass: "" # default storage class
+    storageClass: ""  # default storage class
     storageRequest: 1Gi
   aggregatorDbStorage:
-    storageClass: "" # default storage class
+    storageClass: ""  # default storage class
     storageRequest: 128Gi
 
   resources: {}
