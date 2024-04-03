@@ -75,6 +75,9 @@ spec:
             All data stored here is ephemeral, and does not require persistence. */}}
         - name: persistent-configs
           emptyDir: {}
+        {{- if .Values.kubecostAggregator.cloudCost.extraVolumes }}
+        {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumes | nindent 8 }}
+        {{- end }}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
     {{- if .Values.imagePullSecrets }}
