@@ -29,6 +29,10 @@ spec:
   template:
     metadata:
       labels:
+        {{/*
+        Force pod restarts on upgrades to ensure the nginx config is current
+        */}}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         app.kubernetes.io/name: cloud-cost
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: cloud-cost
@@ -75,9 +79,40 @@ spec:
             All data stored here is ephemeral, and does not require persistence. */}}
         - name: persistent-configs
           emptyDir: {}
+        {{- if .Values.kubecostModel.plugins.enabled  }}
+        {{- if .Values.kubecostModel.plugins.install.enabled}}
+        - name: install-script
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+        {{- end }}
+        - name: plugins-dir
+          emptyDir: {}
+        - name: plugins-config
+          secret:
+            secretName: {{ .Values.kubecostModel.plugins.configSecret }}
+            items:
+              - key: datadog_config.json
+                path: datadog_config.json
+        - name: tmp
+          emptyDir: {}
+        {{- end }}
         {{- if .Values.kubecostAggregator.cloudCost.extraVolumes }}
         {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumes | nindent 8 }}
         {{- end }}
+      initContainers:
+      {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
+      - name: plugin-installer
+        image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
+        command: ["sh", "/install/install_plugins.sh"]
+        {{- with .Values.kubecostModel.plugins.install.securityContext }}
+        securityContext: {{- toYaml . | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+          - name: install-script
+            mountPath: /install
+          - name: plugins-dir
+            mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      {{- end }}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
     {{- if .Values.imagePullSecrets }}

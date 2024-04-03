@@ -1036,6 +1036,8 @@ Begin Kubecost 2.0 templates
     - name: CARBON_ESTIMATES_ENABLED
       value: "true"
     {{- end }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
@@ -1187,6 +1189,16 @@ Begin Kubecost 2.0 templates
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
+    {{- if .Values.kubecostModel.plugins.enabled }}
+    - mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      name: plugins-dir
+      readOnly: false
+    - name: tmp
+      mountPath: /tmp
+    - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
+      name: plugins-config
+      readOnly: true
+    {{- end }}
   {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
   {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
     {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
@@ -1210,6 +1222,8 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- with .Values.kubecostModel.cloudCost }}
     {{- with .labelList }}
     - name: CLOUD_COST_IS_INCLUDE_LIST
@@ -1346,6 +1360,14 @@ for more information
 
 {{- define "pluginsEnabled" }}
 {{- if (.Values.kubecostModel.plugins).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "carbonEstimatesEnabled" }}
+{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}
