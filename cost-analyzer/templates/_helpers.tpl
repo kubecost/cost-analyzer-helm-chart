@@ -1202,11 +1202,9 @@ Begin Kubecost 2.0 templates
       readOnly: false
     - name: tmp
       mountPath: /tmp
-    {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
     - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
       name: plugins-config
       readOnly: true
-    {{- end }}
     {{- end }}
   env:
     - name: CONFIG_PATH

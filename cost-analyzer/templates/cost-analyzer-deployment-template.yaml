@@ -65,8 +65,21 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        {{- if .Values.kubecostModel.plugins.enabled }}
         - name: plugins-dir
           emptyDir: {}
+        - name: plugins-config
+          secret:
+            secretName: {{ .Values.kubecostModel.plugins.configSecret }}
+            items:
+              - key: datadog_config.json
+                path: datadog_config.json
+        {{- if .Values.kubecostModel.plugins.install.enabled}}
+        - name: install-script
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+        {{- end }}
+        {{- end }}
         {{- if .Values.global.gcpstore.enabled }}
         - name: ubbagent-config
           configMap:
@@ -297,7 +310,20 @@ spec:
 {{- end }}
 {{- end }}
       initContainers:
-      {{- if .Values.supportNFS }}
+        {{- if and .Values.kubecostModel.plugins.enabled (not (eq (include "aggregator.deployMethod" .) "statefulset")) }}
+        - name: plugin-installer
+          image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
+          command: ["sh", "/install/install_plugins.sh"]
+          {{- with .Values.kubecostModel.plugins.install.securityContext }}
+          securityContext: {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: install-script
+              mountPath: /install
+            - name: plugins-dir
+              mountPath: {{ .Values.kubecostModel.plugins.folder }}
+        {{- end }}
+        {{- if .Values.supportNFS }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
