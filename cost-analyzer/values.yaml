@@ -546,9 +546,9 @@ kubecostModel:
 
   # Installs Kubecost/OpenCost plugins
   plugins:
-    enabled: true
+    enabled: false
     install:
-      enabled: true
+      enabled: false
       fullImageName: curlimages/curl:latest
       securityContext:
         allowPrivilegeEscalation: false
@@ -559,7 +559,7 @@ kubecostModel:
           - ALL
         readOnlyRootFilesystem: true
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
     folder: /opt/opencost/plugin
 
     # leave this commented to always download most recent version of plugins

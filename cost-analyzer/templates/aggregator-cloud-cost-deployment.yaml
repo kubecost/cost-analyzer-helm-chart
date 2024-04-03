@@ -101,9 +101,9 @@ spec:
       - name: plugin-installer
         image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
         command: ["sh", "/install/install_plugins.sh"]
-      {{- with .Values.kubecostModel.plugins.install.securityContext }}
+        {{- with .Values.kubecostModel.plugins.install.securityContext }}
         securityContext: {{- toYaml . | nindent 12 }}
-      {{- end }}
+        {{- end }}
         volumeMounts:
           - name: install-script
             mountPath: /install
