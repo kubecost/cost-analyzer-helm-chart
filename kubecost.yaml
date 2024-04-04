@@ -20370,20 +20370,10 @@ spec:
               value: "https://71964476292e4087af8d5072afe43abd@o394722.ingest.sentry.io/5245431"
             - name: LEGACY_EXTERNAL_API_DISABLED
               value: "false"
-            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
-              value: "false"
             - name: CACHE_WARMING_ENABLED
               value: "false"
             - name: SAVINGS_ENABLED
               value: "true"
-            - name: ETL_ENABLED
-              value: "true"
-            - name: ETL_STORE_READ_ONLY
-              value: "false"
-            - name : ETL_CLOUD_USAGE_ENABLED
-              value: "false"
-            - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
-              value: "false"
             - name: ETL_RESOLUTION_SECONDS
               value: "300"
             - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
@@ -20396,18 +20386,6 @@ spec:
               value: "53"
             - name: ETL_FILE_STORE_ENABLED
               value: "true"
-            - name: ETL_ASSET_RECONCILIATION_ENABLED
-              value: "true"
-            - name: ETL_USE_UNBLENDED_COST
-              value: "false"
-            - name: CLOUD_COST_ENABLED
-              value: "true"
-            - name: CLOUD_COST_IS_INCLUDE_LIST
-              value: "false"
-            - name: CLOUD_COST_LABEL_LIST
-              value: ""
-            - name: CLOUD_COST_TOP_N
-              value: "1000"
             - name: CLOUD_COST_REFRESH_RATE_HOURS
               value: "6"
             - name: CLOUD_COST_QUERY_WINDOW_DAYS
