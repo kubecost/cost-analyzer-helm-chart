@@ -980,6 +980,12 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: postgres-creds
+      mountPath: /var/configs/integrations/postgres/creds
+    - name: postgres-queries
+      mountPath: /var/configs/integrations/postgres/queries
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -1023,32 +1029,6 @@ Begin Kubecost 2.0 templates
       value: "true"
     - name: INT_PG_RUN_INTERVAL
       value: {{ quote .Values.global.integrations.postgres.runInterval }}
-    - name: INT_PG_DB_HOST
-      value: {{ quote .Values.global.integrations.postgres.databaseHost }}
-    - name: INT_PG_DB_PORT
-      value: {{ quote .Values.global.integrations.postgres.databasePort }}
-    - name: INT_PG_DB_NAME
-      value: {{ quote .Values.global.integrations.postgres.databaseName }}
-    - name: INT_PG_DB_USER
-      value: {{ quote .Values.global.integrations.postgres.databaseUser }}
-    - name: INT_PG_DB_PASS
-      value: {{ quote .Values.global.integrations.postgres.databasePassword }}
-    - name: INT_PG_ALLOCATIONS_ENABLED
-      value: {{ quote .Values.global.integrations.postgres.allocations.enabled }}
-    - name: INT_PG_ALLOCATIONS_TABLE
-      value: {{ quote .Values.global.integrations.postgres.allocations.databaseTable }}
-    - name: INT_PG_ALLOCATIONS_WINDOW
-      value: {{ quote .Values.global.integrations.postgres.allocations.window }}
-    - name: INT_PG_ALLOCATIONS_AGGREGATION
-      value: {{ quote .Values.global.integrations.postgres.allocations.aggregate }}
-    - name: INT_PG_ALLOCATIONS_IDLE
-      value: {{ quote .Values.global.integrations.postgres.allocations.idle }}
-    - name: INT_PG_ALLOCATIONS_SHAREIDLE
-      value: {{ quote .Values.global.integrations.postgres.allocations.shareIdle }}
-    - name: INT_PG_ALLOCATIONS_SHARENAMESPACES
-      value: {{ quote .Values.global.integrations.postgres.allocations.shareNamespaces }}
-    - name: INT_PG_ALLOCATIONS_SHARELABELS
-      value: {{ quote .Values.global.integrations.postgres.allocations.shareLabels }}
     {{- end }}
     {{- if .Values.systemProxy.enabled }}
     - name: HTTP_PROXY

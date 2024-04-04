@@ -269,13 +269,14 @@ global:
       ## https://docs.kubecost.com/apis/apis-overview/api-allocation
       allocations:
         enabled: true
-        databaseTable: "kubecost_allocation_data"
-        window: "7d"
-        aggregate: "namespace"
-        idle: true
-        shareIdle: false
-        shareNamespaces: ""
-        shareLabels: ""
+        queryConfigs:
+          - databaseTable: "kubecost_allocation_data"
+            window: "7d"
+            aggregate: "namespace"
+            idle: "true"
+            shareIdle: "false"
+            shareNamespaces: ""
+            shareLabels: ""
 
 ## Provide a name override for the chart.
 # nameOverride: ""

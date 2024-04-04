@@ -146,6 +146,14 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.global.integrations.postgres.enabled }}
+        - name: postgres-creds
+          secret:
+            secretName: kubecost-integrations-postgres
+        - name: postgres-queries
+          configMap:
+            name: kubecost-integrations-postgres-queries
+        {{- end }}
       containers:
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
 
