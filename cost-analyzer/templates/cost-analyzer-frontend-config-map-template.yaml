@@ -976,6 +976,30 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/customCost/total {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/customCost/total;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/customCost/timeseries {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/customCost/timeseries;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/providerOptimization {
+            proxy_read_timeout          300;
+            proxy_pass http://aggregator/providerOptimization;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
 
         #Cloud Cost Endpoints
         location = /model/cloudCost/status {
@@ -1037,6 +1061,22 @@ data:
         location = /model/cloudCost/integration/validate {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://cloudCost/cloudCost/integration/validate;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/customCost/status {
+            proxy_read_timeout          300;
+            proxy_pass http://cloudCost/customCost/status;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/customCost/rebuild {
+            proxy_read_timeout          300;
+            proxy_pass http://cloudCost/customCost/rebuild;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
@@ -1150,7 +1190,10 @@ data:
                 "ssoConfigured": "{{ template "ssoEnabled" . }}",
                 "dataBackupConfigured": "{{ template "dataBackupConfigured" . }}",
                 "costEventsAuditEnabled": "{{ template "costEventsAuditEnabled" . }}",
-                "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}"
+                "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}",
+                "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
+                "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
+                "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}"
                 }
             ';
         }

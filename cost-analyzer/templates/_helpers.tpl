@@ -940,6 +940,10 @@ Begin Kubecost 2.0 templates
       # of the init container that gives everything under /var/configs 777.
       mountPath: /var/configs/waterfowl
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: productkey-secret
+      mountPath: /var/configs/productkey
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     {{- if .Values.saml.secretName }}
@@ -988,6 +992,10 @@ Begin Kubecost 2.0 templates
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: PRODUCT_KEY_MOUNT_PATH
+      value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+    {{- end }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
       value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
@@ -1002,8 +1010,6 @@ Begin Kubecost 2.0 templates
     - name: ETL_PATH_PREFIX
       value: "/var/db"
     {{- end }}
-    - name: ETL_ENABLED
-      value: "false" # this container should never run KC's concept of "ETL"
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
     {{- if .Values.global.integrations.postgres.enabled }}
@@ -1062,6 +1068,8 @@ Begin Kubecost 2.0 templates
     - name: CARBON_ESTIMATES_ENABLED
       value: "true"
     {{- end }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
@@ -1214,6 +1222,16 @@ Begin Kubecost 2.0 templates
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
+    {{- if .Values.kubecostModel.plugins.enabled }}
+    - mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      name: plugins-dir
+      readOnly: false
+    - name: tmp
+      mountPath: /tmp
+    - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
+      name: plugins-config
+      readOnly: true
+    {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
@@ -1233,16 +1251,8 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
-    {{- with .Values.kubecostModel.cloudCost }}
-    {{- with .labelList }}
-    - name: CLOUD_COST_IS_INCLUDE_LIST
-      value: {{ (quote .IsIncludeList) | default (quote false) }}
-    - name: CLOUD_COST_LABEL_LIST
-      value: {{ (quote .labels) }}
-    {{- end }}
-    - name: CLOUD_COST_TOP_N
-      value: {{ (quote .topNItems) | default (quote 1000) }}
-    {{- end }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1358,3 +1368,27 @@ for more information
 {{- fail (include "azureCloudIntegrationJSON" .) }}
 {{- end }}
 {{- end }}
+
+{{- define "clusterControllerEnabled" }}
+{{- if (.Values.clusterController).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "pluginsEnabled" }}
+{{- if (.Values.kubecostModel.plugins).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "carbonEstimatesEnabled" }}
+{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
