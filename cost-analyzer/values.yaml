@@ -514,9 +514,6 @@ kubecostModel:
   #   value: "some_value"
   # securityContext:
   #   readOnlyRootFilesystem: true
-  # Enables the emission of the kubecost_cloud_credit_total and
-  # kubecost_cloud_expense_total metrics
-  outOfClusterPromMetricsEnabled: false
   # Build local cost allocation cache
   warmCache: false
   # Run allocation ETL pipelines
