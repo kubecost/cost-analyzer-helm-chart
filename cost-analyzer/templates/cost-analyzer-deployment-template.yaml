@@ -817,17 +817,10 @@ spec:
             {{- end }}
             - name: LEGACY_EXTERNAL_API_DISABLED
               value: {{ (quote .Values.kubecostModel.legacyOutOfClusterAPIDisabled) | default (quote false) }}
-            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
-              value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
-            - name: ETL_ENABLED
-              value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
-            {{- if .Values.kubecostModel.etlReadOnlyMode }}
-            - name: ETL_READ_ONLY
-              value: "true"
             {{- end }}
             {{- if $etlBackupBucketSecret }}
             - name: ETL_BUCKET_CONFIG
@@ -849,18 +842,6 @@ spec:
             - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
             {{- end }}
-            - name: ETL_STORE_READ_ONLY
-              value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
-            - name : ETL_CLOUD_USAGE_ENABLED
-            {{- if kindIs "bool" .Values.kubecostModel.etlCloudUsage }}
-              value: {{ (quote .Values.kubecostModel.etlCloudUsage) }}
-            {{- else if kindIs "bool" .Values.kubecostModel.etlCloudAsset }}
-              value: {{ (quote .Values.kubecostModel.etlCloudAsset) }}
-            {{- else }}
-              value: "false"
-            {{- end }}
-            - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
-              value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
@@ -879,8 +860,7 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
-            - name: ETL_USE_UNBLENDED_COST
-              value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+
             {{- if .Values.kubecostModel }}
             {{- if .Values.kubecostModel.allocation }}
             {{- if .Values.kubecostModel.allocation.nodeLabels }}
