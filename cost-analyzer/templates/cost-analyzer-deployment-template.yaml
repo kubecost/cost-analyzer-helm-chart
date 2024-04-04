@@ -821,7 +821,6 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
-            {{- end }}
             {{- if $etlBackupBucketSecret }}
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
