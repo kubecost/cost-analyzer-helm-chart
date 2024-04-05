@@ -108,6 +108,9 @@ spec:
         - name: tmp
           emptyDir: {}
         {{- end }}
+        {{- if .Values.kubecostAggregator.cloudCost.extraVolumes }}
+        {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumes | nindent 8 }}
+        {{- end }}
       initContainers:
       {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
       - name: plugin-installer

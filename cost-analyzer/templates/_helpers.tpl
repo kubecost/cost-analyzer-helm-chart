@@ -980,6 +980,10 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
+    {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -1010,8 +1014,6 @@ Begin Kubecost 2.0 templates
     - name: ETL_PATH_PREFIX
       value: "/var/db"
     {{- end }}
-    - name: ETL_ENABLED
-      value: "false" # this container should never run KC's concept of "ETL"
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
     {{- if .Values.systemProxy.enabled }}
@@ -1053,7 +1055,6 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-
     {{- range $key, $value := .Values.kubecostAggregator.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1196,6 +1197,10 @@ Begin Kubecost 2.0 templates
       name: plugins-config
       readOnly: true
     {{- end }}
+  {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
+  {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
+  {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
@@ -1217,16 +1222,6 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
     - name: CUSTOM_COST_ENABLED
       value: {{ .Values.kubecostModel.plugins.enabled | quote }}
-    {{- with .Values.kubecostModel.cloudCost }}
-    {{- with .labelList }}
-    - name: CLOUD_COST_IS_INCLUDE_LIST
-      value: {{ (quote .IsIncludeList) | default (quote false) }}
-    - name: CLOUD_COST_LABEL_LIST
-      value: {{ (quote .labels) }}
-    {{- end }}
-    - name: CLOUD_COST_TOP_N
-      value: {{ (quote .topNItems) | default (quote 1000) }}
-    {{- end }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
