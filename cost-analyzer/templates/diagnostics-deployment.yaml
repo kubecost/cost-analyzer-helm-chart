@@ -26,7 +26,9 @@ spec:
         {{- include "diagnostics.selectorLabels" . | nindent 8 }}
       annotations:
         # Generates a unique annotation upon each `helm upgrade`, forcing a redeployment
-        helm.sh/pod-restarter: {{ randNumeric 3 | quote}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
         {{- end }}
