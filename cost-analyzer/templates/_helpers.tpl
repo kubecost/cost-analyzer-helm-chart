@@ -1254,6 +1254,26 @@ SSO enabled flag for nginx configmap
 {{- end -}}
 
 {{/*
+To use the Kubecost built-in Teams UI RBAC< you must enable SSO and RBAC and not specify any groups.
+Groups is only used when using external RBAC.
+*/}}
+{{- define "rbacTeamsEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+      {{- if not (or (.Values.saml).groups (.Values.oidc).groups) -}}
+        {{- printf "true" -}}
+        {{- else -}}
+        {{- printf "false" -}}
+      {{- end -}}
+      {{- else -}}
+        {{- printf "false" -}}
+    {{- end -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
