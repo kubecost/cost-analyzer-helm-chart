@@ -980,6 +980,10 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
+    {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -1053,7 +1057,6 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-
     {{- range $key, $value := .Values.kubecostAggregator.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1196,6 +1199,10 @@ Begin Kubecost 2.0 templates
       name: plugins-config
       readOnly: true
     {{- end }}
+  {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
+  {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
+  {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
