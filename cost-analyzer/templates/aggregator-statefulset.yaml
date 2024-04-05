@@ -146,6 +146,9 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.kubecostAggregator.extraVolumes }}
+        {{- toYaml .Values.kubecostAggregator.extraVolumes | nindent 8 }}
+        {{- end }}
       containers:
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
 
