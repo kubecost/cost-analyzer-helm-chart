@@ -2450,23 +2450,23 @@ kubecostAggregator:
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
 
-  resources: {}
-    # requests:
-    #   cpu: 1000m
-    #   memory: 1Gi
   env:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"
     "DB_WRITE_THREADS": "1"
     "DB_CONCURRENT_INGESTION_COUNT": "3"
+
   persistentConfigsStorage:
-    # default storage class
-    storageClass: ""
+    storageClass: ""  # default storage class
     storageRequest: 1Gi
   aggregatorDbStorage:
-    # default storage class
-    storageClass: ""
+    storageClass: ""  # default storage class
     storageRequest: 128Gi
+
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 1Gi
 
   readinessProbe:
     enabled: true
@@ -2474,40 +2474,26 @@ kubecostAggregator:
     periodSeconds: 10
     failureThreshold: 200
 
+  ## Set additional environment variables for the aggregator pod
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
+
   ## Add a priority class to the aggregator pod
   # priority:
   #   enabled: false
   #   name: ""
 
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
-  # securityContext:
-  #   runAsGroup: 1001
-  #   runAsUser: 1001
-  #   fsGroup: 1001
-  #   fsGroupChangePolicy: OnRootMismatch
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   runAsNonRoot: true
-  # containerSecurityContext:
-  #   allowPrivilegeEscalation: false
-  #   readOnlyRootFilesystem: true
-  #   runAsNonRoot: true
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   capabilities:
-  #     drop:
-  #       - ALL
-  #
-  # Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
-  extraPorts: []
-    # - name: debug
-    #   port: 40000
-    #   targetPort: 40000
-    #   containerPort: 40000
+  ## Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
+  # extraPorts: []
+  #   - name: debug
+  #     port: 40000
+  #     targetPort: 40000
+  #     containerPort: 40000
+
   ## Define a securityContext for the aggregator pod. This will take highest precedence.
-  securityContext: {}
+  # securityContext: {}
+
   ## Define the container-level security context for the aggregator pod. This will take highest precedence.
   # containerSecurityContext: {}
 
@@ -2522,6 +2508,12 @@ kubecostAggregator:
 
   ## Define Pod affinity for the aggregator pod
   # affinity: {}
+
+  ## Define extra volumes for the aggregator pod
+  # extraVolumes: []
+
+  ## Define extra volumemounts for the aggregator pod
+  # extraVolumeMounts: []
 
   ## Creates a new container/pod to retrieve CloudCost data. By default it uses
   ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
@@ -2560,6 +2552,12 @@ kubecostAggregator:
 
     ## Define environment variables for cloud cost
     # env: {}
+
+    ## Define extra volumes for the cloud cost pod
+    # extraVolumes: []
+
+    ## Define extra volumemounts for the cloud cost pod
+    # extraVolumeMounts: []
 
     ## Configure the Collections service for aggregator.
     # collections:
