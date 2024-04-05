@@ -25,12 +25,6 @@ spec:
 {{- else }}
   type: ClusterIP
 {{- end }}
-{{- if (eq .Values.service.type "LoadBalancer") }}
-  {{- if .Values.service.loadBalancerSourceRanges }}
-  loadBalancerSourceRanges:
-{{ toYaml .Values.service.loadBalancerSourceRanges | indent 4 }}
-  {{- end -}}
-{{- end }}
   ports:
     - name: tcp-model
       port: 9003
@@ -38,7 +32,7 @@ spec:
   {{- with .Values.kubecostModel.extraPorts }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-    {{- if and (.Values.kubecostFrontend.enabled) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
+    {{- if .Values.kubecostFrontend.enabled }}
     - name: tcp-frontend
       {{- if (eq .Values.service.type "NodePort") }}
       {{- if .Values.service.nodePort }}

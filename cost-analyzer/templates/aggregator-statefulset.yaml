@@ -87,7 +87,7 @@ spec:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
-        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
         {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
         - name: productkey-secret
@@ -145,9 +145,6 @@ spec:
             secretName: {{ .Values.oidc.existingCustomSecret.name }}
         {{- end }}
         {{- end }}
-        {{- end }}
-        {{- if .Values.kubecostAggregator.extraVolumes }}
-        {{- toYaml .Values.kubecostAggregator.extraVolumes | nindent 8 }}
         {{- end }}
       containers:
         {{- include "aggregator.containerTemplate" . | nindent 8 }}
