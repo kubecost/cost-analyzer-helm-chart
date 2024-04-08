@@ -982,9 +982,13 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- if .Values.global.integrations.postgres.enabled }}
     - name: postgres-creds
-      mountPath: /var/configs/integrations/postgres/creds
+      mountPath: /var/configs/integrations/postgres-creds
     - name: postgres-queries
-      mountPath: /var/configs/integrations/postgres/queries
+      mountPath: /var/configs/integrations/postgres-queries
+    {{- end }}
+    {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
+    {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
     {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
@@ -1069,7 +1073,6 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-
     {{- range $key, $value := .Values.kubecostAggregator.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1212,6 +1215,10 @@ Begin Kubecost 2.0 templates
       name: plugins-config
       readOnly: true
     {{- end }}
+  {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
+  {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
+  {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
@@ -1259,6 +1266,26 @@ SSO enabled flag for nginx configmap
 {{- define "ssoEnabled" -}}
   {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
     {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+To use the Kubecost built-in Teams UI RBAC< you must enable SSO and RBAC and not specify any groups.
+Groups is only used when using external RBAC.
+*/}}
+{{- define "rbacTeamsEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+      {{- if not (or (.Values.saml).groups (.Values.oidc).groups) -}}
+        {{- printf "true" -}}
+        {{- else -}}
+        {{- printf "false" -}}
+      {{- end -}}
+      {{- else -}}
+        {{- printf "false" -}}
+    {{- end -}}
   {{- else -}}
     {{- printf "false" -}}
   {{- end -}}
