@@ -34,7 +34,9 @@ spec:
         {{/*
         Force pod restarts on upgrades to ensure the configmap is current
         */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         {{- include "prometheus.server.labels" . | nindent 8 }}
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}

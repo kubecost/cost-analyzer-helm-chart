@@ -32,7 +32,9 @@ spec:
         {{/*
         Force pod restarts on upgrades to ensure the nginx config is current
         */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         app.kubernetes.io/name: cloud-cost
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: cloud-cost
