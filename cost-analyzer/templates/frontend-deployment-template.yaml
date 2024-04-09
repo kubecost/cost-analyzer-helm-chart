@@ -35,7 +35,9 @@ spec:
         {{/*
         Force pod restarts on upgrades to ensure the nginx config is current
         */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         {{- include "frontend.selectorLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{- toYaml .Values.global.additionalLabels | nindent 8 }}
