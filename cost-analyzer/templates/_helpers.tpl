@@ -1033,6 +1033,8 @@ Begin Kubecost 2.0 templates
       value: "true"
     - name: INT_PG_RUN_INTERVAL
       value: {{ quote .Values.global.integrations.postgres.runInterval }}
+    - name: INT_PG_ALLOCATIONS_ENABLED
+      value: {{ quote .Values.global.integrations.postgres.allocations.enabled }}
     {{- end }}
     {{- if .Values.systemProxy.enabled }}
     - name: HTTP_PROXY

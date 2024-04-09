@@ -262,8 +262,9 @@ global:
       databaseUser: ""  # REQUIRED. ex: myusername
       databasePassword: ""  # REQUIRED. ex: mypassword
 
-      ## Configure the Allocations query parameters, and where to write the
-      ## data. Refer to the API docs for further details:
+      ## Configure the parameters when querying Kubecost's Allocation API. And
+      ## configure what database table to write the data to. Refer to the API
+      ## docs for further details:
       ## https://docs.kubecost.com/apis/apis-overview/api-allocation
       allocations:
         enabled: true
