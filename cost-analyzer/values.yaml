@@ -1547,7 +1547,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1587,7 +1587,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
