@@ -586,7 +586,8 @@ spec:
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if or (.Values.kubecostProductConfigs.cloudIntegrationSecret) (.Values.kubecostProductConfigs.cloudIntegrationJSON) }}
+            # TODO remove this if-clause when CloudCost has been removed from Opencost Cost-Model
+            {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
             - name: cloud-integration
               mountPath: /var/configs/cloud-integration
             {{- end }}
