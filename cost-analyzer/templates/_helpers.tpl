@@ -1216,6 +1216,8 @@ Begin Kubecost 2.0 templates
     - name: FEDERATED_CLUSTER
       value: "true"
     {{- end}}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
       value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
