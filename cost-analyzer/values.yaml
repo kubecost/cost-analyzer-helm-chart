@@ -3108,7 +3108,8 @@ costEventsAudit:
   enabled: false
 
 ## Disable updates to kubecost from the frontend UI and via POST request
-##
+## This feature is considered beta, entrprise users should use teams:
+## https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/teams
 # readonly: false
 
 # # These configs can also be set from the Settings page in the Kubecost product
