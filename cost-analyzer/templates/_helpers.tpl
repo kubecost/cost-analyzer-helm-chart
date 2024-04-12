@@ -980,6 +980,10 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
+    {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -1010,10 +1014,10 @@ Begin Kubecost 2.0 templates
     - name: ETL_PATH_PREFIX
       value: "/var/db"
     {{- end }}
-    - name: ETL_ENABLED
-      value: "false" # this container should never run KC's concept of "ETL"
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    - name: READ_ONLY
+      value: {{ (quote .Values.readonly) | default (quote false) }}
     {{- if .Values.systemProxy.enabled }}
     - name: HTTP_PROXY
       value: {{ .Values.systemProxy.httpProxyUrl }}
@@ -1053,7 +1057,6 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-
     {{- range $key, $value := .Values.kubecostAggregator.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1192,12 +1195,14 @@ Begin Kubecost 2.0 templates
       readOnly: false
     - name: tmp
       mountPath: /tmp
-    {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
     - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
       name: plugins-config
       readOnly: true
     {{- end }}
-    {{- end }}
+  {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
+  {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
+  {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
@@ -1211,6 +1216,8 @@ Begin Kubecost 2.0 templates
     - name: FEDERATED_CLUSTER
       value: "true"
     {{- end}}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
       value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
@@ -1219,16 +1226,6 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
     - name: CUSTOM_COST_ENABLED
       value: {{ .Values.kubecostModel.plugins.enabled | quote }}
-    {{- with .Values.kubecostModel.cloudCost }}
-    {{- with .labelList }}
-    - name: CLOUD_COST_IS_INCLUDE_LIST
-      value: {{ (quote .IsIncludeList) | default (quote false) }}
-    - name: CLOUD_COST_LABEL_LIST
-      value: {{ (quote .labels) }}
-    {{- end }}
-    - name: CLOUD_COST_TOP_N
-      value: {{ (quote .topNItems) | default (quote 1000) }}
-    {{- end }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1255,6 +1252,26 @@ SSO enabled flag for nginx configmap
 {{- define "ssoEnabled" -}}
   {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
     {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+To use the Kubecost built-in Teams UI RBAC< you must enable SSO and RBAC and not specify any groups.
+Groups is only used when using external RBAC.
+*/}}
+{{- define "rbacTeamsEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+      {{- if not (or (.Values.saml).groups (.Values.oidc).groups) -}}
+        {{- printf "true" -}}
+        {{- else -}}
+        {{- printf "false" -}}
+      {{- end -}}
+      {{- else -}}
+        {{- printf "false" -}}
+    {{- end -}}
   {{- else -}}
     {{- printf "false" -}}
   {{- end -}}

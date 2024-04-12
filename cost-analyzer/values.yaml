@@ -1,7 +1,7 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true  # If false, Prometheus will not be installed -- Warning: Before changing this setting, please read to understand this setting https://docs.kubecost.com/install-and-configure/install/custom-prom
+    enabled: true  # Kubecost depends on Prometheus data, it is not optional. When enabled: false, Prometheus will not be installed and you must configure your own Prometheus to scrape kubecost as well as provide the fqdn below. -- Warning: Before changing this setting, please read to understand the risks https://docs.kubecost.com/install-and-configure/install/custom-prom
     fqdn: http://cost-analyzer-prometheus-server.default.svc  # example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify: false  # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
@@ -368,7 +368,7 @@ systemProxy:
 
 kubecostFrontend:
   enabled: true
-  deployMethod: singlepod   haMode or singlepod - haMode is currently only supported with Enterprise tier
+  deployMethod: singlepod  # haMode or singlepod - haMode is currently only supported with Enterprise tier
   haReplicas: 2  # only used with haMode
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: Always
@@ -514,9 +514,6 @@ kubecostModel:
   #   value: "some_value"
   # securityContext:
   #   readOnlyRootFilesystem: true
-  # Enables the emission of the kubecost_cloud_credit_total and
-  # kubecost_cloud_expense_total metrics
-  outOfClusterPromMetricsEnabled: false
   # Build local cost allocation cache
   warmCache: false
   # Run allocation ETL pipelines
@@ -546,9 +543,9 @@ kubecostModel:
 
   # Installs Kubecost/OpenCost plugins
   plugins:
-    enabled: true
+    enabled: false
     install:
-      enabled: true
+      enabled: false
       fullImageName: curlimages/curl:latest
       securityContext:
         allowPrivilegeEscalation: false
@@ -559,7 +556,7 @@ kubecostModel:
           - ALL
         readOnlyRootFilesystem: true
         runAsNonRoot: true
-        runAsUser: 1000
+        runAsUser: 1001
     folder: /opt/opencost/plugin
 
     # leave this commented to always download most recent version of plugins
@@ -580,16 +577,6 @@ kubecostModel:
       #   "datadog_api_key": "<INSERT_DATADOG_API_KEY>",
       #   "datadog_app_key": "<INSERT_DATADOG_APP_KEY>"
       #   }
-
-  ## Feature to view your out-of-cluster costs and their k8s utilization
-  ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/cloud-costs-explorer
-  cloudCost:
-    # enabled: true # this logic is always enabled if cloud billing integration is configured. This option is no longer configurable.
-    labelList:
-      IsIncludeList: false
-      # format labels as comma separated string (ex. "label1,label2,label3")
-      labels: ""
-    topNItems: 1000
 
   allocation:
     # Enables or disables adding node labels to allocation data (i.e. workloads).
@@ -2364,7 +2351,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.5
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.6
 
   # Resource specification block for the forecasting container.
   resources:
@@ -2450,23 +2437,23 @@ kubecostAggregator:
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
 
-  resources: {}
-    # requests:
-    #   cpu: 1000m
-    #   memory: 1Gi
   env:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"
     "DB_WRITE_THREADS": "1"
     "DB_CONCURRENT_INGESTION_COUNT": "3"
+
   persistentConfigsStorage:
-    # default storage class
-    storageClass: ""
+    storageClass: ""  # default storage class
     storageRequest: 1Gi
   aggregatorDbStorage:
-    # default storage class
-    storageClass: ""
+    storageClass: ""  # default storage class
     storageRequest: 128Gi
+
+  resources: {}
+    # requests:
+    #   cpu: 1000m
+    #   memory: 1Gi
 
   readinessProbe:
     enabled: true
@@ -2474,40 +2461,26 @@ kubecostAggregator:
     periodSeconds: 10
     failureThreshold: 200
 
+  ## Set additional environment variables for the aggregator pod
+  # extraEnv:
+  # - name: SOME_VARIABLE
+  #   value: "some_value"
+
   ## Add a priority class to the aggregator pod
   # priority:
   #   enabled: false
   #   name: ""
 
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
-  # securityContext:
-  #   runAsGroup: 1001
-  #   runAsUser: 1001
-  #   fsGroup: 1001
-  #   fsGroupChangePolicy: OnRootMismatch
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   runAsNonRoot: true
-  # containerSecurityContext:
-  #   allowPrivilegeEscalation: false
-  #   readOnlyRootFilesystem: true
-  #   runAsNonRoot: true
-  #   seccompProfile:
-  #     type: RuntimeDefault
-  #   capabilities:
-  #     drop:
-  #       - ALL
-  #
-  # Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
-  extraPorts: []
-    # - name: debug
-    #   port: 40000
-    #   targetPort: 40000
-    #   containerPort: 40000
+  ## Optional - add extra ports to the aggregator container. For kubecost development purposes only - not recommended for users.
+  # extraPorts: []
+  #   - name: debug
+  #     port: 40000
+  #     targetPort: 40000
+  #     containerPort: 40000
+
   ## Define a securityContext for the aggregator pod. This will take highest precedence.
-  securityContext: {}
+  # securityContext: {}
+
   ## Define the container-level security context for the aggregator pod. This will take highest precedence.
   # containerSecurityContext: {}
 
@@ -2523,6 +2496,12 @@ kubecostAggregator:
   ## Define Pod affinity for the aggregator pod
   # affinity: {}
 
+  ## Define extra volumes for the aggregator pod
+  # extraVolumes: []
+
+  ## Define extra volumemounts for the aggregator pod
+  # extraVolumeMounts: []
+
   ## Creates a new container/pod to retrieve CloudCost data. By default it uses
   ## the same serviceaccount as the cost-analyzer pod. A custom serviceaccount
   ## can be specified.
@@ -2531,7 +2510,6 @@ kubecostAggregator:
     # kubecostAggregator.deployMethod:
     # kA.dM = "singlepod" -> cloudCost is run as container inside cost-analyzer
     # kA.dM = "statefulset" -> cloudCost is run as single-replica Deployment
-    enabled: false
     resources: {}
       # requests:
       #   cpu: 1000m
@@ -2560,6 +2538,12 @@ kubecostAggregator:
 
     ## Define environment variables for cloud cost
     # env: {}
+
+    ## Define extra volumes for the cloud cost pod
+    # extraVolumes: []
+
+    ## Define extra volumemounts for the cloud cost pod
+    # extraVolumeMounts: []
 
     ## Configure the Collections service for aggregator.
     # collections:
@@ -3124,7 +3108,8 @@ costEventsAudit:
   enabled: false
 
 ## Disable updates to kubecost from the frontend UI and via POST request
-##
+## This feature is considered beta, entrprise users should use teams:
+## https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/teams
 # readonly: false
 
 # # These configs can also be set from the Settings page in the Kubecost product

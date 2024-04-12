@@ -11,11 +11,7 @@
 {{- $servicePort := .Values.service.port | default 9090 }}
 Kubecost {{ .Chart.Version }} has been successfully installed.
 
-Welcome to Kubecost 2.0!
-
-Kubecost 2.0 is a major upgrade from previous versions and includes major new features including a brand new API Backend. Please review the following documentation to ensure a smooth transition: https://docs.kubecost.com/install-and-configure/install/kubecostv2
-
-For the full list of enhancements, please see our release notes: https://github.com/kubecost/cost-analyzer-helm-chart/releases/tag/v2.0.0
+Kubecost 2.x is a major upgrade from previous versions and includes major new features including a brand new API Backend. Please review the following documentation to ensure a smooth transition: https://docs.kubecost.com/install-and-configure/install/kubecostv2
 
 When pods are Ready, you can enable port-forwarding with the following command:
 
