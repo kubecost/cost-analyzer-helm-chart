@@ -2816,7 +2816,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.1
+    tag: 10.4.2
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
