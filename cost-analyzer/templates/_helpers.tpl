@@ -176,6 +176,20 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 {{- end -}}
 
 {{/*
+Verify a cluster_id is set in the Prometheus global config
+*/}}
+{{- define "clusterIDCheck" -}}
+  {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+    {{- if not .Values.prometheus.server.clusterIDConfigmap }}
+      {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
+        {{- fail "\n\nPrometheus global.external_labels.cluster_id must be set when using multi-cluster Kubecost.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
 Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
 support templating a chart which uses the lookup function.
