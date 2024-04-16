@@ -11,8 +11,6 @@ data:
       {
         {{- if .Values.global.integrations.postgres.allocations.enabled }}
         "allocations": {{- .Values.global.integrations.postgres.allocations.queryConfigs | toJson | nindent 10 }}
-        {{- else }}
-        "allocations": []
         {{- end }}
       }
 {{- end }}
