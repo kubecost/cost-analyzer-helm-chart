@@ -22,6 +22,9 @@ spec:
         app.kubernetes.io/name: forecasting
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: forecasting
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.global.podAnnotations}}
       annotations:
         {{- toYaml . | nindent 8 }}

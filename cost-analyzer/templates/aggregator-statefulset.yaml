@@ -45,7 +45,9 @@ spec:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
         {{/* Force pod restarts on upgrades to ensure the nginx config is current */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         app: aggregator
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
