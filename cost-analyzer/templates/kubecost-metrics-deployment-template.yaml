@@ -9,6 +9,9 @@ metadata:
   labels:
     {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 {{- with .Values.kubecostMetrics.exporter.labels }}
 {{ toYaml . | indent 4 }}
 {{- end }}
