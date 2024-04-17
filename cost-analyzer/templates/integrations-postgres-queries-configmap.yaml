@@ -8,9 +8,7 @@ metadata:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
     kubecost-queries.json: |-
-      {
-        {{- if .Values.global.integrations.postgres.allocations.enabled }}
-        "allocations": {{- .Values.global.integrations.postgres.allocations.queryConfigs | toJson | nindent 10 }}
-        {{- end }}
-      }
+      {{- with .Values.global.integrations.postgres.queryConfigs }}
+      {{- . | toJson | nindent 6 }}
+      {{- end }}
 {{- end }}

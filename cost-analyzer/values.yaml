@@ -249,33 +249,46 @@ global:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
-  ## Kubecost Integrations (beta)
+  ## Kubecost Integrations
   ## Ref: https://docs.kubecost.com/integrations
   ##
   integrations:
     postgres:
       enabled: false
-      runInterval: "1h"  # How frequently to run the integration.
+      runInterval: "12h"  # How frequently to run the integration.
       databaseHost: ""  # REQUIRED. ex: my.postgres.database.azure.com
       databasePort: ""  # REQUIRED. ex: 5432
       databaseName: ""  # REQUIRED. ex: postgres
       databaseUser: ""  # REQUIRED. ex: myusername
       databasePassword: ""  # REQUIRED. ex: mypassword
 
-      ## Configure the parameters when querying Kubecost's Allocation API. And
-      ## configure what database table to write the data to. Refer to the API
-      ## docs for further details:
-      ## https://docs.kubecost.com/apis/apis-overview/api-allocation
-      allocations:
-        enabled: true
-        queryConfigs:
-          - databaseTable: "kubecost_allocation_data"
-            window: "7d"
-            aggregate: "namespace"
-            idle: "true"
-            shareIdle: "false"
-            shareNamespaces: ""
-            shareLabels: ""
+      ## Configure what Postgres table to write to, and what parameters to pass
+      ## when querying Kubecost's APIs.
+      ## Ref: https://docs.kubecost.com/apis/apis-overview
+      queryConfigs:
+        allocations: []
+          # - databaseTable: "kubecost_allocation_data"
+          #   window: "7d"
+          #   aggregate: "namespace"
+          #   idle: true
+          #   shareIdle: true
+          #   shareNamespaces: "kubecost,kube-system"
+          #   shareLabels: ""
+          # - databaseTable: "kubecost_allocation_data_by_cluster"
+          #   window: "10d"
+          #   aggregate: "cluster"
+          #   idle: true
+          #   shareIdle: false
+          #   shareNamespaces: ""
+          #   shareLabels: ""
+        assets: []
+          # - databaseTable: "kubecost_assets_data"
+          #   window: "7d"
+          #   aggregate: "cluster"
+        cloudCosts: []
+          # - databaseTable: "kubecost_cloudcosts_data"
+          #   window: "7d"
+          #   aggregate: "service"
 
 ## Provide a name override for the chart.
 # nameOverride: ""
