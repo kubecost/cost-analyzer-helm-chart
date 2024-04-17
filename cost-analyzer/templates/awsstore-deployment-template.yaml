@@ -7,6 +7,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   selector:
     matchLabels:
@@ -20,6 +23,9 @@ spec:
     metadata:
       labels:
         app: awsstore
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.global.podAnnotations}}
       annotations:
         {{- toYaml . | nindent 8 }}

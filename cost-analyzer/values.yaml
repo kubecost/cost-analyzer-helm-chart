@@ -208,6 +208,8 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+
+  # Applies these labels to all Deployments, StatefulSets, DaemonSets, and their pod templates.
   additionalLabels: {}
 
   securityContext:

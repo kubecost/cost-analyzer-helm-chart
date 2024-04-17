@@ -12,6 +12,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "diagnostics.selectorLabels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if .Values.diagnostics.deployment.labels }}
     {{- toYaml .Values.diagnostics.deployment.labels | nindent 4 }}
     {{- end }}
@@ -24,6 +27,9 @@ spec:
     metadata:
       labels:
         {{- include "diagnostics.selectorLabels" . | nindent 8 }}
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       annotations:
         # Generates a unique annotation upon each `helm upgrade`, forcing a redeployment
         {{- if not .Values.global.platforms.cicd.enabled }}
