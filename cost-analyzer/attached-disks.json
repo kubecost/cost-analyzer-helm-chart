@@ -450,12 +450,12 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-7d",
     "to": "now"
   },
   "timezone": "",
   "title": "Attached disk metrics",
   "uid": "nBH7qBgMk",
-  "version": 5,
+  "version": 6,
   "weekStart": ""
 }
