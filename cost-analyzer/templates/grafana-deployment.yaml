@@ -8,6 +8,9 @@ metadata:
     app: {{ template "grafana.name" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 {{- with .Values.grafana.annotations }}
   annotations:
 {{ toYaml . | indent 4 }}
