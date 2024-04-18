@@ -264,7 +264,11 @@
   ],
   "refresh": "5s",
   "schemaVersion": 39,
-  "tags": [],
+  "tags": [
+		"utilization",
+		"metrics",
+    "kubecost"
+  ],
   "templating": {
     "list": [
       {

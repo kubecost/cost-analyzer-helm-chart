@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 13,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -649,7 +649,7 @@
           "expr": "sum(kubelet_volume_stats_available_bytes{namespace=~\"$namespace\"}) by (namespace,persistentvolumeclaim)",
           "hide": false,
           "instant": false,
-          "legendFormat": "{{namespace}}/{{persistentvolumeclaim}}",
+          "legendFormat": "__auto",
           "range": true,
           "refId": "C"
         },
@@ -660,7 +660,7 @@
           },
           "editorMode": "code",
           "expr": "sum(kube_persistentvolume_capacity_bytes) by (persistentvolume)",
-          "hide": true,
+          "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -796,8 +796,8 @@
       {
         "current": {
           "selected": true,
-          "text": "aggregator",
-          "value": "aggregator"
+          "text": "kubecost",
+          "value": "kubecost"
         },
         "datasource": {
           "type": "prometheus",
