@@ -1,11 +1,8 @@
-{{- if .Values.grafana -}}
-{{- if .Values.grafana.sidecar -}}
-{{- if .Values.grafana.sidecar.dashboards -}}
-{{- if .Values.grafana.sidecar.dashboards.enabled -}}
+{{- if (((.Values.grafana).sidecar).dashboards).enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-cluster-metrics
+  name: grafana-dashboard-aggregator-metrics
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -19,11 +16,6 @@ metadata:
   annotations:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
-    cluster-metrics.json: |-
-{{ .Files.Get "grafana-dashboards/cluster-metrics.json" | indent 8 }}
+  grafana-aggregator-metrics.json: |-
+{{- .Files.Get "grafana-dashboards/aggregator-metrics.json" | nindent 4 }}
 {{- end -}}
-{{- end -}}
-{{- end -}}
-{{- end -}}
-
-

@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: cluster-utilization-dashboard
+  name: grafana-dashboard-cluster-utilization
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     cluster-utilization.json: |-
-{{ .Files.Get "cluster-utilization.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/cluster-utilization.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

@@ -1225,6 +1225,7 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
+    "kubecost",
     "cost",
     "utilization",
     "metrics"
