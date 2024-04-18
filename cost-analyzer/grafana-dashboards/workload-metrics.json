@@ -772,7 +772,11 @@
   ],
   "refresh": "5s",
   "schemaVersion": 39,
-  "tags": [],
+  "tags": [
+    "kubecost",
+    "utilization",
+    "metrics"
+  ],
   "templating": {
     "list": [
       {

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-aggregator-metrics
+  name: grafana-dashboard-network-cloud-services
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -14,8 +14,8 @@ metadata:
     grafana_dashboard: "1"
     {{- end }}
   annotations:
-{{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
+{{- toYaml .Values.grafana.sidecar.dashboards.annotations | nindent 4 }}
 data:
-  grafana-aggregator-metrics.json: |-
-{{- .Files.Get "grafana-dashboards/aggregator-metrics.json" | nindent 4 }}
+  grafana-network-cloud-services.json: |-
+{{- .Files.Get "grafana-dashboards/network-cloud-services.json" | nindent 4 }}
 {{- end -}}

@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.3.1"
+      "version": "10.4.2"
     },
     {
       "type": "datasource",
@@ -84,19 +84,21 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -113,7 +115,6 @@
               "mode": "off"
             }
           },
-          "decimals": 2,
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
@@ -128,7 +129,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -158,8 +159,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
-          "interval": "",
+          "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n {namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", service=~\"$service\"}\n [1h]\n ))\nby($aggregation) ",
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -170,8 +171,9 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+          "expr": "-sum(increase(kubecost_pod_network_egress_bytes_total\n {namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", service=~\"$service\"}\n [1h]\n ))\nby($aggregation) ",
           "hide": false,
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
@@ -191,19 +193,21 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -234,7 +238,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -264,9 +268,9 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+          "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n  {internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", service=~\"$service\"}\n  [1h]\n))\nby($aggregation) ",
           "hide": false,
-          "interval": "",
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -277,8 +281,9 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\"}[60m])) / 1024 / 1024",
+          "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n    {internet=\"true\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", service=~\"$service\"}\n    [1h]))\nby($aggregation) ",
           "hide": false,
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
@@ -299,19 +304,21 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -343,7 +350,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -373,8 +380,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
-          "interval": "",
+          "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n    {internet=\"false\",namespace=~\"$namespace\",cluster_id=~\"$cluster\",pod_name=~\"$pod_name\", sameRegion=\"false\",sameZone=\"false\", service=~\"$service\"}\n    [1h]))\nby($aggregation)",
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -385,8 +392,9 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"false\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+          "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n    {internet=\"false\", namespace=~\"$namespace\",cluster_id=~\"$cluster\",pod_name=~\"$pod_name\",sameRegion=\"false\", sameZone=\"false\", service=~\"$service\"}\n    [1h]))\nby($aggregation) ",
           "hide": false,
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
@@ -407,19 +415,21 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
             "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 100,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -451,7 +461,7 @@
               }
             ]
           },
-          "unit": "decmbytes"
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -481,8 +491,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum by($aggregation) (increase(kubecost_pod_network_ingress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
-          "interval": "",
+          "expr": "sum(increase(kubecost_pod_network_ingress_bytes_total\n  {internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", sameRegion=\"true\", sameZone=\"false\", service=~\"$service\"}\n  [1h]))\nby($aggregation)",
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -493,8 +503,9 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum by($aggregation) (increase(kubecost_pod_network_egress_bytes_total{internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod\", sameRegion=\"true\", sameZone=\"false\"}[60m])) / 1024 / 1024",
+          "expr": "- sum(increase(kubecost_pod_network_egress_bytes_total\n  {internet=\"false\", namespace=~\"$namespace\", cluster_id=~\"$cluster\", pod_name=~\"$pod_name\", sameRegion=\"true\", sameZone=\"false\", service=~\"$service\"}\n  [1h]))\nby($aggregation)",
           "hide": false,
+          "interval": "1h",
           "legendFormat": "__auto",
           "range": true,
           "refId": "B"
@@ -504,9 +515,9 @@
       "type": "timeseries"
     }
   ],
-  "refresh": false,
-  "schemaVersion": 37,
-  "style": "dark",
+  "refresh": "",
+  "revision": 1,
+  "schemaVersion": 39,
   "tags": [
     "kubecost"
   ],
@@ -528,7 +539,7 @@
       },
       {
         "current": {
-          "selected": true,
+          "selected": false,
           "text": "namespace",
           "value": "namespace"
         },
@@ -549,11 +560,11 @@
           },
           {
             "selected": false,
-            "text": "pod",
-            "value": "pod"
+            "text": "pod_name",
+            "value": "pod_name"
           }
         ],
-        "query": "cluster_id, namespace, pod",
+        "query": "cluster_id, namespace, pod_name",
         "queryValue": "",
         "skipUrlSync": false,
         "type": "custom"
@@ -612,20 +623,21 @@
           "type": "prometheus",
           "uid": "${datasource}"
         },
-        "definition": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+        "definition": "label_values(kubecost_pod_network_egress_bytes_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\"},pod_name)",
         "hide": 0,
         "includeAll": true,
         "multi": false,
-        "name": "pod",
+        "name": "pod_name",
         "options": [],
         "query": {
-          "query": "label_values(kube_pod_labels{cluster_id=~\"$cluster\",namespace=~\"$namespace\"}, pod) ",
-          "refId": "StandardVariableQuery"
+          "qryType": 1,
+          "query": "label_values(kubecost_pod_network_egress_bytes_total{cluster_id=~\"$cluster\", namespace=~\"$namespace\"},pod_name)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 0,
+        "sort": 5,
         "type": "query"
       },
       {
@@ -638,6 +650,25 @@
         "name": "filter",
         "skipUrlSync": false,
         "type": "adhoc"
+      },
+      {
+        "current": {},
+        "definition": "label_values(kubecost_pod_network_egress_bytes_total{namespace=~\"$namespace\"},service)",
+        "hide": 0,
+        "includeAll": true,
+        "multi": false,
+        "name": "service",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(kubecost_pod_network_egress_bytes_total{namespace=~\"$namespace\"},service)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 5,
+        "type": "query"
       }
     ]
   },
@@ -647,8 +678,8 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Kubecost - networkCosts Metrics",
+  "title": "Kubecost Network Costs Metrics",
   "uid": "kubecost-networkCosts-metrics",
-  "version": 7,
+  "version": 8,
   "weekStart": ""
 }
