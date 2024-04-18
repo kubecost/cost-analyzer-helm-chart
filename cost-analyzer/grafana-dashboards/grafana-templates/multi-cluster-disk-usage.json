@@ -15,7 +15,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "9.3.1"
+      "version": "10.4.2"
     },
     {
       "type": "datasource",
@@ -70,6 +70,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -83,6 +84,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -124,7 +126,6 @@
         "y": 0
       },
       "id": 2,
-      "links": [],
       "options": {
         "legend": {
           "calcs": [],
@@ -168,6 +169,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -181,6 +183,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -224,7 +227,6 @@
         "y": 0
       },
       "id": 4,
-      "links": [],
       "options": {
         "legend": {
           "calcs": [],
@@ -268,6 +270,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -281,6 +284,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -324,7 +328,6 @@
         "y": 9
       },
       "id": 5,
-      "links": [],
       "options": {
         "legend": {
           "calcs": [],
@@ -367,6 +370,7 @@
             "mode": "palette-classic"
           },
           "custom": {
+            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -380,6 +384,7 @@
               "tooltip": false,
               "viz": false
             },
+            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 1,
             "pointSize": 5,
@@ -421,7 +426,6 @@
         "y": 9
       },
       "id": 3,
-      "links": [],
       "options": {
         "legend": {
           "calcs": [],
@@ -455,11 +459,9 @@
       "type": "timeseries"
     }
   ],
-  "schemaVersion": 37,
-  "style": "dark",
+  "schemaVersion": 39,
   "tags": [
     "kubecost",
-    "cost",
     "utilization",
     "metrics"
   ],
@@ -562,8 +564,8 @@
     ]
   },
   "timezone": "",
-  "title": "Attached disk metrics",
+  "title": "Attached disk metrics (multi-cluster)",
   "uid": "nBH7qBgMk",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }
