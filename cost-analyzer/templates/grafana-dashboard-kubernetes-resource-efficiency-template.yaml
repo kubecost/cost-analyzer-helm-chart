@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     kubernetes-resource-efficiency.json: |-
-{{ .Files.Get "kubernetes-resource-efficiency.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/kubernetes-resource-efficiency.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
