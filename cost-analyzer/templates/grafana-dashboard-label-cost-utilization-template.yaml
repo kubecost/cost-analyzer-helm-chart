@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: label-cost-dashboard
+  name: grafana-dashboard-label-cost
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     label-cost-utilization.json: |-
-{{ .Files.Get "label-cost-utilization.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/label-cost-utilization.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

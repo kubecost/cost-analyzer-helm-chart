@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     networkCosts-metrics.json: |-
-{{ .Files.Get "networkCosts-metrics.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/networkCosts-metrics.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

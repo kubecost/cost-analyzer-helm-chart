@@ -610,6 +610,7 @@
   "schemaVersion": 38,
   "style": "dark",
   "tags": [
+    "kubecost",
     "cost",
     "utilization",
     "metrics"

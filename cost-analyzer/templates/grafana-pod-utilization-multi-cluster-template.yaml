@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     pod-utilization-multi-cluster.json: |-
-{{ .Files.Get "pod-utilization-multi-cluster.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/pod-utilization-multi-cluster.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}

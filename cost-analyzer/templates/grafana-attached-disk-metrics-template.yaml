@@ -5,7 +5,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: attached-disk-metrics-dashboard
+  name: grafana-dashboard-attached-disk-metrics
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -20,7 +20,7 @@ metadata:
 {{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
 data:
     attached-disks.json: |-
-{{ .Files.Get "attached-disks.json" | indent 8 }}
+{{ .Files.Get "grafana-dashboards/attached-disks.json" | indent 8 }}
 {{- end -}}
 {{- end -}}
 {{- end -}}
