@@ -894,7 +894,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.51.1
+      tag: v2.51.2
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1591,7 +1591,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.1
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1631,7 +1631,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.1
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1814,7 +1814,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.6.2
+      tag: v1.8.0
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName

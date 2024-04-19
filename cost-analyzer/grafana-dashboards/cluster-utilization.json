@@ -38,7 +38,7 @@
         "id": 86,
         "links": [],
         "options": {
-          "content": "This dashboard shows monthly cost estimates for the cluster, based on **current** CPU, RAM and storage provisioned.",
+          "content": "Deprecated -  It is not expected to match Kubecost UI/API. This dashboard shows monthly cost estimates for the cluster, based on **current** CPU, RAM and storage provisioned.",
           "mode": "markdown"
         },
         "pluginVersion": "8.3.2",
@@ -3189,7 +3189,7 @@
       ]
     },
     "timezone": "browser",
-    "title": "Cluster cost & utilization metrics",
+    "title": "Deprecated - Cluster cost & utilization metrics",
     "uid": "cluster-costs",
     "version": 1,
     "weekStart": ""

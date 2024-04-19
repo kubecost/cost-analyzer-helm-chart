@@ -1225,7 +1225,7 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
-    "cost",
+    "kubecost",
     "utilization",
     "metrics"
   ],
@@ -1380,7 +1380,7 @@
     ]
   },
   "timezone": "browser",
-  "title": "Deployment/Statefulset/Daemonset utilization metrics",
+  "title": "Deprecated - Deployment/Statefulset/Daemonset utilization metrics",
   "uid": "deployment-metrics",
-  "version": 1
+  "version": 2
 }
