@@ -1,0 +1,14 @@
+{{- if .Values.global.integrations.postgres.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kubecost-integrations-postgres-queries
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+    kubecost-queries.json: |-
+      {{- with .Values.global.integrations.postgres.queryConfigs }}
+      {{- . | toJson | nindent 6 }}
+      {{- end }}
+{{- end }}
