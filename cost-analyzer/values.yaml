@@ -251,6 +251,48 @@ global:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
 
+  ## Kubecost Integrations
+  ## Ref: https://docs.kubecost.com/integrations
+  ##
+  integrations:
+    postgres:
+      enabled: false
+      runInterval: "12h"  # How frequently to run the integration.
+      databaseHost: ""  # REQUIRED. ex: my.postgres.database.azure.com
+      databasePort: ""  # REQUIRED. ex: 5432
+      databaseName: ""  # REQUIRED. ex: postgres
+      databaseUser: ""  # REQUIRED. ex: myusername
+      databasePassword: ""  # REQUIRED. ex: mypassword
+      databaseSecretName: ""  # OPTIONAL. Specify your own k8s secret containing the above credentials. Must have key "creds.json".
+
+      ## Configure what Postgres table to write to, and what parameters to pass
+      ## when querying Kubecost's APIs.
+      ## Ref: https://docs.kubecost.com/apis/apis-overview
+      queryConfigs:
+        allocations: []
+          # - databaseTable: "kubecost_allocation_data"
+          #   window: "7d"
+          #   aggregate: "namespace"
+          #   idle: true
+          #   shareIdle: true
+          #   shareNamespaces: "kubecost,kube-system"
+          #   shareLabels: ""
+          # - databaseTable: "kubecost_allocation_data_by_cluster"
+          #   window: "10d"
+          #   aggregate: "cluster"
+          #   idle: true
+          #   shareIdle: false
+          #   shareNamespaces: ""
+          #   shareLabels: ""
+        assets: []
+          # - databaseTable: "kubecost_assets_data"
+          #   window: "7d"
+          #   aggregate: "cluster"
+        cloudCosts: []
+          # - databaseTable: "kubecost_cloudcosts_data"
+          #   window: "7d"
+          #   aggregate: "service"
+
 ## Provide a name override for the chart.
 # nameOverride: ""
 ## Provide a full name override option for the chart.

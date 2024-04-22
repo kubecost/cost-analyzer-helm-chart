@@ -148,6 +148,18 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
+        {{- if .Values.global.integrations.postgres.enabled }}
+        - name: postgres-creds
+          secret:
+            {{- if not (eq .Values.global.integrations.postgres.databaseSecretName "") }}
+            secretName: {{ .Values.global.integrations.postgres.databaseSecretName }}
+            {{- else }}
+            secretName: kubecost-integrations-postgres
+            {{- end }}
+        - name: postgres-queries
+          configMap:
+            name: kubecost-integrations-postgres-queries
+        {{- end }}
         {{- if .Values.kubecostAggregator.extraVolumes }}
         {{- toYaml .Values.kubecostAggregator.extraVolumes | nindent 8 }}
         {{- end }}

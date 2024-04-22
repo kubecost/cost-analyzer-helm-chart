@@ -993,6 +993,12 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: postgres-creds
+      mountPath: /var/configs/integrations/postgres-creds
+    - name: postgres-queries
+      mountPath: /var/configs/integrations/postgres-queries
+    {{- end }}
     {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
     {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
     {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
@@ -1029,6 +1035,18 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: AGGREGATOR_ADDRESS
+    {{- if or .Values.saml.enabled .Values.oidc.enabled }}
+      value: localhost:9008
+    {{- else }}
+      value: localhost:9004
+    {{- end }}
+    - name: INT_PG_ENABLED
+      value: "true"
+    - name: INT_PG_RUN_INTERVAL
+      value: {{ quote .Values.global.integrations.postgres.runInterval }}
+    {{- end }}
     - name: READ_ONLY
       value: {{ (quote .Values.readonly) | default (quote false) }}
     {{- if .Values.systemProxy.enabled }}
