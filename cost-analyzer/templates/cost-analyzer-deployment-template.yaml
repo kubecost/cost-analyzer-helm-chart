@@ -44,6 +44,7 @@ spec:
         {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         {{- end }}
+        {{- include "cost-analyzer.commonLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{ toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}
