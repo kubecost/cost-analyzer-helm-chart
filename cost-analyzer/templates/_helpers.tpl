@@ -182,7 +182,7 @@ Verify a cluster_id is set in the Prometheus global config
   {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
     {{- if not .Values.prometheus.server.clusterIDConfigmap }}
       {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
-        {{- fail "\n\nPrometheus global.external_labels.cluster_id must be set when using multi-cluster Kubecost.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
+        {{- fail "\n\nWhen using multi-cluster Kubecost, you must specify a unique `.Values.prometheus.server.global.external_labels.cluster_id` for each cluster.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
       {{- end -}}
     {{- end -}}
   {{- end -}}
