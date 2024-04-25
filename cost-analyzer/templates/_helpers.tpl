@@ -947,6 +947,10 @@ Begin Kubecost 2.0 templates
     - name: productkey-secret
       mountPath: /var/configs/productkey
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).smtp).enabled ((.Values.kubecostProductConfigs).smtp).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: smtp-secret
+      mountPath: /var/configs/smtp
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     {{- if .Values.saml.secretName }}
@@ -1008,6 +1012,10 @@ Begin Kubecost 2.0 templates
     {{- if and ((.Values.kubecostProductConfigs).productKey).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
     - name: PRODUCT_KEY_MOUNT_PATH
       value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+    {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).smtp).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: SMTP_CONFIG_MOUNT_PATH
+      value: {{ .Values.kubecostProductConfigs.smtp.mountPath }}
     {{- end }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS

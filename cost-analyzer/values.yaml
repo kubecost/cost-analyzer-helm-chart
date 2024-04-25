@@ -3272,6 +3272,11 @@ costEventsAudit:
 #     key: ""
 #     secretname: productkeysecret # Reference an existing k8s secret created from a file named productkey.json of format { "key": "enterprise-key-here" }. If the secretname is specified, a configmap with the key will not be created.
 #     mountPath: "/some/custom/path/productkey.json" # (use instead of secretname) Declare the path at which the product key file is mounted (eg. by a secrets provisioner). The file must be of format { "key": "enterprise-key-here" }.
+#   smtp:
+#     enabled: false
+#     config: ""
+#     secretname: smtpconfigsecret
+#     mountPath: "/some/custom/path/smtp.json"
 #   carbonEstimates: false # Enables Kubecost beta carbon estimation endpoints /assets/carbon and /allocations/carbon
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
