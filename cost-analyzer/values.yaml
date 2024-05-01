@@ -1591,7 +1591,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.1
+        tag: v0.73.2
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1631,7 +1631,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.1
+        tag: v0.73.2
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1687,7 +1687,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.7.0
+      tag: v1.8.0
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
