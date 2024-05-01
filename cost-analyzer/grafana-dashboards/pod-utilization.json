@@ -1,35 +1,4 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_THANOS",
-      "label": "Thanos",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "prometheus",
-      "pluginName": "Prometheus"
-    }
-  ],
-  "__elements": {},
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "10.3.1"
-    },
-    {
-      "type": "datasource",
-      "id": "prometheus",
-      "name": "Prometheus",
-      "version": "1.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "timeseries",
-      "name": "Time series",
-      "version": ""
-    }
-  ],
   "annotations": {
     "list": [
       {
@@ -57,23 +26,22 @@
   "fiscalYearStartMonth": 0,
   "gnetId": 9063,
   "graphTooltip": 0,
-  "id": null,
+  "id": 11,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_THANOS}"
+        "uid": "${datasource}"
       },
-      "description": "Maximum CPU Core Usage vs avg Requested",
+      "description": "Maximum CPU Core Usage vs Requested",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -87,7 +55,6 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -119,8 +86,7 @@
               }
             ]
           },
-          "unit": "none",
-          "unitScale": true
+          "unit": "none"
         },
         "overrides": []
       },
@@ -151,16 +117,16 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max(irate(container_cpu_usage_seconds_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\", container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
+          "expr": "max(irate(\r\n  container_cpu_usage_seconds_total\r\n    {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n    [$__rate_interval])) \r\n    by (cluster_id, namespace, pod, container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (usage max)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (usage max)",
           "metric": "container_cpu",
           "refId": "A",
           "step": 10
@@ -168,12 +134,12 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "avg(kube_pod_container_resource_requests\r\n  {cluster_id=\"$cluster\",resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby (cluster_id,namespace,pod,container)",
-          "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (requested)",
+          "expr": "avg(kube_pod_container_resource_requests\r\n  {resource=\"cpu\",unit=\"core\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}\r\n  ) \r\nby (cluster_id, namespace, pod, container)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
           "range": true,
           "refId": "B"
         }
@@ -185,16 +151,15 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_THANOS}"
+        "uid": "${datasource}"
       },
-      "description": "Max memory used vs avg requested",
+      "description": "Max Memory usage vs avg requested",
       "fieldConfig": {
         "defaults": {
           "color": {
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -208,7 +173,6 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -240,8 +204,7 @@
               }
             ]
           },
-          "unit": "bytes",
-          "unitScale": true
+          "unit": "bytes"
         },
         "overrides": []
       },
@@ -271,34 +234,32 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "max(max_over_time(container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",cluster_id=\"$cluster\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+          "expr": "max(max_over_time(\r\n  container_memory_working_set_bytes\r\n  {namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\",container!=\"\"}\r\n  [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (usage max)",
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (usage max)",
           "metric": "container_cpu",
-          "refId": "MEMORY_USAGE",
+          "refId": "A",
           "step": 10
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "avg(kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container=~\"$container\",container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
+          "expr": "avg(\n  kube_pod_container_resource_requests\n  {resource=\"memory\",unit=\"byte\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\", container!=\"POD\"}\n  )\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
           "intervalFactor": 1,
-          "legendFormat": "{{cluster_id}} {{namespace}}/{{pod}}/{{container}} (requested)",
-          "refId": "MEMORY_REQUESTED"
+          "legendFormat": "{{cluster_id}} {{pod}}/{{container}} (avg requested)",
+          "refId": "B"
         }
       ],
       "timeFrom": "",
@@ -308,7 +269,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_THANOS}"
+        "uid": "${datasource}"
       },
       "description": "Network traffic by pod",
       "fieldConfig": {
@@ -317,7 +278,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -331,7 +291,6 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -362,8 +321,7 @@
               }
             ]
           },
-          "unit": "Bps",
-          "unitScale": true
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -393,11 +351,10 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(container_network_receive_bytes_total\n  {cluster_id=~\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "sum(irate(container_network_receive_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -410,11 +367,10 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum(irate(container_network_transmit_bytes_total\n  {cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
+          "expr": "- sum(irate(container_network_transmit_bytes_total\n  {namespace=~\"$namespace\",pod=~\"$pod\"}\n  [$__rate_interval])) \nby (cluster_id, namespace, pod)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -431,7 +387,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_THANOS}"
+        "uid": "${datasource}"
       },
       "description": "Disk read writes",
       "fieldConfig": {
@@ -440,7 +396,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -454,7 +409,6 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -485,8 +439,7 @@
               }
             ]
           },
-          "unit": "Bps",
-          "unitScale": true
+          "unit": "Bps"
         },
         "overrides": []
       },
@@ -516,11 +469,10 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+          "expr": "sum(irate(container_fs_writes_bytes_total\r\n    {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -533,11 +485,10 @@
         },
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {cluster_id=\"$cluster\",namespace=~\"$namespace\",container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
+          "expr": "- sum(irate(container_fs_reads_bytes_total\r\n     {container!=\"POD\",pod!=\"\",pod=~\"$pod\",container=~\"$container\"}\r\n     [$__rate_interval])) \r\nby (cluster_id,namespace,pod,container)",
           "format": "time_series",
           "hide": false,
           "instant": false,
@@ -554,7 +505,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_THANOS}"
+        "uid": "${datasource}"
       },
       "description": "This graph shows the % of periods where a pod is being throttled. Values range from 0-100",
       "fieldConfig": {
@@ -563,7 +514,6 @@
             "mode": "palette-classic"
           },
           "custom": {
-            "axisBorderShow": false,
             "axisCenteredZero": false,
             "axisColorMode": "text",
             "axisLabel": "",
@@ -577,7 +527,6 @@
               "tooltip": false,
               "viz": false
             },
-            "insertNulls": false,
             "lineInterpolation": "linear",
             "lineWidth": 2,
             "pointSize": 5,
@@ -609,8 +558,7 @@
               }
             ]
           },
-          "unit": "percent",
-          "unitScale": true
+          "unit": "percent"
         },
         "overrides": []
       },
@@ -640,16 +588,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "prometheus",
-            "uid": "${DS_THANOS}"
+            "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\",cluster_id=\"$cluster\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id,namespace,pod,container) (increase(container_cpu_cfs_periods_total{container!=\"\",cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\",container=~\"$container\",container!=\"POD\"}[$__rate_interval]))",
+          "expr": "100\n  * sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_throttled_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))\n  / sum by(cluster_id, namespace, pod, container) (increase(container_cpu_cfs_periods_total{container!=\"\", namespace=~\"$namespace\", pod=~\"$pod\", container=~\"$container\", container!=\"POD\"}[$__rate_interval]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
           "intervalFactor": 1,
-          "legendFormat": "",
+          "legendFormat": "__auto",
           "refId": "B"
         }
       ],
@@ -660,31 +607,43 @@
   ],
   "refresh": "",
   "revision": 1,
-  "schemaVersion": 39,
-  "tags": [],
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [
+    "kubecost",
+    "utilization",
+    "metrics"
+  ],
   "templating": {
     "list": [
       {
-        "current": {},
-        "definition": "label_values(cluster_id)",
+        "current": {
+          "selected": false,
+          "text": "Prometheus",
+          "value": "Prometheus"
+        },
         "hide": 0,
         "includeAll": false,
         "multi": false,
-        "name": "cluster",
+        "name": "datasource",
         "options": [],
-        "query": {
-          "query": "label_values(cluster_id)",
-          "refId": "StandardVariableQuery"
-        },
-        "refresh": 2,
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
+        "type": "datasource"
       },
       {
-        "current": {},
-        "definition": "label_values(kube_namespace_labels{cluster_id=\"$cluster\"}, namespace) ",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(kube_namespace_labels, namespace) ",
         "hide": 0,
         "includeAll": true,
         "label": "",
@@ -692,7 +651,7 @@
         "name": "namespace",
         "options": [],
         "query": {
-          "query": "label_values(kube_namespace_labels{cluster_id=\"$cluster\"}, namespace) ",
+          "query": "label_values(kube_namespace_labels, namespace) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -705,8 +664,15 @@
         "useTags": false
       },
       {
-        "current": {},
-        "definition": "label_values(kube_pod_labels{cluster_id=\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
         "hide": 0,
         "includeAll": true,
         "label": "pod",
@@ -714,7 +680,7 @@
         "name": "pod",
         "options": [],
         "query": {
-          "query": "label_values(kube_pod_labels{cluster_id=\"$cluster\",namespace=~\"$namespace\"}, pod) ",
+          "query": "label_values(kube_pod_labels{namespace=~\"$namespace\"}, pod) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -727,15 +693,23 @@
         "useTags": false
       },
       {
-        "current": {},
-        "definition": "label_values(container_memory_working_set_bytes{cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+        "current": {
+          "selected": false,
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "${datasource}"
+        },
+        "definition": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
         "hide": 0,
         "includeAll": true,
         "multi": false,
         "name": "container",
         "options": [],
         "query": {
-          "query": "label_values(container_memory_working_set_bytes{cluster_id=\"$cluster\",namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
+          "query": "label_values(container_memory_working_set_bytes{namespace=~\"$namespace\",pod=~\"$pod\", container!=\"POD\"}, container) ",
           "refId": "StandardVariableQuery"
         },
         "refresh": 2,
@@ -776,8 +750,8 @@
     ]
   },
   "timezone": "browser",
-  "title": "Pod utilization metrics (multi-cluster)",
-  "uid": "at-cost-analysis-pod2",
-  "version": 1,
+  "title": "Pod utilization metrics",
+  "uid": "at-cost-analysis-pod",
+  "version": 2,
   "weekStart": ""
 }

@@ -5,6 +5,9 @@ kind: Deployment
 metadata:
   labels:
     {{- include "prometheus.pushgateway.labels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   name: {{ template "prometheus.pushgateway.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -27,6 +30,9 @@ spec:
     {{- end }}
       labels:
         {{- include "prometheus.pushgateway.labels" . | nindent 8 }}
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       serviceAccountName: {{ template "prometheus.serviceAccountName.pushgateway" . }}
 {{- if .Values.prometheus.pushgateway.priorityClassName }}

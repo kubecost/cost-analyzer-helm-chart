@@ -1194,7 +1194,8 @@ data:
                 "frontendDeployMethod": "{{ template "frontend.deployMethod" . }}",
                 "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
-                "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}"
+                "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
+                "chartVersion": "DEVELOP_BRANCH"
                 }
             ';
         }

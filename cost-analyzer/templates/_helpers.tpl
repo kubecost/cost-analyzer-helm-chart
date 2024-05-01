@@ -64,14 +64,6 @@ Kubecost 2.0 preconditions
     {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
   {{- end -}}
 
-  {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
-    {{- if (not (.Values.federatedETL).federatedCluster)  -}}
-      {{- if (not (.Values.upgrade).toV2) -}}
-      {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
   {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
     {{- if (not (.Values.upgrade).toV2) -}}
       {{- fail "\n\nSSO with RBAC is enabled.\nNote that Kubecost 2.x has significant architectural changes that may impact RBAC.\nThis should be tested before giving end-users access to the UI.\nKubecost has tested various configurations and believe that 2.x will be 100% compatible with existing configurations.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
@@ -83,9 +75,6 @@ Kubecost 2.0 preconditions
   {{- end -}}
 
 
-  {{- if (.Values.agent) -}}
-    {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
-  {{- end -}}
   {{- if .Values.kubecostModel.openSourceOnly -}}
     {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
   {{- end -}}
@@ -175,6 +164,20 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 
 {{- end -}}
 {{- end -}}
+
+{{/*
+Verify a cluster_id is set in the Prometheus global config
+*/}}
+{{- define "clusterIDCheck" -}}
+  {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+    {{- if not .Values.prometheus.server.clusterIDConfigmap }}
+      {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
+        {{- fail "\n\nWhen using multi-cluster Kubecost, you must specify a unique `.Values.prometheus.server.global.external_labels.cluster_id` for each cluster.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
 
 {{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
@@ -980,6 +983,12 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: postgres-creds
+      mountPath: /var/configs/integrations/postgres-creds
+    - name: postgres-queries
+      mountPath: /var/configs/integrations/postgres-queries
+    {{- end }}
     {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
     {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
     {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
@@ -1016,6 +1025,18 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: AGGREGATOR_ADDRESS
+    {{- if or .Values.saml.enabled .Values.oidc.enabled }}
+      value: localhost:9008
+    {{- else }}
+      value: localhost:9004
+    {{- end }}
+    - name: INT_PG_ENABLED
+      value: "true"
+    - name: INT_PG_RUN_INTERVAL
+      value: {{ quote .Values.global.integrations.postgres.runInterval }}
+    {{- end }}
     - name: READ_ONLY
       value: {{ (quote .Values.readonly) | default (quote false) }}
     {{- if .Values.systemProxy.enabled }}

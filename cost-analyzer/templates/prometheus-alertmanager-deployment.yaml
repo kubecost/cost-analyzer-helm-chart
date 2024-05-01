@@ -5,6 +5,9 @@ kind: Deployment
 metadata:
   labels:
     {{- include "prometheus.alertmanager.labels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   name: {{ template "prometheus.alertmanager.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -24,6 +27,9 @@ spec:
     {{- end }}
       labels:
         {{- include "prometheus.alertmanager.labels" . | nindent 8 }}
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.prometheus.alertmanager.podLabels}}
         {{ toYaml .Values.prometheus.alertmanager.podLabels | nindent 8 }}
         {{- end}}

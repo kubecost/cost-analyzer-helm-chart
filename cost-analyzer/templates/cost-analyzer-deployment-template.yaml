@@ -6,6 +6,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
     {{- toYaml .Values.kubecostDeployment.labels | nindent 4 }}
     {{- end }}
@@ -41,6 +44,7 @@ spec:
         {{- if not .Values.global.platforms.cicd.enabled }}
         helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
         {{- end }}
+        {{- include "cost-analyzer.commonLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{ toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}

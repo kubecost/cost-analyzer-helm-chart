@@ -208,6 +208,8 @@ global:
 
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
+
+  # Applies these labels to all Deployments, StatefulSets, DaemonSets, and their pod templates.
   additionalLabels: {}
 
   securityContext:
@@ -248,6 +250,48 @@ global:
     cicd:
       enabled: false  # Set to true when using affected CI/CD tools for access to the below configuration options.
       skipSanityChecks: false  # If true, skip all sanity/existence checks for resources like Secrets.
+
+  ## Kubecost Integrations
+  ## Ref: https://docs.kubecost.com/integrations
+  ##
+  integrations:
+    postgres:
+      enabled: false
+      runInterval: "12h"  # How frequently to run the integration.
+      databaseHost: ""  # REQUIRED. ex: my.postgres.database.azure.com
+      databasePort: ""  # REQUIRED. ex: 5432
+      databaseName: ""  # REQUIRED. ex: postgres
+      databaseUser: ""  # REQUIRED. ex: myusername
+      databasePassword: ""  # REQUIRED. ex: mypassword
+      databaseSecretName: ""  # OPTIONAL. Specify your own k8s secret containing the above credentials. Must have key "creds.json".
+
+      ## Configure what Postgres table to write to, and what parameters to pass
+      ## when querying Kubecost's APIs. Ensure all parameters are enclosed in
+      ## quotes. Ref: https://docs.kubecost.com/apis/apis-overview
+      queryConfigs:
+        allocations: []
+          # - databaseTable: "kubecost_allocation_data"
+          #   window: "7d"
+          #   aggregate: "namespace"
+          #   idle: "true"
+          #   shareIdle: "true"
+          #   shareNamespaces: "kubecost,kube-system"
+          #   shareLabels: ""
+          # - databaseTable: "kubecost_allocation_data_by_cluster"
+          #   window: "10d"
+          #   aggregate: "cluster"
+          #   idle: "true"
+          #   shareIdle: "false"
+          #   shareNamespaces: ""
+          #   shareLabels: ""
+        assets: []
+          # - databaseTable: "kubecost_assets_data"
+          #   window: "7d"
+          #   aggregate: "cluster"
+        cloudCosts: []
+          # - databaseTable: "kubecost_cloudcosts_data"
+          #   window: "7d"
+          #   aggregate: "service"
 
 ## Provide a name override for the chart.
 # nameOverride: ""
@@ -667,7 +711,7 @@ etlUtils:
   tolerations: []
   affinity: {}
 
-# Basic Kubecost ingress, more examples available at https://github.com/kubecost/docs/blob/main/ingress-examples.md
+# Basic Kubecost ingress, more examples available at https://docs.kubecost.com/install-and-configure/install/ingress-examples
 ingress:
   enabled: false
   # className: nginx
@@ -850,7 +894,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.51.1
+      tag: v2.51.2
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1547,7 +1591,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.1
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1587,7 +1631,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.72.0
+        tag: v0.73.1
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1770,7 +1814,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.6.2
+      tag: v1.8.0
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName
@@ -2814,7 +2858,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.1
+    tag: 10.4.2
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
