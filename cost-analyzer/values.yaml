@@ -2235,7 +2235,7 @@ prometheus:
 ## Module for measuring network costs
 ## Ref: https://github.com/kubecost/docs/blob/main/network-allocation.md
 networkCosts:
-  enabled: false
+  enabled: true
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
     tag: v0.17.3
@@ -2311,13 +2311,13 @@ networkCosts:
     services:
       # google-cloud-services: when set to true, enables labeling traffic metrics with google cloud
       # service endpoints
-      google-cloud-services: false
+      google-cloud-services: true
       # amazon-web-services: when set to true, enables labeling traffic metrics with amazon web service
       # endpoints.
-      amazon-web-services: false
+      amazon-web-services: true
       # azure-cloud-services: when set to true, enables labeling traffic metrics with azure cloud service
       # endpoints
-      azure-cloud-services: false
+      azure-cloud-services: true
       # user defined services provide a way to define custom service endpoints which will label traffic metrics
       # falling within the defined address range.
       # services:
