@@ -1027,6 +1027,10 @@ Begin Kubecost 2.0 templates
     - name: SMTP_CONFIG_MOUNT_PATH
       value: {{ .Values.kubecostProductConfigs.smtp.mountPath }}
     {{- end }}
+    {{- if .Values.smtpConfigmapName }}
+    - name: SMTP_CONFIGMAP_NAME
+      value: {{ .Values.smtpConfigmapName }}
+    {{- end }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
       value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
