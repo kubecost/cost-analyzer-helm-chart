@@ -3341,8 +3341,10 @@ costEventsAudit:
   # ingestPodUID: false # Enables using UIDs to uniquely ID pods. This requires either Kubecost's replicated KSM metrics, or KSM v2.1.0+. This may impact performance, and changes the default cost-model allocation behavior.
   # regionOverrides: "region1,region2,region3" # list of regions which will override default costmodel provider regions
 
-# Explicit name of the ConfigMap to use for pricing overrides. If not set, a default will apply.
+# Explicit names of various ConfigMaps to use. If not set, a default will apply.
 # pricingConfigmapName: ""
+# productConfigmapName: ""
+# smtpConfigmapName: ""
 
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates
