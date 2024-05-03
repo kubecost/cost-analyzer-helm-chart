@@ -1,6 +1,7 @@
 {{- if .Values.persistentVolume -}}
 {{- if not .Values.persistentVolume.existingClaim -}}
 {{- if .Values.persistentVolume.enabled -}}
+{{- if and (not .Values.federatedETL.agentOnly) (not .Values.federatedETL.agentOnlyUsePVC) -}}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -28,6 +29,7 @@ spec:
     {{- else }}
       storage: 32.0Gi
     {{ end }}
+{{- end -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
