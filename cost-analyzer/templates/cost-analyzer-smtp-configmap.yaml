@@ -1,8 +1,3 @@
-{{- if (((.Values.kubecostProductConfigs).smtp).enabled) }}
-# If the smtp.config is not specified, the configmap will not be created
-{{- if .Values.kubecostProductConfigs.smtp.config }}
-# If the secretname is specified, the configmap will not be created
-{{- if not .Values.kubecostProductConfigs.smtp.secretname }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -10,10 +5,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+{{- if .Values.kubecostProductConfigs.smtp.config }}
 data:
-  {{- if .Values.kubecostProductConfigs.smtp.config }}
   config: {{  .Values.kubecostProductConfigs.smtp.config | quote }}
-  {{- end -}}
-{{- end -}}
-{{- end -}}
 {{- end -}}

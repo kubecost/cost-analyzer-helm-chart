@@ -947,7 +947,7 @@ Begin Kubecost 2.0 templates
     - name: productkey-secret
       mountPath: /var/configs/productkey
     {{- end }}
-    {{- if and ((.Values.kubecostProductConfigs).smtp).enabled ((.Values.kubecostProductConfigs).smtp).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- if and ((.Values.kubecostProductConfigs).smtp).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
     - name: smtp-secret
       mountPath: /var/configs/smtp
     {{- end }}
