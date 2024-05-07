@@ -1,3 +1,4 @@
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -5,7 +6,7 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
-{{- if .Values.kubecostProductConfigs.smtp.config }}
+{{- if (((.Values.kubecostProductConfigs).smtp).config) }}
 data:
   config: {{  .Values.kubecostProductConfigs.smtp.config | quote }}
 {{- end -}}
