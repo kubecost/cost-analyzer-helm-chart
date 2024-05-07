@@ -606,10 +606,6 @@ spec:
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
             {{- end }}
-            {{- if or (.Values.kubecostProductConfigs.cloudIntegrationSecret) (.Values.kubecostProductConfigs.cloudIntegrationJSON) }}
-            - name: cloud-integration
-              mountPath: /var/configs/cloud-integration
-            {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
               mountPath: /var/secrets
