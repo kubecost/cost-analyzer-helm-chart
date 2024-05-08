@@ -912,7 +912,11 @@ Begin Kubecost 2.0 templates
     periodSeconds: {{ .Values.kubecostAggregator.readinessProbe.periodSeconds }}
     failureThreshold: {{ .Values.kubecostAggregator.readinessProbe.failureThreshold }}
   {{- end }}
+  {{- if .Values.kubecostAggregator.imagePullPolicy }}
+  imagePullPolicy: {{ .Values.kubecostAggregator.imagePullPolicy }}
+  {{- else }}
   imagePullPolicy: Always
+  {{- end }}
   args: ["waterfowl"]
   ports:
     - name: tcp-api
@@ -1204,7 +1208,11 @@ Begin Kubecost 2.0 templates
     periodSeconds: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.periodSeconds }}
     failureThreshold: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.failureThreshold }}
   {{- end }}
+  {{- if .Values.kubecostAggregator.imagePullPolicy }}
+  imagePullPolicy: {{ .Values.kubecostAggregator.imagePullPolicy }}
+  {{- else }}
   imagePullPolicy: Always
+  {{- end }}
   args: ["cloud-cost"]
   ports:
     - name: tcp-api

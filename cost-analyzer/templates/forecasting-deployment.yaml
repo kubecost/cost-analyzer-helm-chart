@@ -58,7 +58,11 @@ spec:
               mountPath: /tmp
           securityContext:
             {{- toYaml .Values.global.containerSecurityContext | nindent 12 }}
+          {{- if .Values.forecasting.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.forecasting.imagePullPolicy }}
+          {{- else }}
           imagePullPolicy: Always
+          {{- end }}
           ports:
             - name: tcp-api
               containerPort: 5000
