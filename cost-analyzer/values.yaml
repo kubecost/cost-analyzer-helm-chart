@@ -2287,17 +2287,18 @@ prometheus:
     enabled: false
 
 
-## Module for measuring network costs
-## Ref: https://github.com/kubecost/docs/blob/main/network-allocation.md
+## Optional daemonset to more accurately attribute network costs to the correct workload
+## https://docs.kubecost.com/install-and-configure/advanced-configuration/network-costs-configuration
 networkCosts:
-  enabled: true
+  enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
     tag: v0.17.3
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
-  # For existing Prometheus Installs, annotates the Service which generates Endpoints for each of the network-costs pods.
+  # For existing Prometheus Installs, use the serviceMonitor: or prometheusScrape below.
+  # the below setting annotates the networkCost service endpoints for each of the network-costs pods.
   # The Service is annotated with prometheus.io/scrape: "true" to automatically get picked up by the prometheus config.
   # NOTE: Setting this option to true and leaving the above extraScrapeConfig "job_name: kubecost-networking" configured will cause the
   # NOTE: pods to be scraped twice.
