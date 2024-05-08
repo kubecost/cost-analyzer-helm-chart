@@ -141,7 +141,7 @@ spec:
             - key: productkey.json
               path: productkey.json
         {{- end }}
-        {{- if and ((.Values.kubecostProductConfigs).smtp).enabled ((.Values.kubecostProductConfigs).smtp).secretname }}
+        {{- if ((.Values.kubecostProductConfigs).smtp).secretname }}
         - name: smtp-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.smtp.secretname }}
@@ -594,7 +594,7 @@ spec:
             - name: productkey-secret
               mountPath: /var/configs/productkey
             {{- end }}
-            {{- if and ((.Values.kubecostProductConfigs).smtp).enabled ((.Values.kubecostProductConfigs).smtp).secretname }}
+            {{- if ((.Values.kubecostProductConfigs).smtp).secretname }}
             - name: smtp-secret
               mountPath: /var/configs/smtp
             {{- end }}
@@ -605,10 +605,6 @@ spec:
             {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
-            {{- end }}
-            {{- if or (.Values.kubecostProductConfigs.cloudIntegrationSecret) (.Values.kubecostProductConfigs.cloudIntegrationJSON) }}
-            - name: cloud-integration
-              mountPath: /var/configs/cloud-integration
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
