@@ -1423,6 +1423,14 @@ for more information
 {{- end -}}
 {{- end -}}
 
+{{- define "forecastingEnabled" }}
+{{- if (.Values.forecasting).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "pluginsEnabled" }}
 {{- if (.Values.kubecostModel.plugins).enabled }}
 {{- printf "true" -}}
