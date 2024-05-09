@@ -1221,6 +1221,7 @@ data:
             return 405 '{"forecastingEnabled": "false"}';
         }
         {{- end }}
+
         location /model/productConfigs {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
@@ -1235,10 +1236,12 @@ data:
                 "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
+                "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
                 "chartVersion": "DEVELOP_BRANCH"
                 }
             ';
         }
     }
+
 {{- end }}
 {{- end }}
