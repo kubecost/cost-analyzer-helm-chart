@@ -1436,3 +1436,40 @@ for more information
 {{- printf "false" -}}
 {{- end -}}
 {{- end -}}
+
+
+{{- /*
+  Compute a checksum based on the rendered content of specific ConfigMaps and Secrets.
+*/ -}}
+{{- define "configsChecksum" -}}
+{{- $files := list
+  "cost-analyzer-account-mapping-configmap.yaml"
+  "cost-analyzer-advanced-reports-configmap.yaml"
+  "cost-analyzer-alerts-configmap.yaml"
+  "cost-analyzer-asset-reports-configmap.yaml"
+  "cost-analyzer-cloud-cost-reports-configmap.yaml"
+  "cost-analyzer-config-map-template.yaml"
+  "cost-analyzer-frontend-config-map-template.yaml"
+  "cost-analyzer-metrics-config-map-template.yaml"
+  "cost-analyzer-network-costs-config-map-template.yaml"
+  "cost-analyzer-oidc-config-map-template.yaml"
+  "cost-analyzer-pkey-configmap.yaml"
+  "cost-analyzer-pricing-configmap.yaml"
+  "cost-analyzer-saml-config-map-template.yaml"
+  "cost-analyzer-saved-reports-configmap.yaml"
+  "cost-analyzer-server-configmap.yaml"
+  "cost-analyzer-smtp-configmap.yaml"
+  "gcpstore-config-map-template.yaml"
+  "install-plugins.yaml"
+  "integrations-postgres-queries-configmap.yaml"
+  "kubecost-cluster-controller-actions-config.yaml"
+  "kubecost-cluster-manager-configmap-template.yaml"
+  "mimir-proxy-configmap-template.yaml"
+-}}
+{{- $checksum := "" -}}
+{{- range $files -}}
+  {{- $content := include (print $.Template.BasePath (printf "/%s" .)) $ -}}
+  {{- $checksum = printf "%s%s" $checksum $content | sha256sum -}}
+{{- end -}}
+{{- $checksum | sha256sum -}}
+{{- end -}}
