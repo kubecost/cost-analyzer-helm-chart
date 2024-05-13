@@ -611,9 +611,9 @@ kubecostModel:
       # - datadog
 
     # pre-existing secret for plugin configuration
-    existingCustomSecret: 
+    existingCustomSecret:
       enabled: false
-      name: "" # name of the secret containing plugin config
+      name: ""  # name of the secret containing plugin config
 
     secretName: kubecost-plugin-secret
 
