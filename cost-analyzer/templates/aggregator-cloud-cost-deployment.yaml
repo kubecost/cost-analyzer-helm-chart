@@ -101,12 +101,22 @@ spec:
         {{- end }}
         - name: plugins-dir
           emptyDir: {}
+        {{- if and (not .Values.kubecostModel.plugins.existingCustomSecret.enabled) .Values.kubecostModel.plugins.secretName }}
         - name: plugins-config
           secret:
-            secretName: {{ .Values.kubecostModel.plugins.configSecret }}
+            secretName: {{ .Values.kubecostModel.plugins.secretName }}
             items:
               - key: datadog_config.json
                 path: datadog_config.json
+        {{- end }}
+        {{- if .Values.kubecostModel.plugins.existingCustomSecret.enabled }}
+        - name: plugins-config
+          secret:
+            secretName: {{ .Values.kubecostModel.plugins.existingCustomSecret.name }}
+            items:
+              - key: datadog_config.json
+                path: datadog_config.json
+        {{- end }}
         - name: tmp
           emptyDir: {}
         {{- end }}
