@@ -35,7 +35,7 @@ Set important variables before starting main templates
 Kubecost 2.3 precondition that a full re-ingestion will be triggered for aggregator
 */}}
 {{- define "kubecostV2.3-reingestion-precondition" -}}
-    {{- if semverCompare ">= 2.1.0-0 <2.4.0-0" .Chart.Version }}
+    {{- if semverCompare ">= 2.3.0-0 <2.4.0-0" .Chart.Version }}
         {{- if gt .Release.Revision 1 -}}
             {{- if not .Values.upgrade.acknowledgeV2dot3FullReingestion -}}
                 {{- fail "\n\nKubecost 2.3 requires a full reingestion of all data which will could take significant time. Please acknowledge by setting 'upgrade.acknowledgeV2dot3FullReingestion' to 'true' in your values file." -}}
