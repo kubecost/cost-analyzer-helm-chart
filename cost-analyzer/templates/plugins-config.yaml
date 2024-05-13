@@ -1,5 +1,4 @@
-{{- if and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.secretName}}
-{{- if (not .Values.kubecostModel.plugins.existingCustomSecret.enabled)}}
+{{- if and (not .Values.kubecostModel.plugins.existingCustomSecret.enabled) .Values.kubecostModel.plugins.enabled }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -13,4 +12,3 @@ data:
   {{- end }}
 {{- end }}
 {{- end }}
-
