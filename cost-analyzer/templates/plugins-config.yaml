@@ -11,4 +11,3 @@ data:
     {{ $config | b64enc | indent 4}}
   {{- end }}
 {{- end }}
-{{- end }}
