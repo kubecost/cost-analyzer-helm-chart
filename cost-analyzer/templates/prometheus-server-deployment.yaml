@@ -10,6 +10,9 @@ metadata:
 {{- end }}
   labels:
     {{- include "prometheus.server.labels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
   name: {{ template "prometheus.server.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:
@@ -28,7 +31,16 @@ spec:
 {{ toYaml .Values.prometheus.server.podAnnotations | indent 8 }}
     {{- end }}
       labels:
+        {{/*
+        Force pod restarts on upgrades to ensure the configmap is current
+        */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         {{- include "prometheus.server.labels" . | nindent 8 }}
+        {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
         {{- if .Values.prometheus.server.podLabels}}
         {{ toYaml .Values.prometheus.server.podLabels | nindent 8 }}
         {{- end}}

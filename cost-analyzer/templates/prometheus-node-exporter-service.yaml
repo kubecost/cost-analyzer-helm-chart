@@ -32,7 +32,7 @@ spec:
   {{- end }}
 {{- end }}
   ports:
-    - name: metrics
+    - name: tcp-metrics
       port: {{ .Values.prometheus.nodeExporter.service.servicePort }}
       protocol: TCP
       {{- if .Values.prometheus.nodeExporter.hostNetwork }}

@@ -6,6 +6,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- with .Values.global.additionalLabels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
     {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
     {{- toYaml .Values.kubecostDeployment.labels | nindent 4 }}
     {{- end }}
@@ -37,6 +40,11 @@ spec:
     metadata:
       labels:
         {{- include "cost-analyzer.selectorLabels" . | nindent 8 }}
+        {{/* Force pod restarts on upgrades to ensure the nginx config is current */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
+        {{- include "cost-analyzer.commonLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{ toYaml .Values.global.additionalLabels | nindent 8 }}
         {{- end }}
@@ -63,6 +71,21 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        {{- if .Values.kubecostModel.plugins.enabled }}
+        - name: plugins-dir
+          emptyDir: {}
+        - name: plugins-config
+          secret:
+            secretName: {{ .Values.kubecostModel.plugins.configSecret }}
+            items:
+              - key: datadog_config.json
+                path: datadog_config.json
+        {{- if .Values.kubecostModel.plugins.install.enabled}}
+        - name: install-script
+          configMap:
+            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
+        {{- end }}
+        {{- end }}
         {{- if .Values.global.gcpstore.enabled }}
         - name: ubbagent-config
           configMap:
@@ -76,7 +99,7 @@ spec:
         {{- end }}
         - name: tmp
           emptyDir: {}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         - name: nginx-conf
           configMap:
             name: nginx-conf
@@ -110,8 +133,7 @@ spec:
            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
-        {{- if .Values.kubecostProductConfigs.productKey }}
-        {{- if and .Values.kubecostProductConfigs.productKey.enabled .Values.kubecostProductConfigs.productKey.secretname }}
+        {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
         - name: productkey-secret
           secret:
             secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
@@ -119,7 +141,14 @@ spec:
             - key: productkey.json
               path: productkey.json
         {{- end }}
-        {{- end -}}
+        {{- if ((.Values.kubecostProductConfigs).smtp).secretname }}
+        - name: smtp-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.smtp.secretname }}
+            items:
+            - key: smtp.json
+              path: smtp.json
+        {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
         - name: gcp-key-secret
@@ -256,23 +285,6 @@ spec:
         {{- end }}
         {{- end }}
         {{- end }}
-        {{- if .Values.kubecostModel.plugins.enabled  }}
-        {{- if .Values.kubecostModel.plugins.install.enabled}}
-        - name: install-script
-          configMap:
-            name: {{ template "cost-analyzer.fullname" . }}-install-plugins
-        {{- end }}
-        - name: plugins-dir
-          emptyDir: {}
-        
-        - name: plugins-config
-          secret:
-            {{- if (eq .Values.kubecostModel.plugins.configSecret "") }}
-            secretName: {{ template "cost-analyzer.fullname" . }}-plugins-config
-            {{- else }}
-            secretName: {{  .Values.kubecostModel.plugins.configSecret }}
-            {{- end }}
-        {{- end }}
         {{- if .Values.extraVolumes }}
         # Extra volume(s)
         {{- toYaml .Values.extraVolumes | nindent 8 }}
@@ -311,21 +323,21 @@ spec:
             claimName: {{ template "cost-analyzer.fullname" . }}-db
 {{- end }}
 {{- end }}
-      initContainers:   
-      {{- if (and .Values.kubecostModel.plugins.enabled .Values.kubecostModel.plugins.install.enabled )}}
+      initContainers:
+        {{- if and .Values.kubecostModel.plugins.enabled (not (eq (include "aggregator.deployMethod" .) "statefulset")) }}
         - name: plugin-installer
           image: {{ .Values.kubecostModel.plugins.install.fullImageName }}
           command: ["sh", "/install/install_plugins.sh"]
-      {{- with .Values.kubecostModel.plugins.install.securityContext }}
+          {{- with .Values.kubecostModel.plugins.install.securityContext }}
           securityContext: {{- toYaml . | nindent 12 }}
-      {{- end }}
+          {{- end }}
           volumeMounts:
             - name: install-script
               mountPath: /install
             - name: plugins-dir
               mountPath: {{ .Values.kubecostModel.plugins.folder }}
-      {{- end }}
-      {{- if .Values.supportNFS }}   
+        {{- end }}
+        {{- if .Values.supportNFS }}
         - name: config-db-perms-fix
         {{- if .Values.initChownDataImage }}
           image: {{ .Values.initChownDataImage }}
@@ -512,9 +524,11 @@ spec:
           - name: tcp-model
             containerPort: 9003
             protocol: TCP
+          {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
           - name: tcp-frontend
             containerPort: 9090
             protocol: TCP
+          {{- end }}
         {{- with .Values.kubecostModel.extraPorts }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
@@ -548,19 +562,6 @@ spec:
               mountPath: /var/secrets
               readOnly: true
             {{- end }}
-            {{- if .Values.kubecostModel.plugins.enabled }} 
-            - mountPath: /opt/opencost/plugin
-              name: plugins-dir
-              readOnly: false
-            - name: tmp
-              mountPath: /tmp
-            {{- range $key := .Values.kubecostModel.plugins.enabledPlugins }}
-            - mountPath: /opt/opencost/plugin/config/{{$key}}_config.json
-              subPath: {{$key}}_config.json
-              name: plugins-config
-              readOnly: true
-            {{- end }}
-            {{- end }}
             - name: persistent-configs
               mountPath: /var/configs
             {{- if .Values.extraVolumeMounts }}
@@ -589,11 +590,13 @@ spec:
             {{- end }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
-            {{- if .Values.kubecostProductConfigs.productKey }}
-            {{- if .Values.kubecostProductConfigs.productKey.secretname }}
+            {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
             - name: productkey-secret
               mountPath: /var/configs/productkey
             {{- end }}
+            {{- if ((.Values.kubecostProductConfigs).smtp).secretname }}
+            - name: smtp-secret
+              mountPath: /var/configs/smtp
             {{- end }}
             {{- if .Values.kubecostProductConfigs.gcpSecretName }}
             - name: gcp-key-secret
@@ -602,10 +605,6 @@ spec:
             {{- if or .Values.kubecostProductConfigs.azureStorageSecretName .Values.kubecostProductConfigs.azureStorageCreateSecret }}
             - name: azure-storage-config
               mountPath: /var/azure-storage-config
-            {{- end }}
-            {{- if or (.Values.kubecostProductConfigs.cloudIntegrationSecret) (.Values.kubecostProductConfigs.cloudIntegrationJSON) }}
-            - name: cloud-integration
-              mountPath: /var/configs/cloud-integration
             {{- end }}
             {{- if or .Values.kubecostProductConfigs.serviceKeySecretName .Values.kubecostProductConfigs.createServiceKeySecret }}
             - name: service-key-secret
@@ -682,6 +681,10 @@ spec:
             - name: PRODUCT_CONFIGMAP_NAME
               value: {{ .Values.productConfigmapName }}
             {{- end }}
+            {{- if .Values.smtpConfigmapName }}
+            - name: SMTP_CONFIGMAP_NAME
+              value: {{ .Values.smtpConfigmapName }}
+            {{- end }}
             {{- if .Values.appConfigmapName }}
             - name: APP_CONFIGMAP_NAME
               value: {{ .Values.appConfigmapName }}
@@ -714,8 +717,6 @@ spec:
             - name: METRICS_CONFIGMAP_NAME
               value: {{ .Values.metricsConfigmapName }}
             {{- end }}
-            - name: CUSTOM_COST_ENABLED
-              value: {{ .Values.kubecostModel.plugins.enabled | quote }}
             - name: READ_ONLY
               value: {{ (quote .Values.readonly) | default (quote false) }}
             - name: PROMETHEUS_SERVER_ENDPOINT
@@ -723,8 +724,6 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
-            - name: CLOUD_COST_ENABLED
-              value: "false"
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.
             {{- if .Values.kubecostProductConfigs }}
@@ -744,11 +743,13 @@ spec:
               value: production
             {{- end }}
             {{- if .Values.kubecostProductConfigs }}
-            {{- if .Values.kubecostProductConfigs.productKey }}
-            {{- if .Values.kubecostProductConfigs.productKey.mountPath }}
+            {{- if ((.Values.kubecostProductConfigs).productKey).mountPath }}
             - name: PRODUCT_KEY_MOUNT_PATH
               value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
             {{- end }}
+            {{- if ((.Values.kubecostProductConfigs).smtp).mountPath }}
+            - name: SMTP_CONFIG_MOUNT_PATH
+              value: {{ .Values.kubecostProductConfigs.smtp.mountPath }}
             {{- end }}
             {{- if .Values.kubecostProductConfigs.ingestPodUID }}
             - name: INGEST_POD_UID
@@ -836,18 +837,10 @@ spec:
             {{- end }}
             - name: LEGACY_EXTERNAL_API_DISABLED
               value: {{ (quote .Values.kubecostModel.legacyOutOfClusterAPIDisabled) | default (quote false) }}
-            - name: OUT_OF_CLUSTER_PROM_METRICS_ENABLED
-              value: {{ (quote .Values.kubecostModel.outOfClusterPromMetricsEnabled) | default (quote false) }}
             - name: CACHE_WARMING_ENABLED
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
-            - name: ETL_ENABLED
-              value: {{ (quote .Values.kubecostModel.etl) | default (quote true) }}
-            {{- if .Values.kubecostModel.etlReadOnlyMode }}
-            - name: ETL_READ_ONLY
-              value: "true"
-            {{- end }}
             {{- if $etlBackupBucketSecret }}
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
@@ -868,18 +861,6 @@ spec:
             - name: CURRENT_CLUSTER_ID_FILTER_ENABLED
               value: "true"
             {{- end }}
-            - name: ETL_STORE_READ_ONLY
-              value: {{ (quote .Values.kubecostModel.etlStoreReadOnly) | default (quote false) }}
-            - name : ETL_CLOUD_USAGE_ENABLED
-            {{- if kindIs "bool" .Values.kubecostModel.etlCloudUsage }}
-              value: {{ (quote .Values.kubecostModel.etlCloudUsage) }}
-            {{- else if kindIs "bool" .Values.kubecostModel.etlCloudAsset }}
-              value: {{ (quote .Values.kubecostModel.etlCloudAsset) }}
-            {{- else }}
-              value: "false"
-            {{- end }}
-            - name: CLOUD_ASSETS_EXCLUDE_PROVIDER_ID
-              value: {{ (quote .Values.kubecostModel.cloudAssetsExcludeProviderID) | default (quote false) }}
             {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: ETL_PATH_PREFIX
               value: "/var/db"
@@ -889,7 +870,7 @@ spec:
             - name: ETL_MAX_PROMETHEUS_QUERY_DURATION_MINUTES
               value: {{ (quote .Values.kubecostModel.maxPrometheusQueryDurationMinutes) | default (quote 1440) }}
             - name: ETL_DAILY_STORE_DURATION_DAYS
-              value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+              value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
             - name: ETL_WEEKLY_STORE_DURATION_WEEKS
@@ -898,8 +879,7 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
               value: {{ (quote .Values.kubecostModel.etlAssetReconciliationEnabled) | default (quote true) }}
-            - name: ETL_USE_UNBLENDED_COST
-              value: {{ (quote .Values.kubecostModel.etlUseUnblendedClost) | default (quote false) }}
+
             {{- if .Values.kubecostModel }}
             {{- if .Values.kubecostModel.allocation }}
             {{- if .Values.kubecostModel.allocation.nodeLabels }}
@@ -1082,7 +1062,7 @@ spec:
             - name: DIAGNOSTICS_COLLECT_HELM_VALUES
               value: {{ quote .Values.diagnostics.collectHelmValues }}
             {{- end }}
-        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) }}
+        {{- if and .Values.kubecostFrontend.enabled (not .Values.federatedETL.agentOnly) (not (eq (include "frontend.deployMethod" .) "haMode")) }}
         {{- if .Values.kubecostFrontend }}
         {{- if .Values.kubecostFrontend.fullImageName }}
         - image: {{ .Values.kubecostFrontend.fullImageName }}

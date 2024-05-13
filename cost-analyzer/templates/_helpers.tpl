@@ -23,6 +23,14 @@ Set important variables before starting main templates
   {{- end }}
 {{- end }}
 
+{{- define "frontend.deployMethod" -}}
+  {{- if eq .Values.kubecostFrontend.deployMethod "haMode" -}}
+    {{- printf "haMode" -}}
+  {{- else -}}
+    {{- printf "singlepod" -}}
+  {{- end -}}
+{{- end -}}
+
 {{/*
 Kubecost 2.0 preconditions
 */}}
@@ -56,14 +64,6 @@ Kubecost 2.0 preconditions
     {{- fail "\n\nYou are attempting to upgrade to Kubecost 2.x.\nKubecost no longer includes Thanos by default. \nPlease see https://docs.kubecost.com/install-and-configure/install/kubecostv2 for more information.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
   {{- end -}}
 
-  {{- if or (((.Values.global).amp).enabled) (((.Values.global).gmp).enabled) (((.Values.global).thanos).queryService) (((.Values.global).mimirProxy).enabled) -}}
-    {{- if (not (.Values.federatedETL).federatedCluster)  -}}
-      {{- if (not (.Values.upgrade).toV2) -}}
-      {{- fail "\n\nMulti-Cluster-Prometheus Error:\nYou are attempting to upgrade to Kubecost 2.x\nSupport for multi-cluster Prometheus (Thanos/AMP/GMP/mimir/etc) without using `Kubecost Federated ETL Object Storage` will be added in future release. \nIf this is a single cluster Kubecost environment, upgrading is supported using a flag to acknowledge this change.\nMore information can be found here: \nhttps://docs.kubecost.com/install-and-configure/install/kubecostv2\nIf you have any questions or concerns, please reach out to us at product@kubecost.com\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
-      {{- end -}}
-    {{- end -}}
-  {{- end -}}
-
   {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
     {{- if (not (.Values.upgrade).toV2) -}}
       {{- fail "\n\nSSO with RBAC is enabled.\nNote that Kubecost 2.x has significant architectural changes that may impact RBAC.\nThis should be tested before giving end-users access to the UI.\nKubecost has tested various configurations and believe that 2.x will be 100% compatible with existing configurations.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\n\nWhen ready to upgrade, add `--set upgrade.toV2=true`." -}}
@@ -75,9 +75,6 @@ Kubecost 2.0 preconditions
   {{- end -}}
 
 
-  {{- if (.Values.agent) -}}
-    {{- fail "\n\nKubecost 2.0 Does not support Thanos based agents. For Thanos, please continue to use 1.108.x.\nConsider moving to Kubecost Federated ETL based agents.\nRefer to the following documentation for more information: https://docs.kubecost.com/install-and-configure/install/kubecostv2\nSupport for Thanos agents is under consideration.\nIf you have any questions or concerns, please reach out to us at product@kubecost.com" -}}
-  {{- end -}}
   {{- if .Values.kubecostModel.openSourceOnly -}}
     {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
   {{- end -}}
@@ -179,6 +176,20 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 {{- end -}}
 
 {{/*
+Verify a cluster_id is set in the Prometheus global config
+*/}}
+{{- define "clusterIDCheck" -}}
+  {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+    {{- if not .Values.prometheus.server.clusterIDConfigmap }}
+      {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
+        {{- fail "\n\nWhen using multi-cluster Kubecost, you must specify a unique `.Values.prometheus.server.global.external_labels.cluster_id` for each cluster.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+
+{{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
 Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
 support templating a chart which uses the lookup function.
@@ -264,6 +275,9 @@ Expand the name of the chart.
 {{- define "forecasting.name" -}}
 {{- default "forecasting" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
+{{- define "frontend.name" -}}
+{{- default "frontend" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Create a default fully qualified app name.
@@ -304,6 +318,9 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- define "forecasting.fullname" -}}
 {{- printf "%s-%s" .Release.Name (include "forecasting.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+{{- define "frontend.fullname" -}}
+{{- printf "%s-%s" .Release.Name (include "frontend.name" .) | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -355,6 +372,10 @@ Create the fully qualified name for Prometheus alertmanager service.
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
+{{- end -}}
+
+{{- define "frontend.serviceName" -}}
+{{ include "frontend.fullname" . }}
 {{- end -}}
 
 {{- define "diagnostics.serviceName" -}}
@@ -505,6 +526,15 @@ Create the selector labels.
 */}}
 {{- define "cost-analyzer.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app: cost-analyzer
+{{- end -}}
+
+{{/*
+Create the selector labels for haMode frontend.
+*/}}
+{{- define "frontend.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "frontend.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app: cost-analyzer
 {{- end -}}
@@ -882,7 +912,11 @@ Begin Kubecost 2.0 templates
     periodSeconds: {{ .Values.kubecostAggregator.readinessProbe.periodSeconds }}
     failureThreshold: {{ .Values.kubecostAggregator.readinessProbe.failureThreshold }}
   {{- end }}
+  {{- if .Values.kubecostAggregator.imagePullPolicy }}
+  imagePullPolicy: {{ .Values.kubecostAggregator.imagePullPolicy }}
+  {{- else }}
   imagePullPolicy: Always
+  {{- end }}
   args: ["waterfowl"]
   ports:
     - name: tcp-api
@@ -923,6 +957,14 @@ Begin Kubecost 2.0 templates
       # of the init container that gives everything under /var/configs 777.
       mountPath: /var/configs/waterfowl
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: productkey-secret
+      mountPath: /var/configs/productkey
+    {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).smtp).secretname (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: smtp-secret
+      mountPath: /var/configs/smtp
+    {{- end }}
     {{- if .Values.saml }}
     {{- if .Values.saml.enabled }}
     {{- if .Values.saml.secretName }}
@@ -959,6 +1001,16 @@ Begin Kubecost 2.0 templates
     {{- end }}
     {{- end }}
     {{- end }}
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: postgres-creds
+      mountPath: /var/configs/integrations/postgres-creds
+    - name: postgres-queries
+      mountPath: /var/configs/integrations/postgres-queries
+    {{- end }}
+    {{- /* Only adds extraVolumeMounts if aggregator is running as its own pod */}}
+    {{- if and .Values.kubecostAggregator.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
+    {{- end }}
   env:
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
@@ -971,6 +1023,20 @@ Begin Kubecost 2.0 templates
           name: {{ .Values.prometheus.server.clusterIDConfigmap }}
           key: CLUSTER_ID
     {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).productKey).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: PRODUCT_KEY_MOUNT_PATH
+      value: {{ .Values.kubecostProductConfigs.productKey.mountPath }}
+    {{- end }}
+    {{- if and ((.Values.kubecostProductConfigs).smtp).mountPath (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    - name: SMTP_CONFIG_MOUNT_PATH
+      value: {{ .Values.kubecostProductConfigs.smtp.mountPath }}
+    {{- end }}
+    {{- if .Values.smtpConfigmapName }}
+    - name: SMTP_CONFIGMAP_NAME
+      value: {{ .Values.smtpConfigmapName }}
+    {{- end }}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
       value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
@@ -985,10 +1051,22 @@ Begin Kubecost 2.0 templates
     - name: ETL_PATH_PREFIX
       value: "/var/db"
     {{- end }}
-    - name: ETL_ENABLED
-      value: "false" # this container should never run KC's concept of "ETL"
     - name: CLOUD_PROVIDER_API_KEY
       value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API key.This GCP api key is expected to be here and is limited to accessing google's billing API.'
+    {{- if .Values.global.integrations.postgres.enabled }}
+    - name: AGGREGATOR_ADDRESS
+    {{- if or .Values.saml.enabled .Values.oidc.enabled }}
+      value: localhost:9008
+    {{- else }}
+      value: localhost:9004
+    {{- end }}
+    - name: INT_PG_ENABLED
+      value: "true"
+    - name: INT_PG_RUN_INTERVAL
+      value: {{ quote .Values.global.integrations.postgres.runInterval }}
+    {{- end }}
+    - name: READ_ONLY
+      value: {{ (quote .Values.readonly) | default (quote false) }}
     {{- if .Values.systemProxy.enabled }}
     - name: HTTP_PROXY
       value: {{ .Values.systemProxy.httpProxyUrl }}
@@ -1003,6 +1081,12 @@ Begin Kubecost 2.0 templates
     - name: no_proxy
       value:  {{ .Values.systemProxy.noProxy }}
     {{- end }}
+    {{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
+    - name: CARBON_ESTIMATES_ENABLED
+      value: "true"
+    {{- end }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- if .Values.kubecostAggregator.extraEnv -}}
     {{- toYaml .Values.kubecostAggregator.extraEnv | nindent 4 }}
     {{- end }}
@@ -1022,7 +1106,6 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-
     {{- range $key, $value := .Values.kubecostAggregator.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1127,7 +1210,11 @@ Begin Kubecost 2.0 templates
     periodSeconds: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.periodSeconds }}
     failureThreshold: {{ .Values.kubecostAggregator.cloudCost.readinessProbe.failureThreshold }}
   {{- end }}
+  {{- if .Values.kubecostAggregator.imagePullPolicy }}
+  imagePullPolicy: {{ .Values.kubecostAggregator.imagePullPolicy }}
+  {{- else }}
   imagePullPolicy: Always
+  {{- end }}
   args: ["cloud-cost"]
   ports:
     - name: tcp-api
@@ -1155,6 +1242,20 @@ Begin Kubecost 2.0 templates
     - name: cloud-integration
       mountPath: /var/configs/cloud-integration
   {{- end }}
+    {{- if .Values.kubecostModel.plugins.enabled }}
+    - mountPath: {{ .Values.kubecostModel.plugins.folder }}
+      name: plugins-dir
+      readOnly: false
+    - name: tmp
+      mountPath: /tmp
+    - mountPath: {{ $.Values.kubecostModel.plugins.folder }}/config
+      name: plugins-config
+      readOnly: true
+    {{- end }}
+  {{- /* Only adds extraVolumeMounts when cloudcosts is running as its own pod */}}
+  {{- if and .Values.kubecostAggregator.cloudCost.extraVolumeMounts (eq (include "aggregator.deployMethod" .) "statefulset") }}
+    {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
+  {{- end }}
   env:
     - name: CONFIG_PATH
       value: /var/configs/
@@ -1168,22 +1269,16 @@ Begin Kubecost 2.0 templates
     - name: FEDERATED_CLUSTER
       value: "true"
     {{- end}}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
       value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.queryWindowDays | default 7 | quote }}
     - name: CLOUD_COST_RUN_WINDOW_DAYS
       value: {{ .Values.kubecostAggregator.cloudCost.runWindowDays | default 3 | quote }}
-    {{- with .Values.kubecostModel.cloudCost }}
-    {{- with .labelList }}
-    - name: CLOUD_COST_IS_INCLUDE_LIST
-      value: {{ (quote .IsIncludeList) | default (quote false) }}
-    - name: CLOUD_COST_LABEL_LIST
-      value: {{ (quote .labels) }}
-    {{- end }}
-    - name: CLOUD_COST_TOP_N
-      value: {{ (quote .topNItems) | default (quote 1000) }}
-    {{- end }}
+    - name: CUSTOM_COST_ENABLED
+      value: {{ .Values.kubecostModel.plugins.enabled | quote }}
     {{- range $key, $value := .Values.kubecostAggregator.cloudCost.env }}
     - name: {{ $key | quote }}
       value: {{ $value | quote }}
@@ -1210,6 +1305,26 @@ SSO enabled flag for nginx configmap
 {{- define "ssoEnabled" -}}
   {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
     {{- printf "true" -}}
+  {{- else -}}
+    {{- printf "false" -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+To use the Kubecost built-in Teams UI RBAC< you must enable SSO and RBAC and not specify any groups.
+Groups is only used when using external RBAC.
+*/}}
+{{- define "rbacTeamsEnabled" -}}
+  {{- if or (.Values.saml).enabled (.Values.oidc).enabled -}}
+    {{- if or ((.Values.saml).rbac).enabled ((.Values.oidc).rbac).enabled -}}
+      {{- if not (or (.Values.saml).groups (.Values.oidc).groups) -}}
+        {{- printf "true" -}}
+        {{- else -}}
+        {{- printf "false" -}}
+      {{- end -}}
+      {{- else -}}
+        {{- printf "false" -}}
+    {{- end -}}
   {{- else -}}
     {{- printf "false" -}}
   {{- end -}}
@@ -1299,3 +1414,35 @@ for more information
 {{- fail (include "azureCloudIntegrationJSON" .) }}
 {{- end }}
 {{- end }}
+
+{{- define "clusterControllerEnabled" }}
+{{- if (.Values.clusterController).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "forecastingEnabled" }}
+{{- if (.Values.forecasting).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "pluginsEnabled" }}
+{{- if (.Values.kubecostModel.plugins).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "carbonEstimatesEnabled" }}
+{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}

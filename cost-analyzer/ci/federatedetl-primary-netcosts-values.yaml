@@ -6,9 +6,6 @@ federatedETL:
   federatedCluster: true
 kubecostModel:
   containerStatsEnabled: true
-  cloudCost:
-    enabled: true  # Set to true to enable CloudCost view that gives you visibility of your Cloud provider resources cost
-  etlCloudAsset: false  # Set etlCloudAsset to false when cloudCost.enabled=true
   federatedStorageConfigSecret: federated-store
 serviceAccount:  # this example uses AWS IRSA, which creates a service account with rights to the s3 bucket. If using keys+secrets in the federated-store, set create: true
   create: true

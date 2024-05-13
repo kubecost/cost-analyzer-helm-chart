@@ -630,7 +630,11 @@
   "refresh": "",
   "revision": 1,
   "schemaVersion": 39,
-  "tags": [],
+  "tags": [
+		"utilization",
+		"metrics",
+    "kubecost"
+  ],
   "templating": {
     "list": [
       {
@@ -778,7 +782,7 @@
   },
   "timezone": "browser",
   "title": "Pod utilization metrics (multi-cluster)",
-  "uid": "at-cost-analysis-pod2",
+  "uid": "at-cost-analysis-pod-utilization-multi-cluster",
   "version": 2,
   "weekStart": ""
 }

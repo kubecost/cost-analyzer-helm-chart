@@ -21,7 +21,7 @@
   "links": [],
   "panels": [
     {
-      "content": "Note: this dashboard requires Kubecost metrics to be available in your Prometheus deployment. [Learn more](https://github.com/kubecost/cost-model/blob/master/PROMETHEUS.md)",
+      "content": "Deprecated -  It is not expected to match Kubecost UI/API.",
       "gridPos": {
         "h": 2,
         "w": 24,
@@ -1479,6 +1479,7 @@
   "schemaVersion": 16,
   "style": "dark",
   "tags": [
+    "kubecost",
     "cost",
     "utilization",
     "metrics"
@@ -1676,7 +1677,7 @@
     ]
   },
   "timezone": "",
-  "title": "Kubecost cluster metrics",
+  "title": "Deprecated - Kubecost cluster metrics",
   "uid": "JOUdHGZZz",
   "version": 20
 }

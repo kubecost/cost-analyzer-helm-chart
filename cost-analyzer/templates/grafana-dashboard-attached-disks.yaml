@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: grafana-dashboard-pod-utilization
+  name: grafana-dashboard-attached-disk-metrics
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -16,6 +16,6 @@ metadata:
   annotations:
 {{- toYaml .Values.grafana.sidecar.dashboards.annotations | nindent 4 }}
 data:
-  pod-utilization.json: |-
-{{- .Files.Get "grafana-dashboards/pod-utilization.json" | nindent 4 }}
+  attached-disks.json: |-
+{{- .Files.Get "grafana-dashboards/attached-disks.json" | nindent 4 }}
 {{- end -}}

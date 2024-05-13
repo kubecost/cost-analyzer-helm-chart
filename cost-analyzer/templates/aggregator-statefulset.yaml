@@ -44,6 +44,10 @@ spec:
       labels:
         app.kubernetes.io/name: aggregator
         app.kubernetes.io/instance: {{ .Release.Name }}
+        {{/* Force pod restarts on upgrades to ensure the nginx config is current */}}
+        {{- if not .Values.global.platforms.cicd.enabled }}
+        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
+        {{- end }}
         app: aggregator
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
@@ -85,7 +89,15 @@ spec:
             defaultMode: 420
             secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
-        {{- fail "Kubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- end }}
+        {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
+        - name: productkey-secret
+          secret:
+            secretName: {{ .Values.kubecostProductConfigs.productKey.secretname }}
+            items:
+            - key: productkey.json
+              path: productkey.json
         {{- end }}
         {{- if .Values.saml }}
         {{- if .Values.saml.enabled }}
@@ -135,6 +147,21 @@ spec:
             secretName: {{ .Values.oidc.existingCustomSecret.name }}
         {{- end }}
         {{- end }}
+        {{- end }}
+        {{- if .Values.global.integrations.postgres.enabled }}
+        - name: postgres-creds
+          secret:
+            {{- if not (eq .Values.global.integrations.postgres.databaseSecretName "") }}
+            secretName: {{ .Values.global.integrations.postgres.databaseSecretName }}
+            {{- else }}
+            secretName: kubecost-integrations-postgres
+            {{- end }}
+        - name: postgres-queries
+          configMap:
+            name: kubecost-integrations-postgres-queries
+        {{- end }}
+        {{- if .Values.kubecostAggregator.extraVolumes }}
+        {{- toYaml .Values.kubecostAggregator.extraVolumes | nindent 8 }}
         {{- end }}
       containers:
         {{- include "aggregator.containerTemplate" . | nindent 8 }}

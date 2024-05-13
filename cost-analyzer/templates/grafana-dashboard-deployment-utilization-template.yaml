@@ -1,11 +1,8 @@
-{{- if .Values.grafana -}}
-{{- if .Values.grafana.sidecar -}}
-{{- if .Values.grafana.sidecar.dashboards -}}
-{{- if and (.Values.grafana.sidecar.dashboards.enabled ) (eq (include "cost-analyzer.grafanaEnabled" .) "true") -}}
+{{- if (((.Values.grafana).sidecar).dashboards).enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: deployment-utilization-dashboard
+  name: grafana-dashboard-deployment-utilization
   {{- if $.Values.grafana.namespace_dashboards }}
   namespace: {{ $.Values.grafana.namespace_dashboards }}
   {{- end }}
@@ -17,11 +14,8 @@ metadata:
     grafana_dashboard: "1"
     {{- end }}
   annotations:
-{{ toYaml .Values.grafana.sidecar.dashboards.annotations | indent 4 }}
+{{- toYaml .Values.grafana.sidecar.dashboards.annotations | nindent 4 }}
 data:
-    deployment-utilization.json: |-
-{{ .Files.Get "deployment-utilization.json" | indent 8 }}
-{{- end -}}
-{{- end -}}
-{{- end -}}
+  deployment-utilization.json: |-
+{{- .Files.Get "grafana-dashboards/deployment-utilization.json" | nindent 4 }}
 {{- end -}}
