@@ -1025,6 +1025,8 @@ Begin Kubecost 2.0 templates
     - name: SMTP_CONFIGMAP_NAME
       value: {{ .Values.smtpConfigmapName }}
     {{- end }}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
       value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}
@@ -1258,7 +1260,7 @@ Begin Kubecost 2.0 templates
       value: "true"
     {{- end}}
     - name: ETL_DAILY_STORE_DURATION_DAYS
-      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
       value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
@@ -1405,6 +1407,14 @@ for more information
 
 {{- define "clusterControllerEnabled" }}
 {{- if (.Values.clusterController).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
+{{- define "forecastingEnabled" }}
+{{- if (.Values.forecasting).enabled }}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}

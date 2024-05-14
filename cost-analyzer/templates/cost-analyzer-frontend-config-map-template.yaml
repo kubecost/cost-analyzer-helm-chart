@@ -992,6 +992,14 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/diagnostic/ingestionSummary {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/diagnostic/ingestionSummary;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/diagnostic/derivationRecords {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/diagnostic/derivationRecords;
@@ -1221,6 +1229,7 @@ data:
             return 405 '{"forecastingEnabled": "false"}';
         }
         {{- end }}
+
         location /model/productConfigs {
             default_type 'application/json';
             add_header 'Access-Control-Allow-Origin' '*' always;
@@ -1235,10 +1244,12 @@ data:
                 "pluginsEnabled": "{{ template "pluginsEnabled" . }}",
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
+                "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
                 "chartVersion": "DEVELOP_BRANCH"
                 }
             ';
         }
     }
+
 {{- end }}
 {{- end }}
