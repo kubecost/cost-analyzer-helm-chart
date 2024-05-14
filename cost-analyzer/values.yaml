@@ -304,7 +304,7 @@ global:
 ##
 upgrade:
   toV2: false
-  ## This flag is only required for users upgrading to 2.3 from a previous version.
+  ## This flag is only required for users upgrading to 2.3 or later from a previous version.
   ## This is because 2.3 will trigger a full re-ingestion of all available data into aggregator.
   acknowledgeV2dot3FullReingestion: false
 
