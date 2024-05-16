@@ -1302,7 +1302,9 @@ data:
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
-                "chartVersion": "DEVELOP_BRANCH"
+                "chartVersion": "DEVELOP_BRANCH",
+                "hourlyDataRetention": "{{ (.Values.kubecostModel.etlHourlyStoreDurationHours) }}",
+                "dailyDataRetention": "{{ (.Values.kubecostModel.etlDailyStoreDurationDays) }}"
                 }
             ';
         }

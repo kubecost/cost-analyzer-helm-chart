@@ -568,14 +568,10 @@ kubecostModel:
   # Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 731
   # The total number of hours the ETL pipelines will build
-  # Set to 0 to disable hourly ETL (not recommended)
+  # Set to 0 to disable hourly ETL (recommended for large environments)
   # Must be < prometheus server retention, otherwise empty data may overwrite
   # known-good data
   etlHourlyStoreDurationHours: 49
-  # The total number of weeks the ETL pipelines will build
-  # Set to 0 to disable weekly ETL (not recommended)
-  # The default is 53 to ensure at least a year of coverage (371 days)
-  etlWeeklyStoreDurationWeeks: 53
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
