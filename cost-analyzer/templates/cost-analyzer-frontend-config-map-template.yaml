@@ -984,25 +984,25 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/diagnostic/ingestionRecords {
+        location = /model/debug/ingestionRecords {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/diagnostic/ingestionRecords;
+            proxy_pass http://aggregator/debug/ingestionRecords;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/diagnostic/ingestionSummary {
+        location = /model/debug/ingestionSummary {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/diagnostic/ingestionSummary;
+            proxy_pass http://aggregator/debug/ingestionSummary;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location = /model/diagnostic/derivationRecords {
+        location = /model/debug/derivationRecords {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
-            proxy_pass http://aggregator/diagnostic/derivationRecords;
+            proxy_pass http://aggregator/debug/derivationRecords;
             proxy_redirect off;
             proxy_set_header Connection "";
             proxy_set_header  X-Real-IP  $remote_addr;
