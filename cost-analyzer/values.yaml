@@ -566,7 +566,7 @@ kubecostModel:
   etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
-  etlDailyStoreDurationDays: 91
+  etlDailyStoreDurationDays: 731
   # The total number of hours the ETL pipelines will build
   # Set to 0 to disable hourly ETL (not recommended)
   # Must be < prometheus server retention, otherwise empty data may overwrite
@@ -2396,7 +2396,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.9
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.11
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -3055,7 +3055,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.26.1
+      tag: 1.26.2
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
