@@ -491,6 +491,77 @@ spec:
           - name: ubbagent-config
             mountPath: /etc/ubbagent
         {{- end }}
+        {{- if .Values.global.ammsp.enabled }}
+        - name: {{ .Values.global.ammsp.aadAuthProxy.name }}
+          image: {{ .Values.global.ammsp.aadAuthProxy.image }}
+          {{- if .Values.global.ammsp.aadAuthProxy.imagePullPolicy }}
+          imagePullPolicy: {{ .Values.global.ammsp.aadAuthProxy.imagePullPolicy }}
+          {{- else }}
+          imagePullPolicy: Always
+          {{- end }}
+          env:
+          - name: AUDIENCE
+            value: {{ .Values.global.ammsp.aadAuthProxy.audience }}
+          - name: TARGET_HOST
+            value: {{ .Values.global.ammsp.queryEndpoint }}
+          - name: LISTENING_PORT
+            value: {{ .Values.global.ammsp.aadAuthProxy.port | quote }}
+          - name: IDENTITY_TYPE
+            value: {{ .Values.global.ammsp.aadAuthProxy.identityType }}
+          {{- if eq .Values.global.ammsp.aadAuthProxy.identityType "userAssigned"}}
+          - name: AAD_CLIENT_ID
+            value: {{ required "aadClientId is required for userAssigned identity types" .Values.global.ammsp.aadAuthProxy.aadClientId | toString | trim | quote }}
+          {{- else if eq .Values.global.ammsp.aadAuthProxy.identityType "aadApplication" }}
+          - name: AAD_CLIENT_ID
+            value: {{ required "aadClientId is required for aadApplication identity types" .Values.global.ammsp.aadAuthProxy.aadClientId | toString | trim | quote }}
+          - name: AAD_TENANT_ID
+            value: {{ required "aadTenantId is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadTenantId | toString | trim | quote }}
+          - name: AAD_CLIENT_CERTIFICATE_PATH
+            value: {{ required "aadClientCertificatePath is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadClientCertificatePath | toString | trim | quote }}
+          {{- end}}
+          - name: AAD_TOKEN_REFRESH_INTERVAL_IN_PERCENTAGE
+            value: "10"
+          - name: OTEL_SERVICE_NAME
+            value: {{ .Values.global.ammsp.aadAuthProxy.name | replace "-" "_" }}
+          {{- if .Values.systemProxy.enabled }}
+          - name: HTTP_PROXY
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+          - name: http_proxy
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+          - name: HTTPS_PROXY
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+          - name: https_proxy
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+          - name: NO_PROXY
+            value: "{{ .Values.systemProxy.noProxy }}"
+          - name: no_proxy
+            value: "{{ .Values.systemProxy.noProxy }}"
+          {{- end }}
+          ports:
+          - name: http
+            containerPort: {{ .Values.global.ammsp.aadAuthProxy.port | int }}
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+        {{- end }}
         {{- if .Values.kubecostModel }}
         {{- if .Values.kubecostModel.fullImageName }}
         - image: {{ .Values.kubecostModel.fullImageName }}
