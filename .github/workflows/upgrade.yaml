@@ -1,0 +1,96 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Helm upgrade
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    - cron: '30 22 * * 4' # Every Thursday at 10:30 PM
+
+jobs:
+  discover-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      versionmatrix: ${{ steps.versions.outputs.versions }}
+
+    steps:
+      - name: Discover versions
+        id: versions
+        run: |
+          ## Find the latest version of a Helm chart and the previous minor version.
+          REPO=kubecost
+
+          # Init empty array
+          VERSIONS='[]'
+
+          helm repo add $REPO https://kubecost.github.io/cost-analyzer/
+
+          helm repo update
+
+          # Get the current latest version of the chart.
+          LATEST=$(helm search repo $REPO -l -o json | jq -r .[].version | head -n1)
+
+          # Sanity check that LATEST is not empty
+          if [ -n "$LATEST" ]; then
+              VERSIONS=$(echo $VERSIONS | jq --arg value "$LATEST" '. += [$value]')
+          else
+              echo "Latest version is empty when it shouldn't be. Something is wrong. Failing."
+              exit 1
+          fi
+
+          # Split the version into parts
+          IFS='.' read -r -a parts <<< "$LATEST"
+
+          # Get the previous minor version from the latest.
+          PREVIOUS_MINOR=$((parts[1]-1))
+
+          # Check if PREVIOUS_MINOR is not equal to "-1" indicating that there is no previous minor version, only a major.
+          if [ -n "$PREVIOUS_MINOR" ] && [ "$PREVIOUS_MINOR" != "-1" ]; then
+              LATEST_MINOR=$(helm search repo $REPO -l -o json | jq -r .[].version | head -n10 | grep -E "\.$PREVIOUS_MINOR\." | head -n1)
+              VERSIONS=$(echo $VERSIONS | jq --arg value "$LATEST_MINOR" '. += [$value]')
+          else
+              echo "No previous minor available, only major."
+          fi
+
+          echo Test matrix is $VERSIONS
+
+          echo "versions=$(jq -cn --argjson versions "$VERSIONS" '{target: $versions}')" >> $GITHUB_OUTPUT
+
+  upgrade-chart:
+    runs-on: ubuntu-latest
+    needs: discover-versions
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.discover-versions.outputs.versionmatrix) }}
+    name: ${{ matrix.target }} upgrade test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+
+      - name: Create KinD cluster
+        uses: helm/kind-action@0025e74a8c7512023d06dc019c617aa3cf561fde # v1.10.0
+        with:
+          version: v0.23.0
+          node_image: kindest/node:v1.28.9
+          kubectl_version: v1.28.9
+  
+      # Install the chart with default values and check results.
+      - name: Install Kubecost chart
+        run: |
+          helm repo add kubecost https://kubecost.github.io/cost-analyzer/
+          helm repo update
+          helm install --wait --wait-for-jobs kubecost kubecost/cost-analyzer -n kubecost --create-namespace --version ${{ matrix.target }}
+
+      - name: Wait for ready 
+        run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
+
+      - name: Run Helm tests 
+        run: helm test -n kubecost kubecost
+
+      - name: Upgrade to current working version
+        run: helm upgrade kubecost -n kubecost kubecost/ --wait
+
+      - name: Wait for ready 
+        run: |
+          kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=kubecost --timeout=120s
+          kubectl -n kubecost get pods
