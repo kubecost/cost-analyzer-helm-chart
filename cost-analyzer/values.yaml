@@ -566,7 +566,7 @@ kubecostModel:
   etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
-  etlDailyStoreDurationDays: 731
+  etlDailyStoreDurationDays: 91
   # The total number of hours the ETL pipelines will build
   # Set to 0 to disable hourly ETL (recommended for large environments)
   # Must be < prometheus server retention, otherwise empty data may overwrite
@@ -3051,7 +3051,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.26.2
+      tag: 1.27.1
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
