@@ -1025,8 +1025,6 @@ Begin Kubecost 2.0 templates
     - name: SMTP_CONFIGMAP_NAME
       value: {{ .Values.smtpConfigmapName }}
     {{- end }}
-    - name: ETL_DAILY_STORE_DURATION_DAYS
-      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     {{- if (gt (int .Values.kubecostAggregator.numDBCopyPartitions) 0) }}
     - name: NUM_DB_COPY_CHUNKS
       value: {{ .Values.kubecostAggregator.numDBCopyPartitions | quote }}

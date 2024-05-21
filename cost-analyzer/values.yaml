@@ -566,7 +566,7 @@ kubecostModel:
   etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
-  etlDailyStoreDurationDays: 731
+  etlDailyStoreDurationDays: 91
   # The total number of hours the ETL pipelines will build
   # Set to 0 to disable hourly ETL (not recommended)
   # Must be < prometheus server retention, otherwise empty data may overwrite
