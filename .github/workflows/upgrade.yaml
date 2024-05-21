@@ -88,9 +88,9 @@ jobs:
         run: helm test -n kubecost kubecost
 
       - name: Upgrade to current working version
-        run: helm upgrade kubecost -n kubecost kubecost/ --wait
+        run: helm upgrade kubecost -n kubecost cost-analyzer/ --wait
 
       - name: Wait for ready 
         run: |
-          kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=kubecost --timeout=120s
+          kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
           kubectl -n kubecost get pods
