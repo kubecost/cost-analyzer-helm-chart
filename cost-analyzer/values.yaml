@@ -890,7 +890,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.51.2
+      tag: v2.52.0
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1587,7 +1587,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.2
+        tag: v0.74.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1627,7 +1627,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.2
+        tag: v0.74.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -2857,7 +2857,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.2
+    tag: 10.4.3
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
