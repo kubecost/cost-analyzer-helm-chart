@@ -603,7 +603,6 @@ kubecostModel:
         # trace:  # Tracing configuration
           # enable: true  # Enable tracing
         # part_size: 134217728  # Part size for multipart uploads
-
     # - type: GCS  # Type of storage provider
       # config:
         # bucket: GCP_object_store_bucket  # GCS bucket name
@@ -618,7 +617,6 @@ kubecostModel:
           # token_uri: https://oauth2.googleapis.com/token  # Token URI
           # auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs  # Auth provider cert URL
           # client_x509_cert_url: GCP_object_store_client_x509_cert_url  # Client cert URL
-
     # - type: AZURE  # Type of storage provider
       # config:
         # storage_account: AZ_object_store_storage_account  # Azure storage account name
