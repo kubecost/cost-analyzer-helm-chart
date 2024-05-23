@@ -566,16 +566,12 @@ kubecostModel:
   etlFileStoreEnabled: true
   # The total number of days the ETL pipelines will build
   # Set to 0 to disable daily ETL (not recommended)
-  etlDailyStoreDurationDays: 731
+  etlDailyStoreDurationDays: 91
   # The total number of hours the ETL pipelines will build
-  # Set to 0 to disable hourly ETL (not recommended)
+  # Set to 0 to disable hourly ETL (recommended for large environments)
   # Must be < prometheus server retention, otherwise empty data may overwrite
   # known-good data
   etlHourlyStoreDurationHours: 49
-  # The total number of weeks the ETL pipelines will build
-  # Set to 0 to disable weekly ETL (not recommended)
-  # The default is 53 to ensure at least a year of coverage (371 days)
-  etlWeeklyStoreDurationWeeks: 53
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
@@ -894,7 +890,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.51.2
+      tag: v2.52.0
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1591,7 +1587,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.2
+        tag: v0.74.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1631,7 +1627,7 @@ prometheus:
       ##
       image:
         repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.73.2
+        tag: v0.74.0
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -2396,7 +2392,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.11
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2861,7 +2857,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.2
+    tag: 10.4.3
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -3055,7 +3051,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.26.2
+      tag: 1.27.1
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:

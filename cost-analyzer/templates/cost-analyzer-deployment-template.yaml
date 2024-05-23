@@ -379,17 +379,17 @@ spec:
           {{- if .Values.systemProxy.enabled }}
           env:
           - name: HTTP_PROXY
-            value: {{ .Values.systemProxy.httpProxyUrl }}
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
           - name: http_proxy
-            value: {{ .Values.systemProxy.httpProxyUrl }}
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
           - name: HTTPS_PROXY
-            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
           - name: https_proxy
-            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
           - name: NO_PROXY
-            value:  {{ .Values.systemProxy.noProxy }}
+            value: "{{ .Values.systemProxy.noProxy }}"
           - name: no_proxy
-            value:  {{ .Values.systemProxy.noProxy }}
+            value: "{{ .Values.systemProxy.noProxy }}"
           {{- end }}
           ports:
           - name: web
@@ -440,17 +440,17 @@ spec:
             value: "{{ .Values.sigV4Proxy.port | int }}"
           {{- if .Values.systemProxy.enabled }}
           - name: HTTP_PROXY
-            value: {{ .Values.systemProxy.httpProxyUrl }}
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
           - name: http_proxy
-            value: {{ .Values.systemProxy.httpProxyUrl }}
+            value: "{{ .Values.systemProxy.httpProxyUrl }}"
           - name: HTTPS_PROXY
-            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
           - name: https_proxy
-            value:  {{ .Values.systemProxy.httpsProxyUrl }}
+            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
           - name: NO_PROXY
-            value:  {{ .Values.systemProxy.noProxy }}
+            value: "{{ .Values.systemProxy.noProxy }}"
           - name: no_proxy
-            value:  {{ .Values.systemProxy.noProxy }}
+            value: "{{ .Values.systemProxy.noProxy }}"
           {{- end }}
           {{- if .Values.sigV4Proxy.extraEnv }}
           {{- toYaml .Values.sigV4Proxy.extraEnv | nindent 10 }}
@@ -874,8 +874,6 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
-            - name: ETL_WEEKLY_STORE_DURATION_WEEKS
-              value: {{ (quote .Values.kubecostModel.etlWeeklyStoreDurationWeeks) | default (quote 53) }}
             - name: ETL_FILE_STORE_ENABLED
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
