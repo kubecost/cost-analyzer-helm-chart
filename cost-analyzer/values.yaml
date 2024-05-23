@@ -620,8 +620,6 @@ kubecostModel:
         # container: AZ_object_store_container  # Azure container name
         # max_retries: 0  # Max retries for operations
 
-
-
   # Installs Kubecost/OpenCost plugins
   plugins:
     enabled: false
