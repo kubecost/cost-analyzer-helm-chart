@@ -155,8 +155,8 @@ Additionally, for upgrade protection, certain individual values populated under 
 will result in failure. Users are asked to select one of the two presently-available sources for federated storage.
 */}}
 {{- define "federatedStorageSourceCheck" -}}
-  {{- if and (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageJSON -}}
-    {{- fail "\nkubecostkubecostModel.federatedStorageConfigSecret and kubecostModel.federatedStorageJSON are mutually exclusive. Please specify only one." -}}
+  {{- if and (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
+    {{- fail "\nkubecostkubecostModel.federatedStorageConfigSecret and kubecostModel.federatedStorageConfig are mutually exclusive. Please specify only one." -}}
   {{- end -}}
 {{- end -}}
 
