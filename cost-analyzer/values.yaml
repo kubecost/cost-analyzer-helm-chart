@@ -867,6 +867,20 @@ prometheus:
         - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
           action: keep
           regex:  network-costs
+    - job_name: kubecost-aggregator
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - {{ template "aggregator.serviceName" . }}
+        type: 'A'
+        {{- if or .Values.saml.enabled .Values.oidc.enabled }}
+        port: 9008
+        {{- else }}
+        port: 9004
+        {{- end }}
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -2777,16 +2791,25 @@ reporting:
 
 serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
+  interval: 1m
+  scrapeTimeout: 10s
   additionalLabels: {}
   metricRelabelings: []
   relabelings: []
   networkCosts:
     enabled: false
+    interval: 1m
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
     relabelings: []
-
+  aggregatorMetrics:
+    enabled: false
+    interval: 1m
+    scrapeTimeout: 10s
+    additionalLabels: {}
+    metricRelabelings: []
+    relabelings: []
 prometheusRule:
   enabled: false
   additionalLabels: {}
