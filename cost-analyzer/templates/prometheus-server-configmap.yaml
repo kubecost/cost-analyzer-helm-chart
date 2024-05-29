@@ -22,6 +22,8 @@ data:
 {{ $root.Values.global.amp.sigv4 | toYaml | indent 8 }}
 {{- end }}
 {{- if $root.Values.global.ammsp.enabled }}
+    # See https://prometheus.io/docs/prometheus/latest/configuration/configuration/#remote_write
+    # for guidance on this configuration option
     remote_write:
       - url: {{ $root.Values.global.ammsp.remoteWriteService }}
         azuread:

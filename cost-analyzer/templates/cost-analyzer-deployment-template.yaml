@@ -492,6 +492,8 @@ spec:
             mountPath: /etc/ubbagent
         {{- end }}
         {{- if .Values.global.ammsp.enabled }}
+        # This section of the chart borrows liberally from
+        # https://github.com/Azure/aad-auth-proxy/blob/main/deploy/chart/aad-auth-proxy/templates/deployment.yaml
         - name: {{ .Values.global.ammsp.aadAuthProxy.name }}
           image: {{ .Values.global.ammsp.aadAuthProxy.image }}
           {{- if .Values.global.ammsp.aadAuthProxy.imagePullPolicy }}
@@ -508,7 +510,7 @@ spec:
             value: {{ .Values.global.ammsp.aadAuthProxy.port | quote }}
           - name: IDENTITY_TYPE
             value: {{ .Values.global.ammsp.aadAuthProxy.identityType }}
-          {{- if eq .Values.global.ammsp.aadAuthProxy.identityType "userAssigned"}}
+          {{- if eq .Values.global.ammsp.aadAuthProxy.identityType "userAssigned" }}
           - name: AAD_CLIENT_ID
             value: {{ required "aadClientId is required for userAssigned identity types" .Values.global.ammsp.aadAuthProxy.aadClientId | toString | trim | quote }}
           {{- else if eq .Values.global.ammsp.aadAuthProxy.identityType "aadApplication" }}
@@ -518,7 +520,7 @@ spec:
             value: {{ required "aadTenantId is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadTenantId | toString | trim | quote }}
           - name: AAD_CLIENT_CERTIFICATE_PATH
             value: {{ required "aadClientCertificatePath is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadClientCertificatePath | toString | trim | quote }}
-          {{- end}}
+          {{- end }}
           - name: AAD_TOKEN_REFRESH_INTERVAL_IN_PERCENTAGE
             value: "10"
           - name: OTEL_SERVICE_NAME
