@@ -2493,7 +2493,9 @@ kubecostAggregator:
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
-
+  # improve ingestion performance using memory based IPC
+  # this is recommended in all environments, but is false by default for backwards compatibility
+  useInMemoryIPC: false
   env:
     "LOG_LEVEL": "info"
     "DB_READ_THREADS": "1"

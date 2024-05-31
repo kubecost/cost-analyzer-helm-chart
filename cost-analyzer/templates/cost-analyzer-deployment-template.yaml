@@ -71,6 +71,14 @@ spec:
       restartPolicy: Always
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
+        {{- if .Values.kubecostAggregator.useInMemoryIPC }}
+        - name: ipc1
+          emptyDir:
+            medium: Memory
+        - name: ipc2
+          emptyDir:
+            medium: Memory
+        {{- end }}
         {{- if .Values.kubecostModel.plugins.enabled }}
         - name: plugins-dir
           emptyDir: {}

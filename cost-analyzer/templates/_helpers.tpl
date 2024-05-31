@@ -918,6 +918,12 @@ Begin Kubecost 2.0 templates
   resources:
     {{- toYaml .Values.kubecostAggregator.resources | nindent 4 }}
   volumeMounts:
+    {{- if .Values.kubecostAggregator.useInMemoryIPC }}
+    - name: ipc1
+      mountPath: /ipc1
+    - name: ipc2
+      mountPath: /ipc2
+    {{- end }}
     - name: persistent-configs
       mountPath: /var/configs
     {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
@@ -1245,6 +1251,12 @@ Begin Kubecost 2.0 templates
     {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
   {{- end }}
   env:
+    {{- if .Values.kubecostAggregator.useInMemoryIPC }}
+    - name: IPC_DIR
+      value: /ipc1
+    - name: PARQUET_DIR
+      value: /ipc2
+    {{- end }}
     - name: CONFIG_PATH
       value: /var/configs/
     {{- if .Values.kubecostModel.etlBucketConfigSecret }}

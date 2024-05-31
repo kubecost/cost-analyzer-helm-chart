@@ -70,6 +70,14 @@ spec:
     {{- end }}
       serviceAccountName: {{ template "aggregator.serviceAccountName" . }}
       volumes:
+        {{- if .Values.kubecostAggregator.useInMemoryIPC }}
+        - name: ipc1
+          emptyDir:
+            medium: Memory
+        - name: ipc2
+          emptyDir:
+            medium: Memory
+        {{- end }}
         - name: aggregator-staging
           emptyDir:
             sizeLimit: {{ .Values.kubecostAggregator.stagingEmptyDirSizeLimit }}
