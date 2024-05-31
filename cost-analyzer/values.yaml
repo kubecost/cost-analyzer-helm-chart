@@ -867,6 +867,20 @@ prometheus:
         - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
           action: keep
           regex:  network-costs
+    - job_name: kubecost-aggregator
+      scrape_interval: 1m
+      scrape_timeout: 60s
+      metrics_path: /metrics
+      scheme: http
+      dns_sd_configs:
+      - names:
+        - {{ template "aggregator.serviceName" . }}
+        type: 'A'
+        {{- if or .Values.saml.enabled .Values.oidc.enabled }}
+        port: 9008
+        {{- else }}
+        port: 9004
+        {{- end }}
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -2392,7 +2406,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.11
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2655,7 +2669,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.0
+    tag: v0.16.1
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2777,16 +2791,25 @@ reporting:
 
 serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
   enabled: false
+  interval: 1m
+  scrapeTimeout: 10s
   additionalLabels: {}
   metricRelabelings: []
   relabelings: []
   networkCosts:
     enabled: false
+    interval: 1m
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
     relabelings: []
-
+  aggregatorMetrics:
+    enabled: false
+    interval: 1m
+    scrapeTimeout: 10s
+    additionalLabels: {}
+    metricRelabelings: []
+    relabelings: []
 prometheusRule:
   enabled: false
   additionalLabels: {}
@@ -3051,7 +3074,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.27.1
+      tag: 1.27.2
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
