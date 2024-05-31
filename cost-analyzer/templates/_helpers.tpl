@@ -1008,6 +1008,12 @@ Begin Kubecost 2.0 templates
     {{- toYaml .Values.kubecostAggregator.extraVolumeMounts | nindent 4 }}
     {{- end }}
   env:
+    {{- if .Values.kubecostAggregator.useInMemoryIPC }}
+    - name: IPC_DIR
+      value: /ipc1
+    - name: PARQUET_DIR
+      value: /ipc2
+    {{- end }}
     {{- if and (.Values.prometheus.server.global.external_labels.cluster_id) (not .Values.prometheus.server.clusterIDConfigmap) }}
     - name: CLUSTER_ID
       value: {{ .Values.prometheus.server.global.external_labels.cluster_id }}
@@ -1251,12 +1257,6 @@ Begin Kubecost 2.0 templates
     {{- toYaml .Values.kubecostAggregator.cloudCost.extraVolumeMounts | nindent 4 }}
   {{- end }}
   env:
-    {{- if .Values.kubecostAggregator.useInMemoryIPC }}
-    - name: IPC_DIR
-      value: /ipc1
-    - name: PARQUET_DIR
-      value: /ipc2
-    {{- end }}
     - name: CONFIG_PATH
       value: /var/configs/
     {{- if .Values.kubecostModel.etlBucketConfigSecret }}
