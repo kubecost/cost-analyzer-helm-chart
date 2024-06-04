@@ -14,8 +14,8 @@ spec:
   endpoints:
     - port: tcp-model
       honorLabels: true
-      interval: 1m
-      scrapeTimeout: 10s
+      interval: {{ .Values.serviceMonitor.interval }}
+      scrapeTimeout: {{ .Values.serviceMonitor.scrapeTimeout }}
       path: /metrics
       scheme: http
       {{- with .Values.serviceMonitor.metricRelabelings }}
