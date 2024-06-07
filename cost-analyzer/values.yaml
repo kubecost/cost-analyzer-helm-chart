@@ -3148,6 +3148,10 @@ federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
+  ## If true, the primary cluster will only read from the primary cluster and not ship it's own metrics
+  ## this allows a global kubecost-agent to be deployed to clusters, without a separate config for the primary cluster
+  readOnlyPrimary: false
+
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
   redirectS3Backup: false

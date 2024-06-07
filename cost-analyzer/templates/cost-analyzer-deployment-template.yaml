@@ -851,7 +851,7 @@ spec:
             {{- end }}
             {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_CLUSTER
-              {{- if eq .Values.federatedETL.federatedCluster false }}
+              {{- if eq .Values.federatedETL.readOnlyPrimary true }}
               value: "false"
               {{- else }}
               value: "true"
