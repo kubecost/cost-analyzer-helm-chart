@@ -203,9 +203,9 @@ jobs:
       matrix:
         cluster:
         - distribution: eks
-          version: v1.27
-        - distribution: eks
           version: v1.28
+        - distribution: eks
+          version: v1.29
     steps:
       - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
         with:
