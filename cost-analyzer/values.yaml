@@ -63,6 +63,27 @@ global:
       # username: user
       # password: pwd
 
+  # Azure Monitor Managed Service for Prometheus
+  # See https://github.com/MicrosoftDocs/azure-docs/blob/main/articles/azure-monitor/essentials/prometheus-metrics-overview.md for information
+  # and https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-remote-write-virtual-machines for more information on setting this up
+  ammsp:
+    enabled: false
+    prometheusServerEndpoint: http://localhost:8081/
+    remoteWriteService: $<AMMSP_METRICS_INGESTION_ENDPOINT>
+    queryEndpoint: $<AMMSP_QUERY_ENDPOINT>
+
+    aadAuthProxy:
+      enabled: false
+      # per https://github.com/Azure/aad-auth-proxy/releases/tag/0.1.0-main-04-10-2024-7067ac84
+      image: $<IMAGE>  # Example: mcr.microsoft.com/azuremonitor/auth-proxy/prod/aad-auth-proxy/images/aad-auth-proxy:0.1.0-main-04-10-2024-7067ac84
+      imagePullPolicy: IfNotPresent
+      name: aad-auth-proxy
+      port: 8081
+      audience: https://prometheus.monitor.azure.com/.default
+      identityType: userAssigned
+      aadClientId: $<AZURE_MANAGED_IDENTITY_CLIENT_ID>
+      aadTenantId: $<AZURE_MANAGED_IDENTITY_TENANT_ID>
+
   notifications:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
