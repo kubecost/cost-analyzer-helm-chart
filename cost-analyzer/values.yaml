@@ -3152,6 +3152,12 @@ federatedETL:
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
 
+  ## If true, this cluster will be able to read from the federated-store but will
+  ## not write to it. This is useful in situations when you want to deploy a
+  ## primary cluster, but don't want the primary cluster's ETL data to be
+  ## pushed to the bucket
+  readOnlyPrimary: false
+
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
   redirectS3Backup: false
