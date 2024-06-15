@@ -2507,6 +2507,7 @@ kubecostAggregator:
     "DB_READ_THREADS": "1"
     "DB_WRITE_THREADS": "1"
     "DB_CONCURRENT_INGESTION_COUNT": "3"
+    "DB_COPY_FULL": "true"
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
