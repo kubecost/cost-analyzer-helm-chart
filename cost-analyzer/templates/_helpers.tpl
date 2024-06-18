@@ -1094,10 +1094,16 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-    {{- range $key, $value := .Values.kubecostAggregator.env }}
-    - name: {{ $key | quote }}
-      value: {{ $value | quote }}
-    {{- end }}
+    - name: LOG_LEVEL
+      value: {{ .Values.kubecostAggregator.logLevel }}
+    - name: DB_COPY_FULL
+      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
+    - name: DB_READ_THREADS
+      value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
+    - name: DB_WRITE_THREADS
+      value: {{ .Values.kubecostAggregator.dbWriteThreads | quote }}
+    - name: DB_CONCURRENT_INGESTION_COUNT
+      value: {{ .Values.kubecostAggregator.dbConcurrentIngestionCount | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
     {{- if .Values.oidc.enabled }}
