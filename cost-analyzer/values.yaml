@@ -2501,13 +2501,17 @@ kubecostAggregator:
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
+  logLevel: info
 
-  env:
-    "LOG_LEVEL": "info"
-    "DB_READ_THREADS": "1"
-    "DB_WRITE_THREADS": "1"
-    "DB_CONCURRENT_INGESTION_COUNT": "3"
-    "DB_COPY_FULL": "true"
+  # env: has been removed to avoid unknown issues that would be caused by
+  # customizations that were required to run aggregator in previous versions
+  # extraEnv: can be used to add new environment variables to the aggregator pod
+
+  # the below settings should only be modified with support from Kubecost staff
+  dbReadThreads: 1
+  dbWriteThreads: 1
+  dbConcurrentIngestionCount: 3
+  dbCopyFull: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
