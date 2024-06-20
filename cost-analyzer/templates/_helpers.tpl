@@ -1434,7 +1434,7 @@ for more information
 {{- end -}}
 
 {{- define "carbonEstimatesEnabled" }}
-{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}
