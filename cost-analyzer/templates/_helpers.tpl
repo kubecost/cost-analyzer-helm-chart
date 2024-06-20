@@ -181,20 +181,22 @@ Verify a cluster_id is set in the Prometheus global config
 
 {{/*
 Verify the cloud integration secret exists with the expected key when cloud integration is enabled.
-Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
-support templating a chart which uses the lookup function.
 */}}
 {{- define "cloudIntegrationSecretCheck" -}}
 {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
-{{- if not (and .Values.global.platforms.cicd.enabled .Values.global.platforms.cicd.skipSanityChecks) }}
-{{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
-  {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
-  {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
-    {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'\nIf you are using `--dry-run`, please add `--dry-run=server`. This requires Helm 3.13+." .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+  {{- if .Capabilities.APIVersions.Has "v1/Secret" }}
+    {{- if .Values.isArgoCD }}
+      {{- print "Skipping cloudIntegrationSecretCheck for ArgoCD" }}
+    {{- else }}
+      {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostProductConfigs.cloudIntegrationSecret }}
+      {{- if or (not $secret) (not (index $secret.data "cloud-integration.json")) }}
+        {{- fail (printf "The cloud integration secret '%s' does not exist or does not contain the expected key 'cloud-integration.json'" .Values.kubecostProductConfigs.cloudIntegrationSecret) }}
+      {{- end }}
+    {{- end }}
+  {{- else }}
+    {{- fail "API version v1/Secret is not available" }}
   {{- end }}
-{{- end -}}
-{{- end -}}
-{{- end -}}
+{{- end }}
 {{- end -}}
 
 {{/*
