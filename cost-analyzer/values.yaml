@@ -3403,6 +3403,11 @@ costEventsAudit:
 # productConfigmapName: ""
 # smtpConfigmapName: ""
 
+# Indicates if the installation is being performed via ArgoCD.
+# When set to true, some checks that require access to the Kubernetes API will be skipped
+# to avoid failures during the `helm template` execution by ArgoCD.
+isArgoCD: false
+
 # -- Array of extra K8s manifests to deploy
 ## Note: Supports use of custom Helm templates
 extraObjects: []
