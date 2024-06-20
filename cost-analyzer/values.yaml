@@ -162,9 +162,9 @@ global:
         idle: "separate"
         rate: "cumulative"
         accumulate: false  # daily resolution
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "dev"
       - title: "Example Saved Report 1"
         window: "month"
@@ -173,9 +173,9 @@ global:
         idle: "share"
         rate: "monthly"
         accumulate: false
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: "!:"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: "!:"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "kubecost"
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
@@ -207,9 +207,9 @@ global:
     - title: "Example Advanced Report 0"
       window: "7d"
       aggregateBy: "namespace"
-      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-          operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/filters-api
+        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+          operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
           value: "dev"
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
@@ -2518,13 +2518,17 @@ kubecostAggregator:
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
+  logLevel: info
 
-  env:
-    "LOG_LEVEL": "info"
-    "DB_READ_THREADS": "1"
-    "DB_WRITE_THREADS": "1"
-    "DB_CONCURRENT_INGESTION_COUNT": "3"
-    "DB_COPY_FULL": "true"
+  # env: has been removed to avoid unknown issues that would be caused by
+  # customizations that were required to run aggregator in previous versions
+  # extraEnv: can be used to add new environment variables to the aggregator pod
+
+  # the below settings should only be modified with support from Kubecost staff
+  dbReadThreads: 1
+  dbWriteThreads: 1
+  dbConcurrentIngestionCount: 3
+  dbCopyFull: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
@@ -2695,7 +2699,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.1
+    tag: v0.16.2
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2774,7 +2778,7 @@ clusterController:
       #
       # See the examples below.
       #
-      # [1] https://docs.kubecost.com/apis/apis-overview/filters-api
+      # [1] https://docs.kubecost.com/apis/filters-api
       # filterConfig:
       #   - filter: |
       #       namespace:"abc"+controllerKind:"deployment"
