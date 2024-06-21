@@ -2541,7 +2541,7 @@ kubecostAggregator:
   # but can be increased if trying to backfill historical data.
   # default: 1
   dbConcurrentIngestionCount: 1
-  # dbCopyFull: "true" can improve the time it takes to copy the write DB, 
+  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
   # at the expense of additional memory usages.
   dbCopyFull: "false"
   # Memory limit applied to read database connections.
@@ -2552,12 +2552,12 @@ kubecostAggregator:
   dbWriteMemoryLimit: 0Gi
   # How much data to ingest from the federated store bucket, and how much data
   # to keep in the DB before rolling the data off.
-  # 
+  #
   # Note: If increasing this value to backfill historical data, it will take
   # time to gradually ingest & process those historical ETL files. Consider
   # also increasing the resources available to the aggregator as well as the
   # refresh & concurrency env vars.
-  # 
+  #
   # default: 91
   etlDayStoreDurationDays: 91
 
