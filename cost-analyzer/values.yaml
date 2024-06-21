@@ -2559,7 +2559,7 @@ kubecostAggregator:
   # refresh and concurrency env vars.
   #
   # default: 91
-  etlDayStoreDurationDays: 91
+  etlDailyStoreDurationDays: 91
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
