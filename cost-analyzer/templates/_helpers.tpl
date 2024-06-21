@@ -36,7 +36,7 @@ Kubecost 2.3 preconditions
 */}}
 {{- define "kubecostV2-3-preconditions" -}}
   {{- if (.Values.kubecostAggregator.env) -}}
-    {{- fail "Upgrade issue:\nKubecost 2.3 has updated the aggregator's environment variables. \nPlease update your Helm values to use the new key pairs. See:\nhttps://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations \nfor additional information. \nIn Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs.\nThis was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
+    {{- fail "Upgrade issue: Kubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs. \n\n For more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations \n\n In Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
   {{- end -}}
 {{- end -}}
 
