@@ -2556,7 +2556,7 @@ kubecostAggregator:
   # Note: If increasing this value to backfill historical data, it will take
   # time to gradually ingest and process those historical ETL files. Consider
   # also increasing the resources available to the aggregator as well as the
-  # refresh & concurrency env vars.
+  # refresh and concurrency env vars.
   #
   # default: 91
   etlDayStoreDurationDays: 91
