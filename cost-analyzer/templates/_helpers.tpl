@@ -1122,7 +1122,7 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
     {{- end }}
     - name: ETL_DAILY_STORE_DURATION_DAYS
-      value: {{ .Values.kubecostAggregator.etlDayStoreDurationDays | quote }}
+      value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
     {{- if .Values.oidc.enabled }}
