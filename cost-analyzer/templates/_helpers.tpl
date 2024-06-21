@@ -1104,6 +1104,16 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.dbWriteThreads | quote }}
     - name: DB_CONCURRENT_INGESTION_COUNT
       value: {{ .Values.kubecostAggregator.dbConcurrentIngestionCount | quote }}
+    {{- if ne .Values.kubecostAggregator.dbMemoryLimit "0Gi" }}
+    - name: DB_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbMemoryLimit | quote }}
+    {{- end }}
+    {{- if ne .Values.kubecostAggregator.dbWriteMemoryLimit "0Gi" }}
+    - name: DB_WRITE_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
+    {{- end }}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ .Values.kubecostAggregator.etlDayStoreDurationDays | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
     {{- if .Values.oidc.enabled }}
