@@ -2554,7 +2554,7 @@ kubecostAggregator:
   # to keep in the DB before rolling the data off.
   #
   # Note: If increasing this value to backfill historical data, it will take
-  # time to gradually ingest & process those historical ETL files. Consider
+  # time to gradually ingest and process those historical ETL files. Consider
   # also increasing the resources available to the aggregator as well as the
   # refresh & concurrency env vars.
   #
