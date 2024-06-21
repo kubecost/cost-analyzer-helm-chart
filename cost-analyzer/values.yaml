@@ -2543,7 +2543,7 @@ kubecostAggregator:
   dbConcurrentIngestionCount: 1
   # dbCopyFull: "true" can improve the time it takes to copy the write DB,
   # at the expense of additional memory usages.
-  dbCopyFull: "false"
+  dbCopyFull: false
   # Memory limit applied to read database connections.
   # default: 0Gi is no limit
   dbMemoryLimit: 0Gi
