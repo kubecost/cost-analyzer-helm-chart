@@ -2508,10 +2508,41 @@ kubecostAggregator:
   # extraEnv: can be used to add new environment variables to the aggregator pod
 
   # the below settings should only be modified with support from Kubecost staff
+
+  # How many threads the read database is configured with (i.e. Kubecost API /
+  # UI queries). If increasing this value, it is recommended to increase the
+  # aggregator's memory requests & limits.
+  # default: 1
   dbReadThreads: 1
+  # How many threads the write database is configured with (i.e. ingestion of
+  # new data from S3). If increasing this value, it is recommended to increase
+  # the aggregator's memory requests & limits.
+  # default: 1
   dbWriteThreads: 1
+  # How many threads to use when ingesting Asset/Allocation/CloudCost data
+  # from the federated store bucket. In most cases the default is sufficient,
+  # but can be increased if trying to backfill historical data.
+  # default: 1
   dbConcurrentIngestionCount: 1
+  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
+  # at the expense of additional memory usages.
   dbCopyFull: false
+  # Memory limit applied to read database connections.
+  # default: 0Gi is no limit
+  dbMemoryLimit: 0Gi
+  # Memory limit applied to write database connections.
+  # default: 0Gi is no limit
+  dbWriteMemoryLimit: 0Gi
+  # How much data to ingest from the federated store bucket, and how much data
+  # to keep in the DB before rolling the data off.
+  #
+  # Note: If increasing this value to backfill historical data, it will take
+  # time to gradually ingest and process those historical ETL files. Consider
+  # also increasing the resources available to the aggregator as well as the
+  # refresh and concurrency env vars.
+  #
+  # default: 91
+  etlDailyStoreDurationDays: 91
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
