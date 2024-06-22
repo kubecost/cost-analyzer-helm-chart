@@ -1,5 +1,6 @@
 --------------------------------------------------
 {{- include "kubecostV2-preconditions" . -}}
+{{- include "kubecostV2-3-preconditions" . -}}
 {{- include "cloudIntegrationSourceCheck" . -}}
 {{- include "eksCheck" . -}}
 {{- include "cloudIntegrationSecretCheck" . -}}
