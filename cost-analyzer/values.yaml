@@ -2545,11 +2545,11 @@ kubecostAggregator:
   # at the expense of additional memory usages.
   dbCopyFull: false
   # Memory limit applied to read database connections.
-  # default: 0Gi is no limit
-  dbMemoryLimit: 0Gi
+  # default: 0GB is no limit
+  dbMemoryLimit: 0GB
   # Memory limit applied to write database connections.
-  # default: 0Gi is no limit
-  dbWriteMemoryLimit: 0Gi
+  # default: 0GB is no limit
+  dbWriteMemoryLimit: 0GB
   # How much data to ingest from the federated store bucket, and how much data
   # to keep in the DB before rolling the data off.
   #
