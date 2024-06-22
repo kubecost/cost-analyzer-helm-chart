@@ -32,6 +32,15 @@ Set important variables before starting main templates
 {{- end -}}
 
 {{/*
+Kubecost 2.3 preconditions
+*/}}
+{{- define "kubecostV2-3-preconditions" -}}
+  {{- if (.Values.kubecostAggregator.env) -}}
+    {{- fail "Upgrade issue: Kubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs. \n\n For more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations \n\n In Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Kubecost 2.0 preconditions
 */}}
 {{- define "kubecostV2-preconditions" -}}
@@ -1094,10 +1103,26 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-    {{- range $key, $value := .Values.kubecostAggregator.env }}
-    - name: {{ $key | quote }}
-      value: {{ $value | quote }}
+    - name: LOG_LEVEL
+      value: {{ .Values.kubecostAggregator.logLevel }}
+    - name: DB_COPY_FULL
+      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
+    - name: DB_READ_THREADS
+      value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
+    - name: DB_WRITE_THREADS
+      value: {{ .Values.kubecostAggregator.dbWriteThreads | quote }}
+    - name: DB_CONCURRENT_INGESTION_COUNT
+      value: {{ .Values.kubecostAggregator.dbConcurrentIngestionCount | quote }}
+    {{- if ne .Values.kubecostAggregator.dbMemoryLimit "0Gi" }}
+    - name: DB_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbMemoryLimit | quote }}
     {{- end }}
+    {{- if ne .Values.kubecostAggregator.dbWriteMemoryLimit "0Gi" }}
+    - name: DB_WRITE_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
+    {{- end }}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
     {{- if .Values.oidc.enabled }}
@@ -1428,7 +1453,7 @@ for more information
 {{- end -}}
 
 {{- define "carbonEstimatesEnabled" }}
-{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}
