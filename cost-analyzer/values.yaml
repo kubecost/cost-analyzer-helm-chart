@@ -568,7 +568,7 @@ sigV4Proxy:
   resources: {}
 
 kubecostModel:
-  image: "gcr.io/kubecost1/cost-model"
+  image: "gcr.io/guestbook-227502/cost-model:2.3.0-chainguard-p1"
   imagePullPolicy: IfNotPresent
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for cost-model.
@@ -2431,7 +2431,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+  fullImageName: gcr.io/guestbook-227502/kubecost-modeling:update-base-test-cve
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2729,8 +2729,8 @@ diagnostics:
 clusterController:
   enabled: false
   image:
-    repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.2
+    repository: gcr.io/guestbook-227502/cluster-controller
+    tag: cg-test
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
