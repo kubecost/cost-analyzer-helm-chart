@@ -929,7 +929,7 @@ prometheus:
     ##
     image:
       repository: cgr.dev/chainguard/prometheus
-      tag: 2.53.0
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -2941,7 +2941,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: cgr.dev/chainguard/grafana
-    tag: 10.4.4
+    tag: latest
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -3135,7 +3135,7 @@ grafana:
   sidecar:
     image:
       repository: cgr.dev/chainguard/k8s-sidecar
-      tag: 1.27.4
+      tag: latest
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:

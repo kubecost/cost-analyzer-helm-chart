@@ -20031,7 +20031,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: grafana-sc-dashboard
-          image: "cgr.dev/chainguard/k8s-sidecar:1.27.4"
+          image: "cgr.dev/chainguard/k8s-sidecar:latest"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
@@ -20051,7 +20051,7 @@ spec:
             - name: sc-dashboard-volume
               mountPath: "/tmp/dashboards"
         - name: grafana
-          image: "cgr.dev/chainguard/grafana:10.4.4"
+          image: "cgr.dev/chainguard/grafana:latest"
           imagePullPolicy: IfNotPresent
           securityContext:
             allowPrivilegeEscalation: false
@@ -20179,7 +20179,7 @@ spec:
               readOnly: true
 
         - name: prometheus-server
-          image: "cgr.dev/chainguard/prometheus:2.53.0"
+          image: "cgr.dev/chainguard/prometheus:latest"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=15d
