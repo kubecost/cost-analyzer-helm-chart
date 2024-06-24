@@ -1,6 +1,5 @@
 --------------------------------------------------
 {{- include "kubecostV2-preconditions" . -}}
-{{- include "kubecostV2-3-preconditions" . -}}
 {{- include "cloudIntegrationSourceCheck" . -}}
 {{- include "eksCheck" . -}}
 {{- include "cloudIntegrationSecretCheck" . -}}
@@ -25,3 +24,4 @@ Please allow 25 minutes for Kubecost to gather metrics. A progress indicator wil
 
 Having installation issues? View our Troubleshooting Guide at http://docs.kubecost.com/troubleshoot-install
 
+{{- include "kubecostV2-3-notices" . -}}

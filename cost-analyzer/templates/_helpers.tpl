@@ -34,9 +34,11 @@ Set important variables before starting main templates
 {{/*
 Kubecost 2.3 preconditions
 */}}
-{{- define "kubecostV2-3-preconditions" -}}
-  {{- if (.Values.kubecostAggregator.env) -}}
-    {{- fail "Upgrade issue: Kubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs. \n\n For more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations \n\n In Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
+{{- define "kubecostV2-3-notices" -}}
+  {{- if (.Values.kubecostAggregator).env -}}
+    {{- if hasKey .Values.kubecostAggregator.env "DB_BUCKET_REFRESH_INTERVAL" -}}
+      {{- printf "\n\nNotice: DB_BUCKET_REFRESH_INTERVAL is defined in your values. This setting is no longer needed in most environments as of Kubecost 2.3.\n\nFor more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations" -}}
+    {{- end -}}
   {{- end -}}
 {{- end -}}
 
@@ -879,6 +881,21 @@ Create the name of the service account
 Begin Kubecost 2.0 templates
 ==============================================================
 */}}
+{{- define "aggregator.ETLDurationDays" -}}
+  {{- if hasKey .Values.kubecostAggregator.env "ETL_DAILY_STORE_DURATION_DAYS" -}}
+    {{- (index .Values.kubecostAggregator.env "ETL_DAILY_STORE_DURATION_DAYS") -}}
+  {{- else if .Values.kubecostAggregator.etlDailyStoreDurationDays -}}
+    {{- .Values.kubecostAggregator.etlDailyStoreDurationDays -}}
+  {{- end -}}
+{{- end -}}
+
+{{- define "aggregator.logLevel" -}}
+  {{- if hasKey .Values.kubecostAggregator.env "LOG_LEVEL" -}}
+    {{- (index .Values.kubecostAggregator.env "LOG_LEVEL") -}}
+  {{- else if .Values.kubecostAggregator.logLevel -}}
+    {{- .Values.kubecostAggregator.logLevel -}}
+  {{- end -}}
+{{- end -}}
 
 {{- define "aggregator.containerTemplate" }}
 - name: aggregator
@@ -1104,7 +1121,7 @@ Begin Kubecost 2.0 templates
       {{- end }}
     {{- end }}
     - name: LOG_LEVEL
-      value: {{ .Values.kubecostAggregator.logLevel }}
+      value: {{ include "aggregator.logLevel" . | quote }}
     - name: DB_COPY_FULL
       value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
     - name: DB_READ_THREADS
@@ -1122,7 +1139,7 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
     {{- end }}
     - name: ETL_DAILY_STORE_DURATION_DAYS
-      value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
+      value: {{ include "aggregator.ETLDurationDays" . | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
     {{- if .Values.oidc.enabled }}
