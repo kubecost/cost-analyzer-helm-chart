@@ -206,6 +206,8 @@ jobs:
           version: v1.28
         - distribution: eks
           version: v1.29
+        - distribution: eks
+          version: v1.30
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
@@ -232,7 +234,7 @@ jobs:
       - name: Install Kubecost chart with EKS values
         working-directory: ./cost-analyzer
         run: |
-          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml
+          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml --set persistentVolume.storageClass=gp2
         # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
       - name: Wait for ready 
         run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
