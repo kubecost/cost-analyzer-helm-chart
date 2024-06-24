@@ -1113,11 +1113,11 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.dbWriteThreads | quote }}
     - name: DB_CONCURRENT_INGESTION_COUNT
       value: {{ .Values.kubecostAggregator.dbConcurrentIngestionCount | quote }}
-    {{- if ne .Values.kubecostAggregator.dbMemoryLimit "0Gi" }}
+    {{- if ne .Values.kubecostAggregator.dbMemoryLimit "0GB" }}
     - name: DB_MEMORY_LIMIT
       value: {{ .Values.kubecostAggregator.dbMemoryLimit | quote }}
     {{- end }}
-    {{- if ne .Values.kubecostAggregator.dbWriteMemoryLimit "0Gi" }}
+    {{- if ne .Values.kubecostAggregator.dbWriteMemoryLimit "0GB" }}
     - name: DB_WRITE_MEMORY_LIMIT
       value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
     {{- end }}
