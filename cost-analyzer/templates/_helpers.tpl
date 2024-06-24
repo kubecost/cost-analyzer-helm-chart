@@ -32,13 +32,11 @@ Set important variables before starting main templates
 {{- end -}}
 
 {{/*
-Kubecost 2.3 preconditions
+Kubecost 2.3 notices
 */}}
 {{- define "kubecostV2-3-notices" -}}
   {{- if (.Values.kubecostAggregator).env -}}
-    {{- if (.Values.kubecostAggregator.env) -}}
-    {{- printf "\n\n\nNotice: Detected issue in values!\nKubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs.\nFor more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations\nIn Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
-    {{- end -}}
+    {{- printf "\n\n\nNotice: Issue in values detected.\nKubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs.\nFor more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations\nIn Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
   {{- end -}}
 {{- end -}}
 
