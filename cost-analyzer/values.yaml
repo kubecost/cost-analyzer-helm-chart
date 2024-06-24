@@ -928,8 +928,8 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: cgr.dev/chainguard/prometheus
-      tag: latest
+      repository: quay.io/prometheus/prometheus
+      tag: 2.53.0
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -2940,8 +2940,8 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: cgr.dev/chainguard/grafana
-    tag: latest
+    repository: grafana/grafana
+    tag: 10.4.4
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -3134,8 +3134,8 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: cgr.dev/chainguard/k8s-sidecar
-      tag: latest
+      repository: kiwigrid/k8s-sidecar
+      tag: 1.27.4
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
