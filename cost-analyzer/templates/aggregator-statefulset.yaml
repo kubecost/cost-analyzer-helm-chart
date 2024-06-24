@@ -52,10 +52,11 @@ spec:
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.global.podAnnotations}}
       annotations:
+        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        checksum/configs: {{ include "configsChecksum" . }}
     spec:
       restartPolicy: Always
     {{- if .Values.kubecostAggregator.securityContext }}
