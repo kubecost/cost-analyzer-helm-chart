@@ -238,7 +238,9 @@ jobs:
       - name: Install Kubecost chart with EKS values
         working-directory: ./cost-analyzer
         run: |
-          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml --set persistentVolume.storageClass=gp2
+          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml \
+          --set persistentVolume.storageClass=gp2 \
+          --set prometheus.server.persistentVolume.storageClass=gp2
         # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
       - name: Wait for ready 
         run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s
