@@ -20424,7 +20424,7 @@ spec:
                 configMapKeyRef:
                   name: kubecost-cost-analyzer
                   key: kubecost-token
-        - image: gcr.io/kubecost1/frontend:prod-1.108.0
+        - image: gcr.io/guestbook-227502/frontend:chainguard-test
 
           env:
             - name: GET_HOSTS_FROM
