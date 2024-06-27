@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -61,22 +61,24 @@ jobs:
           - name: v1.23
             version: v1.23.17
           - name: v1.24
-            version: v1.24.15
+            version: v1.24.17
           - name: v1.25
-            version: v1.25.11
+            version: v1.25.16
           - name: v1.26
-            version: v1.26.6
+            version: v1.26.15
           - name: v1.27
-            version: v1.27.3
+            version: v1.27.13
           - name: v1.28
-            version: v1.28.0
+            version: v1.28.9
           - name: v1.29
-            version: v1.29.0
+            version: v1.29.4
+          - name: v1.30
+            version: v1.30.0
     needs: test-chart
     name: ${{ matrix.k8s-version.name }} test
     steps:
       - name: Checkout
-        uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -152,8 +154,10 @@ jobs:
           version: 4.13.0-okd
         - distribution: openshift
           version: 4.14.0-okd
+        - distribution: openshift
+          version: 4.15.0-okd
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       # Outputs: `cluster-kubeconfig`, `cluster-id`
@@ -203,11 +207,13 @@ jobs:
       matrix:
         cluster:
         - distribution: eks
-          version: v1.27
-        - distribution: eks
           version: v1.28
+        - distribution: eks
+          version: v1.29
+        - distribution: eks
+          version: v1.30
     steps:
-      - uses: actions/checkout@a5ac7e51b41094c92402da3b24376905380afc29 # v4.1.6
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
       # Outputs: `cluster-kubeconfig`, `cluster-id`
@@ -232,7 +238,9 @@ jobs:
       - name: Install Kubecost chart with EKS values
         working-directory: ./cost-analyzer
         run: |
-          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml
+          helm install --wait --wait-for-jobs kubecost . -n kubecost -f values-eks-cost-monitoring.yaml \
+          --set persistentVolume.storageClass=gp2 \
+          --set prometheus.server.persistentVolume.storageClass=gp2
         # run: ct install --namespace kubecost --chart-dirs=cost-analyzer/ --charts cost-analyzer/
       - name: Wait for ready 
         run: kubectl wait -n kubecost --for=condition=ready pod --selector app.kubernetes.io/name=cost-analyzer --timeout=120s

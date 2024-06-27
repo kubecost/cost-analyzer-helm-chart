@@ -63,6 +63,27 @@ global:
       # username: user
       # password: pwd
 
+  # Azure Monitor Managed Service for Prometheus
+  # See https://github.com/MicrosoftDocs/azure-docs/blob/main/articles/azure-monitor/essentials/prometheus-metrics-overview.md for information
+  # and https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-remote-write-virtual-machines for more information on setting this up
+  ammsp:
+    enabled: false
+    prometheusServerEndpoint: http://localhost:8081/
+    remoteWriteService: $<AMMSP_METRICS_INGESTION_ENDPOINT>
+    queryEndpoint: $<AMMSP_QUERY_ENDPOINT>
+
+    aadAuthProxy:
+      enabled: false
+      # per https://github.com/Azure/aad-auth-proxy/releases/tag/0.1.0-main-04-10-2024-7067ac84
+      image: $<IMAGE>  # Example: mcr.microsoft.com/azuremonitor/auth-proxy/prod/aad-auth-proxy/images/aad-auth-proxy:0.1.0-main-04-10-2024-7067ac84
+      imagePullPolicy: IfNotPresent
+      name: aad-auth-proxy
+      port: 8081
+      audience: https://prometheus.monitor.azure.com/.default
+      identityType: userAssigned
+      aadClientId: $<AZURE_MANAGED_IDENTITY_CLIENT_ID>
+      aadTenantId: $<AZURE_MANAGED_IDENTITY_TENANT_ID>
+
   notifications:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
@@ -141,9 +162,9 @@ global:
         idle: "separate"
         rate: "cumulative"
         accumulate: false  # daily resolution
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "dev"
       - title: "Example Saved Report 1"
         window: "month"
@@ -152,9 +173,9 @@ global:
         idle: "share"
         rate: "monthly"
         accumulate: false
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: "!:"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: "!:"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "kubecost"
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
@@ -186,9 +207,9 @@ global:
     - title: "Example Advanced Report 0"
       window: "7d"
       aggregateBy: "namespace"
-      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-          operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/filters-api
+        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+          operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
           value: "dev"
       cloudBreakdown: "service"
       cloudJoin: "label:kubernetes_namespace"
@@ -605,7 +626,11 @@ kubecostModel:
       # - datadog
 
     # pre-existing secret for plugin configuration
-    configSecret: kubecost-plugin-secret
+    existingCustomSecret:
+      enabled: false
+      name: ""  # name of the secret containing plugin config
+
+    secretName: kubecost-plugin-secret
 
     # uncomment this to define plugin configuration via the values file
     # configs:
@@ -2495,13 +2520,49 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 25
+  numDBCopyPartitions: 1
+  logLevel: info
 
-  env:
-    "LOG_LEVEL": "info"
-    "DB_READ_THREADS": "1"
-    "DB_WRITE_THREADS": "1"
-    "DB_CONCURRENT_INGESTION_COUNT": "3"
+  # env: has been removed to avoid unknown issues that would be caused by
+  # customizations that were required to run aggregator in previous versions
+  # extraEnv: can be used to add new environment variables to the aggregator pod
+
+  # the below settings should only be modified with support from Kubecost staff
+
+  # How many threads the read database is configured with (i.e. Kubecost API /
+  # UI queries). If increasing this value, it is recommended to increase the
+  # aggregator's memory requests & limits.
+  # default: 1
+  dbReadThreads: 1
+  # How many threads the write database is configured with (i.e. ingestion of
+  # new data from S3). If increasing this value, it is recommended to increase
+  # the aggregator's memory requests & limits.
+  # default: 1
+  dbWriteThreads: 1
+  # How many threads to use when ingesting Asset/Allocation/CloudCost data
+  # from the federated store bucket. In most cases the default is sufficient,
+  # but can be increased if trying to backfill historical data.
+  # default: 1
+  dbConcurrentIngestionCount: 1
+  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
+  # at the expense of additional memory usages.
+  dbCopyFull: false
+  # Memory limit applied to read database connections.
+  # default: 0GB is no limit
+  dbMemoryLimit: 0GB
+  # Memory limit applied to write database connections.
+  # default: 0GB is no limit
+  dbWriteMemoryLimit: 0GB
+  # How much data to ingest from the federated store bucket, and how much data
+  # to keep in the DB before rolling the data off.
+  #
+  # Note: If increasing this value to backfill historical data, it will take
+  # time to gradually ingest and process those historical ETL files. Consider
+  # also increasing the resources available to the aggregator as well as the
+  # refresh and concurrency env vars.
+  #
+  # default: 91
+  etlDailyStoreDurationDays: 91
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
@@ -2672,7 +2733,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.1
+    tag: v0.16.2
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2751,7 +2812,7 @@ clusterController:
       #
       # See the examples below.
       #
-      # [1] https://docs.kubecost.com/apis/apis-overview/filters-api
+      # [1] https://docs.kubecost.com/apis/filters-api
       # filterConfig:
       #   - filter: |
       #       namespace:"abc"+controllerKind:"deployment"
@@ -3150,6 +3211,12 @@ federatedETL:
 
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
+
+  ## If true, this cluster will be able to read from the federated-store but will
+  ## not write to it. This is useful in situations when you want to deploy a
+  ## primary cluster, but don't want the primary cluster's ETL data to be
+  ## pushed to the bucket
+  readOnlyPrimary: false
 
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
