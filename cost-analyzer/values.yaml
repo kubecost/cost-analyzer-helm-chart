@@ -2853,7 +2853,11 @@ serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does 
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
-    relabelings: []
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_namespace
+      targetLabel: namespace
 prometheusRule:
   enabled: false
   additionalLabels: {}
