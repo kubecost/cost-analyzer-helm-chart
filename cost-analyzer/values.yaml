@@ -2560,6 +2560,8 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+  # Trim memory on close, only change if advised by Kubecost support.
+  dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
