@@ -1302,7 +1302,7 @@ data:
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
-                "chartVersion": "2.3.2-rc.1"
+                "chartVersion": "2.3.2-rc.2"
                 }
             ';
         }
