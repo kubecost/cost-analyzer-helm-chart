@@ -2563,6 +2563,8 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+  # Trim memory on close, only change if advised by Kubecost support.
+  dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
@@ -2733,7 +2735,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.2
+    tag: v0.16.3
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2873,7 +2875,11 @@ serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does 
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
-    relabelings: []
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_namespace
+      targetLabel: namespace
 prometheusRule:
   enabled: false
   additionalLabels: {}
