@@ -574,11 +574,9 @@ kubecostModel:
   # image provided (registry, image, tag) will be used for cost-model.
   # fullImageName:
 
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
   # securityContext:
   #   readOnlyRootFilesystem: true
+
   # Build local cost allocation cache
   warmCache: false
   # Run allocation ETL pipelines
@@ -690,11 +688,16 @@ kubecostModel:
   extraArgs: []
 
   # Optional. A list of extra environment variables to be added to the cost-model container.
-  # extraEnv: []
-    # - name: LOG_LEVEL
-    #   value: trace
-    # - name: LOG_FORMAT
-    #   value: json
+  # extraEnv:
+  #   - name: LOG_LEVEL
+  #     value: trace
+  #   - name: LOG_FORMAT
+  #     value: json
+  #   # When false, Kubecost will not show Asset costs for local disks physically
+  #   # attached to nodes (e.g. ephemeral storage). This needs to be applied to
+  #   # each cluster monitored.
+  #   - name: ASSET_INCLUDE_LOCAL_DISK_COST
+  #     value: "true"
 
   # creates an ingress directly to the model container, for API access
   ingress:
