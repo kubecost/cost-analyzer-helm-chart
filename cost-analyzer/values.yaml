@@ -3144,7 +3144,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.27.2
+      tag: 1.27.4
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
