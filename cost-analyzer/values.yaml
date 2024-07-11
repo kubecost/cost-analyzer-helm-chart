@@ -909,6 +909,7 @@ prometheus:
         {{- else }}
         port: 9004
         {{- end }}
+    # Enables scraping of NVIDIA GPU metrics via dcgm-exporter
     - job_name: kubecost-dcgm-exporter
       kubernetes_sd_configs:
         - role: pod
