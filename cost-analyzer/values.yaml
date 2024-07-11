@@ -574,11 +574,9 @@ kubecostModel:
   # image provided (registry, image, tag) will be used for cost-model.
   # fullImageName:
 
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
   # securityContext:
   #   readOnlyRootFilesystem: true
+
   # Build local cost allocation cache
   warmCache: false
   # Run allocation ETL pipelines
@@ -690,11 +688,16 @@ kubecostModel:
   extraArgs: []
 
   # Optional. A list of extra environment variables to be added to the cost-model container.
-  # extraEnv: []
-    # - name: LOG_LEVEL
-    #   value: trace
-    # - name: LOG_FORMAT
-    #   value: json
+  # extraEnv:
+  #   - name: LOG_LEVEL
+  #     value: trace
+  #   - name: LOG_FORMAT
+  #     value: json
+  #   # When false, Kubecost will not show Asset costs for local disks physically
+  #   # attached to nodes (e.g. ephemeral storage). This needs to be applied to
+  #   # each cluster monitored.
+  #   - name: ASSET_INCLUDE_LOCAL_DISK_COST
+  #     value: "true"
 
   # creates an ingress directly to the model container, for API access
   ingress:
@@ -2568,6 +2571,8 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+  # Trim memory on close, only change if advised by Kubecost support.
+  dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
@@ -2738,7 +2743,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.2
+    tag: v0.16.4
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2878,7 +2883,11 @@ serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does 
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
-    relabelings: []
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_namespace
+      targetLabel: namespace
 prometheusRule:
   enabled: false
   additionalLabels: {}
