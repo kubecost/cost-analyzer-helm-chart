@@ -920,15 +920,9 @@ prometheus:
       kubernetes_sd_configs:
         - role: endpoints
       relabel_configs:
-        - source_labels: [__meta_kubernetes_pod_label_app]
+        - source_labels: [__meta_kubernetes_pod_label_app, __meta_kubernetes_pod_label_app_kubernetes_io_component, __meta_kubernetes_pod_label_app_kubernetes_io_name]
           action: keep
-          regex: (?i).*dcgm-exporter.*
-        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_component]
-          action: keep
-          regex: (?i).*dcgm-exporter.*
-        - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
-          action: keep
-          regex: (?i).*dcgm-exporter.*
+          regex: (?i)(.*dcgm-exporter.*|.*dcgm-exporter.*|.*dcgm-exporter.*)
 
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
