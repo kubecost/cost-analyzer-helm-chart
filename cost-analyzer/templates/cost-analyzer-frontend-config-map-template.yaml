@@ -1320,7 +1320,7 @@ data:
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
                 "chartVersion": "DEVELOP_BRANCH",
                 "hourlyDataRetention": "{{ (.Values.kubecostModel.etlHourlyStoreDurationHours) }}",
-                "dailyDataRetention": "{{ (.Values.kubecostModel.etlDailyStoreDurationDays) }}",
+                "dailyDataRetention": "{{ (.Values.kubecostAggregator.etlDailyStoreDurationDays) }}",
                 "hideDiagnostics": "{{ default false ((.Values.kubecostProductConfigs).hideDiagnostics) }}",
                 "hideOrphanedResources": "{{ default false ((.Values.kubecostProductConfigs).hideOrphanedResources) }}",
                 "hideKubecostActions": "{{ default false ((.Values.kubecostProductConfigs).hideKubecostActions) }}",
