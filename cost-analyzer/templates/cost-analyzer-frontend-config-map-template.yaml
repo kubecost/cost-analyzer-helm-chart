@@ -1319,7 +1319,7 @@ data:
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
                 "chartVersion": "DEVELOP_BRANCH",
-                "hourlyDataRetention": "{{ (.Values.kubecostModel.etlHourlyStoreDurationHours) }}",
+                "hourlyDataRetention": "{{ (.Values.kubecostAggregator.etlHourlyStoreDurationHours) }}",
                 "dailyDataRetention": "{{ (.Values.kubecostAggregator.etlDailyStoreDurationDays) }}",
                 "hideDiagnostics": "{{ default false ((.Values.kubecostProductConfigs).hideDiagnostics) }}",
                 "hideOrphanedResources": "{{ default false ((.Values.kubecostProductConfigs).hideOrphanedResources) }}",
