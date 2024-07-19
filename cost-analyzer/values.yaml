@@ -2578,9 +2578,13 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
-  # disabling the hourly stores can improve ingestion performance, but is
-  # not currently supported due to the frontend defaulting to hourly queries
-  # on certain pages.
+  # How much hourly data to ingest from the federated store bucket, and how much
+  # to keep in the DB before rolling the data off.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 49
   etlHourlyStoreDurationHours: 49
   # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
