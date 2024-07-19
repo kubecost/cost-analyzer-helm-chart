@@ -2592,7 +2592,7 @@ kubecostAggregator:
   # default: 49
   etlHourlyStoreDurationHours: 49
 
-# Trim memory on close, only change if advised by Kubecost support.
+  # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
