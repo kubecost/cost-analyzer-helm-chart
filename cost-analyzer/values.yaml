@@ -729,7 +729,7 @@ kubecostModel:
 ## from v1 to v2 of Kubecost. It translates the data from the "/etl" dir of the
 ## bucket, to the "/federated" dir of the bucket.
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/thanos-migration-guide
-## 
+##
 etlUtils:
   enabled: false
   fullImageName: null
