@@ -2500,6 +2500,7 @@ forecasting:
     failureThreshold: 200
 
 ## The Kubecost Aggregator is the primary query backend for Kubecost
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator
 ##
 kubecostAggregator:
   # deployMethod determines how Aggregator is deployed. Current options are
