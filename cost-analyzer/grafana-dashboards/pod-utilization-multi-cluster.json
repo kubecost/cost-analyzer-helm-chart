@@ -782,7 +782,7 @@
   },
   "timezone": "browser",
   "title": "Pod utilization metrics (multi-cluster)",
-  "uid": "at-cost-analysis-pod-utilization-multi-cluster",
+  "uid": "at-cost-analysis-pod-multicluster",
   "version": 2,
   "weekStart": ""
 }
