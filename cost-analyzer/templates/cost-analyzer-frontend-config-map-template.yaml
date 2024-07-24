@@ -1016,6 +1016,22 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
+        location = /model/getApiConfig {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/getApiConfig;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location = /model/setApiConfig {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://aggregator/setApiConfig;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
         location = /model/enablements {
             proxy_read_timeout          300;
             proxy_pass http://aggregator/enablements;
@@ -1302,9 +1318,7 @@ data:
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
-                "chartVersion": "DEVELOP_BRANCH",
-                "hourlyDataRetention": "{{ (.Values.kubecostModel.etlHourlyStoreDurationHours) }}",
-                "dailyDataRetention": "{{ (.Values.kubecostModel.etlDailyStoreDurationDays) }}"
+                "chartVersion": "2.3.4-rc.0"
                 }
             ';
         }
