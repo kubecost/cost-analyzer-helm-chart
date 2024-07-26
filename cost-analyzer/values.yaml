@@ -1705,7 +1705,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.8.0
+      tag: v1.8.1
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
@@ -1832,7 +1832,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.8.0
+      tag: v1.8.1
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName
