@@ -1729,7 +1729,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.8.0
+      tag: v1.8.2
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
@@ -2964,7 +2964,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.3
+    tag: 11.1.1
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -3158,7 +3158,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.27.2
+      tag: 1.27.5
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
