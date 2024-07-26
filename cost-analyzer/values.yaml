@@ -1744,7 +1744,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.8.0
+      tag: v1.8.2
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
