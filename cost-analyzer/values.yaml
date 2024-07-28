@@ -3017,7 +3017,7 @@ grafana:
 
   ##  This template is not needed and is not supported.
   ##  It is here for backwards compatibility.
-  ##  Kubecost exposes grafana by default with the 
+  ##  Kubecost exposes grafana by default with the
   ##  top level ingress template under /grafana/
   ingress:
     enabled: false
