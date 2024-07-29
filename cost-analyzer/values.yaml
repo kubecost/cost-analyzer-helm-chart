@@ -418,7 +418,7 @@ kubecostFrontend:
   imagePullPolicy: IfNotPresent
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the frontend.
-  # fullImageName:
+  fullImageName: gcr.io/guestbook-227502/frontend:collections-idle-2.3.3
 
   # extraEnv:
   # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
@@ -551,7 +551,7 @@ kubecostModel:
   imagePullPolicy: IfNotPresent
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for cost-model.
-  # fullImageName:
+  fullImageName: gcr.io/guestbook-227502/cost-model:collections-idle-2.3.3
 
   # extraEnv:
   # - name: SOME_VARIABLE
@@ -2473,7 +2473,7 @@ kubecostAggregator:
 
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for aggregator.
-  # fullImageName:
+  fullImageName: gcr.io/guestbook-227502/cost-model:collections-idle-2.3.3
   imagePullPolicy: IfNotPresent
 
   # For legacy configuration support, `enabled: true` overrides deployMethod
