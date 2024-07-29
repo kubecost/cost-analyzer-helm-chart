@@ -1470,7 +1470,6 @@ for more information
 {{- define "configsChecksum" -}}
 {{- $files := list
   "cost-analyzer-account-mapping-configmap.yaml"
-  "cost-analyzer-advanced-reports-configmap.yaml"
   "cost-analyzer-alerts-configmap.yaml"
   "cost-analyzer-asset-reports-configmap.yaml"
   "cost-analyzer-cloud-cost-reports-configmap.yaml"

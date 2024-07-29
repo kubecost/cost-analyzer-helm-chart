@@ -199,21 +199,6 @@ global:
         - property: "cluster"
           value: "cluster-one"
 
-  # Set saved Advanced report(s) accessible from /reports
-  # Ref: http://docs.kubecost.com/saved-reports
-  advancedReports:
-    enabled: false  # If true, overwrites report parameters set through UI
-    reports:
-    - title: "Example Advanced Report 0"
-      window: "7d"
-      aggregateBy: "namespace"
-      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/filters-api
-        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
-          operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
-          value: "dev"
-      cloudBreakdown: "service"
-      cloudJoin: "label:kubernetes_namespace"
-
   # Set saved Cloud Cost report(s) accessible from /reports
   # Ref: http://docs.kubecost.com/saved-reports
   cloudCostReports:
