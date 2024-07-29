@@ -936,7 +936,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.52.0
+      tag: v2.53.1
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1856,7 +1856,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.8.0
+      tag: v1.9.0
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName
@@ -3000,7 +3000,10 @@ grafana:
     annotations: {}
     labels: {}
 
-  ## Ingress service for the Grafana deployment
+  ##  This template is not needed and is not supported.
+  ##  It is here for backwards compatibility.
+  ##  Kubecost exposes grafana by default with the
+  ##  top level ingress template under /grafana/
   ingress:
     enabled: false
     annotations: {}
