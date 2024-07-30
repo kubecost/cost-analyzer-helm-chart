@@ -19,7 +19,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 15,
+  "id": 7,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -110,7 +110,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(5,sum(container_memory_working_set_bytes{container=~\"$container\",pod=~\".+-aggregator-0\",container!=\"\",namespace=~\"$namespace\"} ) by (namespace,pod,container))",
+          "expr": "topk(5,sum(container_memory_working_set_bytes{container=\"aggregator\",namespace=~\"$namespace\"} ) by (namespace,pod,container))",
           "instant": false,
           "legendFormat": "{{namespace}}/{{container}}",
           "range": true,
@@ -207,7 +207,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "topk(5, (\r\n    sum(rate(container_cpu_usage_seconds_total{image!=\"\",namespace=~\"$namespace\",pod=~\".+-aggregator-0\",container=~\"$container\"}[10m])) by (namespace,pod,container)\r\n    )\r\n)",
+          "expr": "topk(5, (\r\n    sum(rate(container_cpu_usage_seconds_total{image!=\"\",namespace=~\"$namespace\",container=\"aggregator\"}[$__rate_interval])) by (namespace,pod,container)\r\n    )\r\n)",
           "instant": false,
           "legendFormat": "{{namespace}}/{{container}}",
           "range": true,
@@ -424,7 +424,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(topk(5,rate(container_network_receive_bytes_total{pod=~\".+-aggregator-0\",namespace=~\"$namespace\"}[$__rate_interval]))) by (namespace,pod) ",
+          "expr": "sum(topk(5,rate(container_network_receive_bytes_total{namespace=~\"$namespace\"}[$__rate_interval]))) by (namespace,pod) ",
           "hide": false,
           "instant": false,
           "legendFormat": "{{namespace}}/{{pod}}",
@@ -437,12 +437,25 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "-sum(topk(5,rate(container_network_transmit_bytes_total{pod=~\".+-aggregator-0\",namespace=~\"$namespace\"}[$__rate_interval]))) by (namespace,pod) ",
+          "expr": "-sum(topk(5,rate(container_network_transmit_bytes_total{namespace=~\"$namespace\"}[$__rate_interval]))) by (namespace,pod) ",
           "hide": false,
           "instant": false,
           "legendFormat": "{{namespace}}/{{pod}}",
           "range": true,
           "refId": "transmit"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "container_network_transmit_bytes_total{}",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
         }
       ],
       "title": "Top Network (transmit is negative)",
@@ -535,7 +548,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "\n sum(rate(container_fs_writes_bytes_total\n  {pod=~\".+-aggregator-0\",namespace=~\"$namespace\",image!=\"\"}\n  [$__rate_interval]))\n by (namespace,pod,container)\n>0 ",
+          "expr": "\n sum(rate(container_fs_writes_bytes_total\n  {container=\"aggregator\",namespace=~\"$namespace\",image!=\"\"}\n  [$__rate_interval]))\n by (namespace,pod,container)\n>0 ",
           "hide": false,
           "instant": false,
           "legendFormat": "{{namespace}}/{{container}}",
@@ -548,7 +561,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "-(sum\r\n (rate(container_fs_reads_bytes_total\r\n  {pod=~\".+-aggregator-0\",namespace=~\"$namespace\",image!=\"\"}\r\n  [$__rate_interval])) \r\nby (namespace,pod,container) \r\n) <0",
+          "expr": "-(sum\r\n (rate(container_fs_reads_bytes_total\r\n  {container=\"aggregator\",namespace=~\"$namespace\",image!=\"\"}\r\n  [$__rate_interval])) \r\nby (namespace,pod,container) \r\n) <0",
           "hide": false,
           "instant": false,
           "legendFormat": "{{namespace}}/{{container}}",
@@ -660,7 +673,7 @@
           },
           "editorMode": "code",
           "expr": "sum(kube_persistentvolume_capacity_bytes) by (persistentvolume)",
-          "hide": true,
+          "hide": false,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
@@ -768,6 +781,115 @@
       ],
       "title": "Pod restarts per hour",
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${datasource}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "PBFA97CFB590B2093"
+          },
+          "editorMode": "code",
+          "expr": "kubecost_read_db_size",
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "kubecost_read_db_size"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${datasource}"
+          },
+          "editorMode": "code",
+          "expr": "sum(kubecost_write_db_size)",
+          "hide": false,
+          "instant": false,
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "kubecost_write_db_size"
+        }
+      ],
+      "title": "Aggregator DB Size",
+      "type": "timeseries"
     }
   ],
   "refresh": "5s",
@@ -799,9 +921,9 @@
       },
       {
         "current": {
-          "selected": false,
-          "text": "aggregator",
-          "value": "aggregator"
+          "selected": true,
+          "text": "kubecost",
+          "value": "kubecost"
         },
         "datasource": {
           "type": "prometheus",
@@ -850,38 +972,11 @@
         "skipUrlSync": false,
         "sort": 5,
         "type": "query"
-      },
-      {
-        "current": {
-          "selected": false,
-          "text": "All",
-          "value": "$__all"
-        },
-        "datasource": {
-          "type": "prometheus",
-          "uid": "PBFA97CFB590B2093"
-        },
-        "definition": "label_values({namespace=~\"$namespace\", pod=~\".+-aggregator-0\"},container)",
-        "hide": 0,
-        "includeAll": true,
-        "multi": false,
-        "name": "container",
-        "options": [],
-        "query": {
-          "qryType": 1,
-          "query": "label_values({namespace=~\"$namespace\", pod=~\".+-aggregator-0\"},container)",
-          "refId": "PrometheusVariableQueryEditor-VariableQuery"
-        },
-        "refresh": 1,
-        "regex": "",
-        "skipUrlSync": false,
-        "sort": 5,
-        "type": "query"
       }
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-3h",
     "to": "now"
   },
   "timepicker": {},

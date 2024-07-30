@@ -63,6 +63,27 @@ global:
       # username: user
       # password: pwd
 
+  # Azure Monitor Managed Service for Prometheus
+  # See https://github.com/MicrosoftDocs/azure-docs/blob/main/articles/azure-monitor/essentials/prometheus-metrics-overview.md for information
+  # and https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-remote-write-virtual-machines for more information on setting this up
+  ammsp:
+    enabled: false
+    prometheusServerEndpoint: http://localhost:8081/
+    remoteWriteService: $<AMMSP_METRICS_INGESTION_ENDPOINT>
+    queryEndpoint: $<AMMSP_QUERY_ENDPOINT>
+
+    aadAuthProxy:
+      enabled: false
+      # per https://github.com/Azure/aad-auth-proxy/releases/tag/0.1.0-main-04-10-2024-7067ac84
+      image: $<IMAGE>  # Example: mcr.microsoft.com/azuremonitor/auth-proxy/prod/aad-auth-proxy/images/aad-auth-proxy:0.1.0-main-04-10-2024-7067ac84
+      imagePullPolicy: IfNotPresent
+      name: aad-auth-proxy
+      port: 8081
+      audience: https://prometheus.monitor.azure.com/.default
+      identityType: userAssigned
+      aadClientId: $<AZURE_MANAGED_IDENTITY_CLIENT_ID>
+      aadTenantId: $<AZURE_MANAGED_IDENTITY_TENANT_ID>
+
   notifications:
     # Kubecost alerting configuration
     # Ref: http://docs.kubecost.com/alerts
@@ -141,9 +162,9 @@ global:
         idle: "separate"
         rate: "cumulative"
         accumulate: false  # daily resolution
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "dev"
       - title: "Example Saved Report 1"
         window: "month"
@@ -152,9 +173,9 @@ global:
         idle: "share"
         rate: "monthly"
         accumulate: false
-        filters:  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-            operator: "!:"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
+        filters:  # Ref: https://docs.kubecost.com/apis/filters-api
+          - key: "namespace"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
+            operator: "!:"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
             value: "kubecost"
       - title: "Example Saved Report 2"
         window: "2020-11-11T00:00:00Z,2020-12-09T23:59:59Z"
@@ -177,21 +198,6 @@ global:
       filters:
         - property: "cluster"
           value: "cluster-one"
-
-  # Set saved Advanced report(s) accessible from /reports
-  # Ref: http://docs.kubecost.com/saved-reports
-  advancedReports:
-    enabled: false  # If true, overwrites report parameters set through UI
-    reports:
-    - title: "Example Advanced Report 0"
-      window: "7d"
-      aggregateBy: "namespace"
-      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/apis-overview/filters-api
-        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#allocation-apis-request-sizing-v2-api
-          operator: ":"  # Ref: https://docs.kubecost.com/apis/apis-overview/filters-api#filter-operators
-          value: "dev"
-      cloudBreakdown: "service"
-      cloudJoin: "label:kubernetes_namespace"
 
   # Set saved Cloud Cost report(s) accessible from /reports
   # Ref: http://docs.kubecost.com/saved-reports
@@ -553,11 +559,9 @@ kubecostModel:
   # image provided (registry, image, tag) will be used for cost-model.
   # fullImageName:
 
-  # extraEnv:
-  # - name: SOME_VARIABLE
-  #   value: "some_value"
   # securityContext:
   #   readOnlyRootFilesystem: true
+
   # Build local cost allocation cache
   warmCache: false
   # Run allocation ETL pipelines
@@ -646,7 +650,11 @@ kubecostModel:
       # - datadog
 
     # pre-existing secret for plugin configuration
-    configSecret: kubecost-plugin-secret
+    existingCustomSecret:
+      enabled: false
+      name: ""  # name of the secret containing plugin config
+
+    secretName: kubecost-plugin-secret
 
     # uncomment this to define plugin configuration via the values file
     # configs:
@@ -704,11 +712,16 @@ kubecostModel:
   extraArgs: []
 
   # Optional. A list of extra environment variables to be added to the cost-model container.
-  # extraEnv: []
-    # - name: LOG_LEVEL
-    #   value: trace
-    # - name: LOG_FORMAT
-    #   value: json
+  # extraEnv:
+  #   - name: LOG_LEVEL
+  #     value: trace
+  #   - name: LOG_FORMAT
+  #     value: json
+  #   # When false, Kubecost will not show Asset costs for local disks physically
+  #   # attached to nodes (e.g. ephemeral storage). This needs to be applied to
+  #   # each cluster monitored.
+  #   - name: ASSET_INCLUDE_LOCAL_DISK_COST
+  #     value: "true"
 
   # creates an ingress directly to the model container, for API access
   ingress:
@@ -736,7 +749,11 @@ kubecostModel:
     #   targetPort: 40000
     #   containerPort: 40000
 
-# etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
+## etlUtils is a utility typically used by Enterprise customers transitioning
+## from v1 to v2 of Kubecost. It translates the data from the "/etl" dir of the
+## bucket, to the "/federated" dir of the bucket.
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/thanos-migration-guide
+##
 etlUtils:
   enabled: false
   fullImageName: null
@@ -920,6 +937,21 @@ prometheus:
         {{- else }}
         port: 9004
         {{- end }}
+    ## Enables scraping of NVIDIA GPU metrics via dcgm-exporter. Scrapes all
+    ## endpoints which contain "dcgm-exporter" in labels "app",
+    ## "app.kubernetes.io/component", or "app.kubernetes.io/name" with a case
+    ## insensitive match.
+    ## Refs:
+    ## https://github.com/NVIDIA/gpu-operator/blob/d4316a415bbd684ce8416a88042305fc1a093aa4/assets/state-dcgm-exporter/0600_service.yaml#L7
+    ## https://github.com/NVIDIA/dcgm-exporter/blob/54fd1ca137c66511a87a720390613680b9bdabdd/deployment/templates/service.yaml#L23
+    - job_name: kubecost-dcgm-exporter
+      kubernetes_sd_configs:
+        - role: endpoints
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app, __meta_kubernetes_pod_label_app_kubernetes_io_component, __meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex: (?i)(.*dcgm-exporter.*|.*dcgm-exporter.*|.*dcgm-exporter.*)
+
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -943,7 +975,7 @@ prometheus:
     ##
     image:
       repository: quay.io/prometheus/prometheus
-      tag: v2.52.0
+      tag: v2.53.1
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1736,7 +1768,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.8.0
+      tag: v1.8.2
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
@@ -1863,7 +1895,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.8.0
+      tag: v1.9.0
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName
@@ -2491,9 +2523,8 @@ forecasting:
     periodSeconds: 10
     failureThreshold: 200
 
-## The Kubecost Aggregator is a high scale implementation of Kubecost intended
-## for large datasets and/or high query load. At present, this should only be
-## enabled when recommended by Kubecost staff.
+## The Kubecost Aggregator is the primary query backend for Kubecost
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator
 ##
 kubecostAggregator:
   # deployMethod determines how Aggregator is deployed. Current options are
@@ -2515,6 +2546,8 @@ kubecostAggregator:
   # `deployMethod: "statefulset"`
   replicas: 1
 
+  logLevel: info
+
   # stagingEmptyDirSizeLimit changes how large the "staging"
   # /var/configs/waterfowl emptyDir is. It only takes effect in StatefulSet
   # configurations of Aggregator, other configurations are unaffected.
@@ -2531,13 +2564,60 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 25
+  numDBCopyPartitions: 1
 
-  env:
-    "LOG_LEVEL": "info"
-    "DB_READ_THREADS": "1"
-    "DB_WRITE_THREADS": "1"
-    "DB_CONCURRENT_INGESTION_COUNT": "3"
+  # How many threads the read database is configured with (i.e. Kubecost API /
+  # UI queries). If increasing this value, it is recommended to increase the
+  # aggregator's memory requests & limits.
+  # default: 1
+  dbReadThreads: 1
+
+  # How many threads the write database is configured with (i.e. ingestion of
+  # new data from S3). If increasing this value, it is recommended to increase
+  # the aggregator's memory requests & limits.
+  # default: 1
+  dbWriteThreads: 1
+
+  # How many threads to use when ingesting Asset/Allocation/CloudCost data
+  # from the federated store bucket. In most cases the default is sufficient,
+  # but can be increased if trying to backfill historical data.
+  # default: 1
+  dbConcurrentIngestionCount: 1
+
+  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
+  # at the expense of additional memory usages.
+  dbCopyFull: false
+
+  # Memory limit applied to read database and write database connections. The
+  # default of "no limit" is appropriate when first establishing a baseline of
+  # resource usage required. It is eventually recommended to set these values
+  # such that dbMemoryLimit + dbWriteMemoryLimit < the total memory available
+  # to the aggregator pod.
+  # default: 0GB is no limit
+  dbMemoryLimit: 0GB
+  dbWriteMemoryLimit: 0GB
+
+  # How much data to ingest from the federated store bucket, and how much data
+  # to keep in the DB before rolling the data off.
+  #
+  # Note: If increasing this value to backfill historical data, it will take
+  # time to gradually ingest and process those historical ETL files. Consider
+  # also increasing the resources available to the aggregator as well as the
+  # refresh and concurrency env vars.
+  #
+  # default: 91
+  etlDailyStoreDurationDays: 91
+  # How much hourly data to ingest from the federated store bucket, and how much
+  # to keep in the DB before rolling the data off.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 49
+  etlHourlyStoreDurationHours: 49
+
+  # Trim memory on close, only change if advised by Kubecost support.
+  dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
@@ -2659,7 +2739,7 @@ kubecostAggregator:
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
 ## repairing & alerting from the primary.
-## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster-diagnostics
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/multi-cluster-diagnostics
 ##
 diagnostics:
   enabled: true
@@ -2708,7 +2788,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.1
+    tag: v0.16.5
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2787,7 +2867,7 @@ clusterController:
       #
       # See the examples below.
       #
-      # [1] https://docs.kubecost.com/apis/apis-overview/filters-api
+      # [1] https://docs.kubecost.com/apis/filters-api
       # filterConfig:
       #   - filter: |
       #       namespace:"abc"+controllerKind:"deployment"
@@ -2848,7 +2928,11 @@ serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does 
     scrapeTimeout: 10s
     additionalLabels: {}
     metricRelabelings: []
-    relabelings: []
+    relabelings:
+    - action: replace
+      sourceLabels:
+      - __meta_kubernetes_namespace
+      targetLabel: namespace
 prometheusRule:
   enabled: false
   additionalLabels: {}
@@ -2919,7 +3003,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.3
+    tag: 11.1.1
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2955,7 +3039,10 @@ grafana:
     annotations: {}
     labels: {}
 
-  ## Ingress service for the Grafana deployment
+  ##  This template is not needed and is not supported.
+  ##  It is here for backwards compatibility.
+  ##  Kubecost exposes grafana by default with the
+  ##  top level ingress template under /grafana/
   ingress:
     enabled: false
     annotations: {}
@@ -3113,7 +3200,7 @@ grafana:
   sidecar:
     image:
       repository: kiwigrid/k8s-sidecar
-      tag: 1.27.2
+      tag: 1.27.5
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
@@ -3186,6 +3273,12 @@ federatedETL:
 
   ## If true, push ETL data to the federated storage bucket
   federatedCluster: false
+
+  ## If true, this cluster will be able to read from the federated-store but will
+  ## not write to it. This is useful in situations when you want to deploy a
+  ## primary cluster, but don't want the primary cluster's ETL data to be
+  ## pushed to the bucket
+  readOnlyPrimary: false
 
   ## If true, changes the dir of S3 backup to the Federated combined store.
   ## Commonly used when transitioning from Thanos to Federated ETL architecture.
@@ -3348,6 +3441,16 @@ costEventsAudit:
 #     secretname: smtpconfigsecret # Reference an existing k8s secret created from a file named smtp.json of format specified by config above. If the secretname is specified, a configmap with the key will not be created.
 #     mountPath: "/some/custom/path/smtp.json" # (use instead of secretname) Declare the path at which the SMTP config file is mounted (eg. by a secrets provisioner). The file must be of format specified by config above.
 #   carbonEstimates: false # Enables Kubecost beta carbon estimation endpoints /assets/carbon and /allocations/carbon
+#   The below options to hide UI elements are only supported in Enterprise
+#   hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
+#   hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
+#   hideKubecostActions: false
+#   hideReservedInstances: false
+#   hideSpotCommander: false
+#   hideUnclaimedVolumes: false
+#   hideCloudIntegrationsUI: false
+#   hideBellIcon: false
+#   hideTeams: false
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
