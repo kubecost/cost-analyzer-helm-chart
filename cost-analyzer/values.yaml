@@ -583,46 +583,47 @@ kubecostModel:
   # etlBucketConfigSecret:
   # The name of the Secret containing a bucket config for Federated storage. The contents should be stored
   # under a key named federated-store.yaml.
-  # federatedStorageConfigSecret: ""
-  # Federated storage configuration for different cloud providers
-# federatedStorageConfig: |-
-  # configs:
-    # - type: S3  # Type of storage provider
-      # config:
-        # bucket: kubecost-UNIQUE_NAME-metrics  # S3 bucket name
-        # endpoint: s3.amazonaws.com  # S3 endpoint
-        # region: us-east-2  # S3 region
-        # insecure: false  # Use secure connection
-        # signature_version2: false  # Use Signature Version 4
-        # put_user_metadata:  # Metadata for S3
-          # X-Amz-Acl: bucket-owner-full-control  # ACL for bucket owner
-        # http_config:  # HTTP configuration
-          # idle_conn_timeout: 90s  # Idle connection timeout
-          # response_header_timeout: 2m  # Response header timeout
-          # insecure_skip_verify: false  # Verify SSL certificate
-        # trace:  # Tracing configuration
-          # enable: true  # Enable tracing
-        # part_size: 134217728  # Part size for multipart uploads
-    # - type: GCS  # Type of storage provider
-      # config:
-        # bucket: GCP_object_store_bucket  # GCS bucket name
-        # service_account:  # GCS service account credentials
-          # type: service_account  # Type of service account
-          # project_id: GCP_object_store_project_id  # Project ID
-          # private_key_id: GCP_object_store_private_key_id  # Private key ID
-          # private_key: GCP_object_store_privateKEY  # Private key
-          # client_email: GCP_object_store_client_email  # Client email
-          # client_id: GCP_object_store_client_id  # Client ID
-          # auth_uri: https://accounts.google.com/o/oauth2/auth  # Auth URI
-          # token_uri: https://oauth2.googleapis.com/token  # Token URI
-          # auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs  # Auth provider cert URL
-          # client_x509_cert_url: GCP_object_store_client_x509_cert_url  # Client cert URL
-    # - type: AZURE  # Type of storage provider
-      # config:
-        # storage_account: AZ_object_store_storage_account  # Azure storage account name
-        # storage_account_key: AZ_object_store_storageAccount_key  # Azure storage account key
-        # container: AZ_object_store_container  # Azure container name
-        # max_retries: 0  # Max retries for operations
+  # federatedStorageConfigSecret: federated-store
+  # Federated storage config can be supplied via a secret or the yaml block below
+  # when using the block below, only a single provider is supported, others are for example purposes.
+  # federatedStorageConfig: |-
+    # configs:
+      # - type: S3  # Type of storage provider
+        # config:
+          # bucket: kubecost-UNIQUE_NAME-metrics  # S3 bucket name
+          # endpoint: s3.amazonaws.com  # S3 endpoint
+          # region: us-east-2  # S3 region
+          # insecure: false  # Use secure connection
+          # signature_version2: false  # Use Signature Version 4
+          # put_user_metadata:  # Metadata for S3
+            # X-Amz-Acl: bucket-owner-full-control  # ACL for bucket owner
+          # http_config:  # HTTP configuration
+            # idle_conn_timeout: 90s  # Idle connection timeout
+            # response_header_timeout: 2m  # Response header timeout
+            # insecure_skip_verify: false  # Verify SSL certificate
+          # trace:  # Tracing configuration
+            # enable: true  # Enable tracing
+          # part_size: 134217728  # Part size for multipart uploads
+      # - type: GCS  # Type of storage provider
+        # config:
+          # bucket: GCP_object_store_bucket  # GCS bucket name
+          # service_account:  # GCS service account credentials
+            # type: service_account  # Type of service account
+            # project_id: GCP_object_store_project_id  # Project ID
+            # private_key_id: GCP_object_store_private_key_id  # Private key ID
+            # private_key: GCP_object_store_privateKEY  # Private key
+            # client_email: GCP_object_store_client_email  # Client email
+            # client_id: GCP_object_store_client_id  # Client ID
+            # auth_uri: https://accounts.google.com/o/oauth2/auth  # Auth URI
+            # token_uri: https://oauth2.googleapis.com/token  # Token URI
+            # auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs  # Auth provider cert URL
+            # client_x509_cert_url: GCP_object_store_client_x509_cert_url  # Client cert URL
+      # - type: AZURE  # Type of storage provider
+        # config:
+          # storage_account: AZ_object_store_storage_account  # Azure storage account name
+          # storage_account_key: AZ_object_store_storageAccount_key  # Azure storage account key
+          # container: AZ_object_store_container  # Azure container name
+          # max_retries: 0  # Max retries for operations
 
   # Installs Kubecost/OpenCost plugins
   plugins:

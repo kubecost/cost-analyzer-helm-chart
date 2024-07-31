@@ -227,7 +227,9 @@ support templating a chart which uses the lookup function.
 {{-  if .Capabilities.APIVersions.Has "v1/Secret" }}
   {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.kubecostModel.federatedStorageConfigSecret }}
   {{- if or (not $secret) (not (index $secret.data "federated-store.yaml")) }}
-    {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
+    {{- if not .Values.kubecostModel.federatedStorageConfig }}
+      {{- fail (printf "The federated storage config secret '%s' does not exist or does not contain the expected key 'federated-store.yaml'" .Values.kubecostModel.federatedStorageConfigSecret) }}
+    {{- end }}
   {{- end }}
 {{- end -}}
 {{- end -}}
@@ -943,8 +945,6 @@ Begin Kubecost 2.0 templates
     - name: federated-storage-config
       mountPath: /var/configs/etl
       readOnly: true
-    {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
-    {{- fail "When in StatefulSet mode, Aggregator requires that kubecostModel.federatedStorageConfigSecret be set." }}
     {{- end }}
     {{- if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
     - name: persistent-db
