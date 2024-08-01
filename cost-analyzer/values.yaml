@@ -414,7 +414,7 @@ kubecostFrontend:
   enabled: true
   deployMethod: singlepod  # haMode or singlepod - haMode is currently only supported with Enterprise tier
   haReplicas: 2  # only used with haMode
-  image: "gcr.io/kubecost1/frontend"
+  image: "709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/frontend"
   imagePullPolicy: IfNotPresent
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the frontend.
@@ -547,7 +547,7 @@ sigV4Proxy:
   resources: {}
 
 kubecostModel:
-  image: "gcr.io/kubecost1/cost-model"
+  image: "709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cost-model"
   imagePullPolicy: IfNotPresent
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for cost-model.
@@ -911,7 +911,7 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: quay.io/prometheus/prometheus
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus/prometheus
       tag: v2.52.0
       pullPolicy: IfNotPresent
 
@@ -1322,7 +1322,7 @@ prometheus:
     ## alertmanager container image
     ##
     image:
-      repository: quay.io/prometheus/alertmanager
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus/alertmanager
       tag: v0.27.0
       pullPolicy: IfNotPresent
 
@@ -1608,7 +1608,7 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus-operator/prometheus-config-reloader
         tag: v0.74.0
         pullPolicy: IfNotPresent
 
@@ -1648,7 +1648,7 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
+        repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus-operator/prometheus-config-reloader
         tag: v0.74.0
         pullPolicy: IfNotPresent
 
@@ -1704,7 +1704,7 @@ prometheus:
     ## node-exporter container image
     ##
     image:
-      repository: prom/node-exporter
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/node-exporter
       tag: v1.8.0
       pullPolicy: IfNotPresent
 
@@ -1831,7 +1831,7 @@ prometheus:
     ## pushgateway container image
     ##
     image:
-      repository: prom/pushgateway
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/pushgateway
       tag: v1.8.0
       pullPolicy: IfNotPresent
 
@@ -2255,7 +2255,7 @@ prometheus:
 networkCosts:
   enabled: false
   image:
-    repository: gcr.io/kubecost1/kubecost-network-costs
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/kubecost-network-costs
     tag: v0.17.3
   imagePullPolicy: IfNotPresent
   updateStrategy:
@@ -2413,8 +2413,8 @@ forecasting:
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
-  # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+  # Example: fullImageName: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/forecasting:v0.0.1
+  fullImageName: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/kubecost-modeling:v0.1.12
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2714,7 +2714,7 @@ diagnostics:
 clusterController:
   enabled: false
   image:
-    repository: gcr.io/kubecost1/cluster-controller
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cluster-controller
     tag: v0.16.5
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
@@ -2929,7 +2929,7 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: grafana/grafana
+    repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/grafana/grafana
     tag: 10.4.3
     pullPolicy: IfNotPresent
 
@@ -3123,7 +3123,7 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: kiwigrid/k8s-sidecar
+      repository: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/k8s-sidecar
       tag: 1.27.2
       pullPolicy: IfNotPresent
     resources: {}
@@ -3176,7 +3176,7 @@ serviceAccount:
 
 awsstore:
   useAwsStore: false
-  imageNameAndVersion: gcr.io/kubecost1/awsstore:latest  # Name and version of the container image for AWSStore.
+  imageNameAndVersion: 709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/awsstore:latest  # Name and version of the container image for AWSStore.
   createServiceAccount: false
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
