@@ -1204,8 +1204,8 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
 
-        # alert end points 
-        location = /model/alerts {
+        # alert end points with v2 will be routed to aggregator server
+        location = /model/v2/alerts {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/alerts;
             proxy_redirect off;
@@ -1213,7 +1213,7 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-        location ~* ^/model/alerts/(.*) {
+        location ~* ^/model/v2/alerts/(.*) {
             proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
             proxy_pass http://aggregator/alerts/$1;
             proxy_redirect off;
@@ -1221,7 +1221,23 @@ data:
             proxy_set_header  X-Real-IP  $remote_addr;
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
         }
-         
+        # alert end points without any version will be routed to model server
+        location = /model/alerts {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://model/alerts;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location ~* ^/model/alerts/(.*) {
+            proxy_read_timeout          {{ .Values.kubecostFrontend.timeoutSeconds | default 300 }};
+            proxy_pass http://model/alerts/$1;
+            proxy_redirect off;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
 {{- end }}
         location = /model/hideOrphanedResources {
             default_type 'application/json';
