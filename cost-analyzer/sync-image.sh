@@ -18,3 +18,4 @@ export AWS_SESSION_TOKEN=$(echo $temp_role | jq -r .Credentials.SessionToken)
 # Use AWS_PROFILE=EngineeringDeveloper when running as a human
 aws ecr get-login-password --region us-east-1 | skopeo login --username AWS --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
 skopeo copy -a docker://gcr.io/kubecost1/cost-model:$IMAGETAG docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cost-model:prod-2.3.4-eks1
+skopeo copy -a docker://quay.io/prometheus/prometheus:v2.52.0 docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/prometheus:v2.52.0
