@@ -38,6 +38,7 @@ spec:
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+        checksum/configs: {{ include "configsChecksum" . }}
     spec:
       restartPolicy: Always
       {{- if .Values.diagnostics.deployment.securityContext }}

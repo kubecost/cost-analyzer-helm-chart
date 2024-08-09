@@ -1,3 +1,9 @@
+{{- /*
+This template is not needed and is not supported.
+It is here for backwards compatibility.
+Kubecost exposes grafana by default with the
+top level ingress template under /grafana/
+*/ -}}
 {{- if (eq (include "cost-analyzer.grafanaEnabled" .) "true") }}
 {{- if .Values.grafana.ingress.enabled -}}
 {{- $fullName := include "grafana.fullname" . -}}

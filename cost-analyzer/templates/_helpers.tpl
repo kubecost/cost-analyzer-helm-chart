@@ -32,6 +32,15 @@ Set important variables before starting main templates
 {{- end -}}
 
 {{/*
+Kubecost 2.3 notices
+*/}}
+{{- define "kubecostV2-3-notices" -}}
+  {{- if (.Values.kubecostAggregator).env -}}
+    {{- printf "\n\n\nNotice: Issue in values detected.\nKubecost 2.3 has updated the aggregator's environment variables. Please update your Helm values to use the new key pairs.\nFor more information, see: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator#aggregator-optimizations\nIn Kubecost 2.3, kubecostAggregator.env is no longer used in favor of the new key pairs. This was done to prevent unexpected behavior and to simplify the aggregator's configuration." -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
 Kubecost 2.0 preconditions
 */}}
 {{- define "kubecostV2-preconditions" -}}
@@ -1094,12 +1103,36 @@ Begin Kubecost 2.0 templates
       value: "true"
       {{- end }}
     {{- end }}
-    {{- range $key, $value := .Values.kubecostAggregator.env }}
-    - name: {{ $key | quote }}
-      value: {{ $value | quote }}
+    - name: LOG_LEVEL
+      value: {{ .Values.kubecostAggregator.logLevel }}
+    - name: DB_COPY_FULL
+      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
+    - name: DB_READ_THREADS
+      value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
+    - name: DB_WRITE_THREADS
+      value: {{ .Values.kubecostAggregator.dbWriteThreads | quote }}
+    - name: DB_CONCURRENT_INGESTION_COUNT
+      value: {{ .Values.kubecostAggregator.dbConcurrentIngestionCount | quote }}
+    {{- if ne .Values.kubecostAggregator.dbMemoryLimit "0GB" }}
+    - name: DB_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbMemoryLimit | quote }}
     {{- end }}
+    {{- if ne .Values.kubecostAggregator.dbWriteMemoryLimit "0GB" }}
+    - name: DB_WRITE_MEMORY_LIMIT
+      value: {{ .Values.kubecostAggregator.dbWriteMemoryLimit | quote }}
+    {{- end }}
+    - name: ETL_DAILY_STORE_DURATION_DAYS
+      value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
+    - name: ETL_HOURLY_STORE_DURATION_HOURS
+      value: {{ .Values.kubecostAggregator.etlHourlyStoreDurationHours | quote }}
+    - name: DB_TRIM_MEMORY_ON_CLOSE
+      value: {{ .Values.kubecostAggregator.dbTrimMemoryOnClose | quote }}
     - name: KUBECOST_NAMESPACE
       value: {{ .Release.Namespace }}
+    {{- if .Values.global.grafana }}
+    - name: GRAFANA_ENABLED
+      value: "{{ template "cost-analyzer.grafanaEnabled" . }}"
+    {{- end}}
     {{- if .Values.oidc.enabled }}
     - name: OIDC_ENABLED
       value: "true"
@@ -1258,7 +1291,7 @@ Begin Kubecost 2.0 templates
       value: "true"
     {{- end}}
     - name: ETL_DAILY_STORE_DURATION_DAYS
-      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) | default (quote 91) }}
+      value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
     - name: CLOUD_COST_REFRESH_RATE_HOURS
       value: {{ .Values.kubecostAggregator.cloudCost.refreshRateHours | default 6 | quote }}
     - name: CLOUD_COST_QUERY_WINDOW_DAYS
@@ -1411,6 +1444,14 @@ for more information
 {{- end -}}
 {{- end -}}
 
+{{- define "forecastingEnabled" }}
+{{- if (.Values.forecasting).enabled }}
+{{- printf "true" -}}
+{{- else -}}
+{{- printf "false" -}}
+{{- end -}}
+{{- end -}}
+
 {{- define "pluginsEnabled" }}
 {{- if (.Values.kubecostModel.plugins).enabled }}
 {{- printf "true" -}}
@@ -1420,9 +1461,44 @@ for more information
 {{- end -}}
 
 {{- define "carbonEstimatesEnabled" }}
-{{- if (((.Values.kubecostProductConfigs).carbonEstimates).enabled) }}
+{{- if ((.Values.kubecostProductConfigs).carbonEstimates) }}
 {{- printf "true" -}}
 {{- else -}}
 {{- printf "false" -}}
 {{- end -}}
+{{- end -}}
+
+{{- /*
+  Compute a checksum based on the rendered content of specific ConfigMaps and Secrets.
+*/ -}}
+{{- define "configsChecksum" -}}
+{{- $files := list
+  "cost-analyzer-account-mapping-configmap.yaml"
+  "cost-analyzer-alerts-configmap.yaml"
+  "cost-analyzer-asset-reports-configmap.yaml"
+  "cost-analyzer-cloud-cost-reports-configmap.yaml"
+  "cost-analyzer-config-map-template.yaml"
+  "cost-analyzer-frontend-config-map-template.yaml"
+  "cost-analyzer-metrics-config-map-template.yaml"
+  "cost-analyzer-network-costs-config-map-template.yaml"
+  "cost-analyzer-oidc-config-map-template.yaml"
+  "cost-analyzer-pkey-configmap.yaml"
+  "cost-analyzer-pricing-configmap.yaml"
+  "cost-analyzer-saml-config-map-template.yaml"
+  "cost-analyzer-saved-reports-configmap.yaml"
+  "cost-analyzer-server-configmap.yaml"
+  "cost-analyzer-smtp-configmap.yaml"
+  "gcpstore-config-map-template.yaml"
+  "install-plugins.yaml"
+  "integrations-postgres-queries-configmap.yaml"
+  "kubecost-cluster-controller-actions-config.yaml"
+  "kubecost-cluster-manager-configmap-template.yaml"
+  "mimir-proxy-configmap-template.yaml"
+-}}
+{{- $checksum := "" -}}
+{{- range $files -}}
+  {{- $content := include (print $.Template.BasePath (printf "/%s" .)) $ -}}
+  {{- $checksum = printf "%s%s" $checksum $content | sha256sum -}}
+{{- end -}}
+{{- $checksum | sha256sum -}}
 {{- end -}}
