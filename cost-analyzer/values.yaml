@@ -592,22 +592,12 @@ kubecostModel:
   #   # AWS EXAMPLE
   #   type: S3
   #   config:
-  #     bucket: "kubecost-federated-storage-bucket"
-  #     endpoint: "s3.amazonaws.com"
-  #     region: "us-east-1"
+  #     bucket: kubecost-federated-storage-bucket
+  #     endpoint: s3.amazonaws.com
+  #     region: us-east-1
+  #     # best practice is to use pod identities to access AWS resources. Otherwise it is possible to use an access_key and secret_key
   #     access_key: "<your-access-key>"
   #     secret_key: "<your-secret-key>"
-  #     insecure: false
-  #     signature_version2: false
-  #     put_user_metadata:
-  #         "X-Amz-Acl": "bucket-owner-full-control"
-  #     http_config:
-  #       idle_conn_timeout: 90s
-  #       response_header_timeout: 2m
-  #       insecure_skip_verify: false
-  #     trace:
-  #       enable: true
-  #     part_size: 134217728
   #   # AZURE EXAMPLE
   #   type: AZURE
   #   config:
@@ -618,7 +608,7 @@ kubecostModel:
   #   # GCP EXAMPLE
   #   type: GCS
   #   config:
-  #     bucket: "kubecost-federated-storage-bucket"
+  #     bucket: kubecost-federated-storage-bucket
   #     service_account: |-
   #       {
   #         "type": "service_account",
