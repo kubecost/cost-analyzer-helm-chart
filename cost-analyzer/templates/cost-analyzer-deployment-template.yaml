@@ -928,7 +928,7 @@ spec:
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
             {{- end }}
-            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}

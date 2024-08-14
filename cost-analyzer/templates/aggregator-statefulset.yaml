@@ -78,19 +78,23 @@ spec:
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
-        {{- if $etlBackupBucketSecret }}
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- if or $etlBackupBucketSecret .Values.kubecostModel.federatedStorageConfig }}
+        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- else }}
+            secretName: federated-store
+            {{- end }}
         {{- end }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
-            secretName: {{ $etlBackupBucketSecret }}
+            secretName: {{ $etlBackupBucketSecret | default "federated-store" }}
         {{- else }}
-        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
+        {{- fail "\n\nKubecost Aggregator Enterprise Config requires either .Values.kubecostModel.federatedStorageConfigSecret or .Values.kubecostModel.federatedStorageConfig" }}
         {{- end }}
         {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
         - name: productkey-secret

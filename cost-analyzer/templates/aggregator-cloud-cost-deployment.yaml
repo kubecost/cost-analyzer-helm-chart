@@ -68,11 +68,15 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
         {{- end }}
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- else }}
+            secretName: federated-store
+            {{- end }}
         {{- end }}
         {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
         - name: cloud-integration
