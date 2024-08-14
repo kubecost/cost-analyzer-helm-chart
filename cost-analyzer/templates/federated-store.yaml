@@ -8,5 +8,5 @@ metadata:
   labels:
     {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
 data:
-  federated-store.yaml: {{ .Values.kubecostModel.federatedStorageConfig | replace "\n" "" | b64enc }}
+  federated-store.yaml: {{ .Values.kubecostModel.federatedStorageConfig | b64enc }}
 {{- end }}
