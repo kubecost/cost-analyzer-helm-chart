@@ -186,7 +186,7 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 Verify a cluster_id is set in the Prometheus global config
 */}}
 {{- define "clusterIDCheck" -}}
-  {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
+  {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig }}
     {{- if not .Values.prometheus.server.clusterIDConfigmap }}
       {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
         {{- fail "\n\nWhen using multi-cluster Kubecost, you must specify a unique `.Values.prometheus.server.global.external_labels.cluster_id` for each cluster.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
@@ -937,7 +937,7 @@ Begin Kubecost 2.0 templates
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-    {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+    {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig }}
     - name: federated-storage-config
       mountPath: /var/configs/etl
       readOnly: true
@@ -1097,7 +1097,7 @@ Begin Kubecost 2.0 templates
     # If this isn't set, we pretty much have to be in a read only state,
     # initialization will probably fail otherwise.
     - name: ETL_BUCKET_CONFIG
-      {{- if not .Values.kubecostModel.federatedStorageConfigSecret }}
+      {{- if and (not .Values.kubecostModel.federatedStorageConfigSecret) (not .Values.kubecostModel.federatedStorageConfig) }}
       value: /var/configs/etl/object-store.yaml
       {{- else }}
       value: /var/configs/etl/federated-store.yaml
@@ -1256,7 +1256,7 @@ Begin Kubecost 2.0 templates
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-  {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+  {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
@@ -1361,7 +1361,7 @@ Groups is only used when using external RBAC.
 Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
-  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
+  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}
