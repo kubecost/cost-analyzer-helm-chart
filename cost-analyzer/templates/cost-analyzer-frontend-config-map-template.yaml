@@ -55,15 +55,16 @@ data:
     # this is the name of the cache
     proxy_cache kubecost_cache;
     # this is the path where the cache will be stored
-    proxy_cache_path /tmp/cache levels=1:2 keys_zone=kubecost_cache:{{ (.Values.kubecostFrontend.cache).cacheSize }};
+    proxy_cache_path {{ (.Values.kubecostFrontend.cache).proxyCachePath }};
     # this is the key that will be used to identify the cache
-    proxy_cache_key "$scheme$request_method$host$request_uri";
+    proxy_cache_key "$request_method|$host|$request_uri|$is_args$args";
     # this is the time to live for the cache
-    proxy_cache_valid 200 302 {{ (.Values.kubecostFrontend.cache).cacheTTL }};
+    proxy_cache_valid 200 {{ (.Values.kubecostFrontend.cache).cacheTTL }};
+    proxy_cache_valid any 10m;
     # this allows Nginx to ignore the headers that are set by the upstream server
     proxy_ignore_headers Expires Cache-Control X-Accel-Expires Set-Cookie;
     # only cache GET and POST requests
-    proxy_cache_methods GET POST;
+    proxy_cache_methods {{ (.Values.kubecostFrontend.cache).proxyCacheMethods }};
     # this allows Nginx to try the next upstream server in case of an error on the current one
     proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
     add_header X-Cache-Status $upstream_cache_status;
@@ -74,7 +75,7 @@ data:
     proxy_cache_background_update on;
 
     log_format  cache_status  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" "$bytes_sent" "$http_referer" '
+                      '$status $body_bytes_sent "$http_referer" $bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for" "$upstream_cache_status"';
     access_log /var/log/nginx/access.log cache_status;
     {{- end }}
@@ -156,12 +157,9 @@ data:
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
         {{- end }}
         {{- end }}
-        {{- if (.Values.kubecostFrontend.cache).enabled -}}
-            {{- if not .Values.kubecostFrontend.cache.aggregatorFailoverSvc }}
-                {{ fail "\nkubecostFrontend.cache.aggregatorFailoverSvc must be set when cache is enabled" }}
-            {{- end }}
+        {{- if (.Values.kubecostFrontend.aggregatorFailoverSvc) -}}
         # this allows Nginx to try the next upstream server in case of an error on the primary
-        server {{ .Values.kubecostFrontend.cache.aggregatorFailoverSvc }} backup;
+        server {{ .Values.kubecostFrontend.aggregatorFailoverSvc }} backup;
         {{- end }}
     }
     upstream cloudCost {
