@@ -1318,7 +1318,7 @@ data:
                 "carbonEstimatesEnabled": "{{ template "carbonEstimatesEnabled" . }}",
                 "clusterControllerEnabled": "{{ template "clusterControllerEnabled" . }}",
                 "forecastingEnabled": "{{ template "forecastingEnabled" . }}",
-                "chartVersion": "2.3.5-rc.4"
+                "chartVersion": "2.3.5-rc.5"
                 }
             ';
         }
