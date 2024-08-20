@@ -495,8 +495,9 @@ kubecostFrontend:
     cacheTTL: 1h
     proxyCachePath: "/tmp/cache levels=1:2:2 keys_zone=kubecost_cache:2g max_size=10g inactive=6h use_temp_path=off"
     proxyCacheMethods: "GET POST HEAD"
-  # aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
-  # location of the aggregator service to use as a failover
+
+# aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
+# location of the aggregator service to use as a failover
   # aggregatorFailoverSvc: kubecost2-aggregator.kubecost2.svc.cluster.local:9004
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
