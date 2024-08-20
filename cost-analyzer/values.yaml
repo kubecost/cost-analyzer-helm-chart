@@ -2564,7 +2564,7 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 1
+  numDBCopyPartitions: 25
 
   # How many threads the read database is configured with (i.e. Kubecost API /
   # UI queries). If increasing this value, it is recommended to increase the
