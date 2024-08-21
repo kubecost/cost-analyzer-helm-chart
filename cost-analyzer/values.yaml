@@ -2502,12 +2502,54 @@ kubecostAggregator:
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
 
-  env:
-    "LOG_LEVEL": "info"
-    "DB_READ_THREADS": "1"
-    "DB_WRITE_THREADS": "1"
-    "DB_CONCURRENT_INGESTION_COUNT": "3"
-    "DB_COPY_FULL": "true"
+  # How many threads the read database is configured with (i.e. Kubecost API /
+  # UI queries). If increasing this value, it is recommended to increase the
+  # aggregator's memory requests & limits.
+  # default: 1
+  dbReadThreads: 1
+
+  # How many threads the write database is configured with (i.e. ingestion of
+  # new data from S3). If increasing this value, it is recommended to increase
+  # the aggregator's memory requests & limits.
+  # default: 1
+  dbWriteThreads: 1
+
+  # How many threads to use when ingesting Asset/Allocation/CloudCost data
+  # from the federated store bucket. In most cases the default is sufficient,
+  # but can be increased if trying to backfill historical data.
+  # default: 1
+  dbConcurrentIngestionCount: 1
+
+  # Memory limit applied to read database and write database connections. The
+  # default of "no limit" is appropriate when first establishing a baseline of
+  # resource usage required. It is eventually recommended to set these values
+  # such that dbMemoryLimit + dbWriteMemoryLimit < the total memory available
+  # to the aggregator pod.
+  # default: 0GB is no limit
+  dbMemoryLimit: 0GB
+  dbWriteMemoryLimit: 0GB
+
+  # How much data to ingest from the federated store bucket, and how much data
+  # to keep in the DB before rolling the data off.
+  #
+  # Note: If increasing this value to backfill historical data, it will take
+  # time to gradually ingest and process those historical ETL files. Consider
+  # also increasing the resources available to the aggregator as well as the
+  # refresh and concurrency env vars.
+  #
+  # default: 91
+  etlDailyStoreDurationDays: 91
+  # How much hourly data to ingest from the federated store bucket, and how much
+  # to keep in the DB before rolling the data off.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 49
+  etlHourlyStoreDurationHours: 49
+
+  # Trim memory on close, only change if advised by Kubecost support.
+  dbTrimMemoryOnClose: true
 
   persistentConfigsStorage:
     storageClass: ""  # default storage class
