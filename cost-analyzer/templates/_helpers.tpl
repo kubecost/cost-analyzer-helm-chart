@@ -1111,8 +1111,6 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: LOG_LEVEL
       value: {{ .Values.kubecostAggregator.logLevel }}
-    - name: DB_COPY_FULL
-      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
     - name: DB_READ_THREADS
       value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
     - name: DB_WRITE_THREADS
