@@ -2481,6 +2481,7 @@ kubecostAggregator:
   # and causes `deployMethod: "statefulset"`
   enabled: false
 
+  # the below settings should only be modified with support from Kubecost staff
   # Replicas sets the number of Aggregator replicas. It only has an effect if
   # `deployMethod: "statefulset"`
   replicas: 1
