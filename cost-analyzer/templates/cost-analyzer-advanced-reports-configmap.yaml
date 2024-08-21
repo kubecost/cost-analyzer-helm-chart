@@ -1,0 +1,13 @@
+{{- if .Values.global.advancedReports }}
+{{- if .Values.global.advancedReports.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{default "advanced-report-configs" .Values.advancedReportConfigmapName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+data:
+  advanced-reports.json: '{{ toJson .Values.global.advancedReports.reports }}'
+{{- end -}}
+{{- end -}}
