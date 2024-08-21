@@ -2503,6 +2503,12 @@ kubecostAggregator:
   # after consulting with Kubecost's support team
   numDBCopyPartitions: 25
 
+  # env: has been removed to avoid unknown issues that would be caused by
+  # customizations that were required to run aggregator in previous versions
+  # extraEnv: can be used to add new environment variables to the aggregator pod
+
+  logLevel: info
+
   # How many threads the read database is configured with (i.e. Kubecost API /
   # UI queries). If increasing this value, it is recommended to increase the
   # aggregator's memory requests & limits.
