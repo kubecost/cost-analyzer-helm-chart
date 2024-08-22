@@ -489,14 +489,20 @@ kubecostFrontend:
 
 # Cache configuration
 # caching is experimental and only supported with Kubecost Enterprise
+# using cache will can impact short-term consistency - it is possible that
+# costs would have been equal across two screens but differ due to timing of
+# the live query
   cache:
     enabled: false
-    cacheSize: 2000m
     cacheTTL: 1h
-    proxyCachePath: "/tmp/cache levels=1:2:2 keys_zone=kubecost_cache:2g max_size=10g inactive=6h use_temp_path=off"
+    proxyCachePath: "/tmp/cache levels=1:2 keys_zone=kubecost_cache:2000m"
     proxyCacheMethods: "GET POST HEAD"
+    logFormat: "json"
 
 # aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
+# similar to the above concerns with cache, two different aggregator pods
+# will almost always have different short-term costs (less than 2d). Though this may be acceptable if HA is
+# a high priority.
 # location of the aggregator service to use as a failover
   # aggregatorFailoverSvc: kubecost2-aggregator.kubecost2.svc.cluster.local:9004
 

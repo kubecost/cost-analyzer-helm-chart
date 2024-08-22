@@ -73,11 +73,19 @@ data:
     proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
     proxy_cache_revalidate on;
     proxy_cache_background_update on;
+    {{- if eq .Values.kubecostFrontend.cache.logFormat "json" }}
+    log_format cache_status escape=json
+        '{"time":"$time_local",'
+        '"remote_user":"$remote_user",'
+        '"uri":"$uri",'
+        '"request":"$request",'
+        '"status":"$status",'
+        '"body_bytes_sent":"$body_bytes_sent",'
+        '"request_time":"$request_time",'
+        '"upstream_cache_status":"$upstream_cache_status"}';
 
-    log_format  cache_status  '$remote_addr - $remote_user [$time_local] "$request" '
-                      '$status $body_bytes_sent "$http_referer" $bytes_sent "$http_referer" '
-                      '"$http_user_agent" "$http_x_forwarded_for" "$upstream_cache_status"';
     access_log /var/log/nginx/access.log cache_status;
+    {{- end }}
     {{- end }}
 
     upstream api {
@@ -220,6 +228,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             error_page 401 = /login;
             try_files $uri $uri/ /index.html;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
         location /healthz {
             add_header 'Content-Type' 'text/plain';
@@ -309,6 +320,9 @@ data:
             proxy_set_header Connection "";
             proxy_set_header X-Real-IP  $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
 
 {{- else }}
             return 404;
@@ -388,15 +402,24 @@ data:
     {{- if .Values.oidc.enabled }}
         location /auth {
             proxy_pass http://aggregator/isAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- end }}
     {{- if .Values.saml.enabled }}
         location /auth {
             proxy_pass http://aggregator/isAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- if .Values.saml.rbac.enabled }}
         location /authrbac {
             proxy_pass http://aggregator/isAdminAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- end }}
     {{- end }}
