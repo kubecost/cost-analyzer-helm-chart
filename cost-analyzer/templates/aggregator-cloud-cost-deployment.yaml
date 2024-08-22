@@ -41,11 +41,10 @@ spec:
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- with .Values.global.podAnnotations}}
       annotations:
-        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
+      {{- end }}
     spec:
       {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:
@@ -68,15 +67,11 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
         {{- end }}
-        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
-            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
-            {{- else }}
-            secretName: federated-store
-            {{- end }}
         {{- end }}
         {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
         - name: cloud-integration

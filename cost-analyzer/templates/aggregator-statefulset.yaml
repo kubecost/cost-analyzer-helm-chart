@@ -52,11 +52,10 @@ spec:
         {{- with .Values.global.additionalLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- with .Values.global.podAnnotations}}
       annotations:
-        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
+      {{- end }}
     spec:
       restartPolicy: Always
     {{- if .Values.kubecostAggregator.securityContext }}
@@ -78,23 +77,19 @@ spec:
         {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             {{- $etlBackupBucketSecret = .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
-        {{- if or $etlBackupBucketSecret .Values.kubecostModel.federatedStorageConfig }}
-        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
+        {{- if $etlBackupBucketSecret }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
-            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
-            {{- else }}
-            secretName: federated-store
-            {{- end }}
         {{- end }}
         - name: etl-bucket-config
           secret:
             defaultMode: 420
-            secretName: {{ $etlBackupBucketSecret | default "federated-store" }}
+            secretName: {{ $etlBackupBucketSecret }}
         {{- else }}
-        {{- fail "\n\nKubecost Aggregator Enterprise Config requires either .Values.kubecostModel.federatedStorageConfigSecret or .Values.kubecostModel.federatedStorageConfig" }}
+        {{- fail "\n\nKubecost Aggregator Enterprise Config requires .Values.kubecostModel.federatedStorageConfigSecret" }}
         {{- end }}
         {{- if and ((.Values.kubecostProductConfigs).productKey).enabled ((.Values.kubecostProductConfigs).productKey).secretname }}
         - name: productkey-secret

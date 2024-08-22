@@ -158,14 +158,6 @@ will result in failure. Users are asked to select one of the two presently-avail
   {{- end -}}
 {{- end -}}
 
-{{/*
-Federated Storage source contents check. Either the Secret must be specified or the JSON, not both.
-*/}}
-{{- define "federatedStorageSourceCheck" -}}
-  {{- if and (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
-    {{- fail "\nkubecostkubecostModel.federatedStorageConfigSecret and kubecostModel.federatedStorageConfig are mutually exclusive. Please specify only one." -}}
-  {{- end -}}
-{{- end -}}
 
 {{/*
 Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is not installed
@@ -186,7 +178,7 @@ ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTE
 Verify a cluster_id is set in the Prometheus global config
 */}}
 {{- define "clusterIDCheck" -}}
-  {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig }}
+  {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
     {{- if not .Values.prometheus.server.clusterIDConfigmap }}
       {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
         {{- fail "\n\nWhen using multi-cluster Kubecost, you must specify a unique `.Values.prometheus.server.global.external_labels.cluster_id` for each cluster.\nNote this must be set even if you are using your own Prometheus or another identifier.\n" -}}
@@ -215,9 +207,9 @@ support templating a chart which uses the lookup function.
 {{- end -}}
 
 {{/*
-Verify the federated storage config secret exists with the expected key.
-Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for
-example, does not support templating a chart which uses the lookup function.
+Verify the federated storage config secret exists with the expected key when cloud integration is enabled.
+Skip the check if CI/CD is enabled and skipSanityChecks is set. Argo CD, for example, does not
+support templating a chart which uses the lookup function.
 */}}
 {{- define "federatedStorageConfigSecretCheck" -}}
 {{- if (.Values.kubecostModel).federatedStorageConfigSecret }}
@@ -937,10 +929,12 @@ Begin Kubecost 2.0 templates
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-    {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig }}
+    {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
     - name: federated-storage-config
       mountPath: /var/configs/etl
       readOnly: true
+    {{- else if eq (include "aggregator.deployMethod" .) "statefulset" }}
+    {{- fail "When in StatefulSet mode, Aggregator requires that kubecostModel.federatedStorageConfigSecret be set." }}
     {{- end }}
     {{- if and .Values.persistentVolume.dbPVEnabled (eq (include "aggregator.deployMethod" .) "singlepod") }}
     - name: persistent-db
@@ -1097,7 +1091,7 @@ Begin Kubecost 2.0 templates
     # If this isn't set, we pretty much have to be in a read only state,
     # initialization will probably fail otherwise.
     - name: ETL_BUCKET_CONFIG
-      {{- if and (not .Values.kubecostModel.federatedStorageConfigSecret) (not .Values.kubecostModel.federatedStorageConfig) }}
+      {{- if not .Values.kubecostModel.federatedStorageConfigSecret }}
       value: /var/configs/etl/object-store.yaml
       {{- else }}
       value: /var/configs/etl/federated-store.yaml
@@ -1111,8 +1105,6 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: LOG_LEVEL
       value: {{ .Values.kubecostAggregator.logLevel }}
-    - name: DB_COPY_FULL
-      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
     - name: DB_READ_THREADS
       value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
     - name: DB_WRITE_THREADS
@@ -1129,8 +1121,6 @@ Begin Kubecost 2.0 templates
     {{- end }}
     - name: ETL_DAILY_STORE_DURATION_DAYS
       value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
-    - name: ETL_HOURLY_STORE_DURATION_HOURS
-      value: {{ .Values.kubecostAggregator.etlHourlyStoreDurationHours | quote }}
     - name: DB_TRIM_MEMORY_ON_CLOSE
       value: {{ .Values.kubecostAggregator.dbTrimMemoryOnClose | quote }}
     - name: KUBECOST_NAMESPACE
@@ -1256,7 +1246,7 @@ Begin Kubecost 2.0 templates
   volumeMounts:
     - name: persistent-configs
       mountPath: /var/configs
-  {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig }}
+  {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
@@ -1290,7 +1280,7 @@ Begin Kubecost 2.0 templates
     - name: ETL_BUCKET_CONFIG
       value: /var/configs/etl/object-store.yaml
     {{- end}}
-    {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
+    {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
     - name: FEDERATED_STORE_CONFIG
       value: /var/configs/etl/federated/federated-store.yaml
     - name: FEDERATED_CLUSTER
@@ -1361,7 +1351,7 @@ Groups is only used when using external RBAC.
 Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
-  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
+  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}
@@ -1472,39 +1462,4 @@ for more information
 {{- else -}}
 {{- printf "false" -}}
 {{- end -}}
-{{- end -}}
-
-{{- /*
-  Compute a checksum based on the rendered content of specific ConfigMaps and Secrets.
-*/ -}}
-{{- define "configsChecksum" -}}
-{{- $files := list
-  "cost-analyzer-account-mapping-configmap.yaml"
-  "cost-analyzer-alerts-configmap.yaml"
-  "cost-analyzer-asset-reports-configmap.yaml"
-  "cost-analyzer-cloud-cost-reports-configmap.yaml"
-  "cost-analyzer-config-map-template.yaml"
-  "cost-analyzer-frontend-config-map-template.yaml"
-  "cost-analyzer-metrics-config-map-template.yaml"
-  "cost-analyzer-network-costs-config-map-template.yaml"
-  "cost-analyzer-oidc-config-map-template.yaml"
-  "cost-analyzer-pkey-configmap.yaml"
-  "cost-analyzer-pricing-configmap.yaml"
-  "cost-analyzer-saml-config-map-template.yaml"
-  "cost-analyzer-saved-reports-configmap.yaml"
-  "cost-analyzer-server-configmap.yaml"
-  "cost-analyzer-smtp-configmap.yaml"
-  "gcpstore-config-map-template.yaml"
-  "install-plugins.yaml"
-  "integrations-postgres-queries-configmap.yaml"
-  "kubecost-cluster-controller-actions-config.yaml"
-  "kubecost-cluster-manager-configmap-template.yaml"
-  "mimir-proxy-configmap-template.yaml"
--}}
-{{- $checksum := "" -}}
-{{- range $files -}}
-  {{- $content := include (print $.Template.BasePath (printf "/%s" .)) $ -}}
-  {{- $checksum = printf "%s%s" $checksum $content | sha256sum -}}
-{{- end -}}
-{{- $checksum | sha256sum -}}
 {{- end -}}
