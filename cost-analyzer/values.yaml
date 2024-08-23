@@ -487,6 +487,15 @@ kubecostFrontend:
 #  clusterController:
 #    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
 
+# allow setting custom log format for nginx
+# custom log formats are experimental and are not supported.
+  logging:
+    useDefaultLogFormat: true
+    # the below values are are only used if useDefaultLogFormat is false
+    logFormat: "escape=json"  # set to "" if you want to use the default log format
+    # customLogDetails must end with a ;
+    customLogDetails: |-
+      '{"time":"$time_local","remote_user":"$remote_user","uri":"$uri","request":"$request","status":"$status","body_bytes_sent":"$body_bytes_sent","request_time":"$request_time","upstream_cache_status":"$upstream_cache_status"}';
 # Cache configuration
 # caching is experimental and only supported with Kubecost Enterprise
 # using cache will can impact short-term consistency - it is possible that
@@ -497,7 +506,6 @@ kubecostFrontend:
     cacheTTL: 1h
     proxyCachePath: "/tmp/cache levels=1:2 keys_zone=kubecost_cache:2000m"
     proxyCacheMethods: "GET POST HEAD"
-    logFormat: "json"
 
 # aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
 # similar to the above concerns with cache, two different aggregator pods

@@ -50,7 +50,11 @@ data:
         text/xml
         text/x-component
         text/x-cross-domain-policy;
-
+    {{- if not (.Values.kubecostFrontend.logging).useDefaultLogFormat }}
+    log_format custom_logging {{ (.Values.kubecostFrontend.logging).logFormat }}
+        {{ (.Values.kubecostFrontend.logging).customLogDetails }}
+    access_log /var/log/nginx/access.log custom_logging;
+    {{- end }}
     {{- if (.Values.kubecostFrontend.cache).enabled -}}
     # this is the name of the cache
     proxy_cache kubecost_cache;
@@ -73,19 +77,6 @@ data:
     proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
     proxy_cache_revalidate on;
     proxy_cache_background_update on;
-    {{- if eq .Values.kubecostFrontend.cache.logFormat "json" }}
-    log_format cache_status escape=json
-        '{"time":"$time_local",'
-        '"remote_user":"$remote_user",'
-        '"uri":"$uri",'
-        '"request":"$request",'
-        '"status":"$status",'
-        '"body_bytes_sent":"$body_bytes_sent",'
-        '"request_time":"$request_time",'
-        '"upstream_cache_status":"$upstream_cache_status"}';
-
-    access_log /var/log/nginx/access.log cache_status;
-    {{- end }}
     {{- end }}
 
     upstream api {
