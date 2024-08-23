@@ -26,11 +26,10 @@ spec:
   {{- end }}
   template:
     metadata:
-      annotations:
     {{- if .Values.prometheus.server.podAnnotations }}
+      annotations:
 {{ toYaml .Values.prometheus.server.podAnnotations | indent 8 }}
     {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
       labels:
         {{/*
         Force pod restarts on upgrades to ensure the configmap is current
