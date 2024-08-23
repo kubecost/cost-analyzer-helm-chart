@@ -3447,6 +3447,10 @@ costEventsAudit:
 #   hideCloudIntegrationsUI: false
 #   hideBellIcon: false
 #   hideTeams: false
+#   savingsRecommendationsAllowLists: # Define select list of instance types to be evaluated in computing Savings Recommendations
+#     AWS: []
+#     GCP: []
+#     Azure: []
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
