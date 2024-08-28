@@ -48,11 +48,10 @@ spec:
         {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
         {{- toYaml .Values.kubecostDeployment.labels | nindent 8 }}
         {{- end }}
+      {{- with .Values.global.podAnnotations}}
       annotations:
-        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
+      {{- end }}
     spec:
       {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:

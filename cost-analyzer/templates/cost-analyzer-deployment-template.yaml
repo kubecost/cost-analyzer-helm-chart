@@ -50,11 +50,10 @@ spec:
         {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
         {{- toYaml .Values.kubecostDeployment.labels | nindent 8 }}
         {{- end }}
+      {{- with .Values.global.podAnnotations}}
       annotations:
-        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
+      {{- end }}
     spec:
       {{- if .Values.global.platforms.openshift.enabled }}
       securityContext:
@@ -388,17 +387,17 @@ spec:
           {{- if .Values.systemProxy.enabled }}
           env:
           - name: HTTP_PROXY
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+            value: {{ .Values.systemProxy.httpProxyUrl }}
           - name: http_proxy
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+            value: {{ .Values.systemProxy.httpProxyUrl }}
           - name: HTTPS_PROXY
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
           - name: https_proxy
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
           - name: NO_PROXY
-            value: "{{ .Values.systemProxy.noProxy }}"
+            value:  {{ .Values.systemProxy.noProxy }}
           - name: no_proxy
-            value: "{{ .Values.systemProxy.noProxy }}"
+            value:  {{ .Values.systemProxy.noProxy }}
           {{- end }}
           ports:
           - name: web
@@ -449,17 +448,17 @@ spec:
             value: "{{ .Values.sigV4Proxy.port | int }}"
           {{- if .Values.systemProxy.enabled }}
           - name: HTTP_PROXY
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+            value: {{ .Values.systemProxy.httpProxyUrl }}
           - name: http_proxy
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
+            value: {{ .Values.systemProxy.httpProxyUrl }}
           - name: HTTPS_PROXY
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
           - name: https_proxy
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
+            value:  {{ .Values.systemProxy.httpsProxyUrl }}
           - name: NO_PROXY
-            value: "{{ .Values.systemProxy.noProxy }}"
+            value:  {{ .Values.systemProxy.noProxy }}
           - name: no_proxy
-            value: "{{ .Values.systemProxy.noProxy }}"
+            value:  {{ .Values.systemProxy.noProxy }}
           {{- end }}
           {{- if .Values.sigV4Proxy.extraEnv }}
           {{- toYaml .Values.sigV4Proxy.extraEnv | nindent 10 }}
@@ -500,79 +499,6 @@ spec:
           volumeMounts:
           - name: ubbagent-config
             mountPath: /etc/ubbagent
-        {{- end }}
-        {{- if .Values.global.ammsp.enabled }}
-        # This section of the chart borrows liberally from
-        # https://github.com/Azure/aad-auth-proxy/blob/main/deploy/chart/aad-auth-proxy/templates/deployment.yaml
-        - name: {{ .Values.global.ammsp.aadAuthProxy.name }}
-          image: {{ .Values.global.ammsp.aadAuthProxy.image }}
-          {{- if .Values.global.ammsp.aadAuthProxy.imagePullPolicy }}
-          imagePullPolicy: {{ .Values.global.ammsp.aadAuthProxy.imagePullPolicy }}
-          {{- else }}
-          imagePullPolicy: Always
-          {{- end }}
-          env:
-          - name: AUDIENCE
-            value: {{ .Values.global.ammsp.aadAuthProxy.audience }}
-          - name: TARGET_HOST
-            value: {{ .Values.global.ammsp.queryEndpoint }}
-          - name: LISTENING_PORT
-            value: {{ .Values.global.ammsp.aadAuthProxy.port | quote }}
-          - name: IDENTITY_TYPE
-            value: {{ .Values.global.ammsp.aadAuthProxy.identityType }}
-          {{- if eq .Values.global.ammsp.aadAuthProxy.identityType "userAssigned" }}
-          - name: AAD_CLIENT_ID
-            value: {{ required "aadClientId is required for userAssigned identity types" .Values.global.ammsp.aadAuthProxy.aadClientId | toString | trim | quote }}
-          {{- else if eq .Values.global.ammsp.aadAuthProxy.identityType "aadApplication" }}
-          - name: AAD_CLIENT_ID
-            value: {{ required "aadClientId is required for aadApplication identity types" .Values.global.ammsp.aadAuthProxy.aadClientId | toString | trim | quote }}
-          - name: AAD_TENANT_ID
-            value: {{ required "aadTenantId is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadTenantId | toString | trim | quote }}
-          - name: AAD_CLIENT_CERTIFICATE_PATH
-            value: {{ required "aadClientCertificatePath is required for aadApplication identity type" .Values.global.ammsp.aadAuthProxy.aadClientCertificatePath | toString | trim | quote }}
-          {{- end }}
-          - name: AAD_TOKEN_REFRESH_INTERVAL_IN_PERCENTAGE
-            value: "10"
-          - name: OTEL_SERVICE_NAME
-            value: {{ .Values.global.ammsp.aadAuthProxy.name | replace "-" "_" }}
-          {{- if .Values.systemProxy.enabled }}
-          - name: HTTP_PROXY
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
-          - name: http_proxy
-            value: "{{ .Values.systemProxy.httpProxyUrl }}"
-          - name: HTTPS_PROXY
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
-          - name: https_proxy
-            value: "{{ .Values.systemProxy.httpsProxyUrl }}"
-          - name: NO_PROXY
-            value: "{{ .Values.systemProxy.noProxy }}"
-          - name: no_proxy
-            value: "{{ .Values.systemProxy.noProxy }}"
-          {{- end }}
-          ports:
-          - name: http
-            containerPort: {{ .Values.global.ammsp.aadAuthProxy.port | int }}
-            protocol: TCP
-          readinessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /ready
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
-          livenessProbe:
-            failureThreshold: 3
-            httpGet:
-              path: /health
-              port: http
-              scheme: HTTP
-            initialDelaySeconds: 5
-            periodSeconds: 10
-            successThreshold: 1
-            timeoutSeconds: 5
         {{- end }}
         {{- if .Values.kubecostModel }}
         {{- if .Values.kubecostModel.fullImageName }}
@@ -928,7 +854,7 @@ spec:
             - name: ETL_BUCKET_CONFIG
               value: "/var/configs/etl/object-store.yaml"
             {{- end }}
-            {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
@@ -960,6 +886,8 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
+            - name: ETL_WEEKLY_STORE_DURATION_WEEKS
+              value: {{ (quote .Values.kubecostModel.etlWeeklyStoreDurationWeeks) | default (quote 53) }}
             - name: ETL_FILE_STORE_ENABLED
               value: {{ (quote .Values.kubecostModel.etlFileStoreEnabled) | default (quote true) }}
             - name: ETL_ASSET_RECONCILIATION_ENABLED
