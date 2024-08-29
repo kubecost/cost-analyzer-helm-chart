@@ -3537,3 +3537,6 @@ extraObjects: []
 #             host: kubecost.kubecost.svc.cluster.local
 #             port:
 #               number: 80
+
+basicHealth:
+  fullImageName: alpine/k8s:1.26.9
