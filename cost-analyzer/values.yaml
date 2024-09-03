@@ -2319,7 +2319,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.3
+    tag: v0.17.5
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
