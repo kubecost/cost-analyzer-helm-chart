@@ -932,7 +932,7 @@ spec:
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
             {{- end }}
-            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- if or .Values.federatedETL.federatedCluster .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
             - name: FEDERATED_CLUSTER
               {{- if eq .Values.federatedETL.readOnlyPrimary true }}
               value: "false"
@@ -1121,7 +1121,7 @@ spec:
             - name: DIAGNOSTICS_RUN_IN_COST_MODEL
               value: "false"
             {{- /*A pre-requisite for running MultiClusterDiagnostics in the cost-model container is a configured federated-store secret and cluster_id*/}}
-            {{- else if and (empty .Values.kubecostModel.federatedStorageConfigSecret) (empty .Values.kubecostModel.federatedStorageConfig) (eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one") }}
+            {{- else if and (empty .Values.kubecostModel.federatedStorageConfigSecret) (not .Values.kubecostModel.federatedStorageConfig) (eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one") }}
             - name: DIAGNOSTICS_RUN_IN_COST_MODEL
               value: "false"
             {{- else if .Values.diagnostics.deployment.enabled }}

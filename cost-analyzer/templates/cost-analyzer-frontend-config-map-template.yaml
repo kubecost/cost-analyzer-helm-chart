@@ -143,7 +143,7 @@ data:
   {{- end }}
 
     {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
-    {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+    {{- if or (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) .Values.kubecostModel.federatedStorageConfig }}
     upstream multi-cluster-diagnostics {
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
         server {{ template "diagnostics.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:9007;
@@ -1303,7 +1303,7 @@ data:
             add_header 'Access-Control-Allow-Origin' '*' always;
             add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
             {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled }}
-            {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+            {{- if or (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) .Values.kubecostModel.federatedStorageConfig }}
             return 200 '{"multiClusterDiagnosticsEnabled": true}';
             {{- end }}
             {{- else }}
@@ -1312,7 +1312,7 @@ data:
         }
 
         {{- if and .Values.diagnostics.enabled .Values.diagnostics.primary.enabled .Values.diagnostics.deployment.enabled }}
-        {{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) }}
+        {{- if or (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) .Values.kubecostModel.federatedStorageConfig }}
 
         # When the Multi-cluster Diagnostics Service is run within the
         # cost-model container, its endpoint is available at the path
