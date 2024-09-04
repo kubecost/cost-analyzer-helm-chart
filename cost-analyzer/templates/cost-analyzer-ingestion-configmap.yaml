@@ -1,3 +1,4 @@
+{{- if eq (include "aggregator.deployMethod" .) "statefulset" }}
 {{- if (.Values.kubecostProductConfigs).standardDiscount }}
 apiVersion: v1
 kind: ConfigMap
@@ -9,4 +10,5 @@ metadata:
 data:
   standardDiscount: "{{ .Values.kubecostProductConfigs.standardDiscount }}"
   helmConfig: "true"
+{{- end -}}
 {{- end -}}
