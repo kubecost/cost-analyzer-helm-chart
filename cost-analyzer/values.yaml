@@ -2998,8 +2998,8 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: grafana/grafana
-    tag: 11.1.4
+    repository: cgr.dev/chainguard/grafana
+    tag: latest
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
