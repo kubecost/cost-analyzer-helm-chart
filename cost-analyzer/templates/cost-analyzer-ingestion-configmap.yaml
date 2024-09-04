@@ -1,4 +1,4 @@
-{{- if .Values.kubecostProductConfigs.standardDiscount }}
+{{- if (.Values.kubecostProductConfigs).standardDiscount }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
