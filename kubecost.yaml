@@ -23571,7 +23571,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: forecasting
-          image: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+          image: gcr.io/kubecost1/kubecost-modeling:v0.1.15
           volumeMounts:
             - name: tmp
               mountPath: /tmp
@@ -23789,7 +23789,7 @@ spec:
       containers:
 
         - name: prometheus-server
-          image: "quay.io/prometheus/prometheus:v2.52.0"
+          image: "cgr.dev/chainguard/prometheus:latest"
           imagePullPolicy: "IfNotPresent"
           args:
             - --storage.tsdb.retention.time=97h
