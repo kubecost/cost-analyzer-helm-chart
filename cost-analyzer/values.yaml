@@ -974,8 +974,8 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: quay.io/prometheus/prometheus
-      tag: v2.53.1
+      repository: cgr.dev/chainguard/prometheus
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1385,8 +1385,8 @@ prometheus:
     ## alertmanager container image
     ##
     image:
-      repository: quay.io/prometheus/alertmanager
-      tag: v0.27.0
+      repository: cgr.dev/chainguard/prometheus-alertmanager
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## alertmanager priorityClassName
@@ -1671,8 +1671,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1711,8 +1711,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
