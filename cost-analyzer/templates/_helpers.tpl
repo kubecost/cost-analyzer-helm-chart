@@ -1107,6 +1107,12 @@ Begin Kubecost 2.0 templates
       value: "true"
     - name: FEDERATED_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
       value: "true"
+    {{- if (.Values.kubecostProductConfigs).standardDiscount }}
+    {{- if .Values.ingestionConfigmapName }}
+    - name: INGESTION_CONFIGMAP_NAME
+      value: {{ .Values.ingestionConfigmapName }}
+    {{- end }}
+    {{- end }}
       {{- end }}
     {{- end }}
     - name: LOG_LEVEL
