@@ -486,6 +486,13 @@ kubecostFrontend:
 #    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
 #  clusterController:
 #    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
+# aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
+# using aggregatorFailoverSvc can impact short-term consistency - it is possible that
+# costs would have been equal across two screens but differ due a failover event
+# because two different aggregator pods will be at different ingestion points.
+# This is likely acceptable if HA is a high priority.
+# To enable, uncomment the following and set the location of the aggregator service to use as a failover
+  # aggregatorFailoverSvc: kubecost2-aggregator.kubecost2.svc.cluster.local:9004
 
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
