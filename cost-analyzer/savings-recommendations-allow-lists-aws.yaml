@@ -155,6 +155,7 @@ kubecostProductConfigs:
       - c7gd.8xlarge
       - c7gd.large
       - c7gd.medium
+      - c7gd.metal
       - c7gd.xlarge
       - c7gn.12xlarge
       - c7gn.16xlarge
@@ -163,7 +164,13 @@ kubecostProductConfigs:
       - c7gn.8xlarge
       - c7gn.large
       - c7gn.medium
+      - c7gn.metal
       - c7gn.xlarge
+      - c7i-flex.2xlarge
+      - c7i-flex.4xlarge
+      - c7i-flex.8xlarge
+      - c7i-flex.large
+      - c7i-flex.xlarge
       - c7i.12xlarge
       - c7i.16xlarge
       - c7i.24xlarge
@@ -224,6 +231,24 @@ kubecostProductConfigs:
       - g5g.8xlarge
       - g5g.metal
       - g5g.xlarge
+      - g6.12xlarge
+      - g6.16xlarge
+      - g6.24xlarge
+      - g6.2xlarge
+      - g6.48xlarge
+      - g6.4xlarge
+      - g6.8xlarge
+      - g6.xlarge
+      - g6e.12xlarge
+      - g6e.16xlarge
+      - g6e.24xlarge
+      - g6e.2xlarge
+      - g6e.48xlarge
+      - g6e.4xlarge
+      - g6e.8xlarge
+      - g6e.xlarge
+      - gr6.4xlarge
+      - gr6.8xlarge
       - h1.16xlarge
       - h1.2xlarge
       - h1.4xlarge
@@ -456,6 +481,7 @@ kubecostProductConfigs:
       - m7gd.8xlarge
       - m7gd.large
       - m7gd.medium
+      - m7gd.metal
       - m7gd.xlarge
       - m7i-flex.2xlarge
       - m7i-flex.4xlarge
@@ -651,6 +677,7 @@ kubecostProductConfigs:
       - r7gd.8xlarge
       - r7gd.large
       - r7gd.medium
+      - r7gd.metal
       - r7gd.xlarge
       - r7i.12xlarge
       - r7i.16xlarge
@@ -673,6 +700,18 @@ kubecostProductConfigs:
       - r7iz.metal-16xl
       - r7iz.metal-32xl
       - r7iz.xlarge
+      - r8g.12xlarge
+      - r8g.16xlarge
+      - r8g.24xlarge
+      - r8g.2xlarge
+      - r8g.48xlarge
+      - r8g.4xlarge
+      - r8g.8xlarge
+      - r8g.large
+      - r8g.medium
+      - r8g.metal-24xl
+      - r8g.metal-48xl
+      - r8g.xlarge
       - t1.micro
       - t2.2xlarge
       - t2.large
