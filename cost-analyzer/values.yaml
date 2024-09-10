@@ -418,6 +418,8 @@ systemProxy:
 # imageVersion:
 
 kubecostFrontend:
+  containerSecurityContext:
+    readOnlyRootFilesystem: false
   enabled: true
   deployMethod: singlepod  # haMode or singlepod - haMode is currently only supported with Enterprise tier
   haReplicas: 2  # only used with haMode
@@ -2784,7 +2786,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.8
+    tag: v0.16.9
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
