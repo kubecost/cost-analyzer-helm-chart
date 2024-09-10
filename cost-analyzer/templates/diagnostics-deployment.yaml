@@ -1,5 +1,5 @@
 {{- if and .Values.diagnostics.enabled .Values.diagnostics.deployment.enabled }}
-{{- if or (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) .Values.kubecostModel.federatedStorageConfig -}}
+{{- if (not (empty .Values.kubecostModel.federatedStorageConfigSecret )) -}}
 
 {{- if eq .Values.prometheus.server.global.external_labels.cluster_id "cluster-one" }}
 {{- fail "Error: The 'cluster_id' is set to default 'cluster-one'. Please update so that the diagnostics service can uniquely identify data coming from this cluster." }}
@@ -38,7 +38,6 @@ spec:
         {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-        checksum/configs: {{ include "configsChecksum" . }}
     spec:
       restartPolicy: Always
       {{- if .Values.diagnostics.deployment.securityContext }}
@@ -50,11 +49,11 @@ spec:
       {{- end }}
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       volumes:
-        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
+        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
-            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret | default "federated-store" }}
+            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
         {{- end }}
         - name: config-db
           {{- /* #TODO: make pv? */}}
