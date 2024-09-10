@@ -418,8 +418,6 @@ systemProxy:
 # imageVersion:
 
 kubecostFrontend:
-  containerSecurityContext:
-    readOnlyRootFilesystem: false
   enabled: true
   deployMethod: singlepod  # haMode or singlepod - haMode is currently only supported with Enterprise tier
   haReplicas: 2  # only used with haMode
