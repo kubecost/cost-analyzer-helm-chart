@@ -1517,8 +1517,6 @@ for more information
   "kubecost-saml-secret-template.yaml"
   "mimir-proxy-configmap-template.yaml"
   "savings-recommendations-allowlists-config-map-template.yaml"
-  "savings-recommendations-config-map-template.yaml"
-  "savings-recommendations-cost-model-config-map-template.yaml"
 -}}
 {{- $checksum := "" -}}
 {{- range $files -}}
