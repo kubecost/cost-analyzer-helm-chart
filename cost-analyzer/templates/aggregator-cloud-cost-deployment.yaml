@@ -29,7 +29,6 @@ spec:
   template:
     metadata:
       labels:
-
         app.kubernetes.io/name: cloud-cost
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: cloud-cost
