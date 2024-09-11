@@ -23237,8 +23237,6 @@ spec:
         app.kubernetes.io/name: cost-analyzer
         app.kubernetes.io/instance: kubecost
         app: cost-analyzer
-
-        helm-rollout-restarter: "e5zu5"
     spec:
       securityContext:
         fsGroup: 1001
@@ -23778,8 +23776,6 @@ spec:
   template:
     metadata:
       labels:
-
-        helm-rollout-restarter: "AoKZ9"
         component: "server"
         app: prometheus
         release: kubecost
