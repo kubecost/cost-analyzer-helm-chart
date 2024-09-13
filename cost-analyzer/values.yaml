@@ -2740,6 +2740,9 @@ kubecostAggregator:
     imageVersion: latest
     # containerSecurityContext:
 
+  service:
+    labels: {}
+
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
