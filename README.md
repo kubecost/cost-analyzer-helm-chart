@@ -53,7 +53,7 @@ Parameter | Description | Default
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
 `prometheus.server.persistentVolume.storageClass` | Define storage class for Prometheus persistent volume  | `-`
-`prometheus.server.retention` | Determines when to remove old data. | `15d`
+`prometheus.server.retention` | Determines when to remove old data. | `97h`
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not create NodeExporter daemonset.  | `true`
