@@ -1135,6 +1135,8 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
     - name: ETL_HOURLY_STORE_DURATION_HOURS
       value: {{ .Values.kubecostAggregator.etlHourlyStoreDurationHours | quote }}
+    - name: CONTAINER_RESOURCE_USAGE_RETENTION_DAYS
+      value: {{ .Values.kubecostAggregator.containerResourceUsageRetentionDays | quote }}
     - name: DB_TRIM_MEMORY_ON_CLOSE
       value: {{ .Values.kubecostAggregator.dbTrimMemoryOnClose | quote }}
     - name: KUBECOST_NAMESPACE

@@ -2603,6 +2603,7 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+
   # How much hourly data to ingest from the federated store bucket, and how much
   # to keep in the DB before rolling the data off.
   #
@@ -2611,6 +2612,14 @@ kubecostAggregator:
   #
   # default: 49
   etlHourlyStoreDurationHours: 49
+
+  # How much container resource usage data to retain in the DB, in terms of days.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 1
+  containerResourceUsageRetentionDays: 1
 
   # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
