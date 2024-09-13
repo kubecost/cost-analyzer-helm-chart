@@ -3204,8 +3204,8 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: kiwigrid/k8s-sidecar
-      tag: 1.27.5
+      repository: cgr.dev/chainguard/k8s-sidecar
+      tag: latest
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
