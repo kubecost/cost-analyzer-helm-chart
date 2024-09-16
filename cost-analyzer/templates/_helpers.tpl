@@ -113,6 +113,14 @@ Kubecost 2.0 preconditions
   {{- end }}
 {{- end -}}
 
+{{- define "federatedStorageCheck" -}}
+  {{- if or (.Values.federatedETL).federatedStore (.Values.kubecostModel).federatedStorageConfig }}
+    {{- if and (not (eq (include "aggregator.deployMethod" .) "statefulset")) (not (.Values.federatedETL).agentOnly) }}
+      {{- printf "\n\n***Configuration issue detected:***\nWhen a federated store is provided, Kubecost should either be running as agentOnly or as a statefulset.\n.Values.federatedETL.agentOnly=true\nOr\n.Values.kubecostAggregator.deployMethod=statefulset\n***" }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
 {{- define "cloudIntegrationFromProductConfigs" }}
   {
     {{- if ((.Values.kubecostProductConfigs).athenaBucketName) }}
