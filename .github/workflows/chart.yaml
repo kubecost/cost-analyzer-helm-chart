@@ -111,7 +111,8 @@ jobs:
 
       - name: Generate Helm test
         run: |
-          cat << EOF > basic-health.yaml
+          mkdir -p cost-analyzer/templates/tests
+          cat << EOF > cost-analyzer/templates/tests/basic-health.yaml
           ---
           apiVersion: v1
           kind: Pod
@@ -161,7 +162,6 @@ jobs:
                     exit 1
                   fi
           EOF
-          kubectl apply -f basic-health.yaml
 
       - name: Run Helm tests 
         run: helm test -n kubecost kubecost
