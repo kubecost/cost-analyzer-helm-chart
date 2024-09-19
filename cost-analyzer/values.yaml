@@ -3550,3 +3550,7 @@ extraObjects: []
 #             host: kubecost.kubecost.svc.cluster.local
 #             port:
 #               number: 80
+
+
+# Add your own custom labels to the cost model. 
+additionalChartLabels: {}
