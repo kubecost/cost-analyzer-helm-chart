@@ -54,6 +54,7 @@ global:
   # Learn more at https://grafana.com/docs/mimir/latest/operators-guide/secure/authentication-and-authorization/#without-an-authenticating-reverse-proxy
   mimirProxy:
     enabled: false
+    annotations: {}
     name: mimir-proxy
     image: nginxinc/nginx-unprivileged
     port: 8085
@@ -515,6 +516,10 @@ kubecostMetrics:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     tolerations: []
 
+    ## Annotations to be added to the metrics deployment template
+    ##
+    deploymentAnnotations: {}
+
     #  - key: "key"
     #    operator: "Equal|Exists"
     #    value: "value"
@@ -756,6 +761,7 @@ kubecostModel:
 ##
 etlUtils:
   enabled: false
+  deploymentAnnotations: {}
   fullImageName: null
   resources: {}
   env: {}
@@ -1374,6 +1380,9 @@ prometheus:
     ## Provide a full name override for Prometheus alertmanager.
     # fullnameOverride: ""
 
+    ## Annotations to be added to alertmanager deployment
+    deploymentAnnotations: {}
+
     strategy:
       type: Recreate
       rollingUpdate: null
@@ -1580,6 +1589,8 @@ prometheus:
       ## This allows to scale replicas to more than 1 pod
       ##
       enabled: false
+
+      annotations: {}
 
       podManagementPolicy: OrderedReady
 
@@ -1881,6 +1892,9 @@ prometheus:
 
     ## Provide a full name override for Prometheus push gateway.
     # fullnameOverride: ""
+
+    ## Annotations to be added to pushgateway deployment
+    deploymentAnnotations: {}
 
     ## Use an alternate scheduler, e.g. "stork".
     ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
@@ -2500,6 +2514,9 @@ forecasting:
     enabled: false
     name: ""
 
+  # Annotations to be added for the forecasting Deployment.
+  deploymentAnnotations: {}
+
   # Define a nodeSelector for the forecasting Deployment.
   nodeSelector: {}
 
@@ -2541,6 +2558,9 @@ kubecostAggregator:
   # For legacy configuration support, `enabled: true` overrides deployMethod
   # and causes `deployMethod: "statefulset"`
   enabled: false
+
+  # Annotations to be added for aggregator deployment or statefulset
+  annotations: {}
 
   # Replicas sets the number of Aggregator replicas. It only has an effect if
   # `deployMethod: "statefulset"`
@@ -2776,6 +2796,7 @@ diagnostics:
   ## can be run as a separate deployment.
   deployment:
     enabled: false
+    annotations: {}
     resources:
       requests:
         cpu: "10m"
@@ -2803,6 +2824,7 @@ clusterController:
   priorityClassName: ""
   # Set custom tolerations for the cluster controller.
   tolerations: []
+  annotations: {}
   actionConfigs:
     # this configures the Kubecost Cluster Turndown action
     # for more details, see documentation at https://github.com/kubecost/cluster-turndown/tree/develop?tab=readme-ov-file#setting-a-turndown-schedule
@@ -3270,6 +3292,8 @@ awsstore:
     # kubernetes.io/arch: amd64
   ## Annotations for the AWSStore ServiceAccount.
   annotations: {}
+  ## Annotations for the AWSStore Deployment template
+  deploymentAnnotations: {}
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl

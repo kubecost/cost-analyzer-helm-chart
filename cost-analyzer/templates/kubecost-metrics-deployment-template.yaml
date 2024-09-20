@@ -12,9 +12,13 @@ metadata:
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-{{- with .Values.kubecostMetrics.exporter.labels }}
-{{ toYaml . | indent 4 }}
-{{- end }}
+  {{- with .Values.kubecostMetrics.exporter.labels }}
+  {{ toYaml . | indent 4 }}
+  {{- end }}
+  {{- with .Values.kubecostMetrics.exporter.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.kubecostMetrics.exporter.replicas | default 1 }}
   selector:

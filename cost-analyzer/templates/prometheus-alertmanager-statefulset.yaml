@@ -5,6 +5,10 @@ kind: StatefulSet
 metadata:
   labels:
     {{- include "prometheus.alertmanager.labels" . | nindent 4 }}
+  {{- with .Values.prometheus.alertmanager.statefulSet.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   name: {{ template "prometheus.alertmanager.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:

@@ -8,6 +8,10 @@ metadata:
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- with .Values.prometheus.pushgateway.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
   name: {{ template "prometheus.pushgateway.fullname" . }}
   namespace: {{ .Release.Namespace }}
 spec:

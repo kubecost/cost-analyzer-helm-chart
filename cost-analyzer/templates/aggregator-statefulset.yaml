@@ -11,6 +11,10 @@ metadata:
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  {{- with .Values.kubecostAggregator.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.kubecostAggregator.replicas }}
   serviceName: {{ template "aggregator.serviceName" . }}

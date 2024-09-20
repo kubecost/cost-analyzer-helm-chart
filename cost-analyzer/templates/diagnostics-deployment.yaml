@@ -18,6 +18,10 @@ metadata:
     {{- if .Values.diagnostics.deployment.labels }}
     {{- toYaml .Values.diagnostics.deployment.labels | nindent 4 }}
     {{- end }}
+  {{- with .Values.diagnostics.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
