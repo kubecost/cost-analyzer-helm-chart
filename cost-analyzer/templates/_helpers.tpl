@@ -468,7 +468,7 @@ Create the chart labels.
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- if .Values.additionalChartLabels }}
-{{ tpl (.Values.additionalChartLabels | toYaml) . }}
+{{ toYaml .Values.additionalChartLabels }}
 {{- end }}
 {{- end -}}
 {{- define "kubecost.chartLabels" -}}
