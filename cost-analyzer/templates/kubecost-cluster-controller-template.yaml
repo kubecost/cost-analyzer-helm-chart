@@ -263,6 +263,8 @@ spec:
       tolerations:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      resources:
+        {{- toYaml .Values.clusterController.resources | nindent 12 }}
       volumes:
       - name: cluster-controller-keys
         secret:
