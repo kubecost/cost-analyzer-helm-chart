@@ -3552,5 +3552,5 @@ extraObjects: []
 #               number: 80
 
 
-# Add your own custom labels to the cost model. 
+# Add your own custom labels to the cost model.
 additionalChartLabels: {}
