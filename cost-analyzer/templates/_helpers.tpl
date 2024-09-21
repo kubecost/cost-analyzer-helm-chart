@@ -113,6 +113,14 @@ Kubecost 2.0 preconditions
   {{- end }}
 {{- end -}}
 
+{{- define "federatedStorageCheck" -}}
+  {{- if or (.Values.federatedETL).federatedStore (.Values.kubecostModel).federatedStorageConfig }}
+    {{- if and (not (eq (include "aggregator.deployMethod" .) "statefulset")) (not (.Values.federatedETL).agentOnly) }}
+      {{- printf "\n\n***Configuration issue detected:***\nWhen a federated store is provided, Kubecost should either be running as agentOnly or as a statefulset.\n.Values.federatedETL.agentOnly=true\nOr\n.Values.kubecostAggregator.deployMethod=statefulset\n***" }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
 {{- define "cloudIntegrationFromProductConfigs" }}
   {
     {{- if ((.Values.kubecostProductConfigs).athenaBucketName) }}
@@ -1107,12 +1115,16 @@ Begin Kubecost 2.0 templates
       value: "true"
     - name: FEDERATED_CLUSTER # this ensures the ingester runs assuming federated primary paths in the bucket
       value: "true"
+    {{- if (.Values.kubecostProductConfigs).standardDiscount }}
+    {{- if .Values.ingestionConfigmapName }}
+    - name: INGESTION_CONFIGMAP_NAME
+      value: {{ .Values.ingestionConfigmapName }}
+    {{- end }}
+    {{- end }}
       {{- end }}
     {{- end }}
     - name: LOG_LEVEL
       value: {{ .Values.kubecostAggregator.logLevel }}
-    - name: DB_COPY_FULL
-      value: {{ (quote .Values.kubecostAggregator.dbCopyFull) | default (quote true) }}
     - name: DB_READ_THREADS
       value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
     - name: DB_WRITE_THREADS
@@ -1131,6 +1143,8 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
     - name: ETL_HOURLY_STORE_DURATION_HOURS
       value: {{ .Values.kubecostAggregator.etlHourlyStoreDurationHours | quote }}
+    - name: CONTAINER_RESOURCE_USAGE_RETENTION_DAYS
+      value: {{ .Values.kubecostAggregator.containerResourceUsageRetentionDays | quote }}
     - name: DB_TRIM_MEMORY_ON_CLOSE
       value: {{ .Values.kubecostAggregator.dbTrimMemoryOnClose | quote }}
     - name: KUBECOST_NAMESPACE
@@ -1479,6 +1493,11 @@ for more information
 */ -}}
 {{- define "configsChecksum" -}}
 {{- $files := list
+  "alibaba-service-key-secret.yaml"
+  "aws-service-key-secret.yaml"
+  "azure-service-key-secret.yaml"
+  "azure-storage-config-secret.yaml"
+  "cloud-integration-secret.yaml"
   "cost-analyzer-account-mapping-configmap.yaml"
   "cost-analyzer-alerts-configmap.yaml"
   "cost-analyzer-asset-reports-configmap.yaml"
@@ -1494,12 +1513,20 @@ for more information
   "cost-analyzer-saved-reports-configmap.yaml"
   "cost-analyzer-server-configmap.yaml"
   "cost-analyzer-smtp-configmap.yaml"
+  "external-grafana-config-map-template.yaml"
   "gcpstore-config-map-template.yaml"
+  "grafana-secret.yaml"
   "install-plugins.yaml"
   "integrations-postgres-queries-configmap.yaml"
+  "integrations-postgres-secret.yaml"
+  "kubecost-agent-secret-template.yaml"
+  "kubecost-agent-secretprovider-template.yaml"
   "kubecost-cluster-controller-actions-config.yaml"
   "kubecost-cluster-manager-configmap-template.yaml"
+  "kubecost-oidc-secret-template.yaml"
+  "kubecost-saml-secret-template.yaml"
   "mimir-proxy-configmap-template.yaml"
+  "savings-recommendations-allowlists-config-map-template.yaml"
 -}}
 {{- $checksum := "" -}}
 {{- range $files -}}

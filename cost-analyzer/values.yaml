@@ -376,6 +376,7 @@ oidc:
   # loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   # discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
   skipOnlineTokenValidation: false  # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
+  useClientSecretPost: false  # if true, client secret will specifically only use client_secret_post method, otherwise it will attempt to send the secret in both the header and the body.
   # hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
@@ -973,8 +974,8 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: quay.io/prometheus/prometheus
-      tag: v2.53.1
+      repository: cgr.dev/chainguard/prometheus
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1384,8 +1385,8 @@ prometheus:
     ## alertmanager container image
     ##
     image:
-      repository: quay.io/prometheus/alertmanager
-      tag: v0.27.0
+      repository: cgr.dev/chainguard/prometheus-alertmanager
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## alertmanager priorityClassName
@@ -1670,8 +1671,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1710,8 +1711,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -2318,7 +2319,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.3
+    tag: v0.17.6
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
@@ -2476,7 +2477,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.16
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2563,7 +2564,7 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 1
+  numDBCopyPartitions: 25
 
   # How many threads the read database is configured with (i.e. Kubecost API /
   # UI queries). If increasing this value, it is recommended to increase the
@@ -2582,10 +2583,6 @@ kubecostAggregator:
   # but can be increased if trying to backfill historical data.
   # default: 1
   dbConcurrentIngestionCount: 1
-
-  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
-  # at the expense of additional memory usages.
-  dbCopyFull: false
 
   # Memory limit applied to read database and write database connections. The
   # default of "no limit" is appropriate when first establishing a baseline of
@@ -2606,6 +2603,7 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+
   # How much hourly data to ingest from the federated store bucket, and how much
   # to keep in the DB before rolling the data off.
   #
@@ -2614,6 +2612,14 @@ kubecostAggregator:
   #
   # default: 49
   etlHourlyStoreDurationHours: 49
+
+  # How much container resource usage data to retain in the DB, in terms of days.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 1
+  containerResourceUsageRetentionDays: 1
 
   # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
@@ -2734,6 +2740,9 @@ kubecostAggregator:
     imageVersion: latest
     # containerSecurityContext:
 
+  service:
+    labels: {}
+
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
@@ -2787,7 +2796,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.5
+    tag: v0.16.9
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -3001,8 +3010,8 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: grafana/grafana
-    tag: 11.1.1
+    repository: cgr.dev/chainguard/grafana
+    tag: latest
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -3198,8 +3207,8 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: kiwigrid/k8s-sidecar
-      tag: 1.27.5
+      repository: cgr.dev/chainguard/k8s-sidecar
+      tag: latest
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
@@ -3412,6 +3421,7 @@ costEventsAudit:
 #   azureOfferDurableID: "MS-AZR-0003p"
 #   discount: "" # percentage discount applied to compute
 #   negotiatedDiscount: "" # custom negotiated cloud provider discount
+#   standardDiscount: "" # custom negotiated cloud provider discount, applied to all incoming asset compute costs in a federated environment. Overrides negotiatedDiscount on any cluster in the federated environment.
 #   defaultIdle: false
 #   serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret
 #   createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
@@ -3450,6 +3460,10 @@ costEventsAudit:
 #   hideCloudIntegrationsUI: false
 #   hideBellIcon: false
 #   hideTeams: false
+#   savingsRecommendationsAllowLists: # Define select list of instance types to be evaluated in computing Savings Recommendations
+#     AWS: []
+#     GCP: []
+#     Azure: []
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
