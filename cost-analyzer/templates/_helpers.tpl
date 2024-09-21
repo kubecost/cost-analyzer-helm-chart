@@ -113,6 +113,14 @@ Kubecost 2.0 preconditions
   {{- end }}
 {{- end -}}
 
+{{- define "federatedStorageCheck" -}}
+  {{- if or (.Values.federatedETL).federatedStore (.Values.kubecostModel).federatedStorageConfig }}
+    {{- if and (not (eq (include "aggregator.deployMethod" .) "statefulset")) (not (.Values.federatedETL).agentOnly) }}
+      {{- printf "\n\n***Configuration issue detected:***\nWhen a federated store is provided, Kubecost should either be running as agentOnly or as a statefulset.\n.Values.federatedETL.agentOnly=true\nOr\n.Values.kubecostAggregator.deployMethod=statefulset\n***" }}
+    {{- end }}
+  {{- end }}
+{{- end }}
+
 {{- define "cloudIntegrationFromProductConfigs" }}
   {
     {{- if ((.Values.kubecostProductConfigs).athenaBucketName) }}
@@ -1135,6 +1143,8 @@ Begin Kubecost 2.0 templates
       value: {{ .Values.kubecostAggregator.etlDailyStoreDurationDays | quote }}
     - name: ETL_HOURLY_STORE_DURATION_HOURS
       value: {{ .Values.kubecostAggregator.etlHourlyStoreDurationHours | quote }}
+    - name: CONTAINER_RESOURCE_USAGE_RETENTION_DAYS
+      value: {{ .Values.kubecostAggregator.containerResourceUsageRetentionDays | quote }}
     - name: DB_TRIM_MEMORY_ON_CLOSE
       value: {{ .Values.kubecostAggregator.dbTrimMemoryOnClose | quote }}
     - name: KUBECOST_NAMESPACE

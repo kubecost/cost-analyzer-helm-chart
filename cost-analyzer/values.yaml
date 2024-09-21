@@ -2326,7 +2326,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.5
+    tag: v0.17.6
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
@@ -2610,6 +2610,7 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+
   # How much hourly data to ingest from the federated store bucket, and how much
   # to keep in the DB before rolling the data off.
   #
@@ -2618,6 +2619,14 @@ kubecostAggregator:
   #
   # default: 49
   etlHourlyStoreDurationHours: 49
+
+  # How much container resource usage data to retain in the DB, in terms of days.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 1
+  containerResourceUsageRetentionDays: 1
 
   # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
@@ -2737,6 +2746,9 @@ kubecostAggregator:
     image: jaegertracing/all-in-one
     imageVersion: latest
     # containerSecurityContext:
+
+  service:
+    labels: {}
 
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
