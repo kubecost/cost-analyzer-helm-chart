@@ -39,11 +39,11 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.etlUtils.thanosSourceBucketSecret }}
         {{- end }}
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig}}
         - name: federated-storage-config
           secret:
             defaultMode: 420
-            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+            secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret | default "federated-store" }}
         {{- end }}
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
