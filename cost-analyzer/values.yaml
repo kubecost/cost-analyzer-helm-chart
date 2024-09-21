@@ -370,6 +370,7 @@ oidc:
   # loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   # discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
   skipOnlineTokenValidation: false  # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
+  useClientSecretPost: false  # if true, client secret will specifically only use client_secret_post method, otherwise it will attempt to send the secret in both the header and the body.
   # hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
@@ -2256,7 +2257,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.3
+    tag: v0.17.6
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
@@ -2414,7 +2415,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.16
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2480,6 +2481,7 @@ kubecostAggregator:
   # and causes `deployMethod: "statefulset"`
   enabled: false
 
+  # the below settings should only be modified with support from Kubecost staff
   # Replicas sets the number of Aggregator replicas. It only has an effect if
   # `deployMethod: "statefulset"`
   replicas: 1
@@ -2500,14 +2502,13 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 1
-  logLevel: info
+  numDBCopyPartitions: 25
 
   # env: has been removed to avoid unknown issues that would be caused by
   # customizations that were required to run aggregator in previous versions
   # extraEnv: can be used to add new environment variables to the aggregator pod
 
-  # the below settings should only be modified with support from Kubecost staff
+  logLevel: info
 
   # How many threads the read database is configured with (i.e. Kubecost API /
   # UI queries). If increasing this value, it is recommended to increase the
@@ -2524,10 +2525,12 @@ kubecostAggregator:
   # but can be increased if trying to backfill historical data.
   # default: 1
   dbConcurrentIngestionCount: 1
-  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
-  # at the expense of additional memory usages.
-  dbCopyFull: false
-  # Memory limit applied to read database connections.
+
+  # Memory limit applied to read database and write database connections. The
+  # default of "no limit" is appropriate when first establishing a baseline of
+  # resource usage required. It is eventually recommended to set these values
+  # such that dbMemoryLimit + dbWriteMemoryLimit < the total memory available
+  # to the aggregator pod.
   # default: 0GB is no limit
   dbMemoryLimit: 0GB
   # Memory limit applied to write database connections.
@@ -2715,7 +2718,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.7
+    tag: v0.16.9
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2930,7 +2933,7 @@ grafana:
   ## Container image settings for the Grafana deployment
   image:
     repository: grafana/grafana
-    tag: 10.4.3
+    tag: 11.1.4
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
