@@ -35,12 +35,6 @@ spec:
   template:
     metadata:
       labels:
-        {{/*
-        Force pod restarts on upgrades to ensure the nginx config is current
-        */}}
-        {{- if not .Values.global.platforms.cicd.enabled }}
-        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
-        {{- end }}
         {{- include "frontend.selectorLabels" . | nindent 8 }}
         {{- if .Values.global.additionalLabels }}
         {{- toYaml .Values.global.additionalLabels | nindent 8 }}
@@ -144,6 +138,10 @@ spec:
           volumeMounts:
             - name: tmp
               mountPath: /tmp
+            - name: tmp
+              mountPath: /var/lib/nginx/tmp
+            - name: tmp
+              mountPath: /var/run
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d/
             {{- if .Values.global.containerSecuritycontext }}

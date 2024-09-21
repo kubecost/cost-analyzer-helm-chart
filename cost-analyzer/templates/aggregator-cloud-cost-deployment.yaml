@@ -29,12 +29,6 @@ spec:
   template:
     metadata:
       labels:
-        {{/*
-        Force pod restarts on upgrades to ensure the nginx config is current
-        */}}
-        {{- if not .Values.global.platforms.cicd.enabled }}
-        helm-rollout-restarter: {{ randAlphaNum 5 | quote }}
-        {{- end }}
         app.kubernetes.io/name: cloud-cost
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: cloud-cost
@@ -68,11 +62,15 @@ spec:
             defaultMode: 420
             secretName: {{ .Values.kubecostModel.etlBucketConfigSecret }}
         {{- end }}
-        {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
+        {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
         - name: federated-storage-config
           secret:
             defaultMode: 420
+            {{- if .Values.kubecostModel.federatedStorageConfigSecret }}
             secretName: {{ .Values.kubecostModel.federatedStorageConfigSecret }}
+            {{- else }}
+            secretName: federated-store
+            {{- end }}
         {{- end }}
         {{- if (.Values.kubecostProductConfigs).cloudIntegrationSecret }}
         - name: cloud-integration
