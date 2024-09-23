@@ -199,21 +199,6 @@ global:
         - property: "cluster"
           value: "cluster-one"
 
-  # Set saved Advanced report(s) accessible from /reports
-  # Ref: http://docs.kubecost.com/saved-reports
-  advancedReports:
-    enabled: false  # If true, overwrites report parameters set through UI
-    reports:
-    - title: "Example Advanced Report 0"
-      window: "7d"
-      aggregateBy: "namespace"
-      filters:  # same as allocation api filters Ref: https://docs.kubecost.com/apis/filters-api
-        - key: "cluster"  # Ref: https://docs.kubecost.com/apis/filters-api#allocation-apis-request-sizing-v2-api
-          operator: ":"  # Ref: https://docs.kubecost.com/apis/filters-api#filter-operators
-          value: "dev"
-      cloudBreakdown: "service"
-      cloudJoin: "label:kubernetes_namespace"
-
   # Set saved Cloud Cost report(s) accessible from /reports
   # Ref: http://docs.kubecost.com/saved-reports
   cloudCostReports:
@@ -391,6 +376,7 @@ oidc:
   # loginRedirectURL: "http://my.kubecost.url/model/oidc/authorize" # Kubecost url configured in provider for redirect after authentication
   # discoveryURL: "https://my.auth.server/.well-known/openid-configuration" # url for OIDC endpoint discovery
   skipOnlineTokenValidation: false  # if true, will skip accessing OIDC introspection endpoint for online token verification, and instead try to locally validate JWT claims
+  useClientSecretPost: false  # if true, client secret will specifically only use client_secret_post method, otherwise it will attempt to send the secret in both the header and the body.
   # hostedDomain: "example.com" # optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
@@ -594,11 +580,49 @@ kubecostModel:
   # For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
-  # The name of the Secret containing a bucket config for ETL backup.
-  # etlBucketConfigSecret:
-  # The name of the Secret containing a bucket config for Federated storage. The contents should be stored
-  # under a key named federated-store.yaml.
-  # federatedStorageConfigSecret: ""
+  ## The name of the Secret containing a bucket config for Federated storage.
+  ## The contents should be stored under a key named federated-store.yaml.
+  ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/long-term-storage-configuration
+  # federatedStorageConfigSecret: federated-store
+
+  ## Federated storage config can be supplied via a secret or the yaml block
+  ## below when using the block below, only a single provider is supported,
+  ## others are for example purposes.
+  ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/long-term-storage-configuration
+  # federatedStorageConfig: |-
+  #   # AWS EXAMPLE
+  #   type: S3
+  #   config:
+  #     bucket: kubecost-federated-storage-bucket
+  #     endpoint: s3.amazonaws.com
+  #     region: us-east-1
+  #     # best practice is to use pod identities to access AWS resources. Otherwise it is possible to use an access_key and secret_key
+  #     access_key: "<your-access-key>"
+  #     secret_key: "<your-secret-key>"
+  #   # AZURE EXAMPLE
+  #   type: AZURE
+  #   config:
+  #     storage_account: ""
+  #     storage_account_key: ""
+  #     container: ""
+  #     max_retries: 0
+  #   # GCP EXAMPLE
+  #   type: GCS
+  #   config:
+  #     bucket: kubecost-federated-storage-bucket
+  #     service_account: |-
+  #       {
+  #         "type": "service_account",
+  #         "project_id": "...",
+  #         "private_key_id": "...",
+  #         "private_key": "...",
+  #         "client_email": "...",
+  #         "client_id": "...",
+  #         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  #         "token_uri": "https://oauth2.googleapis.com/token",
+  #         "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  #         "client_x509_cert_url": ""
+  #       }
 
   # Installs Kubecost/OpenCost plugins
   plugins:
@@ -725,7 +749,11 @@ kubecostModel:
     #   targetPort: 40000
     #   containerPort: 40000
 
-# etlUtils is a utility currently used by Kubecost internal support to implement specific functionality related to Thanos conversion.
+## etlUtils is a utility typically used by Enterprise customers transitioning
+## from v1 to v2 of Kubecost. It translates the data from the "/etl" dir of the
+## bucket, to the "/federated" dir of the bucket.
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/thanos-migration-guide
+##
 etlUtils:
   enabled: false
   fullImageName: null
@@ -909,6 +937,21 @@ prometheus:
         {{- else }}
         port: 9004
         {{- end }}
+    ## Enables scraping of NVIDIA GPU metrics via dcgm-exporter. Scrapes all
+    ## endpoints which contain "dcgm-exporter" in labels "app",
+    ## "app.kubernetes.io/component", or "app.kubernetes.io/name" with a case
+    ## insensitive match.
+    ## Refs:
+    ## https://github.com/NVIDIA/gpu-operator/blob/d4316a415bbd684ce8416a88042305fc1a093aa4/assets/state-dcgm-exporter/0600_service.yaml#L7
+    ## https://github.com/NVIDIA/dcgm-exporter/blob/54fd1ca137c66511a87a720390613680b9bdabdd/deployment/templates/service.yaml#L23
+    - job_name: kubecost-dcgm-exporter
+      kubernetes_sd_configs:
+        - role: endpoints
+      relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_label_app, __meta_kubernetes_pod_label_app_kubernetes_io_component, __meta_kubernetes_pod_label_app_kubernetes_io_name]
+          action: keep
+          regex: (?i)(.*dcgm-exporter.*|.*dcgm-exporter.*|.*dcgm-exporter.*)
+
   server:
     # If clusterIDConfigmap is defined, instead use user-generated configmap with key CLUSTER_ID
     # to use as unique cluster ID in kubecost cost-analyzer deployment.
@@ -931,8 +974,8 @@ prometheus:
     ## Prometheus server container image
     ##
     image:
-      repository: quay.io/prometheus/prometheus
-      tag: v2.52.0
+      repository: cgr.dev/chainguard/prometheus
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## prometheus server priorityClassName
@@ -1342,8 +1385,8 @@ prometheus:
     ## alertmanager container image
     ##
     image:
-      repository: quay.io/prometheus/alertmanager
-      tag: v0.27.0
+      repository: cgr.dev/chainguard/prometheus-alertmanager
+      tag: latest
       pullPolicy: IfNotPresent
 
     ## alertmanager priorityClassName
@@ -1628,8 +1671,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1668,8 +1711,8 @@ prometheus:
       ## configmap-reload container image
       ##
       image:
-        repository: quay.io/prometheus-operator/prometheus-config-reloader
-        tag: v0.74.0
+        repository: cgr.dev/chainguard/prometheus-config-reloader
+        tag: latest
         pullPolicy: IfNotPresent
 
       ## Additional configmap-reload container arguments
@@ -1725,7 +1768,7 @@ prometheus:
     ##
     image:
       repository: prom/node-exporter
-      tag: v1.8.0
+      tag: v1.8.2
       pullPolicy: IfNotPresent
 
     ## node-exporter priorityClassName
@@ -1852,7 +1895,7 @@ prometheus:
     ##
     image:
       repository: prom/pushgateway
-      tag: v1.8.0
+      tag: v1.9.0
       pullPolicy: IfNotPresent
 
     ## pushgateway priorityClassName
@@ -2276,7 +2319,7 @@ networkCosts:
   enabled: false
   image:
     repository: gcr.io/kubecost1/kubecost-network-costs
-    tag: v0.17.3
+    tag: v0.17.6
   imagePullPolicy: IfNotPresent
   updateStrategy:
     type: RollingUpdate
@@ -2434,7 +2477,7 @@ forecasting:
   # image provided (registry, image, tag) will be used for the forecasting
   # container.
   # Example: fullImageName: gcr.io/kubecost1/forecasting:v0.0.1
-  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.12
+  fullImageName: gcr.io/kubecost1/kubecost-modeling:v0.1.16
   imagePullPolicy: IfNotPresent
 
   # Resource specification block for the forecasting container.
@@ -2480,9 +2523,8 @@ forecasting:
     periodSeconds: 10
     failureThreshold: 200
 
-## The Kubecost Aggregator is a high scale implementation of Kubecost intended
-## for large datasets and/or high query load. At present, this should only be
-## enabled when recommended by Kubecost staff.
+## The Kubecost Aggregator is the primary query backend for Kubecost
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl/aggregator
 ##
 kubecostAggregator:
   # deployMethod determines how Aggregator is deployed. Current options are
@@ -2504,6 +2546,8 @@ kubecostAggregator:
   # `deployMethod: "statefulset"`
   replicas: 1
 
+  logLevel: info
+
   # stagingEmptyDirSizeLimit changes how large the "staging"
   # /var/configs/waterfowl emptyDir is. It only takes effect in StatefulSet
   # configurations of Aggregator, other configurations are unaffected.
@@ -2520,39 +2564,35 @@ kubecostAggregator:
   # set to 0 for max partitioning (minimum possible ram usage, but the slowest)
   # the default of 25 is sufficient for 95%+ of users. This should only be modified
   # after consulting with Kubecost's support team
-  numDBCopyPartitions: 1
-  logLevel: info
-
-  # env: has been removed to avoid unknown issues that would be caused by
-  # customizations that were required to run aggregator in previous versions
-  # extraEnv: can be used to add new environment variables to the aggregator pod
-
-  # the below settings should only be modified with support from Kubecost staff
+  numDBCopyPartitions: 25
 
   # How many threads the read database is configured with (i.e. Kubecost API /
   # UI queries). If increasing this value, it is recommended to increase the
   # aggregator's memory requests & limits.
   # default: 1
   dbReadThreads: 1
+
   # How many threads the write database is configured with (i.e. ingestion of
   # new data from S3). If increasing this value, it is recommended to increase
   # the aggregator's memory requests & limits.
   # default: 1
   dbWriteThreads: 1
+
   # How many threads to use when ingesting Asset/Allocation/CloudCost data
   # from the federated store bucket. In most cases the default is sufficient,
   # but can be increased if trying to backfill historical data.
   # default: 1
   dbConcurrentIngestionCount: 1
-  # dbCopyFull: "true" can improve the time it takes to copy the write DB,
-  # at the expense of additional memory usages.
-  dbCopyFull: false
-  # Memory limit applied to read database connections.
+
+  # Memory limit applied to read database and write database connections. The
+  # default of "no limit" is appropriate when first establishing a baseline of
+  # resource usage required. It is eventually recommended to set these values
+  # such that dbMemoryLimit + dbWriteMemoryLimit < the total memory available
+  # to the aggregator pod.
   # default: 0GB is no limit
   dbMemoryLimit: 0GB
-  # Memory limit applied to write database connections.
-  # default: 0GB is no limit
   dbWriteMemoryLimit: 0GB
+
   # How much data to ingest from the federated store bucket, and how much data
   # to keep in the DB before rolling the data off.
   #
@@ -2563,6 +2603,24 @@ kubecostAggregator:
   #
   # default: 91
   etlDailyStoreDurationDays: 91
+
+  # How much hourly data to ingest from the federated store bucket, and how much
+  # to keep in the DB before rolling the data off.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 49
+  etlHourlyStoreDurationHours: 49
+
+  # How much container resource usage data to retain in the DB, in terms of days.
+  #
+  # In high scale environments setting this to `0` can improve performance if hourly
+  # resolution is not a requirement.
+  #
+  # default: 1
+  containerResourceUsageRetentionDays: 1
+
   # Trim memory on close, only change if advised by Kubecost support.
   dbTrimMemoryOnClose: true
 
@@ -2682,11 +2740,14 @@ kubecostAggregator:
     imageVersion: latest
     # containerSecurityContext:
 
+  service:
+    labels: {}
+
 ## Kubecost Multi-cluster Diagnostics (beta)
 ## A single view into the health of all agent clusters. Each agent cluster sends
 ## its diagnostic data to a storage bucket. Future versions may include
 ## repairing & alerting from the primary.
-## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster-diagnostics
+## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/multi-cluster-diagnostics
 ##
 diagnostics:
   enabled: true
@@ -2735,7 +2796,7 @@ clusterController:
   enabled: false
   image:
     repository: gcr.io/kubecost1/cluster-controller
-    tag: v0.16.3
+    tag: v0.16.9
   imagePullPolicy: IfNotPresent
   ## PriorityClassName
   ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
@@ -2957,8 +3018,8 @@ grafana:
 
   ## Container image settings for the Grafana deployment
   image:
-    repository: grafana/grafana
-    tag: 10.4.3
+    repository: cgr.dev/chainguard/grafana
+    tag: latest
     pullPolicy: IfNotPresent
 
     ## Optionally specify an array of imagePullSecrets.
@@ -2994,7 +3055,10 @@ grafana:
     annotations: {}
     labels: {}
 
-  ## Ingress service for the Grafana deployment
+  ##  This template is not needed and is not supported.
+  ##  It is here for backwards compatibility.
+  ##  Kubecost exposes grafana by default with the
+  ##  top level ingress template under /grafana/
   ingress:
     enabled: false
     annotations: {}
@@ -3151,8 +3215,8 @@ grafana:
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
     image:
-      repository: kiwigrid/k8s-sidecar
-      tag: 1.27.2
+      repository: cgr.dev/chainguard/k8s-sidecar
+      tag: latest
       pullPolicy: IfNotPresent
     resources: {}
     dashboards:
@@ -3365,6 +3429,7 @@ costEventsAudit:
 #   azureOfferDurableID: "MS-AZR-0003p"
 #   discount: "" # percentage discount applied to compute
 #   negotiatedDiscount: "" # custom negotiated cloud provider discount
+#   standardDiscount: "" # custom negotiated cloud provider discount, applied to all incoming asset compute costs in a federated environment. Overrides negotiatedDiscount on any cluster in the federated environment.
 #   defaultIdle: false
 #   serviceKeySecretName: "" # Use an existing AWS or Azure secret with format as in aws-service-key-secret.yaml or azure-service-key-secret.yaml. Leave blank if using createServiceKeySecret
 #   createServiceKeySecret: true # Creates a secret representing your cloud service key based on data in values.yaml. If you are storing unencrypted values, add a secret manually
@@ -3393,6 +3458,20 @@ costEventsAudit:
 #     secretname: smtpconfigsecret # Reference an existing k8s secret created from a file named smtp.json of format specified by config above. If the secretname is specified, a configmap with the key will not be created.
 #     mountPath: "/some/custom/path/smtp.json" # (use instead of secretname) Declare the path at which the SMTP config file is mounted (eg. by a secrets provisioner). The file must be of format specified by config above.
 #   carbonEstimates: false # Enables Kubecost beta carbon estimation endpoints /assets/carbon and /allocations/carbon
+#   The below options to hide UI elements are only supported in Enterprise
+#   hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
+#   hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
+#   hideKubecostActions: false
+#   hideReservedInstances: false
+#   hideSpotCommander: false
+#   hideUnclaimedVolumes: false
+#   hideCloudIntegrationsUI: false
+#   hideBellIcon: false
+#   hideTeams: false
+#   savingsRecommendationsAllowLists: # Define select list of instance types to be evaluated in computing Savings Recommendations
+#     AWS: []
+#     GCP: []
+#     Azure: []
 
   ## Specify an existing Kubernetes Secret holding the cloud integration information. This Secret must contain
   ## a key with name `cloud-integration.json` and the contents must be in a specific format. It is expected
