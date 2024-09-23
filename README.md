@@ -6,12 +6,14 @@ This is the official Helm chart for [Kubecost](https://www.kubecost.com/), an en
 
 Kubecost strives to support as many versions of Kubernetes as possible. Below is the version support matrix which has been tested. Versions outside of the stated range may still work but are untested.
 
-| Chart Version                | Kubernetes Min | Kubernetes Max |
+| Chart Version                  | Kubernetes Min | Kubernetes Max |
 |--------------------------------|----------------|----------------|
 | 1.107                          | 1.20           | 1.28           |
 | 1.108                          | 1.20           | 1.28           |
 | 2.1                            | 1.20           | 1.29           |
 | 2.2                            | 1.21           | 1.29           |
+| 2.3                            | 1.21           | 1.30           |
+| 2.4                            | 1.22           | 1.31           |
 
 ## Installation
 
@@ -53,7 +55,7 @@ Parameter | Description | Default
 `prometheus.server.persistentVolume.enabled` | If true, Prometheus server will create a Persistent Volume Claim. | `true`
 `prometheus.server.persistentVolume.size` | Prometheus server data Persistent Volume size. Default set to retain ~6000 samples per second for 15 days. | `32Gi`
 `prometheus.server.persistentVolume.storageClass` | Define storage class for Prometheus persistent volume  | `-`
-`prometheus.server.retention` | Determines when to remove old data. | `15d`
+`prometheus.server.retention` | Determines when to remove old data. | `97h`
 `prometheus.server.resources` | Prometheus server resource requests and limits. | `{}`
 `prometheus.nodeExporter.resources` | Node exporter resource requests and limits. | `{}`
 `prometheus.nodeExporter.enabled` `prometheus.serviceAccounts.nodeExporter.create` | If false, do not create NodeExporter daemonset.  | `true`
