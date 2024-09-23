@@ -761,13 +761,13 @@ kubecostModel:
 ##
 etlUtils:
   enabled: false
-  ## Annotations to be added to etlutils deployment
-  annotations: {}
   fullImageName: null
   resources: {}
   env: {}
   nodeSelector: {}
   tolerations: []
+  ## Annotations to be added to etlutils deployment
+  annotations: {}
   affinity: {}
 
 # Basic Kubecost ingress, more examples available at https://docs.kubecost.com/install-and-configure/install/ingress-examples
@@ -1381,9 +1381,6 @@ prometheus:
     ## Provide a full name override for Prometheus alertmanager.
     # fullnameOverride: ""
 
-    ## Annotations to be added to alertmanager deployment
-    annotations: {}
-
     strategy:
       type: Recreate
       rollingUpdate: null
@@ -1577,6 +1574,9 @@ prometheus:
       ##
       ## prometheus.io/probe: alertmanager-teamA
 
+    ## Annotations to be added to alertmanager deployment
+    annotations: {}
+
     ## Labels to be added to Prometheus AlertManager pods
     ##
     podLabels: {}
@@ -1591,6 +1591,7 @@ prometheus:
       ##
       enabled: false
 
+      ## Annotations to be added to alertmanager statefulset
       annotations: {}
 
       podManagementPolicy: OrderedReady
@@ -1894,9 +1895,6 @@ prometheus:
     ## Provide a full name override for Prometheus push gateway.
     # fullnameOverride: ""
 
-    ## Annotations to be added to pushgateway deployment
-    annotations: {}
-
     ## Use an alternate scheduler, e.g. "stork".
     ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
     ##
@@ -1972,6 +1970,10 @@ prometheus:
     ## Annotations to be added to pushgateway pods
     ##
     podAnnotations: {}
+
+    ## Annotations to be added to pushgateway deployment
+    ##
+    annotations: {}
 
     replicaCount: 1
 
@@ -2517,14 +2519,14 @@ forecasting:
     enabled: false
     name: ""
 
-  # Annotations to be added for the forecasting Deployment.
-  annotations: {}
-
   # Define a nodeSelector for the forecasting Deployment.
   nodeSelector: {}
 
   # Define tolerations for the forecasting Deployment.
   tolerations: []
+
+  # Annotations to be added for the forecasting Deployment.
+  annotations: {}
 
   # Define Pod affinity for the forecasting Deployment.
   affinity: {}
@@ -2561,9 +2563,6 @@ kubecostAggregator:
   # For legacy configuration support, `enabled: true` overrides deployMethod
   # and causes `deployMethod: "statefulset"`
   enabled: false
-
-  # Annotations to be added for aggregator deployment or statefulset
-  annotations: {}
 
   # Replicas sets the number of Aggregator replicas. It only has an effect if
   # `deployMethod: "statefulset"`
@@ -2697,6 +2696,9 @@ kubecostAggregator:
   ## Define tolerations for the aggregator pod
   # tolerations: []
 
+  ## Annotations to be added for aggregator deployment or statefulset
+  # annotations: {}
+
   ## Define Pod affinity for the aggregator pod
   # affinity: {}
 
@@ -2799,7 +2801,6 @@ diagnostics:
   ## can be run as a separate deployment.
   deployment:
     enabled: false
-    annotations: {}
     resources:
       requests:
         cpu: "10m"
@@ -2810,6 +2811,8 @@ diagnostics:
     containerSecurityContext: {}
     nodeSelector: {}
     tolerations: []
+    ## Annotations to be added for diagnostics Deployment.
+    annotations: {}
     affinity: {}
 
 ## Provide a full name override for the diagnostics Deployment.
