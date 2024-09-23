@@ -7,7 +7,7 @@ metadata:
   labels:
     app: {{ template "grafana.name" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    heritage: Helm
 data:
 {{- if .Values.grafana.plugins }}
   plugins: {{ join "," .Values.grafana.plugins }}
