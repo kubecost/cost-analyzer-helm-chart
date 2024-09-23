@@ -9,7 +9,7 @@ metadata:
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.forecasting.deploymentAnnotations }}
+  {{- with .Values.forecasting.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

@@ -10,7 +10,7 @@ metadata:
     {{- if .Values.networkCosts.additionalLabels }}
     {{- toYaml .Values.networkCosts.additionalLabels | nindent 4 }}
     {{- end }}
-  {{- with .Values.networkCosts.annotations }}
+  {{- with .Values.networkCosts.daemonsetAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

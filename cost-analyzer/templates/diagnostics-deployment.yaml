@@ -18,7 +18,7 @@ metadata:
     {{- if .Values.diagnostics.deployment.labels }}
     {{- toYaml .Values.diagnostics.deployment.labels | nindent 4 }}
     {{- end }}
-  {{- with .Values.diagnostics.annotations }}
+  {{- with .Values.diagnostics.deployment.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

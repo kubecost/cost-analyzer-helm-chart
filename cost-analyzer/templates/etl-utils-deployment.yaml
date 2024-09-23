@@ -14,7 +14,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.etlUtils.deploymentAnnotations }}
+  {{- with .Values.etlUtils.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}

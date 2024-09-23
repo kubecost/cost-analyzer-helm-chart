@@ -8,7 +8,7 @@ metadata:
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- with .Values.prometheus.pushgateway.deploymentAnnotations }}
+  {{- with .Values.prometheus.pushgateway.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
