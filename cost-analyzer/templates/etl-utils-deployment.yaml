@@ -14,8 +14,11 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.etlUtils.annotations }}
   annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.etlUtils.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
@@ -32,6 +35,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
         app: {{ template "etlUtils.name" . }}
         {{- with .Values.global.additionalLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        {{- with .Values.global.podAnnotations}}
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:

@@ -27,10 +27,13 @@ spec:
   podManagementPolicy: {{ .Values.prometheus.server.statefulSet.podManagementPolicy }}
   template:
     metadata:
-    {{- if .Values.prometheus.server.podAnnotations }}
       annotations:
-{{ toYaml .Values.prometheus.server.podAnnotations | indent 8 }}
-    {{- end }}
+        {{- with .Values.global.podAnnotations}}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}      
+        {{- if .Values.prometheus.server.podAnnotations }}
+          {{ toYaml .Values.prometheus.server.podAnnotations | indent 8 }}
+        {{- end }}
       labels:
         {{- include "prometheus.server.labels" . | nindent 8 }}
         {{- with .Values.global.additionalLabels }}

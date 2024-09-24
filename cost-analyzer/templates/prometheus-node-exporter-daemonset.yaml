@@ -24,10 +24,13 @@ spec:
   {{- end }}
   template:
     metadata:
-    {{- if .Values.prometheus.nodeExporter.podAnnotations }}
       annotations:
-{{ toYaml .Values.prometheus.nodeExporter.podAnnotations | indent 8 }}
-    {{- end }}
+        {{- with .Values.global.podAnnotations}}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.prometheus.nodeExporter.podAnnotations }}
+          {{ toYaml .Values.prometheus.nodeExporter.podAnnotations | indent 8 }}
+        {{- end }}
       labels:
         {{- include "prometheus.nodeExporter.labels" . | nindent 8 }}
         {{- with .Values.global.additionalLabels }}

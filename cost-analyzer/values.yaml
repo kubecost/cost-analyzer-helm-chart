@@ -217,6 +217,10 @@ global:
   podAnnotations: {}
     # iam.amazonaws.com/role: role-arn
 
+  # Annotations to be added for all controllers (StatefulSets, Deployments, DaemonSets)
+  annotations: {}
+    # iam.amazonaws.com/role: role-arn
+
   # Applies these labels to all Deployments, StatefulSets, DaemonSets, and their pod templates.
   additionalLabels: {}
 

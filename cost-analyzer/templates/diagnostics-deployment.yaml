@@ -18,8 +18,11 @@ metadata:
     {{- if .Values.diagnostics.deployment.labels }}
     {{- toYaml .Values.diagnostics.deployment.labels | nindent 4 }}
     {{- end }}
-  {{- with .Values.diagnostics.deployment.annotations }}
   annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.diagnostics.deployment.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:

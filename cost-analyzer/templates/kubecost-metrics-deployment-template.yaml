@@ -15,8 +15,11 @@ metadata:
   {{- with .Values.kubecostMetrics.exporter.labels }}
   {{ toYaml . | indent 4 }}
   {{- end }}
-  {{- with .Values.kubecostMetrics.exporter.annotations }}
   annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.kubecostMetrics.exporter.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:

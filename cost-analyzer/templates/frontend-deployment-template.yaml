@@ -12,8 +12,11 @@ metadata:
     {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
     {{- toYaml .Values.kubecostDeployment.labels | nindent 4 }}
     {{- end }}
-  {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.annotations }}
   annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.annotations }}
     {{- toYaml .Values.kubecostDeployment.annotations | nindent 4 }}
   {{- end }}
 spec:
