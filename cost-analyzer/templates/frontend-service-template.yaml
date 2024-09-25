@@ -1,4 +1,3 @@
-{{- if eq (include "frontend.deployMethod" .) "haMode" }}
 kind: Service
 apiVersion: v1
 metadata:
@@ -49,5 +48,4 @@ spec:
   {{- end }}
 {{- else }}
   sessionAffinity: None
-{{- end }}
 {{- end }}

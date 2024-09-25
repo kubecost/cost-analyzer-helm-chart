@@ -1,14 +1,14 @@
 global:
   # zone: cluster.local (use only if your DNS server doesn't live in the same zone as kubecost)
   prometheus:
-    enabled: true  # Kubecost depends on Prometheus data, it is not optional. When enabled: false, Prometheus will not be installed and you must configure your own Prometheus to scrape kubecost as well as provide the fqdn below. -- Warning: Before changing this setting, please read to understand the risks https://docs.kubecost.com/install-and-configure/install/custom-prom
+    enabled: false  # Kubecost depends on Prometheus data, it is not optional. When enabled: false, Prometheus will not be installed and you must configure your own Prometheus to scrape kubecost as well as provide the fqdn below. -- Warning: Before changing this setting, please read to understand the risks https://docs.kubecost.com/install-and-configure/install/custom-prom
     fqdn: http://cost-analyzer-prometheus-server.default.svc  # example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify: false  # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
   grafana:
-    enabled: true  # If false, Grafana will not be installed
+    enabled: false  # If false, Grafana will not be installed
     domainName: cost-analyzer-grafana.default.svc  # example grafana domain Ignored if enabled: true
     scheme: "http"  # http or https, for the domain name above.
     proxy: true  # If true, the kubecost frontend will route to your grafana through its service endpoint
@@ -478,10 +478,10 @@ kubecostFrontend:
 #    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
 #  forecasting:
 #    fqdn: kubecost-forcasting.kubecost.svc.cluster.local:5000
-#  aggregator:
-#    fqdn: kubecost-aggregator.kubecost.svc.cluster.local:9004
-#  cloudCost:
-#    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
+  aggregator:
+   fqdn: kubecost-staging-aggregator.kubecost.svc.cluster.local:9004
+  cloudCost:
+    fqdn: kubecost-staging-cloud-cost.kubecost.svc.cluster.local:9005
 #  multiClusterDiagnostics:
 #    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
 #  clusterController:
@@ -2471,7 +2471,7 @@ kubecostDeployment:
 ## Kubecost Forecasting forecasts future cost patterns based on historical
 ## patterns observed by Kubecost.
 forecasting:
-  enabled: true
+  enabled: false
 
   # fullImageName overrides the default image construction logic. The exact
   # image provided (registry, image, tag) will be used for the forecasting
