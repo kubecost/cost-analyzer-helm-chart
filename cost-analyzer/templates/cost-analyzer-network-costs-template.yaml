@@ -14,7 +14,7 @@ metadata:
   {{- with .Values.global.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.networkCosts.daemonsetAnnotations }}
+  {{- with .Values.networkCosts.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:

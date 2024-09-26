@@ -3,10 +3,13 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-{{- if .Values.prometheus.nodeExporter.deploymentAnnotations }}
   annotations:
-{{ toYaml .Values.prometheus.nodeExporter.deploymentAnnotations | indent 4 }}
-{{- end }}
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.nodeExporter.annotations }}
+    {{ toYaml .Values.prometheus.nodeExporter.annotations | indent 4 }}
+  {{- end }}
   labels:
     {{- include "prometheus.nodeExporter.labels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}

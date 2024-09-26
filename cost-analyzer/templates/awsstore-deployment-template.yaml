@@ -14,7 +14,7 @@ metadata:
   {{- with .Values.global.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.awsstore.deploymentAnnotations }}
+  {{- with .Values.awsstore.annotations }}
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:

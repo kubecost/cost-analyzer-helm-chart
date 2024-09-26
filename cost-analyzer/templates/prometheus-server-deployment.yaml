@@ -4,10 +4,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-{{- if .Values.prometheus.server.deploymentAnnotations }}
   annotations:
-{{ toYaml .Values.prometheus.server.deploymentAnnotations | indent 4 }}
-{{- end }}
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.server.annotations }}
+    {{ toYaml .Values.prometheus.server.annotations | indent 4 }}
+  {{- end }}
   labels:
     {{- include "prometheus.server.labels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}

@@ -1239,7 +1239,7 @@ prometheus:
 
     ## Annotations to be added to the Prometheus Server deployment
     ##
-    deploymentAnnotations: {}
+    annotations: {}
 
     ## Labels to be added to Prometheus server pods
     ##
@@ -1840,7 +1840,7 @@ prometheus:
 
     ## Annotations to be added to the node-exporter DaemonSet
     ##
-    deploymentAnnotations: {}
+    annotations: {}
 
     ## Labels to be added to node-exporter pods
     ##
@@ -2458,9 +2458,8 @@ networkCosts:
   # match the default extraScrapeConfig
   additionalLabels: {}
   nodeSelector: {}
+  # Annotations to be added to network cost daemonset template and pod template annotations
   annotations: {}
-  # Annotations to be added to network cost daemonset template
-  daemonsetAnnotations: {}
   healthCheckProbes: {}
     # readinessProbe:
     #   tcpSocket:
@@ -3301,10 +3300,8 @@ awsstore:
   # Use a custom nodeSelector for AWSStore.
   nodeSelector: {}
     # kubernetes.io/arch: amd64
-  ## Annotations for the AWSStore ServiceAccount.
+  ## Annotations for the AWSStore ServiceAccount and Deployment template
   annotations: {}
-  ## Annotations for the AWSStore Deployment template
-  deploymentAnnotations: {}
 
 ## Federated ETL Architecture
 ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/federated-etl
