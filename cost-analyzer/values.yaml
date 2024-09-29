@@ -2803,14 +2803,6 @@ clusterController:
   priorityClassName: ""
   # Set custom tolerations for the cluster controller.
   tolerations: []
-  ## Set Affinity for pod assignment
-  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-  ##
-  affinity: {}
-  ## Set Node labels for pod assignment. Evaluated as a template.
-  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
-  ##
-  nodeSelector: {}
   actionConfigs:
     # this configures the Kubecost Cluster Turndown action
     # for more details, see documentation at https://github.com/kubecost/cluster-turndown/tree/develop?tab=readme-ov-file#setting-a-turndown-schedule
@@ -3558,7 +3550,3 @@ extraObjects: []
 #             host: kubecost.kubecost.svc.cluster.local
 #             port:
 #               number: 80
-
-# -- Optional override for the image used for the basic health test container
-# basicHealth:
-#   fullImageName: alpine/k8s:1.26.9
