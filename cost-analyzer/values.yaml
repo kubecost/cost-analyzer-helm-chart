@@ -2833,8 +2833,10 @@ clusterController:
   priorityClassName: ""
   # Set custom tolerations for the cluster controller.
   tolerations: []
+
   ## Annotations to be added for cluster controller template
   annotations: {}
+  resources: {}
   ## Set Affinity for pod assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
   ##
@@ -3590,3 +3592,7 @@ extraObjects: []
 #             host: kubecost.kubecost.svc.cluster.local
 #             port:
 #               number: 80
+
+# -- Optional override for the image used for the basic health test container
+# basicHealth:
+#   fullImageName: alpine/k8s:1.26.9
