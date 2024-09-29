@@ -265,6 +265,14 @@ spec:
       tolerations:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.clusterController.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.clusterController.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
       - name: cluster-controller-keys
         secret:
