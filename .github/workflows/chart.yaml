@@ -54,8 +54,6 @@ jobs:
       fail-fast: false
       matrix:
         k8s-version:
-          - name: v1.21
-            version: v1.21.14
           - name: v1.22
             version: v1.22.17
           - name: v1.23
@@ -67,13 +65,15 @@ jobs:
           - name: v1.26
             version: v1.26.15
           - name: v1.27
-            version: v1.27.13
+            version: v1.27.16
           - name: v1.28
-            version: v1.28.9
+            version: v1.28.13
           - name: v1.29
-            version: v1.29.4
+            version: v1.29.8
           - name: v1.30
-            version: v1.30.0
+            version: v1.30.4
+          - name: v1.31
+            version: v1.31.0
     needs: test-chart
     name: ${{ matrix.k8s-version.name }} test
     steps:
