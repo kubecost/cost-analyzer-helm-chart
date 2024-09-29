@@ -9,7 +9,7 @@ metadata:
   name: {{ include "kubecost.kubeMetricsName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- if .Values.kubecostMetrics.exporter.serviceMonitor.additionalLabels }}
     {{ toYaml .Values.kubecostMetrics.exporter.serviceMonitor.additionalLabels | nindent 4 }}
     {{- end }}
