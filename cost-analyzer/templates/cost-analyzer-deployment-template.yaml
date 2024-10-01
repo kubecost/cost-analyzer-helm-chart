@@ -119,19 +119,6 @@ spec:
         - name: cache
           emptyDir: { }
         {{- end }}
-        {{- /*
-          To opt out of ETL backups, set .Values.kubecostModel.etlBucketConfigSecret=""
-        */}}
-        {{- $etlBackupBucketSecret := "" }}
-        {{- if .Values.kubecostModel.etlBucketConfigSecret }}
-            {{- $etlBackupBucketSecret = .Values.kubecostModel.etlBucketConfigSecret }}
-        {{- end }}
-        {{- if $etlBackupBucketSecret }}
-        - name: etl-bucket-config
-          secret:
-           defaultMode: 420
-           secretName: {{ $etlBackupBucketSecret }}
-        {{- end }}
         {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
         - name: federated-storage-config
           secret:

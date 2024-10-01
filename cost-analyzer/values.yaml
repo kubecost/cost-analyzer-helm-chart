@@ -440,19 +440,11 @@ kubecostFrontend:
     #   cpu: "100m"
     #   memory: "256Mi"
   deploymentStrategy: {}
-  #   rollingUpdate:
-  #     maxSurge: 1
-  #     maxUnavailable: 1
-  #   type: RollingUpdate
-
-  # Define a readiness probe for the Kubecost frontend container.
   readinessProbe:
     enabled: true
     initialDelaySeconds: 1
     periodSeconds: 5
     failureThreshold: 6
-
-  # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
     initialDelaySeconds: 1
@@ -508,30 +500,16 @@ kubecostMetrics:
     # Set to false and use service.annotations (below) to set custom scrape annotations.
     prometheusScrape: true
     resources: {}
-      # requests:
-      #  cpu: "200m"
-      #  memory: "55Mi"
-    ## Node tolerations for server scheduling to nodes with taints
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     tolerations: []
-
-    #  - key: "key"
-    #    operator: "Equal|Exists"
-    #    value: "value"
-    #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
     affinity: {}
-
     service:
       annotations: {}
-
     # Service Monitor for Kubecost Metrics
     serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
       metricRelabelings: []
       relabelings: []
-    ## PriorityClassName
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
     priorityClassName: ""
     additionalLabels: {}
     nodeSelector: {}
@@ -696,14 +674,11 @@ kubecostModel:
     #   cpu: "800m"
     #   memory: "256Mi"
 
-  # Define a readiness probe for the Kubecost cost-model container.
   readinessProbe:
     enabled: true
     initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
-
-  # Define a liveness probe for the Kubecost cost-model container.
   livenessProbe:
     enabled: true
     initialDelaySeconds: 10
@@ -741,13 +716,9 @@ kubecostModel:
     #  - secretName: cost-analyzer-model-tls
     #    hosts:
     #      - cost-analyzer-model.local
+
   utcOffset: "+00:00"
-  # Optional - add extra ports to the cost-model container. For kubecost development purposes only - not recommended for users.
   extraPorts: []
-    # - name: debug
-    #   port: 40000
-    #   targetPort: 40000
-    #   containerPort: 40000
 
 ## etlUtils is a utility typically used by Enterprise customers transitioning
 ## from v1 to v2 of Kubecost. It translates the data from the "/etl" dir of the
@@ -783,27 +754,13 @@ ingress:
   #      - cost-analyzer.local
 
 nodeSelector: {}
-
 tolerations: []
-#  - key: "key"
-#    operator: "Equal|Exists"
-#    value: "value"
-#    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
-
 affinity: {}
-
 topologySpreadConstraints: []
-
-# If true, creates a PriorityClass to be used by the cost-analyzer pod
 priority:
   enabled: false
-  name: ""  # Provide name of existing priority class only. If left blank, upstream chart will create one from default template.
-
-## @param extraVolumes A list of volumes to be added to the pod
-##
+  name: ""
 extraVolumes: []
-## @param extraVolumeMounts A list of volume mounts to be added to the pod
-##
 extraVolumeMounts: []
 
 # Define persistence volume for cost-analyzer, more information at https://docs.kubecost.com/install-and-configure/install/storage
@@ -855,7 +812,6 @@ prometheus:
   # selfsignedCertConfigMapName: ""
 
   imagePullSecrets:
-  # - name: "image-pull-secret"
 
   extraScrapeConfigs: |
     - job_name: kubecost
@@ -951,36 +907,9 @@ prometheus:
     extraInitContainers: []
     extraVolumeMounts: []
     extraVolumes: []
-
-    ## Additional Prometheus server hostPath mounts
-    ##
     extraHostPathMounts: []
-      # - name: certs-dir
-      #   mountPath: /etc/kubernetes/certs
-      #   subPath: ""
-      #   hostPath: /etc/kubernetes/certs
-      #   readOnly: true
-
     extraConfigmapMounts: []
-      # - name: certs-configmap
-      #   mountPath: /prometheus
-      #   subPath: ""
-      #   configMap: certs-configmap
-      #   readOnly: true
-
-    ## Additional Prometheus server Secret mounts
-    # Defines additional mounts with secrets. Secrets must be manually created in the namespace.
     extraSecretMounts: []
-      # - name: secret-files
-      #   mountPath: /etc/secrets
-      #   subPath: ""
-      #   secretName: prom-secret-files
-      #   readOnly: true
-
-    ## ConfigMap override where fullname is {{.Release.Name}}-{{.Values.server.configMapOverrideName}}
-    ## Defining configMapOverrideName will cause templates/server-configmap.yaml
-    ## to NOT generate a ConfigMap resource
-    ##
     configMapOverrideName: ""
 
     ingress:
@@ -988,31 +917,10 @@ prometheus:
       # className: nginx
       annotations: {}
       extraLabels: {}
-
-      ## Prometheus server Ingress hostnames with optional path
-      ## Must be provided if Ingress is enabled
-      ##
       hosts: []
-      #   - prometheus.domain.com
-      #   - domain.com/prometheus
-
-      ## PathType determines the interpretation of the Path matching
       pathType: "Prefix"
-
-      ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
       extraPaths: []
-      # - path: /*
-      #   backend:
-      #     serviceName: ssl-redirect
-      #     servicePort: use-annotation
-
-      ## Prometheus server Ingress TLS configuration
-      ## Secrets must be manually created in the namespace
-      ##
       tls: []
-      #   - secretName: prometheus-server-tls
-      #     hosts:
-      #       - prometheus.domain.com
 
     ## Server Deployment Strategy type
     # strategy:
@@ -1109,7 +1017,7 @@ prometheus:
       ## Mandatory. Without, VPA will not be created.
       # containerPolicies:
       # - containerName: 'prometheus-server'
-    
+
     securityContext: {}
     containerSecurityContext: {}
     service:
@@ -2288,19 +2196,12 @@ grafana:
   #           prometheusVersion: 2.35.0
   #           timeInterval: 1m
 
-  ## Number of replicas for the Grafana deployment
   replicas: 1
-
-  ## Deployment strategy for the Grafana deployment
   deploymentStrategy: RollingUpdate
-
-  ## Readiness probe for the Grafana deployment
   readinessProbe:
     httpGet:
       path: /api/health
       port: 3000
-
-  ## Liveness probe for the Grafana deployment
   livenessProbe:
     httpGet:
       path: /api/health
@@ -2308,24 +2209,12 @@ grafana:
     initialDelaySeconds: 60
     timeoutSeconds: 30
     failureThreshold: 10
-
-  ## Container image settings for the Grafana deployment
   image:
     repository: cgr.dev/chainguard/grafana
     tag: latest
     pullPolicy: IfNotPresent
-
-    ## Optionally specify an array of imagePullSecrets.
-    ## Secrets must be manually created in the namespace.
     # pullSecrets:
-    #   - myRegistrKeySecretName
-
-  ## Pod-level security context for the Grafana deployment. Recommended let global defaults take effect.
   securityContext: {}
-    # runAsUser: 472
-    # fsGroup: 472
-
-  ## PriorityClassName for the Grafana deployment
   priorityClassName: ""
 
   ## Container image settings for Grafana initContainer used to download dashboards. Will only be used when dashboards are present.
@@ -2334,10 +2223,7 @@ grafana:
     tag: latest
     pullPolicy: IfNotPresent
 
-  ## Pod Annotations for the Grafana deployment
   podAnnotations: {}
-
-  ## Deployment annotations for the Grafana deployment
   annotations: {}
 
   ## Expose the Grafana service to be accessed from outside the cluster (LoadBalancer service).
@@ -2354,38 +2240,12 @@ grafana:
   ##  top level ingress template under /grafana/
   ingress:
     enabled: false
-    annotations: {}
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    labels: {}
-    path: /
-    pathType: Prefix
-    hosts:
-      - chart-example.local
-    tls: []
-    #  - secretName: chart-example-tls
-    #    hosts:
-    #      - chart-example.local
 
-  ## Resource requests and limits for the Grafana deployment
   resources: {}
-  #  limits:
-  #    cpu: 100m
-  #    memory: 128Mi
-  #  requests:
-  #    cpu: 100m
-  #    memory: 128Mi
-
-  ## Node labels for pod assignment of the Grafana deployment
   nodeSelector: {}
-
-  ## Tolerations for pod assignment of the Grafana deployment
   tolerations: []
-
-  ## Affinity for pod assignment of the Grafana deployment
   affinity: {}
 
-  ## Enable persistence using Persistent Volume Claims of the Grafana deployment
   persistence:
     enabled: false
     # storageClassName: default
@@ -2396,29 +2256,19 @@ grafana:
     # subPath: ""
     # existingClaim:
 
-  ## Admin user for Grafana
   adminUser: admin
-
-  ## Admin password for Grafana
   adminPassword: strongpassword
 
   ## Use an alternate scheduler for the Grafana deployment
   # schedulerName:
 
-  ## Extra environment variables that will be passed onto Grafana deployment pods
   env: {}
 
   ## The name of a secret for Grafana in the same Kubernetes namespace which contain values to be added to the environment
   ## This can be useful for auth tokens, etc
   envFromSecret: ""
 
-  ## Additional Grafana server secret mounts
-  ## Defines additional mounts with secrets. Secrets must be manually created in the namespace.
   extraSecretMounts: []
-    # - name: secret-files
-    #   mountPath: /etc/secrets
-    #   secretName: grafana-secret-files
-    #   readOnly: true
 
   ## List of Grafana plugins
   plugins: []

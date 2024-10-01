@@ -1274,10 +1274,6 @@ Begin Kubecost 2.0 templates
     - name: federated-storage-config
       mountPath: /var/configs/etl/federated
       readOnly: true
-  {{- else if .Values.kubecostModel.etlBucketConfigSecret }}
-    - name: etl-bucket-config
-      mountPath: /var/configs/etl
-      readOnly: true
   {{- end }}
   {{- if or (.Values.kubecostProductConfigs).cloudIntegrationSecret (.Values.kubecostProductConfigs).cloudIntegrationJSON ((.Values.kubecostProductConfigs).athenaBucketName) }}
     - name: cloud-integration
@@ -1300,10 +1296,6 @@ Begin Kubecost 2.0 templates
   env:
     - name: CONFIG_PATH
       value: /var/configs/
-    {{- if .Values.kubecostModel.etlBucketConfigSecret }}
-    - name: ETL_BUCKET_CONFIG
-      value: /var/configs/etl/object-store.yaml
-    {{- end}}
     {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
     - name: FEDERATED_STORE_CONFIG
       value: /var/configs/etl/federated/federated-store.yaml
@@ -1375,7 +1367,7 @@ Groups is only used when using external RBAC.
 Backups configured flag for nginx configmap
 */}}
 {{- define "dataBackupConfigured" -}}
-  {{- if or (.Values.kubecostModel).etlBucketConfigSecret (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
+  {{- if or (.Values.kubecostModel).federatedStorageConfigSecret (.Values.kubecostModel).federatedStorageConfig -}}
     {{- printf "true" -}}
   {{- else -}}
     {{- printf "false" -}}
