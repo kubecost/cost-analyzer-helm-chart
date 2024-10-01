@@ -3107,6 +3107,24 @@ costEventsAudit:
 # # UI. Values in this block override config changes in the Settings UI on pod
 # # restart
 # kubecostProductConfigs:
+#   # An optional list of cluster definitions that can be added for frontend
+#   # access. The local cluster is *always* included by default, so this list is
+#   # for non-local clusters.
+#   clusters:
+#     - name: "Cluster A"
+#       address: http://cluster-a.kubecost.com:9090
+#       # Optional authentication credentials - only basic auth is currently supported.
+#       auth:
+#         type: basic
+#         # Secret name should be a secret formatted based on: https://github.com/kubecost/docs/blob/main/ingress-examples.md
+#         secretName: cluster-a-auth
+#         # Or pass auth directly as base64 encoded user:pass
+#         data: YWRtaW46YWRtaW4=
+#         # Or user and pass directly
+#         user: admin
+#         pass: admin
+#     - name: "Cluster B"
+#       address: http://cluster-b.kubecost.com:9090
 #   # Enabling customPricesEnabled and defaultModelPricing instructs Kubecost to
 #   # use these custom monthly resource prices when reporting node costs. Note,
 #   # that the below configuration is for the monthly cost of the resource.

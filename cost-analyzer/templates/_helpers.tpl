@@ -1493,10 +1493,7 @@ for more information
 */ -}}
 {{- define "configsChecksum" -}}
 {{- $files := list
-  "alibaba-service-key-secret.yaml"
-  "aws-service-key-secret.yaml"
   "azure-service-key-secret.yaml"
-  "azure-storage-config-secret.yaml"
   "cloud-integration-secret.yaml"
   "cost-analyzer-account-mapping-configmap.yaml"
   "cost-analyzer-alerts-configmap.yaml"
@@ -1515,14 +1512,12 @@ for more information
   "cost-analyzer-smtp-configmap.yaml"
   "external-grafana-config-map-template.yaml"
   "gcpstore-config-map-template.yaml"
-  "grafana-secret.yaml"
+  "grafana/grafana-secret.yaml"
   "install-plugins.yaml"
   "integrations-postgres-queries-configmap.yaml"
   "integrations-postgres-secret.yaml"
-  "kubecost-agent-secret-template.yaml"
-  "kubecost-agent-secretprovider-template.yaml"
+  "kubecost-cluster-context-switcher.yaml"
   "kubecost-cluster-controller-actions-config.yaml"
-  "kubecost-cluster-manager-configmap-template.yaml"
   "kubecost-oidc-secret-template.yaml"
   "kubecost-saml-secret-template.yaml"
   "mimir-proxy-configmap-template.yaml"
