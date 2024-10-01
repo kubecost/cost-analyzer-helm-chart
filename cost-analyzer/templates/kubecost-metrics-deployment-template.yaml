@@ -67,10 +67,6 @@ spec:
             readOnly: true
             volumeAttributes:
               secretProviderClass: "{{ .Values.agentCsi.secretProvider.name }}"
-          {{- else }}
-          secret:
-            secretName: {{ .Values.agentKeySecretName }}
-          {{- end }}
         {{- end }}
         {{- if .Values.kubecostProductConfigs }}
         {{- if .Values.kubecostProductConfigs.gcpSecretName }}
@@ -224,12 +220,6 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: prometheus-server-endpoint
-            {{- if .Values.cloudAgent }}
-            - name: CLOUD_AGENT_KEY
-              value: {{ .Values.cloudAgentKey }}
-            - name: CLOUD_REPORTING_SERVER
-              value: {{ .Values.cloudReportingServer }}
-            {{- end }}
             - name: CLOUD_PROVIDER_API_KEY
               value: "AIzaSyDXQPG_MHUEy9neR7stolq6l0ujXmjJlvk" # The GCP Pricing API requires a key.
             {{- if .Values.kubecostProductConfigs }}
