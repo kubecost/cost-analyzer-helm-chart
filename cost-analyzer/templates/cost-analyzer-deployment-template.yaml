@@ -634,11 +634,7 @@ spec:
             # Extra volume mount(s)
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
             {{- end }}
-            {{- if $etlBackupBucketSecret }}
-            - name: etl-bucket-config
-              mountPath: /var/configs/etl
-              readOnly: true
-            {{- else if .Values.persistentVolume.dbPVEnabled }}
+            {{- if .Values.persistentVolume.dbPVEnabled }}
             - name: persistent-db
               mountPath: /var/db
             {{- end }}
@@ -907,10 +903,6 @@ spec:
               value: {{ (quote .Values.kubecostModel.warmCache) | default (quote true) }}
             - name: SAVINGS_ENABLED
               value: {{ (quote .Values.kubecostModel.warmSavingsCache) | default (quote true) }}
-            {{- if $etlBackupBucketSecret }}
-            - name: ETL_BUCKET_CONFIG
-              value: "/var/configs/etl/object-store.yaml"
-            {{- end }}
             {{- if or .Values.kubecostModel.federatedStorageConfigSecret .Values.kubecostModel.federatedStorageConfig }}
             - name: FEDERATED_STORE_CONFIG
               value: "/var/configs/etl/federated/federated-store.yaml"
