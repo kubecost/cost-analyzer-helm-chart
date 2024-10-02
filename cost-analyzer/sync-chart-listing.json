@@ -1,7 +1,7 @@
 {
   "Version": {
     "ReleaseNotes": "https://github.com/kubecost/cost-analyzer-helm-chart/releases/",
-    "VersionTitle": "prod"
+    "VersionTitle": "2.4.1"
   },
   "DeliveryOptions": [
     {
