@@ -28,6 +28,7 @@ aws marketplace-catalog start-change-set \
 --catalog "AWSMarketplace" \
 --change-set="${CHANGE_SET_JSON}"
 
+# see https://aws.amazon.com/marketplace/management/requests
 
 ### output
 # {
