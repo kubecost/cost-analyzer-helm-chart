@@ -2503,6 +2503,10 @@ costEventsAudit:
 #   spotLabelValue: Ec2Spot
 #   gpuLabel: gpu
 #   gpuLabelValue: true
+#   alibabaServiceKeyName: ""
+#   alibabaServiceKeyPassword: ""
+#   awsServiceKeyName: ""
+#   awsServiceKeyPassword: ""
 #   awsSpotDataRegion: us-east-1
 #   awsSpotDataBucket: spot-data-feed-s3-bucket
 #   awsSpotDataPrefix: dev

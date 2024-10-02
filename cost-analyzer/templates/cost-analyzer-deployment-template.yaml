@@ -902,7 +902,6 @@ spec:
               value: {{ (quote .Values.kubecostModel.etlDailyStoreDurationDays) }}
             - name: ETL_HOURLY_STORE_DURATION_HOURS
               value: {{ (quote .Values.kubecostModel.etlHourlyStoreDurationHours) | default (quote 49) }}
-
             {{- if .Values.kubecostModel }}
             {{- if .Values.kubecostModel.allocation }}
             {{- if .Values.kubecostModel.allocation.nodeLabels }}
