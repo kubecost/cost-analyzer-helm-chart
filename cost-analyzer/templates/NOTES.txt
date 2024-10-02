@@ -2,8 +2,10 @@
 {{- include "kubecostV2-preconditions" . -}}
 {{- include "cloudIntegrationSourceCheck" . -}}
 {{- include "eksCheck" . -}}
+{{- include "cloudIntegrationSecretCheck" . -}}
 {{- include "gcpCloudIntegrationCheck" . -}}
 {{- include "azureCloudIntegrationCheck" . -}}
+{{- include "federatedStorageConfigSecretCheck" . -}}
 {{- include "federatedStorageSourceCheck" . -}}
 {{- include "prometheusRetentionCheck" . -}}
 {{- include "clusterIDCheck" . -}}
