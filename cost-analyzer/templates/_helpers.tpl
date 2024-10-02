@@ -79,15 +79,6 @@ Kubecost 2.0 preconditions
     {{- end -}}
   {{- end -}}
 
-  {{- if not .Values.kubecostModel.etlFileStoreEnabled -}}
-    {{- fail "\n\nKubecost 2.0 does not support running fully in-memory. Some file system must be available to store cost data." -}}
-  {{- end -}}
-
-
-  {{- if .Values.kubecostModel.openSourceOnly -}}
-    {{- fail "In Kubecost 2.0, kubecostModel.openSourceOnly is not supported" -}}
-  {{- end -}}
-
   {{/* Aggregator config reconciliation and common config */}}
   {{- if eq (include "aggregator.deployMethod" .) "statefulset" -}}
     {{- if .Values.kubecostAggregator -}}
