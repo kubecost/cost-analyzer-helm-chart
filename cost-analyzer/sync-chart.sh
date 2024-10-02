@@ -17,6 +17,6 @@ export AWS_SESSION_TOKEN=$(echo $temp_role | jq -r .Credentials.SessionToken)
 aws ecr get-login-password --region us-east-1 | helm registry login --username AWS --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
 ### Download Helm chart. Only download if no local modifications were necessary.
 # wget https://raw.githubusercontent.com/kubecost/cost-analyzer/gh-pages/cost-analyzer-$HELMTAG.tgz
-
+helm package ./cost-analyzer
 helm push cost-analyzer-$HELMTAG.tgz oci://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/helm
 
