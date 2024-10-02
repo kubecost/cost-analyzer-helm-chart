@@ -1,0 +1,10 @@
+[
+    {
+        "ChangeType": "AddDeliveryOptions",
+        "Entity": {
+            "Identifier": "753cea16-f450-4cfa-93eb-f55dcde11e91",
+            "Type": "ContainerProduct@1.0"
+        },
+        "Details": "${DOCUMENT_JSON_STRING}"
+    }
+]
