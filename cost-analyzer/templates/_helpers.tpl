@@ -458,18 +458,9 @@ Create the chart labels.
 {{- define "cost-analyzer.chartLabels" -}}
 helm.sh/chart: {{ include "cost-analyzer.chart" . }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-{{- define "kubecost.chartLabels" -}}
-app.kubernetes.io/name: {{ include "cost-analyzer.name" . }}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
-{{- end -}}
-{{- define "kubecost.aggregator.chartLabels" -}}
-app.kubernetes.io/name: {{ include "aggregator.name" . }}
-helm.sh/chart: {{ include "cost-analyzer.chart" . }}
-app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- if .Values.chartLabels }}
+{{ toYaml .Values.chartLabels }}
+{{- end }}
 {{- end -}}
 
 

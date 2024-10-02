@@ -304,6 +304,10 @@ global:
 ## Provide a full name override option for the chart.
 # fullnameOverride: ""
 
+## Provide additional labels for the chart.
+# chartLabels:
+#   app.kubernetes.io/name: kubecost-cost-analyzer
+
 ## This flag is only required for users upgrading to a new version of Kubecost.
 ## The flag is used to ensure users are aware of important
 ## (potentially breaking) changes included in the new version.
