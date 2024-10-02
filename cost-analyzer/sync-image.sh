@@ -17,8 +17,8 @@ export AWS_SESSION_TOKEN=$(echo $temp_role | jq -r .Credentials.SessionToken)
 
 # Use AWS_PROFILE=EngineeringDeveloper when running as a human
 aws ecr get-login-password --region us-east-1 | skopeo login --username AWS --password-stdin 709825985650.dkr.ecr.us-east-1.amazonaws.com
-skopeo copy -a docker://gcr.io/kubecost1/cost-model:$IMAGETAG docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cost-model:prod-2.4.1-eks1
-skopeo copy -a docker://gcr.io/kubecost1/frontend:$IMAGETAG docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/frontend:prod-2.4.1-eks1
+skopeo copy -a docker://gcr.io/kubecost1/cost-model:$IMAGETAG docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/cost-model:$IMAGETAG
+skopeo copy -a docker://gcr.io/kubecost1/frontend:$IMAGETAG docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/frontend:$IMAGETAG
 skopeo copy -a docker://cgr.dev/chainguard/prometheus:latest docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus:kc-2.4
 skopeo copy -a docker://cgr.dev/chainguard/prometheus-alertmanager:latest docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/quay.io/prometheus/alertmanager:kc-2.4
 skopeo copy -a docker://cgr.dev/chainguard/prometheus-config-reloader:latest docker://709825985650.dkr.ecr.us-east-1.amazonaws.com/stackwatch/eks/prometheus-config-reloader:latest
