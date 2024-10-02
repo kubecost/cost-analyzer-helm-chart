@@ -183,7 +183,7 @@ Print a warning if PV is enabled AND EKS is detected AND the EBS-CSI driver is n
 {{- $isGT22 := (semverCompare ">=1.23-0" .Capabilities.KubeVersion.GitVersion) }}
 {{- $PVNotExists := (empty (lookup "v1" "PersistentVolume" "" "")) }}
 {{- $EBSCSINotExists := (empty (lookup "apps/v1" "Deployment" "kube-system" "ebs-csi-controller")) }}
-{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled $EBSCSINotExists) -}}
+{{- if (and $isEKS $isGT22 .Values.persistentVolume.enabled) -}}
 
 ERROR: MISSING EBS-CSI DRIVER WHICH IS REQUIRED ON EKS v1.23+ TO MANAGE PERSISTENT VOLUMES. LEARN MORE HERE: https://docs.kubecost.com/install-and-configure/install/provider-installations/aws-eks-cost-monitoring#prerequisites
 
