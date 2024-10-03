@@ -366,23 +366,23 @@ oidc:
   hostedDomain: ""  # Optional, blocks access to the auth domain specified in the hd claim of the provider ID token
   rbac:
     enabled: false
-    groups:
-      - name: admin
-        enabled: false  # If admin is disabled, all authenticated users will be able to make configuration changes to the kubecost frontend
-        claimName: "roles"  # Kubecost matches this string against the JWT's payload key containing RBAC info (this value is unique across identity providers)
-        claimValues:  # Kubecost matches these strings with the roles created in your identity provider
-          - "admin"
-          - "superusers"
-      - name: readonly
-        enabled: false  # If readonly is disabled, all authenticated users will default to readonly
-        claimName: "roles"
-        claimValues:
-          - "readonly"
-      - name: editor
-        enabled: false  # If editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
-        claimName: "roles"
-        claimValues:
-          - "editor"
+    # groups:
+    #   - name: admin
+    #     enabled: false  # If admin is disabled, all authenticated users will be able to make configuration changes to the kubecost frontend
+    #     claimName: "roles"  # Kubecost matches this string against the JWT's payload key containing RBAC info (this value is unique across identity providers)
+    #     claimValues:  # Kubecost matches these strings with the roles created in your identity provider
+    #       - "admin"
+    #       - "superusers"
+    #   - name: readonly
+    #     enabled: false  # If readonly is disabled, all authenticated users will default to readonly
+    #     claimName: "roles"
+    #     claimValues:
+    #       - "readonly"
+    #   - name: editor
+    #     enabled: false  # If editor is enabled, editors will be allowed to edit reports/alerts scoped to them, and act as readers otherwise. Users will never default to editor.
+    #     claimName: "roles"
+    #     claimValues:
+    #       - "editor"
 
 ## Adds the HTTP_PROXY, HTTPS_PROXY, and NO_PROXY environment variables to all
 ## containers. Typically used in environments that have firewall rules which
