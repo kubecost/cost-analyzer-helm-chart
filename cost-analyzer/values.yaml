@@ -1971,6 +1971,9 @@ initChownDataImage: "busybox"  # Supports a fully qualified Docker image, e.g. r
 initChownData:
   resources: {}
 
+## Kubecost's Bundled Grafana
+## You can access it by visiting http://kubecost.me.com/grafana/
+## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-grafana
 grafana:
   # namespace_datasources: kubecost # override the default namespace here
   # namespace_dashboards: kubecost # override the default namespace here
