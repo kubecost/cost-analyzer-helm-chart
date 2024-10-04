@@ -888,17 +888,17 @@ spec:
             {{- end }}
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_POD_ANNOTATIONS_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) | default (quote false) }}
+              value: {{ (quote .Values.kubecostMetrics.emitPodAnnotations) }}
             - name: EMIT_NAMESPACE_ANNOTATIONS_METRIC
-              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) | default (quote false) }}
+              value: {{ (quote .Values.kubecostMetrics.emitNamespaceAnnotations) }}
             {{- end }}
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_KSM_V1_METRICS
-              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) | default (quote true) }}
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1Metrics) }}
             {{- end }}
             {{- if .Values.kubecostMetrics }}
             - name: EMIT_KSM_V1_METRICS_ONLY # ONLY emit KSM v1 metrics that do not exist in KSM 2 by default
-              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) | default (quote false) }}
+              value: {{ (quote .Values.kubecostMetrics.emitKsmV1MetricsOnly) }}
             {{- end }}
             {{- if .Values.reporting }}
             - name: LOG_COLLECTION_ENABLED
