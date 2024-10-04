@@ -487,7 +487,6 @@ kubecostMetrics:
     affinity: {}
     service:
       annotations: {}
-    # Service Monitor for Kubecost Metrics
     serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
       enabled: false
       additionalLabels: {}
@@ -511,7 +510,6 @@ sigV4Proxy:
   #   value: <access_key>
   # - name: AWS_SECRET_ACCESS_KEY
   #   value: <secret_key>
-  # Optional resource requests and limits for the sigV4proxy container.
   resources: {}
 
 kubecostModel:
@@ -866,7 +864,6 @@ prometheus:
     prefixURL: ""
     baseURL: ""
     env: []
-
     extraFlags:
       - web.enable-lifecycle
     configPath: /etc/config/prometheus.yml
@@ -888,7 +885,6 @@ prometheus:
     extraConfigmapMounts: []
     extraSecretMounts: []
     configMapOverrideName: ""
-
     ingress:
       enabled: false
       # className: nginx
@@ -898,23 +894,15 @@ prometheus:
       pathType: "Prefix"
       extraPaths: []
       tls: []
-
-    ## Server Deployment Strategy type
     # strategy:
     #   type: Recreate
-
     tolerations: []
     nodeSelector: {}
     affinity: {}
     podDisruptionBudget:
       enabled: false
       maxUnavailable: 1
-
-    ## Use an alternate scheduler, e.g. "stork".
-    ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-    ##
     # schedulerName:
-
     persistentVolume:
       enabled: true
       accessModes:
@@ -923,37 +911,16 @@ prometheus:
       existingClaim: ""
       mountPath: /data
       size: 32Gi
-
-      ## Prometheus server data Persistent Volume Storage Class
-      ## If defined, storageClassName: <storageClass>
-      ## If set to "-", storageClassName: "", which disables dynamic provisioning
-      ## If undefined (the default) or set to null, no storageClassName spec is
-      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-      ##   GKE, AWS & OpenStack)
-      ##
       # storageClass: "-"
-
-      ## Prometheus server data Persistent Volume Binding Mode
-      ## If defined, volumeBindingMode: <volumeBindingMode>
-      ## If undefined (the default) or set to null, no volumeBindingMode spec is
-      ##   set, choosing the default mode.
-      ##
       # volumeBindingMode: ""
-
-      ## Subdirectory of Prometheus server data Persistent Volume to mount
-      ## Useful if the volume's root directory is not empty
-      ##
       subPath: ""
-
     emptyDir:
       sizeLimit: ""
-
     podAnnotations: {}
     deploymentAnnotations: {}
     podLabels: {}
     alertmanagers: []
     replicaCount: 1
-
     statefulSet:
       enabled: false
       annotations: {}
@@ -963,7 +930,6 @@ prometheus:
         annotations: {}
         labels: {}
         servicePort: 80
-
     readinessProbeInitialDelay: 5
     readinessProbeTimeout: 3
     readinessProbeFailureThreshold: 3
@@ -972,28 +938,14 @@ prometheus:
     livenessProbeTimeout: 3
     livenessProbeFailureThreshold: 3
     livenessProbeSuccessThreshold: 1
-
-    ## Prometheus server resource requests and limits
-    ##
     resources: {}
-      # limits:
-      #   cpu: 500m
-      #   memory: 512Mi
-      # requests:
-      #   cpu: 500m
-      #   memory: 512Mi
-
-    ## Vertical Pod Autoscaler config
-    ## Ref: https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler
     verticalAutoscaler:
-      ## If true a VPA object will be created for the controller (either StatefulSet or Deployment, based on above configs)
       enabled: false
       ## Optional. Defaults to "Auto" if not specified.
       # updateMode: "Auto"
       ## Mandatory. Without, VPA will not be created.
       # containerPolicies:
       # - containerName: 'prometheus-server'
-
     securityContext: {}
     containerSecurityContext: {}
     service:
@@ -1012,9 +964,6 @@ prometheus:
       statefulsetReplica:
         enabled: false
         replica: 0
-
-    ## Prometheus server pod termination grace period
-    ##
     terminationGracePeriodSeconds: 300
 
     ## Prometheus data retention period (default if not specified is 97 hours)
@@ -1060,84 +1009,29 @@ prometheus:
       pullPolicy: IfNotPresent
     priorityClassName: ""
     extraArgs: {}
-
-    ## The URL prefix at which the container can be accessed. Useful in the case the '-web.external-url' includes a slug
-    ## so that the various internal URLs are still able to access as they are in the default case.
-    ## (Optional)
     prefixURL: ""
-
     baseURL: "http://localhost:9093"
     extraEnv: {}
-
-    ## Additional alertmanager Secret mounts
-    # Defines additional mounts with secrets. Secrets must be manually created in the namespace.
     extraSecretMounts: []
-      # - name: secret-files
-      #   mountPath: /etc/secrets
-      #   subPath: ""
-      #   secretName: alertmanager-secret-files
-      #   readOnly: true
-
-    ## ConfigMap override where fullname is {{.Release.Name}}-{{.Values.alertmanager.configMapOverrideName}}
-    ## Defining configMapOverrideName will cause templates/alertmanager-configmap.yaml
-    ## to NOT generate a ConfigMap resource
-    ##
     configMapOverrideName: ""
-
-    ## The name of a secret in the same kubernetes namespace which contains the Alertmanager config
-    ## Defining configFromSecret will cause templates/alertmanager-configmap.yaml
-    ## to NOT generate a ConfigMap resource
-    ##
     configFromSecret: ""
-
-    ## The configuration file name to be loaded to alertmanager
-    ## Must match the key within configuration loaded from ConfigMap/Secret
-    ##
     configFileName: alertmanager.yml
-
     ingress:
       enabled: false
       annotations: {}
       extraLabels: {}
-
-      ## alertmanager Ingress hostnames with optional path
-      ## Must be provided if Ingress is enabled
-      ##
       hosts: []
-      #   - alertmanager.domain.com
-      #   - domain.com/alertmanager
-
-      ## Extra paths to prepend to every host configuration. This is useful when working with annotation based services.
       extraPaths: []
-      # - path: /*
-      #   backend:
-      #     serviceName: ssl-redirect
-      #     servicePort: use-annotation
-
-      ## alertmanager Ingress TLS configuration
-      ## Secrets must be manually created in the namespace
-      ##
       tls: []
-      #   - secretName: prometheus-alerts-tls
-      #     hosts:
-      #       - alertmanager.domain.com
-
-    ## Alertmanager Deployment Strategy type
     # strategy:
     #   type: Recreate
-
     tolerations: []
     nodeSelector: {}
     affinity: {}
     podDisruptionBudget:
       enabled: false
       maxUnavailable: 1
-
-    ## Use an alternate scheduler, e.g. "stork".
-    ## ref: https://kubernetes.io/docs/tasks/administer-cluster/configure-multiple-schedulers/
-    ##
     # schedulerName:
-
     persistentVolume:
       enabled: true
       accessModes:
@@ -1146,59 +1040,30 @@ prometheus:
       existingClaim: ""
       mountPath: /data
       size: 2Gi
-
-      ## alertmanager data Persistent Volume Storage Class
-      ## If defined, storageClassName: <storageClass>
-      ## If set to "-", storageClassName: "", which disables dynamic provisioning
-      ## If undefined (the default) or set to null, no storageClassName spec is
-      ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
-      ##   GKE, AWS & OpenStack)
-      ##
       # storageClass: "-"
-
-      ## alertmanager data Persistent Volume Binding Mode
-      ## If defined, volumeBindingMode: <volumeBindingMode>
-      ## If undefined (the default) or set to null, no volumeBindingMode spec is
-      ##   set, choosing the default mode.
-      ##
       # volumeBindingMode: ""
-
-      ## Subdirectory of alertmanager data Persistent Volume to mount
-      ## Useful if the volume's root directory is not empty
-      ##
       subPath: ""
-
     podAnnotations: {}
     podLabels: {}
     replicaCount: 1
-
     statefulSet:
       enabled: false
       podManagementPolicy: OrderedReady
-
-      ## Alertmanager headless service to use for the statefulset
-      ##
       headless:
         annotations: {}
         labels: {}
-        ## Enabling peer mesh service end points for enabling the HA alert manager
-        ## Ref: https://github.com/prometheus/alertmanager/blob/master/README.md
         # enableMeshPeer : true
         servicePort: 80
-
     resources: {}
     securityContext:
       runAsUser: 1001
       runAsNonRoot: true
       runAsGroup: 1001
       fsGroup: 1001
-
     service:
       annotations: {}
       labels: {}
       clusterIP: ""
-      ## Enabling peer mesh service end points for enabling the HA alert manager
-      ## Ref: https://github.com/prometheus/alertmanager/blob/master/README.md
       # enableMeshPeer : true
       externalIPs: []
       loadBalancerIP: ""
@@ -1208,11 +1073,6 @@ prometheus:
       sessionAffinity: None
       type: ClusterIP
 
-    # Define a custom scheduler for Alertmanager pods
-    # schedulerName: default-scheduler
-
-  ## alertmanager ConfigMap entries
-  ##
   alertmanagerFiles:
     alertmanager.yml:
       global: {}
@@ -1251,7 +1111,6 @@ prometheus:
       extraConfigmapMounts: []
       resources: {}
 
-  # node-export must be disabled if there is an existing daemonset: https://guide.kubecost.com/hc/en-us/articles/4407601830679-Troubleshoot-Install#a-name-node-exporter-a-issue-failedscheduling-kubecost-prometheus-node-exporter
   nodeExporter:
     ## If false, node-exporter will not be installed.
     ## This is disabled by default in Kubecost 2.0, though it can be enabled as needed.
@@ -1261,14 +1120,8 @@ prometheus:
     ## Provide a full name override for node exporter.
     # fullnameOverride: ""
 
-    ## If true, node-exporter pods share the host network namespace
-    ##
     hostNetwork: true
-
-    ## If true, node-exporter pods share the host PID namespace
-    ##
     hostPID: true
-
     dnsPolicy: ClusterFirstWithHostNet
     name: node-exporter
     image:
@@ -1293,20 +1146,12 @@ prometheus:
       maxUnavailable: 1
     resources: {}
     securityContext: {}
-
     service:
       annotations:
         prometheus.io/scrape: "true"
       labels: {}
-
-      # Exposed as a headless service:
-      # https://kubernetes.io/docs/concepts/services-networking/service/#headless-services
       clusterIP: None
-
-      ## List of IP addresses at which the node-exporter service is available
-      ##
       externalIPs: []
-
       hostPort: 9100
       loadBalancerIP: ""
       loadBalancerSourceRanges: []
@@ -1646,18 +1491,6 @@ networkCosts:
   nodeSelector: {}
   annotations: {}
   healthCheckProbes: {}
-    # readinessProbe:
-    #   tcpSocket:
-    #     port: 3001
-    #   initialDelaySeconds: 5
-    #   periodSeconds: 10
-    #   failureThreshold: 5
-    # livenessProbe:
-    #   tcpSocket:
-    #     port: 3001
-    #   initialDelaySeconds: 5
-    #   periodSeconds: 10
-    #   failureThreshold: 5
   additionalSecurityContext: {}
 
 ## Kubecost Deployment Configuration
@@ -2197,30 +2030,17 @@ grafana:
     repository: curlimages/curl
     tag: latest
     pullPolicy: IfNotPresent
-
   podAnnotations: {}
   annotations: {}
-
-  ## Expose the Grafana service to be accessed from outside the cluster (LoadBalancer service).
-  ## or access it from within the cluster (ClusterIP service). Set the service type and the port to serve it.
   service:
     type: ClusterIP
     port: 80
     annotations: {}
     labels: {}
-
-  ##  This template is not needed and is not supported.
-  ##  It is here for backwards compatibility.
-  ##  Kubecost exposes grafana by default with the
-  ##  top level ingress template under /grafana/
-  ingress:
-    enabled: false
-
   resources: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-
   persistence:
     enabled: false
     # storageClassName: default
@@ -2230,105 +2050,16 @@ grafana:
     # annotations: {}
     # subPath: ""
     # existingClaim:
-
   adminUser: admin
   adminPassword: strongpassword
-
-  ## Use an alternate scheduler for the Grafana deployment
   # schedulerName:
-
   env: {}
-
-  ## The name of a secret for Grafana in the same Kubernetes namespace which contain values to be added to the environment
-  ## This can be useful for auth tokens, etc
   envFromSecret: ""
-
   extraSecretMounts: []
-
-  ## List of Grafana plugins
   plugins: []
-    # - digrich-bubblechart-panel
-    # - grafana-clock-panel
-
-  ## Grafana dashboard providers
-  ## ref: http://docs.grafana.org/administration/provisioning/#dashboards
-  ##
-  ## `path` must be /var/lib/grafana/dashboards/<provider_name>
-  ##
   dashboardProviders: {}
-  #  dashboardproviders.yaml:
-  #    apiVersion: 1
-  #    providers:
-  #    - name: 'default'
-  #      orgId: 1
-  #     folder: ''
-  #      type: file
-  #      disableDeletion: false
-  #      editable: true
-  #      options:
-  #        path: /var/lib/grafana/dashboards/default
-
-  ## Configure Grafana dashboard to import
-  ## NOTE: To use dashboards you must also enable/configure dashboardProviders
-  ## ref: https://grafana.com/dashboards
-  ##
-  ## dashboards per provider, use provider name as key.
-  ##
   dashboards: {}
-  #  default:
-  #    prometheus-stats:
-  #      gnetId: 3662
-  #      revision: 2
-  #      datasource: Prometheus
-
-  ## Reference to external Grafana ConfigMap per provider. Use provider name as key and ConfiMap name as value.
-  ## A provider dashboards must be defined either by external ConfigMaps or in values.yaml, not in both.
-  ## ConfigMap data example:
-  ##
-  ## data:
-  ##   example-dashboard.json: |
-  ##     RAW_JSON
-  ##
   dashboardsConfigMaps: {}
-  #  default: ""
-
-  ## LDAP Authentication for Grafana can be enabled with the following values on grafana.ini
-  ## NOTE: Grafana will fail to start if the value for ldap.toml is invalid
-    # auth.ldap:
-    #   enabled: true
-    #   allow_sign_up: true
-    #   config_file: /etc/grafana/ldap.toml
-
-  ## Grafana's LDAP configuration
-  ## Templated by the template in _helpers.tpl
-  ## NOTE: To enable the grafana.ini must be configured with auth.ldap.enabled
-  ## ref: http://docs.grafana.org/installation/configuration/#auth-ldap
-  ## ref: http://docs.grafana.org/installation/ldap/#configuration
-  ldap:
-    # `existingSecret` is a reference to an existing secret containing the ldap configuration
-    # for Grafana in a key `ldap-toml`.
-    existingSecret: ""
-    # `config` is the content of `ldap.toml` that will be stored in the created secret
-    config: ""
-    # config: |-
-    #   verbose_logging = true
-
-    #   [[servers]]
-    #   host = "my-ldap-server"
-    #   port = 636
-    #   use_ssl = true
-    #   start_tls = false
-    #   ssl_skip_verify = false
-    #   bind_dn = "uid=%s,ou=users,dc=myorg,dc=com"
-
-  ## Grafana's SMTP configuration
-  ## NOTE: To enable, grafana.ini must be configured with smtp.enabled
-  ## ref: http://docs.grafana.org/installation/configuration/#smtp
-  smtp:
-    # `existingSecret` is a reference to an existing secret containing the smtp configuration
-    # for Grafana in keys `user` and `password`.
-    existingSecret: ""
-
   ## Grafana sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
   sidecar:
@@ -2352,7 +2083,6 @@ grafana:
       error_throttle_sleep: 0
       # label that the configmaps with datasources are marked with
       label: grafana_datasource
-
   ## Grafana's primary configuration
   ## NOTE: values in map will be converted to ini format
   ## ref: http://docs.grafana.org/installation/configuration/
