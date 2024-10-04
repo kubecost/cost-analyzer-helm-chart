@@ -647,25 +647,6 @@ kubecostModel:
   #   - name: ASSET_INCLUDE_LOCAL_DISK_COST
   #     value: "true"
 
-  # creates an ingress directly to the model container, for API access
-  ingress:
-    enabled: false
-    # className: nginx
-    labels:
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    paths: ["/"]
-    pathType: ImplementationSpecific
-    hosts:
-      - cost-analyzer-model.local
-    tls: []
-    #  - secretName: cost-analyzer-model-tls
-    #    hosts:
-    #      - cost-analyzer-model.local
-
   utcOffset: "+00:00"
   extraPorts: []
 
