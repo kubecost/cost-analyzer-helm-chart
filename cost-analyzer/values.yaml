@@ -373,7 +373,7 @@ saml:
 
 ## Kubecost OIDC (enterprise key required)
 ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/user-management-oidc
-## 
+##
 oidc:
   enabled: false
   clientID: ""  # Application client_id parameter obtained from provider. Used to make requests to server.
@@ -520,7 +520,7 @@ kubecostMetrics:
     extraArgs: []
 
 ## AWS SigV4 Proxy. Typically used with Amazon Managed Prometheus (AMP).
-## 
+##
 sigV4Proxy:
   image: public.ecr.aws/aws-observability/aws-sigv4-proxy:latest
   imagePullPolicy: IfNotPresent
@@ -536,41 +536,33 @@ sigV4Proxy:
   #   value: <secret_key>
   resources: {}
 
+## Kubecost cost-analyzer
+##
 kubecostModel:
   image: "gcr.io/kubecost1/cost-model"
   imagePullPolicy: IfNotPresent
-  # fullImageName overrides the default image construction logic. The exact
-  # image provided (registry, image, tag) will be used for cost-model.
-  # fullImageName:
-
-  # securityContext:
-  #   readOnlyRootFilesystem: true
-
-  # Build local cost allocation cache
-  warmCache: false
-  # Run allocation ETL pipelines
-  etl: true
-  # Enable the ETL filestore backing storage
+  fullImageName: ""  # Overrides default image. Must provide "registry/image:tag".
+  securityContext: {}
   etlFileStoreEnabled: true
-  # The total number of days the ETL pipelines will build
-  # Set to 0 to disable daily ETL (not recommended)
+
+  ## The total number of days the ETL pipelines will build
+  ## Set to 0 to disable daily ETL (not recommended)
   etlDailyStoreDurationDays: 91
-  # The total number of hours the ETL pipelines will build
-  # Set to 0 to disable hourly ETL (recommended for large environments)
-  # Must be < prometheus server retention, otherwise empty data may overwrite
-  # known-good data
+
+  ## The total number of hours the ETL pipelines will build
+  ## Set to 0 to disable hourly ETL (recommended for large environments)
+  ## Must be < prometheus server retention, otherwise empty data may overwrite
+  ## known-good data
   etlHourlyStoreDurationHours: 49
-  # For deploying kubecost in a cluster that does not self-monitor
+
+  ## For deploying kubecost in a cluster that does not self-monitor
   etlReadOnlyMode: false
 
-  ## The name of the Secret containing a bucket config for Federated storage.
-  ## The contents should be stored under a key named federated-store.yaml.
+  ## Name of the k8s secret configured to your federated storage bucket.
   ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/long-term-storage-configuration
-  # federatedStorageConfigSecret: federated-store
+  federatedStorageConfigSecret: ""
 
-  ## Federated storage config can be supplied via a secret or the yaml block
-  ## below when using the block below, only a single provider is supported,
-  ## others are for example purposes.
+  ## An alternative to federatedStorageConfigSecret. Supply the yaml block as a string.
   ## Ref: https://docs.kubecost.com/install-and-configure/install/multi-cluster/long-term-storage-configuration
   # federatedStorageConfig: |-
   #   # AWS EXAMPLE
@@ -579,7 +571,6 @@ kubecostModel:
   #     bucket: kubecost-federated-storage-bucket
   #     endpoint: s3.amazonaws.com
   #     region: us-east-1
-  #     # best practice is to use pod identities to access AWS resources. Otherwise it is possible to use an access_key and secret_key
   #     access_key: "<your-access-key>"
   #     secret_key: "<your-secret-key>"
   #   # AZURE EXAMPLE
@@ -607,7 +598,8 @@ kubecostModel:
   #         "client_x509_cert_url": ""
   #       }
 
-  # Installs Kubecost/OpenCost plugins
+  ## Installs Kubecost/OpenCost plugins
+  ## Ref: https://docs.kubecost.com/using-kubecost/navigating-the-kubecost-ui/external-costs
   plugins:
     enabled: false
     install:
@@ -624,69 +616,47 @@ kubecostModel:
         runAsNonRoot: true
         runAsUser: 1001
     folder: /opt/opencost/plugin
-
-    # leave this commented to always download most recent version of plugins
-    # version: <INSERT_SPECIFIC_PLUGINS_VERSION>
-
-    # the list of enabled plugins
+    # version: <INSERT_SPECIFIC_PLUGINS_VERSION>  # leave this commented to always download most recent version of plugins
     enabledPlugins: []
-      # - datadog
-
-    # pre-existing secret for plugin configuration
     existingCustomSecret:
       enabled: false
       name: ""  # name of the secret containing plugin config
-
     secretName: kubecost-plugin-secret
-
-    # uncomment this to define plugin configuration via the values file
+    ## Uncomment this to define plugin configuration via the values file
     # configs:
-      # datadog: |
-      #   {
-      #   "datadog_site": "<INSERT_DATADOG_SITE>",
-      #   "datadog_api_key": "<INSERT_DATADOG_API_KEY>",
-      #   "datadog_app_key": "<INSERT_DATADOG_APP_KEY>"
-      #   }
+    #   datadog: |
+    #     {
+    #     "datadog_site": "<INSERT_DATADOG_SITE>",
+    #     "datadog_api_key": "<INSERT_DATADOG_API_KEY>",
+    #     "datadog_app_key": "<INSERT_DATADOG_APP_KEY>"
+    #     }
 
   allocation:
-    # Enables or disables adding node labels to allocation data (i.e. workloads).
-    # Defaults to "true" and starts with a sensible includeList for basics like
-    # topology (e.g. zone, region) and instance type labels.
+    ## Enables or disables adding node labels to allocation data (i.e. workloads).
+    ## Defaults to "true" and starts with a sensible includeList for basics like
+    ## topology (e.g. zone, region) and instance type labels.
     # nodeLabels:
     #   enabled: true
     #   includeList: "node.kubernetes.io/instance-type,topology.kubernetes.io/region,topology.kubernetes.io/zone"
 
-  # Enables or disables the ContainerStats pipeline, used for quantile-based
-  # queries like for request sizing recommendations.
-  # ContainerStats provides support for quantile-based request right-sizing
-  # recommendations.
-  #
-  # It is disabled by default to avoid problems in extremely high-scale Thanos
-  # environments. If you would like to try quantile-based request-sizing
-  # recommendations, enable this! If you are in a high-scale environment,
-  # please monitor Kubecost logs, Thanos query logs, and Thanos load closely.
-  # We hope to make major improvements at scale here soon!
-  #
+  ## Enables or disables the ContainerStats pipeline, used for quantile-based
+  ## queries like for request sizing recommendations.
+  ## Ref: https://docs.kubecost.com/architecture/containerstats-pipeline
+  ##
   containerStatsEnabled: true  # enabled by default as of v2.2.0
 
-  # max number of concurrent Prometheus queries
+  ## Max number of concurrent Prometheus queries
   maxQueryConcurrency: 5
+
   resources:
     requests:
       cpu: "200m"
       memory: "55Mi"
-    # limits:
-    #   cpu: "800m"
-    #   memory: "256Mi"
-
-  # Define a readiness probe for the Kubecost cost-model container.
   readinessProbe:
     enabled: true
     initialDelaySeconds: 10
     periodSeconds: 10
     failureThreshold: 200
-
-  # Define a liveness probe for the Kubecost cost-model container.
   livenessProbe:
     enabled: true
     initialDelaySeconds: 10
@@ -706,31 +676,7 @@ kubecostModel:
   #   - name: ASSET_INCLUDE_LOCAL_DISK_COST
   #     value: "true"
 
-  # creates an ingress directly to the model container, for API access
-  ingress:
-    enabled: false
-    # className: nginx
-    labels:
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    annotations:
-      # kubernetes.io/ingress.class: nginx
-      # kubernetes.io/tls-acme: "true"
-    paths: ["/"]
-    pathType: ImplementationSpecific
-    hosts:
-      - cost-analyzer-model.local
-    tls: []
-    #  - secretName: cost-analyzer-model-tls
-    #    hosts:
-    #      - cost-analyzer-model.local
   utcOffset: "+00:00"
-  # Optional - add extra ports to the cost-model container. For kubecost development purposes only - not recommended for users.
-  extraPorts: []
-    # - name: debug
-    #   port: 40000
-    #   targetPort: 40000
-    #   containerPort: 40000
 
 ## etlUtils is a utility typically used by Enterprise customers transitioning
 ## from v1 to v2 of Kubecost. It translates the data from the "/etl" dir of the
