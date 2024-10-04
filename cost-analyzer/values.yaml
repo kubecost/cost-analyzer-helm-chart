@@ -1,11 +1,13 @@
 global:
   ## If your DNS server doesn't live in the same zone as Kubecost
+  ##
   # zone: cluster.local
 
   ## Kubecost-bundled Prometheus
   ## It is recommended to leave these configurations as-is. If using your own
   ## Prometheus, read the following documentation to understand the risks.
   ## Ref: https://docs.kubecost.com/install-and-configure/install/custom-prom
+  ##
   prometheus:
     enabled: true
     fqdn: http://cost-analyzer-prometheus-server.default.svc  # Address of a Prometheus to connect to if enabled=false
@@ -14,6 +16,7 @@ global:
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
 
   ## Kubecost-bundled Grafana
+  ##
   grafana:
     enabled: true
     domainName: cost-analyzer-grafana.default.svc  # Address to Grafana. Ignored if enabled=true.
@@ -23,12 +26,14 @@ global:
 
   ## GCP Marketplace Enterprise Listing
   ## Ref: https://console.cloud.google.com/marketplace/product/kubecost-public/kubecost-ent
+  ##
   gcpstore:
     enabled: false
 
   ## Google Cloud Managed Service for Prometheus (GMP)
   ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-prom/gcp-gmp-integration
   ## Ref: https://cloud.google.com/stackdriver/docs/managed-prometheus/setup-unmanaged
+  ##
   gmp:
     enabled: false
     prometheusServerEndpoint: http://localhost:8085/
@@ -42,6 +47,7 @@ global:
 
   ## Amazon Managed Service for Prometheus (AMP)
   ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-prom/aws-amp-integration
+  ##
   amp:
     enabled: false
     prometheusServerEndpoint: http://localhost:8005/workspaces/<WORKSPACE_ID>/
@@ -55,6 +61,7 @@ global:
 
   ## GrafanaMimir Proxy
   ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/custom-prom/grafana-mimir-integration
+  ##
   mimirProxy:
     enabled: false
     name: mimir-proxy
@@ -68,6 +75,7 @@ global:
 
   ## Azure Monitor Managed Service for Prometheus
   ## Ref: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/prometheus-remote-write-virtual-machines
+  ##
   ammsp:
     enabled: false
     prometheusServerEndpoint: http://localhost:8081/
@@ -88,6 +96,7 @@ global:
 
   ## Kubecost Alerting
   ## Ref: http://docs.kubecost.com/alerts
+  ##
   notifications:
     # alertConfigs:
     #   frontendUrl: http://localhost:9090  # Optional
@@ -146,6 +155,7 @@ global:
 
   ## Kubecost Saved Reports
   ## Ref: http://docs.kubecost.com/saved-reports
+  ##
   savedReports:
     enabled: false  # If true, overwrites report parameters set through UI
     reports:
@@ -201,10 +211,12 @@ global:
         #     value: "service1" # corresponds to a value to filter cloud cost aggregate by service data on.
 
   ## Globally set annotations and labels
+  ##
   additionalLabels: {}  # Applies to Deployments, StatefulSets, DaemonSets, and their pod templates
   podAnnotations: {}
 
   ## Globally set security context
+  ##
   securityContext:
     runAsNonRoot: true
     seccompProfile:
@@ -222,6 +234,7 @@ global:
       - ALL
 
   ## Platform-specific configurations
+  ##
   platforms:
     # Deploying to OpenShift (OCP) requires enabling this option.
     openshift:
@@ -246,6 +259,7 @@ global:
 
   ## Kubecost Integrations
   ## Ref: https://docs.kubecost.com/integrations
+  ##
   integrations:
     postgres:
       enabled: false
@@ -286,13 +300,16 @@ global:
           #   aggregate: "service"
 
 ## Provide a name override for the chart.
-# nameOverride: ""
+##
+nameOverride: ""
+
 ## Provide a full name override option for the chart.
-# fullnameOverride: ""
+##
+fullnameOverride: ""
 
 ## Provide additional labels for the chart.
-# chartLabels:
-#   app.kubernetes.io/name: kubecost-cost-analyzer
+##
+chartLabels: []
 
 ## This flag is only required for users upgrading to a new version of Kubecost.
 ## The flag is used to ensure users are aware of important
@@ -301,10 +318,13 @@ global:
 upgrade:
   toV2: false
 
-# generated at http://kubecost.com/install, used for alerts tracking and free trials
-kubecostToken:  # ""
+## Generated at http://kubecost.com/install, used for alerts tracking and free trials
+##
+kubecostToken: ""
 
-# Advanced pipeline for custom prices, enterprise key required
+## Custom CSV Pricing (enterprise key required)
+## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/csv-pricing
+##
 pricingCsv:
   enabled: false
   location:
@@ -315,6 +335,7 @@ pricingCsv:
 
 ## Kubecost SAML (enterprise key required)
 ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/user-management-saml
+##
 saml:
   enabled: false
   # secretName: ""
@@ -352,6 +373,7 @@ saml:
 
 ## Kubecost OIDC (enterprise key required)
 ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/user-management-oidc
+## 
 oidc:
   enabled: false
   clientID: ""  # Application client_id parameter obtained from provider. Used to make requests to server.
@@ -397,98 +419,85 @@ systemProxy:
   httpsProxyUrl: ""
   noProxy: ""
 
-# imagePullSecrets:
-# - name: "image-pull-secret"
+## ImagePullSecrets applied to all resources
+##
+imagePullSecrets: []
 
-# imageVersion uses the base image name (image:) but overrides the version
-# pulled. It should be avoided. If non-default behavior is needed, use
-# fullImageName for the relevant component.
-# imageVersion:
+## Overrides imageVersion of all resources. This config should generally be
+## avoided in favor of fullImageName.
+##
+imageVersion: ""
 
+## Kubecost Frontend
+##
 kubecostFrontend:
   enabled: true
-  deployMethod: singlepod  # haMode or singlepod - haMode is currently only supported with Enterprise tier
-  haReplicas: 2  # only used with haMode
+  deployMethod: singlepod  # "haMode" or "singlepod". "haMode" is currently only supported with Enterprise tier
+  haReplicas: 2  # Only used with "haMode"
   image: "gcr.io/kubecost1/frontend"
   imagePullPolicy: IfNotPresent
-  # fullImageName overrides the default image construction logic. The exact
-  # image provided (registry, image, tag) will be used for the frontend.
-  # fullImageName:
-
-  # extraEnv:
-  # - name: NGINX_ENTRYPOINT_WORKER_PROCESSES_AUTOTUNE
-  #   value: "1"
-  # securityContext:
-  #   readOnlyRootFilesystem: true
+  fullImageName: ""  # Overrides default image. Must provide "registry/image:tag".
+  extraEnv: []
+  securityContext: {}
   resources:
     requests:
       cpu: "10m"
       memory: "55Mi"
-    # limits:
-    #   cpu: "100m"
-    #   memory: "256Mi"
   deploymentStrategy: {}
-  #   rollingUpdate:
-  #     maxSurge: 1
-  #     maxUnavailable: 1
-  #   type: RollingUpdate
-
-  # Define a readiness probe for the Kubecost frontend container.
   readinessProbe:
     enabled: true
     initialDelaySeconds: 1
     periodSeconds: 5
     failureThreshold: 6
-
-  # Define a liveness probe for the Kubecost frontend container.
   livenessProbe:
     enabled: true
     initialDelaySeconds: 1
     periodSeconds: 5
     failureThreshold: 6
   ipv6:
-    enabled: true  # disable if the cluster does not support ipv6
-  # timeoutSeconds: 600  # should be rarely used, but can be increased if needed
-  # allow customizing nginx-conf server block
+    enabled: true  # Disable if the cluster does not support ipv6
+    timeoutSeconds: 600  # Should be rarely used, but can be increased if needed
   # extraServerConfig: |-
   #   proxy_busy_buffers_size   512k;
   #   proxy_buffers   4 512k;
   #   proxy_buffer_size   256k;
   #   large_client_header_buffers 4 64k;
-  # hideDiagnostics: false  # useful if the primary is not monitored. Supported in limited environments.
-  # hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
+  hideDiagnostics: false  # Useful if the primary is not monitored. Supported in limited environments.
+  hideOrphanedResources: false  # OrphanedResources works on the primary-cluster's cloud-provider only.
 
-  # set to true to set all upstreams to use <service>.<namespace>.svc.cluster.local instead of just <service>.<namespace>
+  ## Set to true to set all upstreams to use "<service>.<namespace>.svc.cluster.local" instead of just "<service>.<namespace>"
   useDefaultFqdn: false
-#  api:
-#    fqdn: kubecost-api.kubecost.svc.cluster.local:9001
-#  model:
-#    fqdn: kubecost-model.kubecost.svc.cluster.local:9003
-#  forecasting:
-#    fqdn: kubecost-forcasting.kubecost.svc.cluster.local:5000
-#  aggregator:
-#    fqdn: kubecost-aggregator.kubecost.svc.cluster.local:9004
-#  cloudCost:
-#    fqdn: kubecost-cloud-cost.kubecost.svc.cluster.local:9005
-#  multiClusterDiagnostics:
-#    fqdn: kubecost-multi-diag.kubecost.svc.cluster.local:9007
-#  clusterController:
-#    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
 
-# Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
-# by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
-# However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
+  ## Or, specify the FQDN for each service
+  api:
+    fqdn: ""
+  model:
+    fqdn: ""
+  forecasting:
+    fqdn: ""
+  aggregator:
+    fqdn: ""
+  cloudCost:
+    fqdn: ""
+  multiClusterDiagnostics:
+    fqdn: ""
+  clusterController:
+    fqdn: ""
+
+## Kubecost Metrics and Exporters
+##
 kubecostMetrics:
-  # emitPodAnnotations: false
-  # emitNamespaceAnnotations: false
-  # emitKsmV1Metrics: true # emit all KSM metrics in KSM v1.
-  # emitKsmV1MetricsOnly: false # emit only the KSM metrics missing from KSM v2. Advanced users only.
+  ## Ref: https://docs.kubecost.com/install-and-configure/advanced-configuration/annotations
+  emitPodAnnotations: false
+  emitNamespaceAnnotations: false
 
-  # Optional
-  # The metrics exporter is a separate deployment and service (for prometheus scrape auto-discovery)
-  # which emits metrics cost-model relies on. Enabling this deployment also removes the KSM dependency
-  # from the cost-model. If the deployment is not enabled, the metrics will continue to be emitted from
-  # the cost-model.
+  ## Ref: https://docs.kubecost.com/architecture/ksm-metrics
+  emitKsmV1Metrics: true  # Emit all KSM metrics in KSMv1.
+  emitKsmV1MetricsOnly: false  # Emit only the KSMv1 metrics missing from KSMv2. Advanced users only.
+
+  ## OPTIONAL. Kubecost Metrics Exporter is a separate a separate deployment and
+  ## service (for prometheus scrape auto-discovery) which emits metrics
+  ## cost-model relies on.
   exporter:
     enabled: false
     port: 9005
@@ -496,35 +505,22 @@ kubecostMetrics:
     # Set to false and use service.annotations (below) to set custom scrape annotations.
     prometheusScrape: true
     resources: {}
-      # requests:
-      #  cpu: "200m"
-      #  memory: "55Mi"
-    ## Node tolerations for server scheduling to nodes with taints
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     tolerations: []
-
-    #  - key: "key"
-    #    operator: "Equal|Exists"
-    #    value: "value"
-    #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
     affinity: {}
-
     service:
       annotations: {}
-
-    # Service Monitor for Kubecost Metrics
-    serviceMonitor:  # the kubecost included prometheus uses scrapeConfigs and does not support service monitors. The following options assume an existing prometheus that supports serviceMonitors.
+    serviceMonitor:
       enabled: false
       additionalLabels: {}
       metricRelabelings: []
       relabelings: []
-    ## PriorityClassName
-    ## Ref: https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/#priorityclass
     priorityClassName: ""
     additionalLabels: {}
     nodeSelector: {}
     extraArgs: []
 
+## AWS SigV4 Proxy. Typically used with Amazon Managed Prometheus (AMP).
+## 
 sigV4Proxy:
   image: public.ecr.aws/aws-observability/aws-sigv4-proxy:latest
   imagePullPolicy: IfNotPresent
@@ -538,7 +534,6 @@ sigV4Proxy:
   #   value: <access_key>
   # - name: AWS_SECRET_ACCESS_KEY
   #   value: <secret_key>
-  # Optional resource requests and limits for the sigV4proxy container.
   resources: {}
 
 kubecostModel:
