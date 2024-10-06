@@ -34,3 +34,20 @@ subjects:
     name: {{ template "cost-analyzer.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }} 
 {{- end }} 
+---
+{{- if and (.Values.platforms.opensift.enabled .Values.platforms.opensift.createPrometheusClusterRoleBinding) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ template "cost-analyzer.serviceAccountName" . }}-cluster-monitoring-operator
+  labels:
+    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-monitoring-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "cost-analyzer.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }} 
+{{- end }}
