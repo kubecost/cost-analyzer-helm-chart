@@ -33,9 +33,9 @@ subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }} 
-{{- end }} 
 ---
-{{- if and (.Values.platforms.opensift.enabled .Values.platforms.opensift.createPrometheusClusterRoleBinding) }}
+{{- end }} 
+{{- if and .Values.global.platforms.openshift.enabled .Values.global.platforms.openshift.createPrometheusClusterRoleBinding }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

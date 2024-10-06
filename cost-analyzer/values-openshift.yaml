@@ -5,6 +5,7 @@ global:
     # insecureSkipVerify: false  # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
     # kubeRbacProxy: false # If true, kubecost will use kube-rbac-proxy to authenticate with in cluster Prometheus for openshift
+
   # Platforms is a higher-level abstraction for platform-specific values and settings.
   platforms:
     # Deploying to OpenShift (OCP) requires enabling this option.
