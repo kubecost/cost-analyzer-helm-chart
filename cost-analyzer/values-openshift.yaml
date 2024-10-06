@@ -4,7 +4,7 @@ global:
     fqdn: https://prometheus-k8s.openshift-monitoring.svc.cluster.local:9091  # example address of a prometheus to connect to. Include protocol (http:// or https://) Ignored if enabled: true
     # insecureSkipVerify: false  # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
-    # kubeRbacProxy: false # If true, kubecost will use kube-rbac-proxy to authenticate with in cluster Prometheus for openshift
+    # kubeRBACProxy: false # If true, kubecost will use kube-rbac-proxy to authenticate with in cluster Prometheus for openshift
 
   # Platforms is a higher-level abstraction for platform-specific values and settings.
   platforms:
