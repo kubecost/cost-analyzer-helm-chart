@@ -4,10 +4,13 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-{{- if .Values.prometheus.server.statefulSet.annotations }}
   annotations:
-{{ toYaml .Values.prometheus.server.statefulSet.annotations | indent 4 }}
-{{- end }}
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if .Values.prometheus.server.statefulSet.annotations }}
+    {{- toYaml .Values.prometheus.server.statefulSet.annotations | nindent 4 }}
+  {{- end }}
   labels:
     {{- include "prometheus.server.labels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}

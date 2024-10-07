@@ -9,7 +9,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- if .Values.prometheus.server.annotations }}
-    {{ toYaml .Values.prometheus.server.annotations | indent 4 }}
+    {{- toYaml .Values.prometheus.server.annotations | nindent 4 }}
   {{- end }}
   labels:
     {{- include "prometheus.server.labels" . | nindent 4 }}
@@ -34,7 +34,7 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
         {{- if .Values.prometheus.server.podAnnotations }}
-          {{ toYaml .Values.prometheus.server.podAnnotations | indent 8 }}
+          {{ toYaml .Values.prometheus.server.podAnnotations | nindent 8 }}
         {{- end }}
         checksum/configs: {{ include "configsChecksum" . }}
       labels:

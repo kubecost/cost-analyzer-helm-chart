@@ -8,7 +8,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
   {{- if .Values.prometheus.nodeExporter.annotations }}
-    {{ toYaml .Values.prometheus.nodeExporter.annotations | indent 4 }}
+    {{- toYaml .Values.prometheus.nodeExporter.annotations | nindent 4 }}
   {{- end }}
   labels:
     {{- include "prometheus.nodeExporter.labels" . | nindent 4 }}
