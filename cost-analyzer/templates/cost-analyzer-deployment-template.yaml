@@ -862,9 +862,9 @@ spec:
             - name: INSECURE_SKIP_VERIFY
               value: {{ (quote .Values.global.prometheus.insecureSkipVerify) }}
             {{- end }}
-            {{- if .Values.global.prometheus.kubeRbacProxy }}
+            {{- if .Values.global.prometheus.kubeRBACProxy }}
             - name: ENABLE_KUBE_RBAC_PROXY
-              value: {{ (quote .Values.global.prometheus.kubeRbacProxy) }}
+              value: {{ (quote .Values.global.prometheus.kubeRBACProxy) }}
             {{- end }}
             {{- if .Values.pricingCsv }}
             {{- if .Values.pricingCsv.enabled }}

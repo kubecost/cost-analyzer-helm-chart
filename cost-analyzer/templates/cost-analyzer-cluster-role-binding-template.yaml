@@ -39,13 +39,13 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ template "cost-analyzer.serviceAccountName" . }}-cluster-monitoring-operator
+  name: {{ template "cost-analyzer.serviceAccountName" . }}-openshift-monitoring
   labels:
     {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: cluster-monitoring-operator
+  name: cluster-monitoring-view
 subjects:
   - kind: ServiceAccount
     name: {{ template "cost-analyzer.serviceAccountName" . }}
