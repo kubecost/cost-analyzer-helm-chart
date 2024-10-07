@@ -15,7 +15,7 @@ metadata:
   name: {{ template "cloudCost.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cloudCost.commonLabels" . | nindent 4 }}
+    {{- include "cloudCost.commonLabels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
@@ -30,7 +30,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{ include "cloudCost.selectorLabels" . | nindent 6 }}
+      {{- include "cloudCost.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
