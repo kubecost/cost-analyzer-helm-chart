@@ -205,7 +205,7 @@ Verify a cluster_id is set in the Prometheus global config
 
 {{/*
   Verify if both kube-rbac-proxy and bearer token are set
-}}
+*/}}
 {{- define "kubeRBACProxyBearerTokenCheck" -}}
 {{- if and (.Values.global.prometheus.kubeRBACProxy) (.Values.global.prometheus.queryServiceBearerTokenSecretName) }}
   {{- fail "\n\nBoth kubeRBACProxy and queryServiceBearerTokenSecretName are set. Please specify only one." -}}
