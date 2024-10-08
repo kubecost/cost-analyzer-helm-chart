@@ -54,6 +54,8 @@ global:
   # Learn more at https://grafana.com/docs/mimir/latest/operators-guide/secure/authentication-and-authorization/#without-an-authenticating-reverse-proxy
   mimirProxy:
     enabled: false
+    ## Annotations to be added to the Mimir Proxy deployment template
+    annotations: {}
     name: mimir-proxy
     image: nginxinc/nginx-unprivileged
     port: 8085
@@ -198,6 +200,10 @@ global:
         #     value: "service1" # corresponds to a value to filter cloud cost aggregate by service data on.
 
   podAnnotations: {}
+    # iam.amazonaws.com/role: role-arn
+
+  # Annotations to be added for all controllers (StatefulSets, Deployments, DaemonSets)
+  annotations: {}
     # iam.amazonaws.com/role: role-arn
 
   # Applies these labels to all Deployments, StatefulSets, DaemonSets, and their pod templates.
@@ -501,6 +507,9 @@ kubecostMetrics:
     ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
     tolerations: []
 
+    ## Annotations to be added to the metrics deployment template
+    annotations: {}
+
     #  - key: "key"
     #    operator: "Equal|Exists"
     #    value: "value"
@@ -747,6 +756,8 @@ etlUtils:
   env: {}
   nodeSelector: {}
   tolerations: []
+  ## Annotations to be added to etlutils deployment
+  annotations: {}
   affinity: {}
 
 # Basic Kubecost ingress, more examples available at https://docs.kubecost.com/install-and-configure/install/ingress-examples
@@ -1211,7 +1222,7 @@ prometheus:
 
     ## Annotations to be added to the Prometheus Server deployment
     ##
-    deploymentAnnotations: {}
+    annotations: {}
 
     ## Labels to be added to Prometheus server pods
     ##
@@ -1545,6 +1556,9 @@ prometheus:
       ##
       ## prometheus.io/probe: alertmanager-teamA
 
+    ## Annotations to be added to alertmanager deployment
+    annotations: {}
+
     ## Labels to be added to Prometheus AlertManager pods
     ##
     podLabels: {}
@@ -1558,6 +1572,9 @@ prometheus:
       ## This allows to scale replicas to more than 1 pod
       ##
       enabled: false
+
+      ## Annotations to be added to alertmanager statefulset
+      annotations: {}
 
       podManagementPolicy: OrderedReady
 
@@ -1796,7 +1813,7 @@ prometheus:
 
     ## Annotations to be added to the node-exporter DaemonSet
     ##
-    deploymentAnnotations: {}
+    annotations: {}
 
     ## Labels to be added to node-exporter pods
     ##
@@ -1927,6 +1944,10 @@ prometheus:
     ## Annotations to be added to pushgateway pods
     ##
     podAnnotations: {}
+
+    ## Annotations to be added to pushgateway deployment
+    ##
+    annotations: {}
 
     replicaCount: 1
 
@@ -2390,6 +2411,7 @@ networkCosts:
   # match the default extraScrapeConfig
   additionalLabels: {}
   nodeSelector: {}
+  # Annotations to be added to network cost daemonset template and pod template annotations
   annotations: {}
   healthCheckProbes: {}
     # readinessProbe:
@@ -2458,6 +2480,9 @@ forecasting:
 
   # Define tolerations for the forecasting Deployment.
   tolerations: []
+
+  # Annotations to be added for the forecasting Deployment.
+  annotations: {}
 
   # Define Pod affinity for the forecasting Deployment.
   affinity: {}
@@ -2627,6 +2652,9 @@ kubecostAggregator:
   ## Define tolerations for the aggregator pod
   # tolerations: []
 
+  ## Annotations to be added for aggregator deployment or statefulset
+  # annotations: {}
+
   ## Define Pod affinity for the aggregator pod
   # affinity: {}
 
@@ -2739,6 +2767,8 @@ diagnostics:
     containerSecurityContext: {}
     nodeSelector: {}
     tolerations: []
+    ## Annotations to be added for diagnostics Deployment.
+    annotations: {}
     affinity: {}
 
 ## Provide a full name override for the diagnostics Deployment.
@@ -2756,6 +2786,9 @@ clusterController:
   priorityClassName: ""
   # Set custom tolerations for the cluster controller.
   tolerations: []
+
+  ## Annotations to be added for cluster controller template
+  annotations: {}
   resources: {}
   ## Set Affinity for pod assignment
   ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
@@ -3230,7 +3263,7 @@ awsstore:
   # Use a custom nodeSelector for AWSStore.
   nodeSelector: {}
     # kubernetes.io/arch: amd64
-  ## Annotations for the AWSStore ServiceAccount.
+  ## Annotations for the AWSStore ServiceAccount and Deployment template
   annotations: {}
 
 ## Federated ETL Architecture
