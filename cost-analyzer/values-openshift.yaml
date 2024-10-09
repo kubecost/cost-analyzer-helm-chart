@@ -11,7 +11,9 @@ global:
     # Deploying to OpenShift (OCP) requires enabling this option.
     openshift:
       enabled: true  # Deploy Kubecost to OpenShift.
-      # createPrometheusClusterRoleBinding: false  # Create a Cluster Role Binding to allow using in-cluster Prometheus.
+      # createMonitoringClusterRoleBinding: false  # Create a Cluster Role Binding to allow using in-cluster prometheus or thanos.
+      # createMonitoringResourceReaderRoleBinding: false  # Create a Role and Role Binding to allow in-cluster prometheus or thanos to list and watch resources. This will be necessary if you are not using bundled prometheus and need to add scrape config for resources.
+      # monitoringServiceAccountName: prometheus-k8s  # Name of the service account to bind to the Resource Reader Role Binding.
       route:
         enabled: false  # Create an OpenShift Route.
         annotations: {}  # Add annotations to the Route.
