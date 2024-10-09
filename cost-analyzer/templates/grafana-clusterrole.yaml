@@ -17,9 +17,6 @@ rules:
 - apiGroups: [""] # "" indicates the core API group
   resources: ["configmaps"]
   verbs: ["get", "watch", "list"]
-- apiGroups: ["grafana.com"]
-  resources: ["dashboards"]
-  verbs: ["get", "list", "watch", "create", "update", "delete"]
 {{- else }}
 rules: []
 {{- end}}
