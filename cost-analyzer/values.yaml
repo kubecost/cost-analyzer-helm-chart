@@ -251,6 +251,10 @@ global:
   ## Kubecost Integrations
   ## Ref: https://docs.kubecost.com/integrations
   integrations:
+    turbonomic:
+      enabled: false
+      clientId: ""
+      clientSecret: ""
     postgres:
       enabled: false
       runInterval: "12h"      # How frequently to run the integration.
