@@ -524,6 +524,72 @@ data:
                 }
             ';
         }
+
+        location /model/getConfigs {
+            default_type 'application/json';
+            add_header 'Access-Control-Allow-Origin' '*' always;
+            add_header 'Access-Control-Allow-Methods' 'GET, PUT, POST, DELETE, OPTIONS' always;
+            return 200 '\n
+                {
+                "code": 200,
+                "status": "success",
+                "data": {
+                    "provider": "custom",
+                    "description": "Default prices used to compute allocation between RAM and CPU. AWS pricing API data still used for total node cost.",
+                    "CPU": "0.031611",
+                    "spotCPU": "0.006655",
+                    "RAM": "0.004237",
+                    "spotRAM": "0.000892",
+                    "GPU": "",
+                    "spotGPU": "0.308",
+                    "storage": "0.00005479452",
+                    "zoneNetworkEgress": "0.01",
+                    "regionNetworkEgress": "0.01",
+                    "internetNetworkEgress": "0.12",
+                    "firstFiveForwardingRulesCost": "",
+                    "additionalForwardingRuleCost": "",
+                    "LBIngressDataCost": "",
+                    "athenaBucketName": "",
+                    "athenaRegion": "",
+                    "athenaDatabase": "",
+                    "athenaCatalog": "",
+                    "athenaTable": "",
+                    "athenaWorkgroup": "",
+                    "masterPayerARN": "",
+                    "customPricesEnabled": "",
+                    "defaultIdle": "",
+                    "azureSubscriptionID": "",
+                    "azureClientID": "",
+                    "azureClientSecret": "",
+                    "azureTenantID": "",
+                    "azureBillingRegion": "",
+                    "azureBillingAccount": "",
+                    "azureOfferDurableID": "",
+                    "azureStorageSubscriptionID": "",
+                    "azureStorageAccount": "",
+                    "azureStorageAccessKey": "",
+                    "azureStorageContainer": "",
+                    "azureContainerPath": "",
+                    "azureCloud": "",
+                    "currencyCode": "USD",
+                    "discount": "30%",
+                    "negotiatedDiscount": "0%",
+                    "sharedOverhead": "",
+                    "clusterName": "kubecost-saas",
+                    "sharedNamespaces": "",
+                    "sharedLabelNames": "",
+                    "sharedLabelValues": "",
+                    "shareTenancyCosts": "true",
+                    "readOnly": "false",
+                    "editorAccess": "false",
+                    "kubecostToken": "not-applied",
+                    "googleAnalyticsTag": "",
+                    "excludeProviderID": "",
+                    "defaultLBPrice": ""
+                }
+                }
+            ';
+        }
     }
 
 {{- end }}
