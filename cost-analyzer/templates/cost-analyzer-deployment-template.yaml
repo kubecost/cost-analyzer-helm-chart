@@ -577,19 +577,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
         {{- end }}
-        {{- if .Values.kubecostModel }}
-        {{- if .Values.kubecostModel.fullImageName }}
-        - image: {{ .Values.kubecostModel.fullImageName }}
-        {{- else if .Values.imageVersion }}
-        - image: {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
-        {{- else if eq "development" .Chart.AppVersion }}
-        - image: gcr.io/kubecost1/cost-model-nightly:latest
-        {{- else }}
-        - image: {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
-        {{- else }}
-        - image: gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
-        {{- end }}
+        - image: {{ include "cost-model.image" . }}
           name: cost-model
         {{- if .Values.kubecostModel.extraArgs }}
           args:
@@ -746,6 +734,8 @@ spec:
             {{- end }}
             {{- end }}
           env:
+            - name: CONTAINER_IMAGE_TAG
+              value: {{ include "cost-model.imagetag" . }}
             {{- if .Values.global.grafana }}
             - name: GRAFANA_ENABLED
               value: "{{ template "cost-analyzer.grafanaEnabled" . }}"
