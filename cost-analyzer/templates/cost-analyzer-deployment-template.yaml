@@ -577,7 +577,7 @@ spec:
             successThreshold: 1
             timeoutSeconds: 5
         {{- end }}
-        - image: {{ include "cost-model.image" . }}
+        - image: {{ include "cost-model.image" . | trim | quote}}
           name: cost-model
         {{- if .Values.kubecostModel.extraArgs }}
           args:
