@@ -10,7 +10,7 @@ metadata:
   name: {{ $fullName }}-model
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cost-analyzer.commonLabels" . | nindent 4 }}
+    {{- include "cost-analyzer.commonLabels" . | nindent 4 }}
     {{- with .Values.kubecostModel.ingress.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}

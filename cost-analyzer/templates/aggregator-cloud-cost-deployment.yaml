@@ -15,15 +15,22 @@ metadata:
   name: {{ template "cloudCost.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ include "cloudCost.commonLabels" . | nindent 4 }}
+    {{- include "cloudCost.commonLabels" . | nindent 4 }}
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.kubecostAggregator.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{ include "cloudCost.selectorLabels" . | nindent 6 }}
+      {{- include "cloudCost.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
@@ -105,16 +112,20 @@ spec:
           secret:
             secretName: {{ .Values.kubecostModel.plugins.secretName }}
             items:
-              - key: datadog_config.json
-                path: datadog_config.json
+             {{- range $key, $config := .Values.kubecostModel.plugins.enabledPlugins }}
+              - key: {{ $config }}_config.json
+                path: {{ $config }}_config.json
+            {{- end }}
         {{- end }}
         {{- if .Values.kubecostModel.plugins.existingCustomSecret.enabled }}
         - name: plugins-config
           secret:
             secretName: {{ .Values.kubecostModel.plugins.existingCustomSecret.name }}
             items:
-              - key: datadog_config.json
-                path: datadog_config.json
+            {{- range $key, $config := .Values.kubecostModel.plugins.enabledPlugins }}
+              - key: {{ $config }}_config.json
+                path: {{ $config }}_config.json
+            {{- end }}
         {{- end }}
         - name: tmp
           emptyDir: {}

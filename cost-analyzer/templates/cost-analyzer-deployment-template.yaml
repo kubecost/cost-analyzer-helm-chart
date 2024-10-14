@@ -12,8 +12,11 @@ metadata:
     {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.labels }}
     {{- toYaml .Values.kubecostDeployment.labels | nindent 4 }}
     {{- end }}
-  {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.annotations }}
   annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- if and .Values.kubecostDeployment .Values.kubecostDeployment.annotations }}
     {{- toYaml .Values.kubecostDeployment.annotations | nindent 4 }}
   {{- end }}
 spec:
@@ -75,16 +78,20 @@ spec:
           secret:
             secretName: {{ .Values.kubecostModel.plugins.secretName }}
             items:
-              - key: datadog_config.json
-                path: datadog_config.json
+              {{- range $key, $config := .Values.kubecostModel.plugins.enabledPlugins}}
+              - key: {{ $config }}_config.json
+                path: {{ $config }}_config.json
+            {{- end }}
         {{- end }}
         {{- if .Values.kubecostModel.plugins.existingCustomSecret.enabled }}
         - name: plugins-config
           secret:
             secretName: {{ .Values.kubecostModel.plugins.existingCustomSecret.name }}
             items:
-              - key: datadog_config.json
-                path: datadog_config.json
+            {{- range $key, $config := .Values.kubecostModel.plugins.enabledPlugins }}
+              - key: {{ $config }}_config.json
+                path: {{ $config }}_config.json
+            {{- end }}
         {{- end }}
         {{- if .Values.kubecostModel.plugins.install.enabled}}
         - name: install-script
