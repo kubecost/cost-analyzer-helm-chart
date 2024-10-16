@@ -86,10 +86,10 @@ spec:
               mountPath: "{{ .Values.prometheus.pushgateway.persistentVolume.mountPath }}"
               subPath: "{{ .Values.prometheus.pushgateway.persistentVolume.subPath }}"
           {{- end }}
-    {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.prometheus.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
     {{- if .Values.prometheus.pushgateway.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.prometheus.pushgateway.nodeSelector | indent 8 }}

@@ -83,9 +83,9 @@ spec:
           {{- else }}
           imagePullPolicy: Always
           {{- end }}
-          {{- if .Values.imagePullSecrets }}
           imagePullSecrets:
-          {{ toYaml .Values.imagePullSecrets | indent 2 }}
+          {{- range $.Values.imagePullSecrets }}
+            - name: {{ .name }}
           {{- end }}
           {{- if .Values.diagnostics.deployment.containerSecurityContext }}
           securityContext:

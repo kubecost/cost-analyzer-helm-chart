@@ -110,11 +110,10 @@ spec:
             - name: {{ $key | quote }}
               value: {{ $value | quote }}
             {{- end }}
-
-    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
       {{- with .Values.etlUtils.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

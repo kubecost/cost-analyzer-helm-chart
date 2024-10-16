@@ -111,10 +111,10 @@ spec:
               mountPath: /etc/config
               readOnly: true
         {{- end }}
-    {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.prometheus.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
     {{- if .Values.prometheus.alertmanager.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.prometheus.alertmanager.nodeSelector | indent 8 }}

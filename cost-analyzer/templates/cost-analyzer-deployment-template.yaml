@@ -1227,11 +1227,10 @@ spec:
         {{- end }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
-
-    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}    
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
       {{- if gt (len .Values.priority.name) 0 }}
