@@ -177,7 +177,7 @@ spec:
             name: kubecost-integrations-postgres-queries
         {{- end }}
         {{- if .Values.global.integrations.turbonomic.enabled }}
-        - name: turbonomic-creds
+        - name: turbonomic-credentials
           secret:
             secretName: kubecost-integrations-turbonomic
         {{- end }}
