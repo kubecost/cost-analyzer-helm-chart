@@ -6,6 +6,7 @@ global:
     # insecureSkipVerify: false  # If true, kubecost will not check the TLS cert of prometheus
     # queryServiceBasicAuthSecretName: dbsecret # kubectl create secret generic dbsecret -n kubecost --from-file=USERNAME --from-file=PASSWORD
     # queryServiceBearerTokenSecretName: mcdbsecret  # kubectl create secret generic mcdbsecret -n kubecost --from-file=TOKEN
+    # kubeRBACProxy: false # If true, kubecost will use kube-rbac-proxy to authenticate with in cluster Prometheus for openshift
 
   grafana:
     enabled: true  # If false, Grafana will not be installed
