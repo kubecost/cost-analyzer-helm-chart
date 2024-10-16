@@ -40,10 +40,10 @@ spec:
         {{- toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
         {{- end }}
     spec:
-    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
       hostNetwork: true
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:

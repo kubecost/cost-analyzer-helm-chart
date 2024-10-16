@@ -186,10 +186,10 @@ spec:
         {{ include "aggregator.jaeger.sidecarContainerTemplate" . | nindent 8 }}
         {{- end }}
 
-    {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
       {{- if .Values.kubecostAggregator.priority }}
       {{- if .Values.kubecostAggregator.priority.enabled }}
       {{- if .Values.kubecostAggregator.priority.name }}

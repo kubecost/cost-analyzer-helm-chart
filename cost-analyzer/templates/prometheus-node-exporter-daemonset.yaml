@@ -101,10 +101,10 @@ spec:
               mountPath: {{ .mountPath }}
               readOnly: {{ .readOnly }}
           {{- end }}
-    {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.prometheus.imagePullSecrets | indent 2 }}
-    {{- end }}
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
     {{- if .Values.prometheus.nodeExporter.hostNetwork }}
       hostNetwork: true
     {{- end }}

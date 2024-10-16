@@ -181,10 +181,10 @@ spec:
       {{- if .Values.prometheus.server.sidecarContainers }}
       {{- toYaml .Values.prometheus.server.sidecarContainers | nindent 8 }}
       {{- end }}
-    {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
-        {{ toYaml .Values.prometheus.imagePullSecrets | indent 0 }}
-    {{- end }}
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
     {{- if .Values.prometheus.server.nodeSelector }}
       nodeSelector:
       {{- toYaml .Values.prometheus.server.nodeSelector | nindent 8 }}
