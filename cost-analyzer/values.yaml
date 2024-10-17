@@ -555,6 +555,8 @@ kubecostModel:
   # image provided (registry, image, tag) will be used for cost-model.
   # fullImageName:
 
+  logLevel: info
+
   # securityContext:
   #   readOnlyRootFilesystem: true
 
@@ -708,8 +710,6 @@ kubecostModel:
 
   # Optional. A list of extra environment variables to be added to the cost-model container.
   # extraEnv:
-  #   - name: LOG_LEVEL
-  #     value: trace
   #   - name: LOG_FORMAT
   #     value: json
   #   # When false, Kubecost will not show Asset costs for local disks physically
