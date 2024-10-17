@@ -1115,7 +1115,7 @@ Begin Kubecost 2.0 templates
       {{- end }}
     {{- end }}
     - name: LOG_LEVEL
-      value: {{ .Values.kubecostAggregator.logLevel | default "info" }}
+      value: {{ .Values.kubecostAggregator.logLevel }}
     - name: DB_READ_THREADS
       value: {{ .Values.kubecostAggregator.dbReadThreads | quote }}
     - name: DB_WRITE_THREADS
