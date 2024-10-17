@@ -555,6 +555,7 @@ kubecostModel:
   # image provided (registry, image, tag) will be used for cost-model.
   # fullImageName:
 
+  # Log level for the cost model container. Options are "trace", "debug", "info", "warn", "error", "fatal", "panic"
   logLevel: info
 
   # securityContext:
@@ -2307,6 +2308,7 @@ networkCosts:
   # every 30 minutes.
   trafficLogging: true
 
+  # Log level for the network cost containers. Options are "trace", "debug", "info", "warn", "error", "fatal", "panic"
   logLevel: info
 
   # Port will set both the containerPort and hostPort to this value.
@@ -2524,6 +2526,7 @@ kubecostAggregator:
   # `deployMethod: "statefulset"`
   replicas: 1
 
+  # Log level for the aggregator container. Options are "trace", "debug", "info", "warn", "error", "fatal", "panic"
   logLevel: info
 
   # stagingEmptyDirSizeLimit changes how large the "staging"

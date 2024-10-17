@@ -740,7 +740,7 @@ spec:
             - name: GRAFANA_ENABLED
               value: "{{ template "cost-analyzer.grafanaEnabled" . }}"
             - name: LOG_LEVEL
-              value: {{ .Values.kubecostAggregator.logLevel }}
+              value: {{ .Values.kubecostModel.logLevel }}
             {{- end}}
             {{- if .Values.kubecostModel.extraEnv -}}
             {{ toYaml .Values.kubecostModel.extraEnv | nindent 12 }}
