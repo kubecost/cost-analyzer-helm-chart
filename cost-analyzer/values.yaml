@@ -479,6 +479,33 @@ kubecostFrontend:
 #  clusterController:
 #    fqdn: cluster-controller.kubecost.svc.cluster.local:9731
 
+# allow setting custom log format for nginx
+# custom log formats are experimental and are not supported.
+  logging:
+    useDefaultLogFormat: true
+    # the below values are are only used if useDefaultLogFormat is false
+    logFormat: "escape=json"  # set to "" if you want to use the default log format
+    # customLogDetails must end with a ;
+    customLogDetails: |-
+      '{"time":"$time_local","remote_user":"$remote_user","uri":"$uri","request":"$request","status":"$status","body_bytes_sent":"$body_bytes_sent","request_time":"$request_time","upstream_cache_status":"$upstream_cache_status"}';
+# Cache configuration
+# caching is experimental and only supported with Kubecost Enterprise
+# using cache will can impact short-term consistency - it is possible that
+# costs would have been equal across two screens but differ due to timing of
+# the live query
+  cache:
+    enabled: false
+    cacheTTL: 1h
+    proxyCachePath: "/tmp/cache levels=1:2 keys_zone=kubecost_cache:2000m"
+    proxyCacheMethods: "GET POST HEAD"
+
+# aggregatorFailoverSvc is experimental and only supported with Kubecost Enterprise
+# similar to the above concerns with cache, two different aggregator pods
+# will almost always have different short-term costs (less than 2d). Though this may be acceptable if HA is
+# a high priority.
+# location of the aggregator service to use as a failover
+  # aggregatorFailoverSvc: kubecost2-aggregator.kubecost2.svc.cluster.local:9004
+
 # Kubecost Metrics deploys a separate pod which will emit kubernetes specific metrics required
 # by the cost-model. This pod is designed to remain active and decoupled from the cost-model itself.
 # However, disabling this service/pod deployment will flag the cost-model to emit the metrics instead.
