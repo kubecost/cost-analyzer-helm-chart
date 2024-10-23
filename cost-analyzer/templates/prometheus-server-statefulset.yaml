@@ -156,7 +156,6 @@ spec:
        {{- if .Values.prometheus.server.sidecarContainers }}
        {{- toYaml .Values.prometheus.server.sidecarContainers | nindent 8 }}
        {{- end }}
-<<<<<<< Updated upstream
     {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
       {{- range $.Values.prometheus.imagePullSecrets}}

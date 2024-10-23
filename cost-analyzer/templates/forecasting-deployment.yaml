@@ -113,10 +113,11 @@ spec:
             periodSeconds: {{ .Values.forecasting.livenessProbe.periodSeconds  }}
             failureThreshold: {{ .Values.forecasting.livenessProbe.failureThreshold  }}
           {{- end }}
+      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{- range $.Values.imagePullSecrets }}
+        {{- range $.Values.imagePullSecrets }}
         - name: {{ .name }}
-      {{- end }}
+        {{- end }}
       {{- end }}
       {{- if .Values.forecasting.priority }}
       {{- if .Values.forecasting.priority.enabled }}
