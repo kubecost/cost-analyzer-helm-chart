@@ -87,6 +87,7 @@ spec:
           imagePullSecrets:
           {{ toYaml .Values.imagePullSecrets | indent 2 }}
           {{- end }}
+          {{- end }}
           {{- if .Values.diagnostics.deployment.containerSecurityContext }}
           securityContext:
             {{- toYaml .Values.diagnostics.deployment.containerSecurityContext | nindent 12 }}

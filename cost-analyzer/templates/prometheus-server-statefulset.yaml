@@ -156,10 +156,19 @@ spec:
        {{- if .Values.prometheus.server.sidecarContainers }}
        {{- toYaml .Values.prometheus.server.sidecarContainers | nindent 8 }}
        {{- end }}
+<<<<<<< Updated upstream
     {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
        {{ toYaml .Values.prometheus.imagePullSecrets | indent 2 }}
     {{- end }}
+=======
+      {{- if .Values.prometheus.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+>>>>>>> Stashed changes
     {{- if .Values.prometheus.server.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.prometheus.server.nodeSelector | indent 8 }}

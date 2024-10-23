@@ -324,10 +324,19 @@ spec:
                 configMapKeyRef:
                   name: {{ template "cost-analyzer.fullname" . }}
                   key: kubecost-token
+<<<<<<< Updated upstream
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
+=======
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+>>>>>>> Stashed changes
       {{- if .Values.kubecostMetrics.exporter.priorityClassName }}
       priorityClassName: {{ .Values.kubecostMetrics.exporter.priorityClassName }}
       {{- end }}

@@ -111,10 +111,19 @@ spec:
               mountPath: /etc/config
               readOnly: true
         {{- end }}
+<<<<<<< Updated upstream
     {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.prometheus.imagePullSecrets | indent 2 }}
     {{- end }}
+=======
+      {{- if .Values.prometheus.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+>>>>>>> Stashed changes
     {{- if .Values.prometheus.alertmanager.nodeSelector }}
       nodeSelector:
 {{ toYaml .Values.prometheus.alertmanager.nodeSelector | indent 8 }}

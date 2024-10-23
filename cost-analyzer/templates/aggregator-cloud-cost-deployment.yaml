@@ -149,10 +149,19 @@ spec:
       {{- end }}
       containers:
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
+<<<<<<< Updated upstream
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
+=======
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+>>>>>>> Stashed changes
       {{- if .Values.kubecostAggregator.priority }}
       {{- if .Values.kubecostAggregator.priority.enabled }}
       {{- if .Values.kubecostAggregator.priority.name }}

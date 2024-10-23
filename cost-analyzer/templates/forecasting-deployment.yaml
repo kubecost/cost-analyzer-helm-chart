@@ -117,6 +117,7 @@ spec:
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
       {{- end }}
+      {{- end }}
       {{- if .Values.forecasting.priority }}
       {{- if .Values.forecasting.priority.enabled }}
       {{- if .Values.forecasting.priority.name }}

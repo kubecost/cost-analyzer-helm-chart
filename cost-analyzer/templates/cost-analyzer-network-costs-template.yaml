@@ -40,10 +40,19 @@ spec:
         {{- toYaml .Values.networkCosts.additionalLabels | nindent 8 }}
         {{- end }}
     spec:
+<<<<<<< Updated upstream
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{ toYaml .Values.imagePullSecrets | indent 2 }}
     {{- end }}
+=======
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
+      {{- end }}
+>>>>>>> Stashed changes
       hostNetwork: true
       serviceAccountName: {{ template "cost-analyzer.serviceAccountName" . }}
       containers:
