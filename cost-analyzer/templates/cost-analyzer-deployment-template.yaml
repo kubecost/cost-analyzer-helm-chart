@@ -1229,20 +1229,13 @@ spec:
         {{- end }}
         {{- include "aggregator.cloudCost.containerTemplate" . | nindent 8 }}
         {{- end }}
-<<<<<<< Updated upstream
 
     {{- if .Values.imagePullSecrets }}
-      imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
-    {{- end }}
-=======
-      {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
       {{- range $.Values.imagePullSecrets }}
         - name: {{ .name }}
       {{- end }}
-      {{- end }}
->>>>>>> Stashed changes
+    {{- end }}
       {{- if .Values.priority }}
       {{- if .Values.priority.enabled }}
       {{- if gt (len .Values.priority.name) 0 }}
