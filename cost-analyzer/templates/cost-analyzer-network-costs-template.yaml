@@ -79,7 +79,7 @@ spec:
         - name: TRAFFIC_LOGGING_ENABLED
           value: {{ (quote .Values.networkCosts.trafficLogging) | default (quote true) }}
         - name: LOG_LEVEL
-          value: {{ .Values.networkCosts.logLevel | default "info" }}
+          value: {{ .Values.networkCosts.logLevel }}
         {{- if .Values.networkCosts.softMemoryLimit }}
         - name: GOMEMLIMIT
           value: {{ .Values.networkCosts.softMemoryLimit }}
