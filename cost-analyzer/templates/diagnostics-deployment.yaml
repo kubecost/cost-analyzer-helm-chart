@@ -83,10 +83,11 @@ spec:
           {{- else }}
           imagePullPolicy: Always
           {{- end }}
+          {{- if .Values.imagePullSecrets }}
           imagePullSecrets:
-          {{- range $.Values.imagePullSecrets }}
+            {{- range $.Values.imagePullSecrets }}
             - name: {{ .name }}
-          {{- end }}
+            {{- end }}
           {{- end }}
           {{- if .Values.diagnostics.deployment.containerSecurityContext }}
           securityContext:
