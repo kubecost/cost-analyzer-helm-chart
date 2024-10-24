@@ -183,7 +183,9 @@ spec:
       {{- end }}
     {{- if .Values.prometheus.imagePullSecrets }}
       imagePullSecrets:
-        {{ toYaml .Values.prometheus.imagePullSecrets | indent 0 }}
+      {{- range $.Values.prometheus.imagePullSecrets}}
+        - name: {{ .name }}
+      {{- end }}
     {{- end }}
     {{- if .Values.prometheus.server.nodeSelector }}
       nodeSelector:
