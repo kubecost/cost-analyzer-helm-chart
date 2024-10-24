@@ -2741,7 +2741,7 @@ diagnostics:
   ## retention. When in readonly mode it does not push its own diagnostic data
   ## to the bucket.
   primary:
-    enabled: false
+    enabled: true
     retention: "7d"
     readonly: false
 
