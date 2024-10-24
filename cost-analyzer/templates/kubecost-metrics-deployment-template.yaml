@@ -326,7 +326,9 @@ spec:
                   key: kubecost-token
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
     {{- end }}
       {{- if .Values.kubecostMetrics.exporter.priorityClassName }}
       priorityClassName: {{ .Values.kubecostMetrics.exporter.priorityClassName }}
