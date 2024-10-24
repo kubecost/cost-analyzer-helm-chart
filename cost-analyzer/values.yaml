@@ -3204,27 +3204,28 @@ grafana:
 
   ## Grafana sidecars that collect the configmaps with specified label and stores the included files them into the respective folders
   ## Requires at least Grafana 5 to work and can't be used together with parameters dashboardProviders, datasources and dashboards
-  sidecar:
-    image:
-      repository: cgr.dev/chainguard/k8s-sidecar
-      tag: latest
-      pullPolicy: IfNotPresent
-    resources: {}
-    dashboards:
-      enabled: true
-      # label that the configmaps with dashboards are marked with
-      label: grafana_dashboard
-      labelValue: "1"
-      # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
-      annotations: {}
-      error_throttle_sleep: 0
-      folder: /tmp/dashboards
-    datasources:
-      # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
-      enabled: false
-      error_throttle_sleep: 0
-      # label that the configmaps with datasources are marked with
-      label: grafana_datasource
+  ## disabled by default in Kubecost 2.5.0, uncomment to enable
+  # sidecar:
+  #   image:
+  #     repository: cgr.dev/chainguard/k8s-sidecar
+  #     tag: latest
+  #     pullPolicy: IfNotPresent
+  #   resources: {}
+  #   dashboards:
+  #     enabled: true
+  #     # label that the configmaps with dashboards are marked with
+  #     label: grafana_dashboard
+  #     labelValue: "1"
+  #     # set sidecar ERROR_THROTTLE_SLEEP env var from default 5s to 0s -> fixes https://github.com/kubecost/cost-analyzer-helm-chart/issues/877
+  #     annotations: {}
+  #     error_throttle_sleep: 0
+  #     folder: /tmp/dashboards
+  #   datasources:
+  #     # dataSourceFilename: foo.yml # If you need to change the name of the datasource file
+  #     enabled: false
+  #     error_throttle_sleep: 0
+  #     # label that the configmaps with datasources are marked with
+  #     label: grafana_datasource
 
   ## Grafana's primary configuration
   ## NOTE: values in map will be converted to ini format
