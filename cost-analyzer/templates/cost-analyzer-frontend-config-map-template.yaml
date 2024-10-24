@@ -50,6 +50,34 @@ data:
         text/xml
         text/x-component
         text/x-cross-domain-policy;
+    {{- if not (.Values.kubecostFrontend.logging).useDefaultLogFormat }}
+    log_format custom_logging {{ (.Values.kubecostFrontend.logging).logFormat }}
+        {{ (.Values.kubecostFrontend.logging).customLogDetails }}
+    access_log /var/log/nginx/access.log custom_logging;
+    {{- end }}
+    {{- if (.Values.kubecostFrontend.cache).enabled -}}
+    # this is the name of the cache
+    proxy_cache kubecost_cache;
+    # this is the path where the cache will be stored
+    proxy_cache_path {{ (.Values.kubecostFrontend.cache).proxyCachePath }};
+    # this is the key that will be used to identify the cache
+    proxy_cache_key "$request_method|$host|$request_uri|$is_args$args";
+    # this is the time to live for the cache
+    proxy_cache_valid 200 {{ (.Values.kubecostFrontend.cache).cacheTTL }};
+    proxy_cache_valid any 10m;
+    # this allows Nginx to ignore the headers that are set by the upstream server
+    proxy_ignore_headers Expires Cache-Control X-Accel-Expires Set-Cookie;
+    # only cache GET and POST requests
+    proxy_cache_methods {{ (.Values.kubecostFrontend.cache).proxyCacheMethods }};
+    # this allows Nginx to try the next upstream server in case of an error on the current one
+    proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+    add_header X-Cache-Status $upstream_cache_status;
+    add_header X-Upstream-Server $upstream_addr;
+    # this allows Nginx to serve stale cached content in various error scenarios or when the upstream server is having issues
+    proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+    proxy_cache_revalidate on;
+    proxy_cache_background_update on;
+    {{- end }}
 
     upstream api {
 {{- if .Values.kubecostFrontend.useDefaultFqdn }}
@@ -128,6 +156,10 @@ data:
         server {{ .Release.Name }}-aggregator.{{ .Release.Namespace }}:9004;
         {{- end }}
         {{- end }}
+        {{- if (.Values.kubecostFrontend.aggregatorFailoverSvc) -}}
+        # this allows Nginx to try the next upstream server in case of an error on the primary
+        server {{ .Values.kubecostFrontend.aggregatorFailoverSvc }} backup;
+        {{- end }}
     }
     upstream cloudCost {
         {{- if .Values.kubecostFrontend.useDefaultFqdn }}
@@ -187,6 +219,9 @@ data:
             proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
             error_page 401 = /login;
             try_files $uri $uri/ /index.html;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
         location /healthz {
             add_header 'Content-Type' 'text/plain';
@@ -276,6 +311,9 @@ data:
             proxy_set_header Connection "";
             proxy_set_header X-Real-IP  $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
 
 {{- else }}
             return 404;
@@ -355,15 +393,24 @@ data:
     {{- if .Values.oidc.enabled }}
         location /auth {
             proxy_pass http://aggregator/isAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- end }}
     {{- if .Values.saml.enabled }}
         location /auth {
             proxy_pass http://aggregator/isAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- if .Values.saml.rbac.enabled }}
         location /authrbac {
             proxy_pass http://aggregator/isAdminAuthenticated;
+            # Disable caching for this location
+            proxy_cache_bypass $http_upgrade;
+            proxy_no_cache 1;
         }
     {{- end }}
     {{- end }}
