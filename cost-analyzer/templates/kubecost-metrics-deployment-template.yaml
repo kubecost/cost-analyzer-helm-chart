@@ -7,14 +7,21 @@ metadata:
   name: {{ template "kubecost.kubeMetricsName" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{ unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
+    {{- unset (include "cost-analyzer.commonLabels" . | fromYaml) "app" | toYaml | nindent 4 }}
     app: {{ template "kubecost.kubeMetricsName" . }}
     {{- with .Values.global.additionalLabels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
-{{- with .Values.kubecostMetrics.exporter.labels }}
-{{ toYaml . | indent 4 }}
-{{- end }}
+    {{- with .Values.kubecostMetrics.exporter.labels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  annotations:
+  {{- with .Values.global.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.kubecostMetrics.exporter.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.kubecostMetrics.exporter.replicas | default 1 }}
   selector:
@@ -319,7 +326,9 @@ spec:
                   key: kubecost-token
     {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
-      {{ toYaml .Values.imagePullSecrets | indent 2 }}
+      {{- range $.Values.imagePullSecrets }}
+        - name: {{ .name }}
+      {{- end }}
     {{- end }}
       {{- if .Values.kubecostMetrics.exporter.priorityClassName }}
       priorityClassName: {{ .Values.kubecostMetrics.exporter.priorityClassName }}

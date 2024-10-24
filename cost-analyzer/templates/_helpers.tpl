@@ -1535,3 +1535,26 @@ for more information
 {{- end -}}
 {{- $checksum | sha256sum -}}
 {{- end -}}
+
+{{- define "cost-model.image" }}
+{{- if .Values.kubecostModel }}
+  {{- if .Values.kubecostModel.fullImageName }}
+    {{ .Values.kubecostModel.fullImageName }}
+  {{- else if .Values.imageVersion }}
+    {{ .Values.kubecostModel.image }}:{{ .Values.imageVersion }}
+  {{- else if eq "development" .Chart.AppVersion }}
+    gcr.io/kubecost1/cost-model-nightly:latest
+  {{- else }}
+    {{ .Values.kubecostModel.image }}:prod-{{ $.Chart.AppVersion }}
+  {{- end }}
+{{- else }}
+  gcr.io/kubecost1/cost-model:prod-{{ $.Chart.AppVersion }}
+{{- end }}
+{{- end }}
+
+{{- define "cost-model.imagetag" }}
+{{- $image := include "cost-model.image" . }}
+{{- $parts := splitList ":" $image }}
+{{- $tag := last $parts }}
+{{- $tag }}
+{{- end }}
