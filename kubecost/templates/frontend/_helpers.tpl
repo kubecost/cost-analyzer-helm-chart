@@ -105,8 +105,11 @@ simplicity: the others serve JSON or an SSE stream, never a document, so a CSP
 on them is inert.
 
 A location-level add_header discards every header inherited from the server
-block, so the operator's own frontend.nginxHeaders.server entries are repeated
-here, minus any Content-Security-Policy, before the relaxed one.
+block -- including the server CSP that allows `data:` in default-src -- so the
+operator's own frontend.nginxHeaders.server entries are repeated here, minus
+any Content-Security-Policy, before the relaxed one. `img-src 'self' data:`
+is required so the consent page's inline PNG logo is not blocked; browsers
+AND this header with FastMCP's meta CSP, which already allows `img-src data:`.
 */}}
   proxy_connect_timeout       300;
   proxy_send_timeout          3600;
@@ -127,6 +130,6 @@ here, minus any Content-Security-Policy, before the relaxed one.
   add_header {{ . }}
 {{- end }}
 {{- end }}
-  add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; form-action *;";
+  add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-ancestors 'none'; form-action *;";
 {{- end -}}
 

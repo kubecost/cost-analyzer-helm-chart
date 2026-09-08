@@ -472,6 +472,10 @@ assert_contains "nginx proxies /mcp with default settings (no ingress, authMode=
   "${RENDER_DIR}/nginx-baseline.conf" "proxy_pass http://mcpKubecost"
 assert_absent "nginx does not emit 424 with default settings" \
   "${RENDER_DIR}/nginx-baseline.conf" "return 424"
+assert_contains "nginx MCP CSP allows the consent page inline logo" \
+  "${RENDER_DIR}/nginx-baseline.conf" "img-src 'self' data:"
+assert_contains "nginx MCP CSP still relaxes form-action for the IdP redirect chain" \
+  "${RENDER_DIR}/nginx-baseline.conf" "form-action *"
 
 # authMode=open, no parent ingress/httpRoute → proxy_pass.
 helm template "$RELEASE_NAME" "$CHART_DIR" \
