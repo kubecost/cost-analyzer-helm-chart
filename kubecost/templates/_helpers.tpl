@@ -585,11 +585,7 @@ result with eq "true"; a non-empty "false" string is truthy in Go templates.
 {{- define "kubecost.mcp.enabled" -}}
 {{- if kindIs "bool" ((.Values.mcp).enabled) -}}
 {{- if (.Values.mcp).enabled -}}true{{- else -}}false{{- end -}}
-{{- else if (.Values.aggregator).enabled -}}
-true
-{{- else -}}
-false
-{{- end -}}
+{{- else if (.Values.aggregator).enabled -}}true{{- else -}}false{{- end -}}
 {{- end -}}
 
 {{- define "kubecost.mcp.authMode" -}}

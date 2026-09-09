@@ -177,7 +177,7 @@ helm lint "$CHART_DIR" "${skip_schema[@]}" --set "${values_key}.enabled=true"
 pass "helm lint (--set ${values_key}.enabled=true)"
 
 # ---------------------------------------------------------------------------
-group "Subchart is enabled by default"
+group "Default-render behaviour (follows aggregator.enabled)"
 
 helm template "$RELEASE_NAME" "$CHART_DIR" "${skip_schema[@]}" > "${RENDER_DIR}/default.yaml"
 pass "helm template (defaults) rendered without errors"
@@ -229,6 +229,12 @@ if printf '%s\n' "$forced_on_sources" | grep -q "charts/${values_key}/"; then
 else
   fail "explicit mcp.enabled=true did not deploy the subchart when aggregator is off"
 fi
+
+extract_nginx "${RENDER_DIR}/mcp-forced-on.yaml" "${RENDER_DIR}/nginx-mcp-forced-on.conf"
+assert_contains "productConfigs reports mcpEnabled=true when mcp.enabled=true overrides aggregator.enabled=false" \
+  "${RENDER_DIR}/nginx-mcp-forced-on.conf" '"mcpEnabled": "true"'
+assert_contains "frontend nginx defines the mcpKubecost upstream when mcp.enabled=true overrides aggregator.enabled=false" \
+  "${RENDER_DIR}/nginx-mcp-forced-on.conf" "upstream mcpKubecost"
 
 # ---------------------------------------------------------------------------
 group "Subchart renders expected resources"
