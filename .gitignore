@@ -11,3 +11,4 @@ temp/
 cost-analyzer/
 kubecost/charts/.helm_ls_cache
 .bobtmp/
+.helm-render/
