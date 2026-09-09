@@ -666,7 +666,12 @@ finopsagent:
 ## server its own route instead, in which case the frontend stops proxying it.
 ##
 mcp:
-  enabled: true
+  ## mcp.enabled is omitted on purpose. Chart.yaml condition is
+  ## mcp.enabled,aggregator.enabled: the first boolean wins, otherwise the
+  ## subchart follows aggregator.enabled. Agent-only installs that only set
+  ## aggregator.enabled=false therefore skip MCP without a new flag.
+  ## Override with mcp.enabled: true or mcp.enabled: false.
+  ##
   ## The MCP server reads cost data through the Kubecost aggregator service.
   ## If Kubecost is deployed with SAML or OIDC authentication,
   ## the MCP server must be configured with its own OIDC configuration.

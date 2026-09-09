@@ -575,11 +575,20 @@ To resolve this, either:
 {{- end -}}
 {{- end -}}
 
-{{- define "kubecost.mcp.enabled" }}
-{{- if (.Values.mcp).enabled }}
-{{- printf "true" -}}
+{{/*
+Whether the MCP subchart should be treated as enabled in parent templates.
+
+Mirrors Chart.yaml condition mcp.enabled,aggregator.enabled: an explicit
+boolean mcp.enabled wins, otherwise follow aggregator.enabled. Compare the
+result with eq "true"; a non-empty "false" string is truthy in Go templates.
+*/}}
+{{- define "kubecost.mcp.enabled" -}}
+{{- if kindIs "bool" ((.Values.mcp).enabled) -}}
+{{- if (.Values.mcp).enabled -}}true{{- else -}}false{{- end -}}
+{{- else if (.Values.aggregator).enabled -}}
+true
 {{- else -}}
-{{- printf "false" -}}
+false
 {{- end -}}
 {{- end -}}
 
@@ -652,7 +661,7 @@ skipSanityChecks is set, emit a warning instead of failing.
 This does not prevent an mcp.httpRoute or mcp.ingress from being enabled. Those checks exist in the sub-chart itself.
 */}}
 {{- define "kubecost.mcp.openRouteCheck" -}}
-{{- if (.Values.mcp).enabled }}
+{{- if eq (include "kubecost.mcp.enabled" .) "true" }}
 {{- $routeEnabled := or ((.Values.mcp).httpRoute).enabled ((.Values.mcp).ingress).enabled (.Values.ingress).enabled (.Values.httpRoute).enabled -}}
 {{- $apiPort := toString (include "kubecost.mcp.kubecostApiPort" .) -}}
 {{- $authMode := include "kubecost.mcp.authMode" . -}}
@@ -675,11 +684,11 @@ Warn when MCP is enabled but mcp.config.kubecostApiBaseUrl still resolves to an
 aggregator Service this release does not deploy; every MCP tool call would fail
 at runtime.
 
-Warns rather than fails: mcp.enabled defaults to true, so failing would block
-every existing aggregator-less install (including values-cac.yaml) on upgrade.
+Warns rather than fails: an explicit mcp.enabled=true with aggregator off is
+allowed for an external aggregator, but the default in-chart URL would be dead.
 */}}
 {{- define "kubecost.mcp.aggregatorCheck" -}}
-{{- if and (.Values.mcp).enabled (not (.Values.aggregator).enabled) }}
+{{- if and (eq (include "kubecost.mcp.enabled" .) "true") (not (.Values.aggregator).enabled) }}
 {{- $baseUrl := include "kubecost.mcp.kubecostApiBaseUrl" . -}}
 {{- $inChart := printf "http://%s" (include "kubecost.aggregator.serviceName" .) -}}
 {{- if or (eq $baseUrl $inChart) (hasPrefix (printf "%s." $inChart) $baseUrl) }}
@@ -760,7 +769,7 @@ cannot see that parent context. Keep the shared credential and URL rules aligned
 with mcp-kubecost.validateOIDC.
 */}}
 {{- define "kubecost.mcp.validateOIDC" -}}
-{{- if (.Values.mcp).enabled -}}
+{{- if eq (include "kubecost.mcp.enabled" .) "true" -}}
 {{- $mode := default "none" ((.Values.mcp).config).authMode -}}
 {{- if eq $mode "oidc" -}}
 {{- $oidc := (((.Values.mcp).config).oidc) | default dict -}}
