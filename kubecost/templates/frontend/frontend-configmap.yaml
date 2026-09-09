@@ -99,7 +99,7 @@ data:
     }
   {{- end }}
 
-  {{- if (.Values.mcp).enabled }}
+  {{- if eq (include "kubecost.mcp.enabled" .) "true" }}
     upstream mcpKubecost {
         {{- if .Values.frontend.useDefaultFqdn }}
         server {{ include "kubecost.mcp.serviceName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ include "kubecost.mcp.servicePort" . }};
@@ -499,7 +499,7 @@ data:
         {{- end }}
 
         {{- /* mcpProxy: Only proxy MCP if it is enabled and not using its own httproute or ingress */}}
-        {{- if and (.Values.mcp).enabled (not ((.Values.mcp).httpRoute).enabled) (not ((.Values.mcp).ingress).enabled) }}
+        {{- if and (eq (include "kubecost.mcp.enabled" .) "true") (not ((.Values.mcp).httpRoute).enabled) (not ((.Values.mcp).ingress).enabled) }}
         {{- $mcpPath := include "kubecost.mcp.path" . }}
         {{- $mcpOauth := include "kubecost.mcp.oauthPrefix" . }}
         {{- /*

@@ -123,8 +123,8 @@ values_key="${dep_alias:-$SUBCHART_NAME}"
 
 assert_eq "dependency repository is the mcp-kubecost Helm repo" \
   "https://kubecost.github.io/mcp-kubecost" "$dep_repository"
-assert_eq "dependency condition gates the subchart" \
-  "${values_key}.enabled" "$dep_condition"
+assert_eq "dependency condition falls through to aggregator.enabled" \
+  "${values_key}.enabled,aggregator.enabled" "$dep_condition"
 
 if [ "$dep_version" = "*" ] || [ "${dep_version#\^}" != "$dep_version" ] \
   || [ "${dep_version#\~}" != "$dep_version" ]; then
@@ -140,7 +140,8 @@ assert_eq "${chart_lock} pins the same version as ${chart_yaml}" \
   "${dep_version#v}" "${lock_version#v}"
 
 default_enabled="$(yq -r ".[\"${values_key}\"].enabled" "${CHART_DIR}/values.yaml")"
-assert_eq "values.yaml defaults ${values_key}.enabled to true" "true" "$default_enabled"
+assert_eq "values.yaml omits ${values_key}.enabled so condition falls through to aggregator.enabled" \
+  "null" "$default_enabled"
 
 # ---------------------------------------------------------------------------
 group "Dependency resolution (validates Chart.lock is in sync)"
@@ -176,7 +177,7 @@ helm lint "$CHART_DIR" "${skip_schema[@]}" --set "${values_key}.enabled=true"
 pass "helm lint (--set ${values_key}.enabled=true)"
 
 # ---------------------------------------------------------------------------
-group "Subchart is enabled by default"
+group "Default-render behaviour (follows aggregator.enabled)"
 
 helm template "$RELEASE_NAME" "$CHART_DIR" "${skip_schema[@]}" > "${RENDER_DIR}/default.yaml"
 pass "helm template (defaults) rendered without errors"
@@ -186,10 +187,54 @@ pass "helm template (defaults) rendered without errors"
 default_sources="$(grep '^# Source:' "${RENDER_DIR}/default.yaml" || true)"
 # Helm uses the alias (when set) as the on-disk chart directory in # Source: lines.
 if printf '%s\n' "$default_sources" | grep -q "charts/${values_key}/"; then
-  pass "subchart resources rendered with ${values_key}.enabled=true (default)"
+  pass "subchart resources rendered by default when aggregator.enabled=true"
 else
-  fail "subchart rendered no resources despite ${values_key}.enabled=true (default)"
+  fail "subchart rendered no resources despite aggregator.enabled=true (default)"
 fi
+
+# aggregator.enabled=false with mcp.enabled unset must skip the subchart so
+# existing agent-only installs do not pick up MCP on upgrade.
+helm template "$RELEASE_NAME" "$CHART_DIR" \
+  "${skip_schema[@]}" \
+  --set aggregator.enabled=false \
+  > "${RENDER_DIR}/aggregator-off.yaml"
+pass "helm template (aggregator.enabled=false) rendered without errors"
+
+aggregator_off_sources="$(grep '^# Source:' "${RENDER_DIR}/aggregator-off.yaml" || true)"
+if printf '%s\n' "$aggregator_off_sources" | grep -q "charts/${values_key}/"; then
+  fail "subchart rendered resources when aggregator.enabled=false and mcp.enabled is unset"
+else
+  pass "subchart is skipped when aggregator.enabled=false and mcp.enabled is unset"
+fi
+
+extract_nginx "${RENDER_DIR}/aggregator-off.yaml" "${RENDER_DIR}/nginx-aggregator-off.conf"
+assert_absent "frontend nginx omits the mcpKubecost upstream when aggregator is off" \
+  "${RENDER_DIR}/nginx-aggregator-off.conf" "upstream mcpKubecost"
+assert_contains "productConfigs reports mcpEnabled=false when aggregator is off" \
+  "${RENDER_DIR}/nginx-aggregator-off.conf" '"mcpEnabled": "false"'
+
+# An explicit mcp.enabled=true still deploys MCP with the aggregator off
+# (external aggregator). Skip schema: the subchart lookup for a missing
+# API-key Secret is not under test here.
+helm template "$RELEASE_NAME" "$CHART_DIR" \
+  "${skip_schema[@]}" \
+  --set aggregator.enabled=false \
+  --set "${values_key}.enabled=true" \
+  > "${RENDER_DIR}/mcp-forced-on.yaml"
+pass "helm template (aggregator.enabled=false, mcp.enabled=true) rendered without errors"
+
+forced_on_sources="$(grep '^# Source:' "${RENDER_DIR}/mcp-forced-on.yaml" || true)"
+if printf '%s\n' "$forced_on_sources" | grep -q "charts/${values_key}/"; then
+  pass "explicit mcp.enabled=true deploys the subchart even when aggregator is off"
+else
+  fail "explicit mcp.enabled=true did not deploy the subchart when aggregator is off"
+fi
+
+extract_nginx "${RENDER_DIR}/mcp-forced-on.yaml" "${RENDER_DIR}/nginx-mcp-forced-on.conf"
+assert_contains "productConfigs reports mcpEnabled=true when mcp.enabled=true overrides aggregator.enabled=false" \
+  "${RENDER_DIR}/nginx-mcp-forced-on.conf" '"mcpEnabled": "true"'
+assert_contains "frontend nginx defines the mcpKubecost upstream when mcp.enabled=true overrides aggregator.enabled=false" \
+  "${RENDER_DIR}/nginx-mcp-forced-on.conf" "upstream mcpKubecost"
 
 # ---------------------------------------------------------------------------
 group "Subchart renders expected resources"

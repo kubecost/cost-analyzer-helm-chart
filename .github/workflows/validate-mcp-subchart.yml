@@ -72,10 +72,26 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .helm-render
+          # Default: mcp.enabled unset, aggregator.enabled=true (default) — MCP follows aggregator
+          helm template kubecost "$CHART_DIR" \
+            --skip-schema-validation \
+            > .helm-render/mcp-default.yaml
+          # Explicit mcp.enabled=true (backwards-compat / external aggregator path)
           helm template kubecost "$CHART_DIR" \
             --skip-schema-validation \
             --set mcp.enabled=true \
             > .helm-render/mcp-enabled.yaml
+          # aggregator.enabled=false, mcp.enabled unset — MCP must be absent
+          helm template kubecost "$CHART_DIR" \
+            --skip-schema-validation \
+            --set aggregator.enabled=false \
+            > .helm-render/aggregator-off.yaml
+          # aggregator.enabled=false, mcp.enabled=true — explicit override (external aggregator)
+          helm template kubecost "$CHART_DIR" \
+            --skip-schema-validation \
+            --set aggregator.enabled=false \
+            --set mcp.enabled=true \
+            > .helm-render/mcp-forced-on.yaml
           helm template kubecost "$CHART_DIR" \
             --skip-schema-validation \
             --set mcp.enabled=true \
@@ -98,11 +114,29 @@ jobs:
 
       # Ensure every rendered resource is valid Kubernetes YAML. HTTPRoute is a
       # Gateway API CRD, so that render tolerates missing schemas.
-      - name: Kubeconform (core resources)
+      - name: Kubeconform (default render — MCP follows aggregator.enabled)
+        uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: /kubeconform
+          args: -summary -strict -kubernetes-version 1.34.0 -ignore-missing-schemas -output text .helm-render/mcp-default.yaml
+
+      - name: Kubeconform (core resources — mcp.enabled=true)
         uses: docker://ghcr.io/yannh/kubeconform:latest
         with:
           entrypoint: /kubeconform
           args: -summary -strict -kubernetes-version 1.34.0 -ignore-missing-schemas -output text .helm-render/mcp-enabled.yaml
+
+      - name: Kubeconform (aggregator.enabled=false — MCP absent)
+        uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: /kubeconform
+          args: -summary -strict -kubernetes-version 1.34.0 -ignore-missing-schemas -output text .helm-render/aggregator-off.yaml
+
+      - name: Kubeconform (aggregator.enabled=false, mcp.enabled=true — explicit override)
+        uses: docker://ghcr.io/yannh/kubeconform:latest
+        with:
+          entrypoint: /kubeconform
+          args: -summary -strict -kubernetes-version 1.34.0 -ignore-missing-schemas -output text .helm-render/mcp-forced-on.yaml
 
       - name: Kubeconform (HTTPRoute render)
         uses: docker://ghcr.io/yannh/kubeconform:latest
