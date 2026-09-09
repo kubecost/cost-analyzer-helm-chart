@@ -14,11 +14,15 @@ dependencies:
     version: "v1.0.25"
     repository: https://kubecost.github.io/finops-agent-chart
     condition: finopsagent.enabled
-  # The FinOps MCP server for Kubecost analytics. Enabled by default; the pinned
-  # version is bumped automatically by the mcp-kubecost release pipeline.
+  # The FinOps MCP server for Kubecost analytics. Follows aggregator.enabled
+  # unless mcp.enabled is set. The pinned version is bumped automatically by
+  # the mcp-kubecost release pipeline.
   # Ref: https://github.com/kubecost/mcp-kubecost
   - name: mcp-kubecost
     alias: mcp
     version: "0.14.1"
     repository: https://kubecost.github.io/mcp-kubecost
-    condition: mcp.enabled
+    # First boolean path wins. mcp.enabled is omitted from values.yaml so existing
+    # aggregator.enabled=false installs skip MCP on upgrade without a new flag.
+    # Set mcp.enabled to true or false to override.
+    condition: mcp.enabled,aggregator.enabled
