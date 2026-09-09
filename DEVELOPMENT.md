@@ -24,10 +24,10 @@ This guide contains tips on setting up a development environment for the Kubecos
 
 This chart depends on two sub-charts declared in [`kubecost/Chart.yaml`](kubecost/Chart.yaml):
 
-| Name           | Alias         | Enabled by default |
-| -------------- | ------------- | ------------------ |
-| `finops-agent` | `finopsagent` | `false`            |
-| `mcp-kubecost` | `mcp`         | `true`             |
+| Name           | Alias         | Enabled by default           |
+| -------------- | ------------- | ---------------------------- |
+| `finops-agent` | `finopsagent` | `false`                      |
+| `mcp-kubecost` | `mcp`         | follows `aggregator.enabled` |
 
 Install or update all sub-chart dependencies before running `helm template` or `helm install`:
 
@@ -95,7 +95,7 @@ If all previous tests pass, the chart with each of the eligible values files wil
 A separate workflow (`validate-mcp-subchart.yml`) validates the `mcp-kubecost` subchart integration. It runs on pull requests that touch `Chart.yaml`, `Chart.lock`, `values.yaml`, or the frontend templates, and checks that:
 
 - The subchart dependency is pinned and `Chart.lock` is in sync.
-- The subchart is enabled by default (`mcp.enabled: true`).
+- The subchart follows `aggregator.enabled` unless `mcp.enabled` is set (`mcp.enabled,aggregator.enabled`).
 - The expected Kubernetes resources (Deployment, Service, ConfigMap) render correctly.
 - The MCP server's `KUBECOST_BASE_URL` targets the correct in-cluster frontend Service.
 - The frontend nginx ConfigMap proxies `/mcp` and OAuth paths when the subchart is enabled and omits them when disabled.
