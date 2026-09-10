@@ -603,7 +603,7 @@ localStore:
 ## Collects kubernetes metrics and sends them to storage. Below are a subset of
 ## values from the finopsagent subchart that are most commonly changed.
 ## Ref: https://github.com/kubecost/finops-agent-chart/blob/main/charts/finops-agent/values.yaml
-##
+## Note: External labels are commented out by default. For configuration details, refer to the FinOps Agent chart documentation.
 finopsagent:
   enabled: true
   image:
@@ -655,6 +655,13 @@ finopsagent:
       gpuLabelValue: ""
       spotLabel: ""
       spotLabelValue: ""
+  # external:
+  #   nodeLabels:
+  #     configMapName: ""
+  #     namespace: ""
+  #     key: ""
+  #     route: ""
+
 
 ## The FinOps MCP server for Kubecost analytics. Below are a subset of values from
 ## the mcp-kubecost subchart that are most commonly changed.
