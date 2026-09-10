@@ -1,0 +1,222 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: PR Backport Status
+
+# Required secrets, all are set at org level and can be overridden at repo level:
+#   SLACK_FAILURE_WEBHOOK_URL_PASS — Incoming webhook when no missing cherry-picks
+#   SLACK_FAILURE_WEBHOOK_URL_FAIL — Incoming webhook when cherry-picks are missing
+#   KC_ACTIONS_BOT_APP_PRIVATE_KEY — GitHub App private key (existing)
+# Required vars:
+#   KC_ACTIONS_BOT_APP_CLIENT_ID   — GitHub App client ID (existing)
+
+on:
+  workflow_dispatch:
+    inputs:
+      only-missing:
+        description: Only report PRs whose cherry-pick is missing
+        type: boolean
+        default: true
+      branch:
+        description: Check only this branch ex v3.3 (leave empty to auto-detect GA + RC)
+        type: string
+        required: false
+      limit:
+        description: Max PRs to fetch per version label
+        type: number
+        default: 200
+  schedule:
+    - cron: '0 7 * * *'  # 07:00 UTC daily
+
+permissions:
+  contents: read
+
+jobs:
+  backport-status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Generate app token for kubecost/kubecost access
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.KC_ACTIONS_BOT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.KC_ACTIONS_BOT_APP_PRIVATE_KEY }}
+          owner: kubecost
+          repositories: kubecost
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10
+        with:
+          enable-cache: true
+
+      - name: Run backport status check
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          INPUT_ONLY_MISSING: ${{ github.event.inputs.only-missing || 'true' }}
+          INPUT_BRANCH: ${{ github.event.inputs.branch }}
+          INPUT_LIMIT: ${{ github.event.inputs.limit || '200' }}
+        run: |
+          extra_args=()
+          if [ "$INPUT_ONLY_MISSING" = "true" ]; then
+            extra_args+=(--only-missing)
+          fi
+          if [ -n "$INPUT_BRANCH" ]; then
+            extra_args+=(--branch "$INPUT_BRANCH")
+          fi
+          uv run ./scripts/pr-backport-status.py \
+            --limit "$INPUT_LIMIT" \
+            --output-file report.md \
+            --summary-json summary.json \
+            "${extra_args[@]}"
+
+      - name: Upload missing-cherry-picks report
+        uses: actions/upload-artifact@v7
+        with:
+          name: pr-backport-status-report
+          path: report.md
+          retention-days: 30
+
+      - name: Build Slack payload
+        id: get-failed
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          python3 - <<'EOF'
+          import json
+          import os
+
+          with open("summary.json") as f:
+              data = json.load(f)
+
+          run_url = os.environ["RUN_URL"]
+          generated_at = data["generated_at"]
+          branches = data["branches"]
+          failures_found = any(branch["missing"] for branch in branches)
+
+          fallback_bits = []
+          blocks = [
+              {
+                  "type": "header",
+                  "text": {
+                      "type": "plain_text",
+                      "text": (
+                          ":x: PR Backport Status — missing cherry-picks"
+                          if failures_found
+                          else ":white_check_mark: PR Backport Status — all accounted for"
+                      ),
+                      "emoji": True,
+                  },
+              },
+              {
+                  "type": "context",
+                  "elements": [
+                      {
+                          "type": "mrkdwn",
+                          "text": f"*Generated:* {generated_at}  |  *Repo:* `kubecost/kubecost`",
+                      }
+                  ],
+              },
+              {"type": "divider"},
+          ]
+
+          def chunk_lines(lines, max_len=2800):
+              chunks, current, size = [], [], 0
+              for line in lines:
+                  extra = len(line) + 1
+                  if current and size + extra > max_len:
+                      chunks.append("\n".join(current))
+                      current, size = [line], extra
+                  else:
+                      current.append(line)
+                      size += extra
+              if current:
+                  chunks.append("\n".join(current))
+              return chunks
+
+          for branch in branches:
+              version = branch["version"]
+              total = branch["total"]
+              missing = branch["missing"]
+              needs_attention = branch["needs_attention"]
+
+              fallback_bits.append(f"{version}: {missing} missing")
+
+              blocks.append({
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": (
+                          f"*Branch `{version}`* — {missing} missing cherry-pick"
+                          f"{'' if missing == 1 else 's'}"
+                          f" ({total} labeled merged PRs checked)"
+                      ),
+                  },
+              })
+
+              if needs_attention:
+                  pr_lines = [
+                      f":x: *<https://github.com/kubecost/kubecost/pull/{pr['number']}|#{pr['number']}>* "
+                      f"{pr['title']} _(merged: {pr['merged_at']})_"
+                      for pr in needs_attention
+                  ]
+                  for i, chunk in enumerate(chunk_lines(pr_lines)):
+                      prefix = "*Missing cherry-picks:*\n" if i == 0 else ""
+                      blocks.append({
+                          "type": "section",
+                          "text": {"type": "mrkdwn", "text": prefix + chunk},
+                      })
+              else:
+                  blocks.append({
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": ":tada: All PRs accounted for in this branch.",
+                      },
+                  })
+
+              blocks.append({"type": "divider"})
+
+          blocks.append({
+              "type": "actions",
+              "elements": [
+                  {
+                      "type": "button",
+                      "text": {
+                          "type": "plain_text",
+                          "text": ":page_facing_up: Full Report",
+                          "emoji": True,
+                      },
+                      "url": run_url,
+                  }
+              ],
+          })
+
+          payload = {
+              "text": (
+                  "PR Backport Status — missing cherry-picks"
+                  if failures_found
+                  else "PR Backport Status — all accounted for"
+              )
+              + " | "
+              + "; ".join(fallback_bits),
+              "blocks": blocks,
+          }
+
+          with open("slack_payload.json", "w") as f:
+              json.dump(payload, f)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"FAILURES_FOUND={'true' if failures_found else 'false'}\n")
+          EOF
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v4.0.0
+        with:
+          # Use PASS webhook when no missing cherry-picks, FAIL webhook when missing cherry-picks found
+          webhook: ${{ steps.get-failed.outputs.FAILURES_FOUND == 'false' && secrets.SLACK_FAILURE_WEBHOOK_URL_PASS || secrets.SLACK_FAILURE_WEBHOOK_URL_FAIL }}
+          webhook-type: incoming-webhook
+          payload-file-path: slack_payload.json
