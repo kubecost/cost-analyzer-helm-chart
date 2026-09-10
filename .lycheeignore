@@ -49,4 +49,4 @@ https://www.oreilly.com/library/
 https://github.com/mikefarah
 
 docker://
-https://github.com/kubecost/kubecost/pull/
+https://github.com/kubecost/kubecost/pull/%7Bpr['number']%7D
