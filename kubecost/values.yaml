@@ -655,6 +655,11 @@ finopsagent:
       gpuLabelValue: ""
       spotLabel: ""
       spotLabelValue: ""
+  ## External labels allow users to apply custom labels to node assets and
+  ## allocations so they can be used for filtering and grouping in the
+  ## Kubecost UI.
+  ##
+  ## Commented out by default. Refer to the finops-agent-chart for details.
   # external:
   #   nodeLabels:
   #     configMapName: ""
