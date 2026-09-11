@@ -3,8 +3,8 @@
 name: PR Backport Status
 
 # Required secrets, all are set at org level and can be overridden at repo level:
-#   SLACK_FAILURE_WEBHOOK_URL_PASS — Incoming webhook when no missing cherry-picks
-#   SLACK_FAILURE_WEBHOOK_URL_FAIL — Incoming webhook when cherry-picks are missing
+#   SLACK_FAILURE_WEBHOOK_URL_PASS — Slack workflow webhook when no missing cherry-picks
+#   SLACK_FAILURE_WEBHOOK_URL_FAIL — Slack workflow webhook when cherry-picks are missing
 #   KC_ACTIONS_BOT_APP_PRIVATE_KEY — GitHub App private key (existing)
 # Required vars:
 #   KC_ACTIONS_BOT_APP_CLIENT_ID   — GitHub App client ID (existing)
@@ -84,6 +84,9 @@ jobs:
       - name: Build Slack payload
         id: get-failed
         env:
+          RUN_ID: ${{ github.run_id }}
+          REPO_NAME: ${{ github.repository }}
+          WORKFLOW_NAME: ${{ github.workflow }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           python3 - <<'EOF'
@@ -99,45 +102,16 @@ jobs:
           branches = data["branches"]
           failures_found = any(branch["missing"] for branch in branches)
 
-          fallback_bits = []
-          blocks = [
-              {
-                  "type": "header",
-                  "text": {
-                      "type": "plain_text",
-                      "text": (
-                          ":x: PR Backport Status — missing cherry-picks"
-                          if failures_found
-                          else ":white_check_mark: PR Backport Status — all accounted for"
-                      ),
-                      "emoji": True,
-                  },
-              },
-              {
-                  "type": "context",
-                  "elements": [
-                      {
-                          "type": "mrkdwn",
-                          "text": f"*Generated:* {generated_at}  |  *Repo:* `kubecost/kubecost`",
-                      }
-                  ],
-              },
-              {"type": "divider"},
+          lines = [
+              (
+                  ":x: *PR Backport Status — missing cherry-picks*"
+                  if failures_found
+                  else ":white_check_mark: *PR Backport Status — all accounted for*"
+              ),
+              "",
+              f"*Generated:* {generated_at}  |  *Repo:* `kubecost/kubecost`",
+              "",
           ]
-
-          def chunk_lines(lines, max_len=2800):
-              chunks, current, size = [], [], 0
-              for line in lines:
-                  extra = len(line) + 1
-                  if current and size + extra > max_len:
-                      chunks.append("\n".join(current))
-                      current, size = [line], extra
-                  else:
-                      current.append(line)
-                      size += extra
-              if current:
-                  chunks.append("\n".join(current))
-              return chunks
 
           for branch in branches:
               version = branch["version"]
@@ -145,67 +119,33 @@ jobs:
               missing = branch["missing"]
               needs_attention = branch["needs_attention"]
 
-              fallback_bits.append(f"{version}: {missing} missing")
-
-              blocks.append({
-                  "type": "section",
-                  "text": {
-                      "type": "mrkdwn",
-                      "text": (
-                          f"*Branch `{version}`* — {missing} missing cherry-pick"
-                          f"{'' if missing == 1 else 's'}"
-                          f" ({total} labeled merged PRs checked)"
-                      ),
-                  },
-              })
+              lines.append(
+                  f"*Branch `{version}`* — {missing} missing cherry-pick"
+                  f"{'' if missing == 1 else 's'}"
+                  f" ({total} labeled merged PRs checked)"
+              )
 
               if needs_attention:
-                  pr_lines = [
-                      f":x: *<https://github.com/kubecost/kubecost/pull/{pr['number']}|#{pr['number']}>* "
-                      f"{pr['title']} _(merged: {pr['merged_at']})_"
-                      for pr in needs_attention
-                  ]
-                  for i, chunk in enumerate(chunk_lines(pr_lines)):
-                      prefix = "*Missing cherry-picks:*\n" if i == 0 else ""
-                      blocks.append({
-                          "type": "section",
-                          "text": {"type": "mrkdwn", "text": prefix + chunk},
-                      })
+                  lines.append("*Missing cherry-picks:*")
+                  for pr in needs_attention:
+                      lines.append(
+                          f":x: *<https://github.com/kubecost/kubecost/pull/{pr['number']}|#{pr['number']}>* "
+                          f"{pr['title']} _(merged: {pr['merged_at']})_"
+                      )
               else:
-                  blocks.append({
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": ":tada: All PRs accounted for in this branch.",
-                      },
-                  })
+                  lines.append(":tada: All PRs accounted for in this branch.")
 
-              blocks.append({"type": "divider"})
+              lines.append("")
 
-          blocks.append({
-              "type": "actions",
-              "elements": [
-                  {
-                      "type": "button",
-                      "text": {
-                          "type": "plain_text",
-                          "text": ":page_facing_up: Full Report",
-                          "emoji": True,
-                      },
-                      "url": run_url,
-                  }
-              ],
-          })
+          lines.append(f":page_facing_up: <{run_url}|Full Report>")
+          message = "\n".join(lines).rstrip() + "\n"
 
           payload = {
-              "text": (
-                  "PR Backport Status — missing cherry-picks"
-                  if failures_found
-                  else "PR Backport Status — all accounted for"
-              )
-              + " | "
-              + "; ".join(fallback_bits),
-              "blocks": blocks,
+              "runid": os.environ["RUN_ID"],
+              "repo": os.environ["REPO_NAME"],
+              "workflow": os.environ["WORKFLOW_NAME"],
+              "message": message,
+              "mrkdwn": True,
           }
 
           with open("slack_payload.json", "w") as f:
@@ -216,27 +156,8 @@ jobs:
               text = re.sub(r"<(https?://[^>]+)>", r"\1", text)
               return text
 
-          md = []
-          for block in payload["blocks"]:
-              btype = block.get("type")
-              if btype == "header":
-                  md.extend([f"# {block['text']['text']}", ""])
-              elif btype == "context":
-                  for el in block.get("elements", []):
-                      md.append(slack_mrkdwn_to_gfm(el.get("text", "")))
-                  md.append("")
-              elif btype == "divider":
-                  md.extend(["---", ""])
-              elif btype == "section":
-                  md.extend([slack_mrkdwn_to_gfm(block.get("text", {}).get("text", "")), ""])
-              elif btype == "actions":
-                  for el in block.get("elements", []):
-                      if el.get("type") == "button" and el.get("url"):
-                          md.append(f"[{el.get('text', {}).get('text', 'Open')}]({el['url']})")
-                  md.append("")
-
           with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
-              summary.write("\n".join(md).rstrip() + "\n")
+              summary.write(slack_mrkdwn_to_gfm(message))
               summary.write("\n<details>\n<summary>slack_payload.json</summary>\n\n```json\n")
               summary.write(json.dumps(payload, indent=2))
               summary.write("\n```\n</details>\n")
@@ -272,7 +193,7 @@ jobs:
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_FAIL }}
-          webhook-type: incoming-webhook
+          webhook-type: webhook-trigger
           payload-file-path: slack_payload.json
           errors: true
 
@@ -281,6 +202,6 @@ jobs:
         uses: slackapi/slack-github-action@v4.0.0
         with:
           webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_PASS }}
-          webhook-type: incoming-webhook
+          webhook-type: webhook-trigger
           payload-file-path: slack_payload.json
           errors: true
