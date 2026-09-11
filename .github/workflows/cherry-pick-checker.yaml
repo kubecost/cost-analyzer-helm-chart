@@ -51,7 +51,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: true
-          cache-dependency-glob: scripts/pr-backport-status.py
+          cache-dependency-glob: scripts/cherry-pick-checker.py
 
       - name: Run backport status check
         env:
@@ -68,7 +68,7 @@ jobs:
           if [ -n "$INPUT_BRANCH" ]; then
             extra_args+=(--branch "$INPUT_BRANCH")
           fi
-          uv run ./scripts/pr-backport-status.py \
+          uv run ./scripts/cherry-pick-checker.py \
             --limit "$INPUT_LIMIT" \
             --output-file report.md \
             --summary-json summary.json \
@@ -104,12 +104,12 @@ jobs:
 
           lines = [
               (
-                  ":x: *PR Backport Status — missing cherry-picks*"
+                  ":x: PR Backport Status — missing cherry-picks"
                   if failures_found
-                  else ":white_check_mark: *PR Backport Status — all accounted for*"
+                  else ":white_check_mark: PR Backport Status — all accounted for*"
               ),
               "",
-              f"*Generated:* {generated_at}  |  *Repo:* `kubecost/kubecost`",
+              f"{generated_at}  |  Repo: `kubecost/kubecost`",
               "",
           ]
 
@@ -120,7 +120,7 @@ jobs:
               needs_attention = branch["needs_attention"]
 
               lines.append(
-                  f"*Branch `{version}`* — {missing} missing cherry-pick"
+                  f"- Branch `{version}` — {missing} missing cherry-pick"
                   f"{'' if missing == 1 else 's'}"
                   f" ({total} labeled merged PRs checked)"
               )

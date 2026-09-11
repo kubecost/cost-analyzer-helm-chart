@@ -7,7 +7,7 @@
 # ///
 
 """
-pr-backport-status.py
+cherry-pick-checker.py
 
 Used by the PR Backport Status workflow to check the status of PRs labeled with each detected release version.
 @ .github/workflows/pr-backport-status.yaml
@@ -25,20 +25,24 @@ Requirements: PyGithub, git
 Environment: GITHUB_TOKEN must be set.
 
 Usage:
-    uv run ./scripts/pr-backport-status.py [options]
+    uv run ./scripts/cherry-pick-checker.py [options]
 
     --repo REPO            GitHub repo slug (default: kubecost/kubecost)
     --limit N              Max PRs to fetch per label (default: 200)
     --output-file PATH     Write Markdown report to this file
     --summary-json PATH    Write per-branch JSON summary to this file
-                           (used by the workflow Slack step)
     --only-missing         Print only PRs whose cherry-pick is missing
     --branch BRANCH        Check only this branch (skip GA/RC detection)
 
+Suppressing the MISSING alert:
+    Label a PR with `ignore-cherry-pick-checker` to mark it as intentionally
+    not cherry-picked. The script will report it as SKIPPED (⏭️) rather than
+    MISSING (❌) and exclude it from needs-attention counts.
+
 Run locally:
-uv run ./scripts/pr-backport-status.py                              # GA + RC, all labeled PRs
-uv run ./scripts/pr-backport-status.py --only-missing               # GA + RC, missing cherry-picks
-uv run ./scripts/pr-backport-status.py --branch v3.3 --only-missing # one branch only, missing cherry-picks only
+uv run ./scripts/cherry-pick-checker.py                              # GA + RC, all labeled PRs
+uv run ./scripts/cherry-pick-checker.py --only-missing               # GA + RC, missing cherry-picks
+uv run ./scripts/cherry-pick-checker.py --branch v3.3 --only-missing # one branch only, missing cherry-picks only
 """
 
 import argparse
@@ -52,6 +56,9 @@ import sys
 import tempfile
 from datetime import UTC, datetime
 
+# pygithub is automatically installed when running with uv
+# if needed, install with:
+# uv add pygithub
 from github import Auth, Github, GithubException
 
 # ---------------------------------------------------------------------------
@@ -64,6 +71,10 @@ class Status:
     CHERRY_PICKED = "CHERRY_PICKED"
     ALREADY_ON_BRANCH = "ALREADY_ON_BRANCH"
     MISSING = "MISSING"
+    SKIPPED = "SKIPPED"
+
+
+SKIP_LABEL = "ignore-cherry-pick-checker"
 
 
 @dataclasses.dataclass
@@ -128,6 +139,7 @@ def fetch_prs(repo, label: str, limit: int) -> list[dict]:
                 "merged_at": merged_at,
                 "head_ref": pr.head.ref,
                 "body": pr.body or "",
+                "labels": [lbl.name for lbl in issue.labels],
             }
         )
         if len(results) >= limit:
@@ -374,6 +386,10 @@ def check_branch(
             results.append(PRResult(num, title, merged_at, Status.ALREADY_ON_BRANCH))
             continue
 
+        if SKIP_LABEL in pr.get("labels", []):
+            results.append(PRResult(num, title, merged_at, Status.SKIPPED))
+            continue
+
         results.append(PRResult(num, title, merged_at, Status.MISSING))
 
     return results
@@ -388,6 +404,7 @@ STATUS_EMOJI = {
     Status.CHERRY_PICKED: "🍒",
     Status.ALREADY_ON_BRANCH: "🔵",
     Status.MISSING: "❌",
+    Status.SKIPPED: "⏭️",
 }
 
 STATUS_LABEL = {
@@ -395,6 +412,7 @@ STATUS_LABEL = {
     Status.CHERRY_PICKED: "CHERRY-PICKED",
     Status.ALREADY_ON_BRANCH: "ALREADY ON BRANCH",
     Status.MISSING: "MISSING",
+    Status.SKIPPED: "SKIPPED",
 }
 
 
@@ -446,7 +464,8 @@ def render_markdown(
             f"{counts[Status.IN_BRANCH]} in branch directly, "
             f"{counts[Status.CHERRY_PICKED]} via cherry-pick, "
             f"{counts[Status.ALREADY_ON_BRANCH]} already on branch, "
-            f"{counts[Status.MISSING]} missing."
+            f"{counts[Status.MISSING]} missing, "
+            f"{counts[Status.SKIPPED]} skipped."
         )
 
     lines += ["", summary, ""]
@@ -478,6 +497,7 @@ def render_summary_json(
             "cherry_picked": counts[Status.CHERRY_PICKED],
             "already_on_branch": counts[Status.ALREADY_ON_BRANCH],
             "missing": counts[Status.MISSING],
+            "skipped": counts[Status.SKIPPED],
             "needs_attention": needs_attention,
         }
 
