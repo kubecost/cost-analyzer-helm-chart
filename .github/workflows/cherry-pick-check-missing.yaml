@@ -51,6 +51,7 @@ jobs:
         uses: astral-sh/setup-uv@v10.1.0
         with:
           enable-cache: true
+          cache-dependency-glob: scripts/pr-backport-status.py
 
       - name: Run backport status check
         env:
@@ -88,6 +89,7 @@ jobs:
           python3 - <<'EOF'
           import json
           import os
+          import re
 
           with open("summary.json") as f:
               data = json.load(f)
@@ -209,14 +211,76 @@ jobs:
           with open("slack_payload.json", "w") as f:
               json.dump(payload, f)
 
+          def slack_mrkdwn_to_gfm(text):
+              text = re.sub(r"<(https?://[^|>]+)\|([^>]+)>", r"[\2](\1)", text)
+              text = re.sub(r"<(https?://[^>]+)>", r"\1", text)
+              return text
+
+          md = []
+          for block in payload["blocks"]:
+              btype = block.get("type")
+              if btype == "header":
+                  md.extend([f"# {block['text']['text']}", ""])
+              elif btype == "context":
+                  for el in block.get("elements", []):
+                      md.append(slack_mrkdwn_to_gfm(el.get("text", "")))
+                  md.append("")
+              elif btype == "divider":
+                  md.extend(["---", ""])
+              elif btype == "section":
+                  md.extend([slack_mrkdwn_to_gfm(block.get("text", {}).get("text", "")), ""])
+              elif btype == "actions":
+                  for el in block.get("elements", []):
+                      if el.get("type") == "button" and el.get("url"):
+                          md.append(f"[{el.get('text', {}).get('text', 'Open')}]({el['url']})")
+                  md.append("")
+
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as summary:
+              summary.write("\n".join(md).rstrip() + "\n")
+              summary.write("\n<details>\n<summary>slack_payload.json</summary>\n\n```json\n")
+              summary.write(json.dumps(payload, indent=2))
+              summary.write("\n```\n</details>\n")
+
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"FAILURES_FOUND={'true' if failures_found else 'false'}\n")
           EOF
 
-      - name: Send Slack notification
+      - name: Check Slack webhook is configured
+        env:
+          FAILURES_FOUND: ${{ steps.get-failed.outputs.FAILURES_FOUND }}
+          SLACK_WEBHOOK_URL_PASS: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_PASS }}
+          SLACK_WEBHOOK_URL_FAIL: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_FAIL }}
+        run: |
+          if [ "$FAILURES_FOUND" = "false" ]; then
+            kind=PASS
+            webhook="$SLACK_WEBHOOK_URL_PASS"
+          else
+            kind=FAIL
+            webhook="$SLACK_WEBHOOK_URL_FAIL"
+          fi
+          echo "failures_found=$FAILURES_FOUND"
+          echo "using_secret=SLACK_FAILURE_WEBHOOK_URL_${kind}"
+          echo "webhook_length=${#webhook}"
+          if [ -z "$webhook" ]; then
+            echo "::error::SLACK_FAILURE_WEBHOOK_URL_${kind} is empty. Check that the org/repo secret exists and is available to this repository."
+            exit 1
+          fi
+
+      # Use PASS webhook when no missing cherry-picks, FAIL webhook when missing cherry-picks found
+      - name: Send Slack notification (missing cherry-picks)
+        if: steps.get-failed.outputs.FAILURES_FOUND == 'true'
         uses: slackapi/slack-github-action@v4.0.0
         with:
-          # Use PASS webhook when no missing cherry-picks, FAIL webhook when missing cherry-picks found
-          webhook: ${{ steps.get-failed.outputs.FAILURES_FOUND == 'false' && secrets.SLACK_FAILURE_WEBHOOK_URL_PASS || secrets.SLACK_FAILURE_WEBHOOK_URL_FAIL }}
+          webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_FAIL }}
           webhook-type: incoming-webhook
           payload-file-path: slack_payload.json
+          errors: true
+
+      - name: Send Slack notification (all accounted for)
+        if: steps.get-failed.outputs.FAILURES_FOUND == 'false'
+        uses: slackapi/slack-github-action@v4.0.0
+        with:
+          webhook: ${{ secrets.SLACK_FAILURE_WEBHOOK_URL_PASS }}
+          webhook-type: incoming-webhook
+          payload-file-path: slack_payload.json
+          errors: true
