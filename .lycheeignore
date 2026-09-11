@@ -51,4 +51,4 @@ https://github.com/mikefarah
 docker://
 
 # Python f-string placeholders (lychee treats these as real URLs; entries are regex)
-https://github\.com/kubecost/kubecost/pull/(\{pr\['number'\]\}|%7Bpr\['number'\]%7D)
+https://github\.com/%7Bos\.environ\['REPO_NAME'\]%7D/pull/%7Bpr\['number'\]%7D

@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
@@ -7,7 +7,7 @@
 # ///
 
 """
-pr-backport-status.py
+cherry-pick-checker.py
 
 Used by the PR Backport Status workflow to check the status of PRs labeled with each detected release version.
 @ .github/workflows/pr-backport-status.yaml
@@ -25,20 +25,24 @@ Requirements: PyGithub, git
 Environment: GITHUB_TOKEN must be set.
 
 Usage:
-    uv run ./scripts/pr-backport-status.py [options]
+    uv run ./scripts/cherry-pick-checker.py [options]
 
     --repo REPO            GitHub repo slug (default: kubecost/kubecost)
     --limit N              Max PRs to fetch per label (default: 200)
     --output-file PATH     Write Markdown report to this file
     --summary-json PATH    Write per-branch JSON summary to this file
-                           (used by the workflow Slack step)
     --only-missing         Print only PRs whose cherry-pick is missing
     --branch BRANCH        Check only this branch (skip GA/RC detection)
 
+Suppressing the MISSING alert:
+    Label a PR with `ignore-cherry-pick-checker` to mark it as intentionally
+    not cherry-picked. The script will report it as SKIPPED (⏭️) rather than
+    MISSING (❌) and exclude it from needs-attention counts.
+
 Run locally:
-uv run ./scripts/pr-backport-status.py                              # GA + RC, all labeled PRs
-uv run ./scripts/pr-backport-status.py --only-missing               # GA + RC, missing cherry-picks
-uv run ./scripts/pr-backport-status.py --branch v3.3 --only-missing # one branch only, missing cherry-picks only
+uv run ./scripts/cherry-pick-checker.py                              # GA + RC, all labeled PRs
+uv run ./scripts/cherry-pick-checker.py --only-missing               # GA + RC, missing cherry-picks
+uv run ./scripts/cherry-pick-checker.py --branch v3.3 --only-missing # one branch only, missing cherry-picks only
 """
 
 import argparse
@@ -52,6 +56,9 @@ import sys
 import tempfile
 from datetime import UTC, datetime
 
+# pygithub is automatically installed when running with uv
+# if needed, install with:
+# uv add pygithub
 from github import Auth, Github, GithubException
 
 # ---------------------------------------------------------------------------
@@ -64,6 +71,10 @@ class Status:
     CHERRY_PICKED = "CHERRY_PICKED"
     ALREADY_ON_BRANCH = "ALREADY_ON_BRANCH"
     MISSING = "MISSING"
+    SKIPPED = "SKIPPED"
+
+
+SKIP_LABEL = "ignore-cherry-pick-checker"
 
 
 @dataclasses.dataclass
@@ -84,10 +95,14 @@ def detect_versions(repo) -> tuple[str, str]:
     """Return (ga_version, rc_version) by inspecting branch names."""
     pattern = re.compile(r"^v(\d+)\.(\d+)$")
     versions = []
-    for branch in repo.get_branches():
-        m = pattern.match(branch.name)
-        if m:
-            versions.append((int(m.group(1)), int(m.group(2)), branch.name))
+    try:
+        branches = repo.get_branches()
+        for branch in branches:
+            m = pattern.match(branch.name)
+            if m:
+                versions.append((int(m.group(1)), int(m.group(2)), branch.name))
+    except GithubException as e:
+        raise RuntimeError(f"Could not detect release branches: {e}") from e
 
     if len(versions) < 2:
         raise RuntimeError(
@@ -128,6 +143,7 @@ def fetch_prs(repo, label: str, limit: int) -> list[dict]:
                 "merged_at": merged_at,
                 "head_ref": pr.head.ref,
                 "body": pr.body or "",
+                "labels": [lbl.name for lbl in issue.labels],
             }
         )
         if len(results) >= limit:
@@ -140,16 +156,26 @@ def fetch_prs(repo, label: str, limit: int) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
+def _git_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["GIT_ASKPASS"] = "sh -c 'case \"$1\" in *Username*) echo x-access-token;; *) echo \"$GIT_PASSWORD\";; esac' --"
+    env["GIT_PASSWORD"] = env["GITHUB_TOKEN"]
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    return env
+
+
 def _git(tmpdir: str, *args, check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-C", tmpdir, *args],
         capture_output=True,
         check=check,
+        env=_git_env(),
     )
 
 
 def clone_branch(remote: str, branch: str, tmpdir: str) -> None:
     """Blobless no-checkout clone of a single branch into tmpdir."""
+    env = _git_env()
     result = subprocess.run(
         [
             "git",
@@ -164,6 +190,7 @@ def clone_branch(remote: str, branch: str, tmpdir: str) -> None:
         ],
         capture_output=True,
         check=False,
+        env=env,
     )
     if result.returncode != 0:
         raise RuntimeError(
@@ -283,7 +310,7 @@ def find_cherrypick_pr(
             head == expected_branch
             or f"cherry-pick #{pr_number}" in ctitle_lower
             or re.search(
-                rf"(?i)cherrypick of #{pr_number}|cherry-pick[^\n]*#{pr_number}|pull/{pr_number}",
+                rf"(?i)cherrypick of #{pr_number}|cherry-pick[^\n]*#{pr_number}",
                 cbody,
             )
             or title_match
@@ -354,6 +381,10 @@ def check_branch(
         if not merge_sha:
             continue
 
+        if SKIP_LABEL in pr.get("labels", []):
+            results.append(PRResult(num, title, merged_at, Status.SKIPPED))
+            continue
+
         if not ensure_commit(tmpdir, merge_sha):
             # Commit unavailable; is_in_branch will return False and the PR
             # will fall through to cherry-pick detection or be flagged MISSING.
@@ -388,6 +419,7 @@ STATUS_EMOJI = {
     Status.CHERRY_PICKED: "🍒",
     Status.ALREADY_ON_BRANCH: "🔵",
     Status.MISSING: "❌",
+    Status.SKIPPED: "⏭️",
 }
 
 STATUS_LABEL = {
@@ -395,6 +427,7 @@ STATUS_LABEL = {
     Status.CHERRY_PICKED: "CHERRY-PICKED",
     Status.ALREADY_ON_BRANCH: "ALREADY ON BRANCH",
     Status.MISSING: "MISSING",
+    Status.SKIPPED: "SKIPPED",
 }
 
 
@@ -403,6 +436,7 @@ def render_markdown(
     results: list[PRResult],
     *,
     only_missing: bool = False,
+    repo: str = "kubecost/kubecost",
 ) -> str:
     counts = {s: 0 for s in STATUS_LABEL}
     for r in results:
@@ -429,7 +463,7 @@ def render_markdown(
         if len(title) > 60:
             title = title[:57] + "..."
         lines.append(
-            f"| [#{r.number}](https://github.com/kubecost/kubecost/pull/{r.number}) "
+            f"| [#{r.number}](https://github.com/{repo}/pull/{r.number}) "
             f"| {title} | {r.merged_at or '—'} | {emoji} {label} |"
         )
 
@@ -446,7 +480,8 @@ def render_markdown(
             f"{counts[Status.IN_BRANCH]} in branch directly, "
             f"{counts[Status.CHERRY_PICKED]} via cherry-pick, "
             f"{counts[Status.ALREADY_ON_BRANCH]} already on branch, "
-            f"{counts[Status.MISSING]} missing."
+            f"{counts[Status.MISSING]} missing, "
+            f"{counts[Status.SKIPPED]} skipped."
         )
 
     lines += ["", summary, ""]
@@ -478,6 +513,7 @@ def render_summary_json(
             "cherry_picked": counts[Status.CHERRY_PICKED],
             "already_on_branch": counts[Status.ALREADY_ON_BRANCH],
             "missing": counts[Status.MISSING],
+            "skipped": counts[Status.SKIPPED],
             "needs_attention": needs_attention,
         }
 
@@ -532,7 +568,7 @@ def main() -> None:
         versions = [ga_version, rc_version]
         branch_header = f"GA: `{ga_version}` | RC: `{rc_version}`"
 
-    remote = f"https://x-access-token:{token}@github.com/{args.repo}.git"
+    remote = f"https://github.com/{args.repo}.git"
     report_title = (
         "# PR Backport Status Report (missing cherry-picks)"
         if args.only_missing
@@ -565,7 +601,9 @@ def main() -> None:
             results = check_branch(repo, g, version, prs, tmpdir)
             all_branch_results[version] = results
             report_sections.append(
-                render_markdown(version, results, only_missing=args.only_missing)
+                render_markdown(
+                    version, results, only_missing=args.only_missing, repo=args.repo
+                )
             )
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
