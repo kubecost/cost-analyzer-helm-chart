@@ -95,10 +95,14 @@ def detect_versions(repo) -> tuple[str, str]:
     """Return (ga_version, rc_version) by inspecting branch names."""
     pattern = re.compile(r"^v(\d+)\.(\d+)$")
     versions = []
-    for branch in repo.get_branches():
-        m = pattern.match(branch.name)
-        if m:
-            versions.append((int(m.group(1)), int(m.group(2)), branch.name))
+    try:
+        branches = repo.get_branches()
+        for branch in branches:
+            m = pattern.match(branch.name)
+            if m:
+                versions.append((int(m.group(1)), int(m.group(2)), branch.name))
+    except GithubException as e:
+        raise RuntimeError(f"Could not detect release branches: {e}") from e
 
     if len(versions) < 2:
         raise RuntimeError(
@@ -152,16 +156,26 @@ def fetch_prs(repo, label: str, limit: int) -> list[dict]:
 # ---------------------------------------------------------------------------
 
 
+def _git_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env["GIT_ASKPASS"] = "sh -c 'case \"$1\" in *Username*) echo x-access-token;; *) echo \"$GIT_PASSWORD\";; esac' --"
+    env["GIT_PASSWORD"] = env["GITHUB_TOKEN"]
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    return env
+
+
 def _git(tmpdir: str, *args, check: bool = True) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-C", tmpdir, *args],
         capture_output=True,
         check=check,
+        env=_git_env(),
     )
 
 
 def clone_branch(remote: str, branch: str, tmpdir: str) -> None:
     """Blobless no-checkout clone of a single branch into tmpdir."""
+    env = _git_env()
     result = subprocess.run(
         [
             "git",
@@ -176,6 +190,7 @@ def clone_branch(remote: str, branch: str, tmpdir: str) -> None:
         ],
         capture_output=True,
         check=False,
+        env=env,
     )
     if result.returncode != 0:
         raise RuntimeError(
@@ -295,7 +310,7 @@ def find_cherrypick_pr(
             head == expected_branch
             or f"cherry-pick #{pr_number}" in ctitle_lower
             or re.search(
-                rf"(?i)cherrypick of #{pr_number}|cherry-pick[^\n]*#{pr_number}|pull/{pr_number}",
+                rf"(?i)cherrypick of #{pr_number}|cherry-pick[^\n]*#{pr_number}",
                 cbody,
             )
             or title_match
@@ -366,6 +381,10 @@ def check_branch(
         if not merge_sha:
             continue
 
+        if SKIP_LABEL in pr.get("labels", []):
+            results.append(PRResult(num, title, merged_at, Status.SKIPPED))
+            continue
+
         if not ensure_commit(tmpdir, merge_sha):
             # Commit unavailable; is_in_branch will return False and the PR
             # will fall through to cherry-pick detection or be flagged MISSING.
@@ -384,10 +403,6 @@ def check_branch(
 
         if is_already_on_branch(tmpdir, merge_sha):
             results.append(PRResult(num, title, merged_at, Status.ALREADY_ON_BRANCH))
-            continue
-
-        if SKIP_LABEL in pr.get("labels", []):
-            results.append(PRResult(num, title, merged_at, Status.SKIPPED))
             continue
 
         results.append(PRResult(num, title, merged_at, Status.MISSING))
@@ -421,6 +436,7 @@ def render_markdown(
     results: list[PRResult],
     *,
     only_missing: bool = False,
+    repo: str = "kubecost/kubecost",
 ) -> str:
     counts = {s: 0 for s in STATUS_LABEL}
     for r in results:
@@ -447,7 +463,7 @@ def render_markdown(
         if len(title) > 60:
             title = title[:57] + "..."
         lines.append(
-            f"| [#{r.number}](https://github.com/kubecost/kubecost/pull/{r.number}) "
+            f"| [#{r.number}](https://github.com/{repo}/pull/{r.number}) "
             f"| {title} | {r.merged_at or '—'} | {emoji} {label} |"
         )
 
@@ -552,7 +568,7 @@ def main() -> None:
         versions = [ga_version, rc_version]
         branch_header = f"GA: `{ga_version}` | RC: `{rc_version}`"
 
-    remote = f"https://x-access-token:{token}@github.com/{args.repo}.git"
+    remote = f"https://github.com/{args.repo}.git"
     report_title = (
         "# PR Backport Status Report (missing cherry-picks)"
         if args.only_missing
@@ -585,7 +601,9 @@ def main() -> None:
             results = check_branch(repo, g, version, prs, tmpdir)
             all_branch_results[version] = results
             report_sections.append(
-                render_markdown(version, results, only_missing=args.only_missing)
+                render_markdown(
+                    version, results, only_missing=args.only_missing, repo=args.repo
+                )
             )
         finally:
             shutil.rmtree(tmpdir, ignore_errors=True)
