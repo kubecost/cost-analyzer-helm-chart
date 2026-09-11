@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 
-name: PR Backport Status
+name: Cherry-Pick Status Checker
 
 # Required secrets, all are set at org level and can be overridden at repo level:
 #   SLACK_FAILURE_WEBHOOK_URL_PASS — Slack workflow webhook when no missing cherry-picks
@@ -129,7 +129,7 @@ jobs:
                   lines.append("*Missing cherry-picks:*")
                   for pr in needs_attention:
                       lines.append(
-                          f":x: *<https://github.com/kubecost/kubecost/pull/{pr['number']}|#{pr['number']}>* "
+                          f":x: https://github.com/kubecost/kubecost/pull/{pr['number']}|#{pr['number']} "
                           f"{pr['title']} _(merged: {pr['merged_at']})_"
                       )
               else:
